@@ -16,4 +16,4 @@ alias quick_weather="/home/dclayton/Scripts/automations/quick_weather/venv/bin/p
 alias auto_unsubscriber="/home/dclayton/Scripts/automations/auto_unsubscriber/venv/bin/python /home/dclayton/Scripts/automations/auto_unsubscriber/auto_unsubscriber.py"
 alias tmux_py="bash $CONF/tmux/tmux_sessions/python_session.sh"
 alias tmux_menu="bash $CONF/tmux/tmux_session.sh"
-alias cd='_func(){ cd "$1" && ls -l ;}; _func'
+alias cdl='_func(){ cd "$1" && ls -l ;}; _func'

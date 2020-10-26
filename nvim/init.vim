@@ -214,6 +214,7 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 let g:startify_lists = [
         "\ { 'type': 'commands',  'header': ['   Commands']      },
         \ { 'type': 'files',     'header': ['   Recent Files']  },
+        "\ { 'type': 'dir',     'header': ['   '. getcwd()]  },
         \ { 'type': 'sessions',  'header': ['   Sessions']      },
         "\ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
         \ { 'type': 'bookmarks', 'header': ['   Bookmarks']     },
@@ -277,6 +278,11 @@ let g:session_autoload='no'
 let g:session_autosave='no'
 
 
+"get rid of [  ] around icons in NerdTree
+if exists("g:loaded_webdevicons")
+  call webdevicons#refresh()
+endif
+
 
 "/**********/
 "/* Remaps */
@@ -305,7 +311,19 @@ nnoremap <C-q> <C-W><C-Q>
 nnoremap <leader>cd :lcd %:p:h<CR>:pwd<CR>w
 
 
-"get rid of [  ] around icons in NerdTree
-if exists("g:loaded_webdevicons")
-  call webdevicons#refresh()
-endif
+"/******************/
+"/* tmux shortcuts */
+"/******************/
+
+"Puts 'python %' in pane two of tmux window so that the active script can
+"be ran
+"TODO: Create a scipt that does the above, but checks to see if there is
+"not a pane 2, and if not, creates the pane and runs the script in pane 2
+nnoremap <F8> :silent !tmux select-pane -t 2;tmux send-keys C-m 'python ' % <CR>
+
+"TODO: Create a script that puts pane 2 in cwd of active file or creates pane
+"2 if it doesn't exist
+nnoremap <F4> :silent !tmux select-pane -t 2;tmux send-keys C-m 'cd ' %:p:h C-m<CR>
+
+"TODO: Create a script that will check if a venv is nearby and will source it
+"if it finds one in pane 2; will also create pane 2 if it doesn't exist
