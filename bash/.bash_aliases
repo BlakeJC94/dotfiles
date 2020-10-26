@@ -15,5 +15,5 @@ alias md_table_gen="/home/dclayton/Scripts/automations/md_table_gen/venv/bin/pyt
 alias quick_weather="/home/dclayton/Scripts/automations/quick_weather/venv/bin/python /home/dclayton/Scripts/automations/quick_weather/quick_weather.py"
 alias auto_unsubscriber="/home/dclayton/Scripts/automations/auto_unsubscriber/venv/bin/python /home/dclayton/Scripts/automations/auto_unsubscriber/auto_unsubscriber.py"
 alias tmux_py="bash $CONF/tmux/tmux_sessions/python_session.sh"
-alias tmux="bash $CONF/tmux/tmux_session.sh"
-alias cdl='_func(){ cd "$1" && ll ;}; _func'
+alias tmux_menu="bash $CONF/tmux/tmux_session.sh"
+alias cd='_func(){ cd "$1" && ls -l ;}; _func'

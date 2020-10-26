@@ -6,7 +6,7 @@ call plug#begin('~/.local/share/nvim/site/plugged')
 "Plug 'junegunn/fzf.vim'
 "Plug 'sonph/onehalf', {'rtp': 'vim'}
 Plug 'itchyny/lightline.vim'
-Plug 'terryma/vim-multiple-cursors'
+"Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdtree'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'tmhedberg/SimpylFold'
@@ -109,7 +109,6 @@ endif
 
 "Change to current directory upon opening file, anytime
 "set autochdir
-
 autocmd BufEnter * silent! lcd %:p:h
 
 "/*******************/
@@ -200,25 +199,25 @@ nmap <leader>f :NERDTreeFind<cr>
 let g:NERDTreeShowBookmarks = 1
 
 
-
 "Close NERDTree if it is last thing open
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 
 " Read ~/.NERDTreeBookmarks file and takes its second column
-function! s:nerdtreeBookmarks()
-    let bookmarks = systemlist("cut -d' ' -f 2 ~/.NERDTreeBookmarks")
-    let bookmarks = bookmarks[0:-2] " Slices an empty last line
-    return map(bookmarks, "{'line': v:val, 'path': v:val}")
-endfunction
+"function! s:nerdtreeBookmarks()
+"    let bookmarks = systemlist("cut -d' ' -f 2 ~/.NERDTreeBookmarks")
+"    let bookmarks = bookmarks[0:-2] " Slices an empty last line
+"    return map(bookmarks, "{'line': v:val, 'path': v:val}")
+"endfunction
 
 
 let g:startify_lists = [
-        \ { 'type': 'commands',  'header': ['   Commands']      },
+        "\ { 'type': 'commands',  'header': ['   Commands']      },
         \ { 'type': 'files',     'header': ['   Recent Files']  },
         \ { 'type': 'sessions',  'header': ['   Sessions']      },
-        \ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
+        "\ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
         \ { 'type': 'bookmarks', 'header': ['   Bookmarks']     },
+        "\ { 'type': 'commands',  'header': ['   Commands']      },
         \ ]
 
 
@@ -233,11 +232,11 @@ let g:startify_bookmarks= [
             \ ]
 
 "Startify commands
-let g:startify_commands = [
-        \   { 'up': [ 'Update Plugins', ':PlugUpdate' ] },
-        \   { 'ug': [ 'Upgrade Plugin Manager', ':PlugUpgrade' ] },
-        \   { 'uc': [ 'Clean Up Plugins', ':PlugClean' ] },
-        \ ]
+"let g:startify_commands = [
+"        \   { 'up': [ 'Update Plugins', ':PlugUpdate' ] },
+"        \   { 'ug': [ 'Upgrade Plugin Manager', ':PlugUpgrade' ] },
+"        \   { 'uc': [ 'Clean Up Plugins', ':PlugClean' ] },
+"        \ ]
 
 let g:startify_custom_header = [
             \ '                                           ',
@@ -275,7 +274,7 @@ let g:session_directory='~/.config/nvim/sessions'
 "Open default session without prompt
 let g:session_autoload='no'
 
-"let g:session_autosave='no'
+let g:session_autosave='no'
 
 
 
@@ -301,6 +300,9 @@ nnoremap _ <C-W><C-S>
 
 "Easy quit
 nnoremap <C-q> <C-W><C-Q>
+
+"Change to active window file's directory
+nnoremap <leader>cd :lcd %:p:h<CR>:pwd<CR>w
 
 
 "get rid of [  ] around icons in NerdTree
