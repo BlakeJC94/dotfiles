@@ -31,6 +31,12 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+# load api keys
+if [ -f "$HOME/.api_keys" ] ; then
+    . "$HOME/.api_keys"
+fi
+
+
 export VISUAL=vim
 export EDITOR="$VISUAL"
 export CONF

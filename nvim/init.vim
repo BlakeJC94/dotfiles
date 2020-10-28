@@ -113,9 +113,17 @@ if has ('mouse')
 	set mouse=a
 endif
 
+
+"set colorcolumn=80
+
 "Change to current directory upon opening file, anytime
 "set autochdir
 autocmd BufEnter * silent! lcd %:p:h
+
+augroup vimrc_autocmds
+  autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
+  autocmd BufEnter * match OverLength /\%79v.*/
+augroup END
 
 "/*******************/
 "/* Python Settings */
