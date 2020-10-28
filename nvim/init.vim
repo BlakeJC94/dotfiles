@@ -1,9 +1,7 @@
-"~/.config/nvim/init.vim
+"$CONF/nvim/init.vim
 
 call plug#begin('~/.local/share/nvim/site/plugged')
 
-"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-"Plug 'junegunn/fzf.vim'
 "Plug 'sonph/onehalf', {'rtp': 'vim'}
 Plug 'itchyny/lightline.vim'
 "Plug 'terryma/vim-multiple-cursors'
@@ -11,6 +9,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'tmhedberg/SimpylFold'
 Plug 'mengelbrecht/lightline-bufferline'
+Plug 'tpope/vim-commentary'
 "Plug 'dense-analysis/ale'
 "Plug 'airblade/vim-gitgutter
 "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -25,10 +24,10 @@ Plug 'mengelbrecht/lightline-bufferline'
 "vim-rooter
 Plug 'xolox/vim-misc'
 Plug 'xolox/vim-session'
-Plug 'tpope/vim-fugitive'
 "Plug 'chriskempson/base16-vim'
 "Plug 'nicknisi/vim-base16-lightline'
 Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'}
+Plug 'tpope/vim-fugitive'
 Plug 'sheerun/vim-polyglot'
 Plug 'mhinz/vim-startify'
 Plug 'ryanoasis/vim-devicons' "MUST BE LOADED LAST TO WORK WITH OTHER PLUGINS
@@ -38,10 +37,17 @@ call plug#end()
 "/********************/
 "/* General Settings */
 "/********************/
+
+"Enable recursive search downward with :find
+set path+=**
+
+"Shows possible matches when using tab completion
+set wildmenu
+
 set showtabline=2
 
 "Use desktop clipboard for yank
-set clipboard=unnamed
+set clipboard=unnamedplus
 
 "Numbers
 set nu
@@ -131,15 +137,22 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match Whitespace /\s\+$/
 "/* Plugin Settings */
 "/*******************/
 
+"Component functions need to go after 'active' block
 let g:lightline = {
 	\ 'colorscheme': 'daycula',
 	\ 'active': {
 	\	'left': [ [ 'mode', 'paste' ],
-  \			[ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+  \     [ 'gitbranch' ],
+  \     [ 'readonly', 'filename', 'modified' ] ]
 	\ },
+  \ 'component_function': {
+  \   'gitbranch': 'FugitiveHead',
+  \   'filetype': 'MyFiletype',
+  \   'fileformat': 'MyFileformat'
+  \ },
   \ 'tabline': {
   \   'left': [ ['buffers'] ],
-  \   'right': [[ ]]
+  \   'right': [ [''] ]
   \ },
   \ 'component_expand': {
   \   'buffers': 'lightline#bufferline#buffers'
@@ -147,15 +160,9 @@ let g:lightline = {
   \ 'component_type': {
   \   'buffers': 'tabsel'
 	\ },
-	\ 'component_funtion': {
-	\	  'gitbranch': 'FugitiveHead'
-	\ },
-  \ 'component_function': {
-  \   'filetype': 'MyFiletype',
-  \   'fileformat': 'MyFileformat',
-  \ }
 	\ }
 
+	"	  'gitbranch': 'helpers#lightline#gitBranch',
 "********************Makes icons work with lightline**********************************
 function! MyFiletype()
   return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
@@ -227,9 +234,12 @@ let g:startify_session_dir='~/.config/nvim/sessions'
 
 "Startify bookmarks
 let g:startify_bookmarks= [ 
-            \ {'v': '~/.config/nvim/init.vim'}, 
-            \ {'a': '~/.config/alacritty/alacritty.yml'}, 
-            \ {'t': '~/.config/tmux/tmux.conf'}, 
+            \ {'pr': '$CONF/bash/.profile'}, 
+            \ {'br': '$CONF/bash/.bashrc'}, 
+            \ {'ba': '$CONF/bash/.bash_aliases'}, 
+            \ {'v': '$CONF/nvim/init.vim'}, 
+            \ {'a': '$CONF/alacritty/alacritty.yml'}, 
+            \ {'t': '$CONF/tmux/tmux.conf'}, 
             \ ]
 
 "Startify commands
@@ -267,7 +277,7 @@ autocmd VimEnter *
 
 
 "Location of session scripts
-let g:session_directory='~/.config/nvim/sessions'
+let g:session_directory='$CONF/nvim/sessions'
 
 "Name of default session
 "let g:session_default_name='std'

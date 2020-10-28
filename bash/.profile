@@ -8,11 +8,13 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+CONF="$HOME/.config"
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc from .config if it exists
-    if [ -f "$HOME/.config/bash/.bashrc" ]; then
-    	. "$HOME/.config/bash/.bashrc"
+    if [ -f "$CONF/bash/.bashrc" ]; then
+    	. "$CONF/bash/.bashrc"
     # include .bashrc if it exists
     elif [ -f "$HOME/.bashrc" ]; then
     	. "$HOME/.bashrc"
@@ -31,10 +33,5 @@ fi
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
-export CONF="$HOME/.config"
-export BASH_CONF="$CONF/bash"
-export BASHRC="$BASH_CONF/.bashrc"
-export BASH_ALIASES="$BASH_CONF/.bash_aliases"
-export NVIM_CONF="$CONF/nvim/"
-
+export CONF
 export PATH="$HOME/.cargo/bin:$PATH"
