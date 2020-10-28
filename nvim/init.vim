@@ -238,7 +238,7 @@ let g:startify_lists = [
 
 
 "Startify session dir
-let g:startify_session_dir='~/.config/nvim/sessions'
+let g:startify_session_dir = '.vim/sessions/'
 
 "Startify bookmarks
 let g:startify_bookmarks= [ 
@@ -285,7 +285,7 @@ autocmd VimEnter *
 
 
 "Location of session scripts
-let g:session_directory='$CONF/nvim/sessions'
+"let g:session_directory = 
 
 "Name of default session
 "let g:session_default_name='std'
