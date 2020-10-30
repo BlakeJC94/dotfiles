@@ -23,14 +23,17 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
+# if [ -d "$HOME/bin" ] ; then
+#     PATH="$HOME/bin:$PATH"
+# fi
 
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
+
+#Add cargo to path for Rust stuff
+export PATH="$HOME/.cargo/bin:$PATH"
 
 # load api keys
 if [ -f "$HOME/.api_keys" ] ; then
@@ -50,4 +53,3 @@ fi
 export VISUAL=vim
 export EDITOR="$VISUAL"
 export CONF
-export PATH="$HOME/.cargo/bin:$PATH"

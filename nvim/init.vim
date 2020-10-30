@@ -37,6 +37,8 @@ call plug#end()
 "/********************/
 "/* General Settings */
 "/********************/
+" Detect changes in files if they are edited outside of nvim
+set autoread
 
 "Enable recursive search downward with :find
 set path+=**
@@ -115,15 +117,15 @@ endif
 
 
 "set colorcolumn=80
-
+hi ColorColumn ctermbg=lightgrey guibg=#24285e
 "Change to current directory upon opening file, anytime
 "set autochdir
 autocmd BufEnter * silent! lcd %:p:h
 
-augroup vimrc_autocmds
-  autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
-  autocmd BufEnter * match OverLength /\%79v.*/
-augroup END
+" augroup vimrc_autocmds
+"   autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
+"   autocmd BufEnter * match OverLength /\%79v.*/
+" augroup END
 
 "/*******************/
 "/* Python Settings */
