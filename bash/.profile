@@ -10,6 +10,7 @@
 
 CONF="$HOME/.config"
 
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc from .config if it exists
@@ -36,6 +37,15 @@ if [ -f "$HOME/.api_keys" ] ; then
     . "$HOME/.api_keys"
 fi
 
+kernel=`uname -r`
+variant=${kernel:9}
+
+if [ $variant == 'microsoft-standard' ]; then
+    export win_home="/mnt/c/Users/dclayton/"
+    export onedrive="/mnt/c/Users/dclayton/'OneDrive - Bluegrass Cellular'/"
+    export desktop="/mnt/c/Users/dclayton/'OneDrive - Bluegrass Cellular'/Desktop/"
+    export win_alacritty="$win_home/AppData/Roaming/alacritty/"
+fi
 
 export VISUAL=vim
 export EDITOR="$VISUAL"

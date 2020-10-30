@@ -229,7 +229,7 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 let g:startify_lists = [
         "\ { 'type': 'commands',  'header': ['   Commands']      },
         \ { 'type': 'files',     'header': ['   Recent Files']  },
-        "\ { 'type': 'dir',     'header': ['   '. getcwd()]  },
+        \ { 'type': 'dir',     'header': ['   '. getcwd()]  },
         \ { 'type': 'sessions',  'header': ['   Sessions']      },
         "\ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
         \ { 'type': 'bookmarks', 'header': ['   Bookmarks']     },
