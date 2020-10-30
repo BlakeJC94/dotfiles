@@ -10,6 +10,7 @@ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'tmhedberg/SimpylFold'
 Plug 'mengelbrecht/lightline-bufferline'
 Plug 'tpope/vim-commentary'
+Plug 'ap/vim-css-color'
 "Plug 'dense-analysis/ale'
 "Plug 'airblade/vim-gitgutter
 "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -56,9 +57,6 @@ set nu
 
 "Syntax highlighting
 syntax on
-
-"fonts
-"set guifont=Ubuntu\ Nerd\ Font\ Complete\ 14
 
 "UTF-8 encoding
 set encoding=utf-8
@@ -224,14 +222,14 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 "function! s:nerdtreeBookmarks()
 "    let bookmarks = systemlist("cut -d' ' -f 2 ~/.NERDTreeBookmarks")
 "    let bookmarks = bookmarks[0:-2] " Slices an empty last line
-"    return map(bookmarks, "{'line': v:val, 'path': v:val}")
+"    return map(bookmarks, \"{'line': v:val, 'path': v:val}")
 "endfunction
 
 
 let g:startify_lists = [
         "\ { 'type': 'commands',  'header': ['   Commands']      },
         \ { 'type': 'files',     'header': ['   Recent Files']  },
-        \ { 'type': 'dir',     'header': ['   '. getcwd()]  },
+        "\ { 'type': 'dir',     'header': ['   '. getcwd()]  },
         \ { 'type': 'sessions',  'header': ['   Sessions']      },
         "\ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
         \ { 'type': 'bookmarks', 'header': ['   Bookmarks']     },
