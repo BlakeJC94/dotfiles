@@ -2,17 +2,25 @@
 
 call plug#begin('~/.local/share/nvim/site/plugged')
 
+Plug 'itchyny/lightline.vim' "Status bar
+
+Plug 'scrooloose/nerdtree' "Fancy file explorer
+
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight' "Pretty colors for NERDTree files/glyphs
+
+Plug 'tmhedberg/SimpylFold' "Code folding
+
+Plug 'mengelbrecht/lightline-bufferline' "Lightline-like bufferline
+
+Plug 'tpope/vim-commentary' "Easy commenting
+
+Plug 'ap/vim-css-color' "Convert hex values to color
+
+Plug 'airblade/vim-gitgutter' "git diff in side column
+
 "Plug 'sonph/onehalf', {'rtp': 'vim'}
-Plug 'itchyny/lightline.vim'
 "Plug 'terryma/vim-multiple-cursors'
-Plug 'scrooloose/nerdtree'
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plug 'tmhedberg/SimpylFold'
-Plug 'mengelbrecht/lightline-bufferline'
-Plug 'tpope/vim-commentary'
-Plug 'ap/vim-css-color'
 "Plug 'dense-analysis/ale'
-"Plug 'airblade/vim-gitgutter
 "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 "Plug 'jiangmiao/auto-pairs'
 "Plug 'scrooloose/nerdcommenter'
@@ -23,15 +31,17 @@ Plug 'ap/vim-css-color'
 "Plug 'momota/cisco.vim'
 "Plug 'mtdl9/vim-log-highlighting'
 "vim-rooter
-Plug 'xolox/vim-misc'
-Plug 'xolox/vim-session'
 "Plug 'chriskempson/base16-vim'
 "Plug 'nicknisi/vim-base16-lightline'
-Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'}
-Plug 'tpope/vim-fugitive'
-Plug 'sheerun/vim-polyglot'
-Plug 'mhinz/vim-startify'
-Plug 'ryanoasis/vim-devicons' "MUST BE LOADED LAST TO WORK WITH OTHER PLUGINS
+
+Plug 'xolox/vim-misc' "Required stuff for vim-session
+Plug 'xolox/vim-session' "Vim session persistence 'easy button'
+
+Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'} "colorscheme
+Plug 'tpope/vim-fugitive' "git integration
+Plug 'sheerun/vim-polyglot' "lots of syntax highlighting
+Plug 'mhinz/vim-startify' "vim start screen
+Plug 'ryanoasis/vim-devicons' "icons; MUST BE LOADED LAST TO WORK WITH OTHER PLUGINS
 
 call plug#end()
 
@@ -337,7 +347,7 @@ nnoremap <leader>cd :lcd %:p:h<CR>:pwd<CR>w
 "be ran
 "TODO: Create a scipt that does the above, but checks to see if there is
 "not a pane 2, and if not, creates the pane and runs the script in pane 2
-nnoremap <F8> :silent !tmux select-pane -t 2;tmux send-keys C-m 'python ' % <CR>
+nnoremap <F8>:w<CR> :silent ;!tmux select-pane -t 2;tmux send-keys C-m 'python ' % <CR>
 
 "TODO: Create a script that puts pane 2 in cwd of active file or creates pane
 "2 if it doesn't exist
