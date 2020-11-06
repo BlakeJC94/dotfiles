@@ -1,3 +1,9 @@
 function! helpers#lightline#gitBranch()
-    return "\uE725" . (exists('*fugitive#head') ? ' ' . fugitive#head() : '' )
+  if exists('*FugitiveHead')
+    if len(FugitiveHead()) == 0
+      return ''
+    else
+      return "\uE725" . ' ' . FugitiveHead()
+    endif
+  endif
 endfunction

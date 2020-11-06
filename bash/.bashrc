@@ -124,5 +124,5 @@ fi
 
 export VISUAL=/usr/bin/vim
 export EDITOR="$VISUAL"
-export PIP_REQUIRE_VIRTUALENV=true
+# export PIP_REQUIRE_VIRTUALENV=true
 set -o vi

@@ -40,6 +40,7 @@ if [ -f "$HOME/.api_keys" ] ; then
     . "$HOME/.api_keys"
 fi
 
+# detect when running in wsl  = = = = = = = = = = = = = = = = = = = = 
 kernel=`uname -r`
 variant=${kernel:9}
 
@@ -49,7 +50,14 @@ if [ $variant == 'microsoft-standard' ]; then
     export desktop="/mnt/c/Users/dclayton/'OneDrive - Bluegrass Cellular'/Desktop/"
     export win_alacritty="$win_home/AppData/Roaming/alacritty/"
 fi
+# == = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
 export CONF
+
+# virtualenvwrapper stuff
+export WORKON_HOME=$HOME/.virtualenvs
+export PROJECT_HOME=$HOME/code
+source $HOME/.local/bin/virtualenvwrapper.sh

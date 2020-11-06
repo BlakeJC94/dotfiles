@@ -47,6 +47,13 @@ call plug#end()
 "/********************/
 "/* General Settings */
 "/********************/
+" Don't use Python 2
+"let g:loaded_python_provider = 0
+
+" Use specific python venv with pynvim installed so that it isn't a 
+" dependency everywhere
+"let g:python3_host_prog = '$HOME/.virtualenvs/pynvim/bin/python'
+
 " Detect changes in files if they are edited outside of nvim
 set autoread
 
@@ -137,6 +144,7 @@ autocmd BufEnter * silent! lcd %:p:h
 "/*******************/
 "/* Python Settings */
 "/*******************/
+"
   
 au BufNewFile,BufRead *.py
 	\set tabstop=4 |
@@ -163,7 +171,7 @@ let g:lightline = {
   \     [ 'readonly', 'filename', 'modified' ] ]
 	\ },
   \ 'component_function': {
-  \   'gitbranch': 'FugitiveHead',
+  \   'gitbranch': 'helpers#lightline#gitBranch',
   \   'filetype': 'MyFiletype',
   \   'fileformat': 'MyFileformat'
   \ },
@@ -236,14 +244,14 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 
 
 let g:startify_lists = [
-        "\ { 'type': 'commands',  'header': ['   Commands']      },
         \ { 'type': 'files',     'header': ['   Recent Files']  },
-        "\ { 'type': 'dir',     'header': ['   '. getcwd()]  },
         \ { 'type': 'sessions',  'header': ['   Sessions']      },
-        "\ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
         \ { 'type': 'bookmarks', 'header': ['   Bookmarks']     },
-        "\ { 'type': 'commands',  'header': ['   Commands']      },
         \ ]
+        "\ { 'type': 'commands',  'header': ['   Commands']      },
+        "\ { 'type': 'dir',     'header': ['   '. getcwd()]  },
+        "\ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
+        "\ { 'type': 'commands',  'header': ['   Commands']      },
 
 
 "Startify session dir
