@@ -23,9 +23,9 @@ Plug 'airblade/vim-gitgutter' "git diff in side column
 "Plug 'dense-analysis/ale'
 "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 "Plug 'jiangmiao/auto-pairs'
-"Plug 'sbdchd/neoformat'
-"Plug 'davidhalter/jedi-vim'
-"Plug 'machakann/vim-highlightedyank'
+Plug 'sbdchd/neoformat'
+" Plug 'davidhalter/jedi-vim'
+Plug 'machakann/vim-highlightedyank'
 "Plug 'justincampbell/vim-eighties'
 "Plug 'momota/cisco.vim'
 "Plug 'mtdl9/vim-log-highlighting'
