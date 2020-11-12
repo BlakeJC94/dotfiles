@@ -1,5 +1,5 @@
 "$CONF/nvim/init.vim
-
+"
 " vim-plug {{{
   call plug#begin('~/.local/share/nvim/site/plugged')
 
@@ -23,14 +23,14 @@
 
   Plug 'airblade/vim-gitgutter' "git diff in side column
 
-  "Plug 'dense-analysis/ale'
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } "autocomplete
 
-  "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  Plug 'deoplete-plugins/deoplete-jedi' " python autocomplete
+
+  Plug 'racer-rust/vim-racer' "rust auto
 
   Plug 'sbdchd/neoformat' "Code formatter
 
-  " Plug 'davidhalter/jedi-vim'
-  
   Plug 'machakann/vim-highlightedyank' "Highlight when I yank
 
   "Plug 'momota/cisco.vim'
@@ -135,11 +135,13 @@
     set mouse=a
   endif
 
-  "Run Neoformat on write
-  augroup fmt
-    autocmd!
-    autocmd BufWritePre * undojoin | Neoformat
-  augroup END
+" }}}
+
+" Deoplete {{{
+
+  let g:python3_host_prog = $HOME . '/.virtualenvs/pynvim/bin/python3'
+
+  let g:deoplete#enable_at_startup = 1
 
 " }}}
 
@@ -314,7 +316,33 @@ if exists("g:loaded_webdevicons")
   call webdevicons#refresh()
 endif
 
-let g:shfmt_opt="-ci"
+
+" Neoformat {{{
+ 
+  let g:neoformat_python_autopep8 = { 
+  \ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/autopep8",
+  \ }
+
+  let g:neoformat_python_docformatter = { 
+  \ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/docformatter",
+  \ }
+
+  "Enabled formatters for Python
+  let g:neoformat_enabled_python = ['autopep8', 'docformatter']
+
+  "Shell formatting
+  let g:shfmt_opt="-ci"
+
+  "Run all enabled formatters
+  let g:neoformat_run_all_formatters = 1
+
+  "Run Neoformat on write
+  augroup fmt
+    autocmd!
+    autocmd BufWritePre * undojoin | Neoformat
+  augroup END
+
+" }}}
 
 
 " Remaps {{{
@@ -344,7 +372,14 @@ let g:shfmt_opt="-ci"
   nnoremap \u <C-v>bU
 
   "open init.vim in a vsplit
-  nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+  nnoremap <leader>ev :vsplit $MYVIMRC<CR>
+
+  "close preview window
+  nnoremap <leader>pq :pclose<CR>
+
+  "deoplete selection remap
+  inoremap <C-j> <C-n>
+  inoremap <C-k> <C-p>
 
 " }}}
 

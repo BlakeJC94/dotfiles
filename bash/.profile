@@ -61,3 +61,5 @@ export CONF
 export WORKON_HOME=$HOME/.virtualenvs
 export PROJECT_HOME=$HOME/code
 source $HOME/.local/bin/virtualenvwrapper.sh
+
+export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/library/"
