@@ -12,18 +12,11 @@ setl fileformat=unix
 setl formatoptions+=t 
 setl cc=+1
 
-"Python-specific ALE settings
-let g:ale_python_autopep8_executable = $HOME . "/.virtualenvs/pynvim/bin/autopep8"
+highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
+match OverLength /\%79v.*/
 
-let g:ale_python_flake8_executable = $HOME . "/.virtualenvs/pynvim/bin/flake8"
-
-let g:ale_python_isort_executable = $HOME . "/.virtualenvs/pynvim/bin/isort"
-
-let g:ale_python_mypy_executable = $HOME . "/.virtualenvs/pynvim/bin/mypy"
-
-let b:ale_fixers = ['autopep8', 'isort', 'add_blank_lines_for_python_control_statements', 
-      \ 'remove_trailing_lines', 'trim_whitespace']
-
+"Override default pythonDot color
+highlight link pythonDot Red
 
 "TODO: make these functions not echo the text
 function! Run_python()

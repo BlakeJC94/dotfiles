@@ -17,8 +17,6 @@
 
   Plug 'tpope/vim-dispatch' "General Async runner
 
-  Plug 'aliev/vim-python' "Fixes for Python's use with vim-dispatch
-
   Plug 'ap/vim-css-color' "Convert hex values to color
 
   Plug 'airblade/vim-gitgutter' "git diff in side column
@@ -44,6 +42,10 @@
   Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'} "colorscheme
 
   Plug 'tpope/vim-fugitive' "git integration
+
+  Plug 'tpope/vim-dispatch' "General Async runner
+
+  Plug 'aliev/vim-python' "Python compatibility for vim-dispatch
 
   Plug 'sheerun/vim-polyglot' "lots of syntax highlighting
   
@@ -145,16 +147,17 @@
 
 " }}}
 
+" vim-compiler-python {{{
+  let g:python_compiler_fixqflist = 1
+" }}}
+
 "set colorcolumn=80
 hi ColorColumn ctermbg=lightgrey guibg=#24285e
+
 "Change to current directory upon opening file, anytime
 "set autochdir
 autocmd BufEnter * silent! lcd %:p:h
 
-" augroup vimrc_autocmds
-"   autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
-"   autocmd BufEnter * match OverLength /\%79v.*/
-" augroup END
 
 " Lightline Settings {{{
   "Component functions need to go after 'active' block
