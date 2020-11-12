@@ -9,42 +9,46 @@
 
   Plug 'tiagofumo/vim-nerdtree-syntax-highlight' "Pretty colors for NERDTree files/glyphs
 
-  Plug 'tmhedberg/SimpylFold' "Code folding
+  Plug 'tmhedberg/SimpylFold' "Code folding for Python
 
   Plug 'mengelbrecht/lightline-bufferline' "Lightline-like bufferline
 
   Plug 'tpope/vim-commentary' "Easy commenting
 
-  Plug 'tpope/vim-dispatch'
+  Plug 'tpope/vim-dispatch' "General Async runner
 
-  Plug 'aliev/vim-python'
+  Plug 'aliev/vim-python' "Fixes for Python's use with vim-dispatch
 
   Plug 'ap/vim-css-color' "Convert hex values to color
 
   Plug 'airblade/vim-gitgutter' "git diff in side column
 
-  "Plug 'sonph/onehalf', {'rtp': 'vim'}
-  "Plug 'terryma/vim-multiple-cursors'
   "Plug 'dense-analysis/ale'
+
   "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  "Plug 'jiangmiao/auto-pairs'
-  Plug 'sbdchd/neoformat'
+
+  Plug 'sbdchd/neoformat' "Code formatter
+
   " Plug 'davidhalter/jedi-vim'
-  Plug 'machakann/vim-highlightedyank'
-  "Plug 'justincampbell/vim-eighties'
+  
+  Plug 'machakann/vim-highlightedyank' "Highlight when I yank
+
   "Plug 'momota/cisco.vim'
+
   "Plug 'mtdl9/vim-log-highlighting'
-  "vim-rooter
-  "Plug 'chriskempson/base16-vim'
-  "Plug 'nicknisi/vim-base16-lightline'
 
   Plug 'xolox/vim-misc' "Required stuff for vim-session
+
   Plug 'xolox/vim-session' "Vim session persistence 'easy button'
 
   Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'} "colorscheme
+
   Plug 'tpope/vim-fugitive' "git integration
+
   Plug 'sheerun/vim-polyglot' "lots of syntax highlighting
+  
   Plug 'mhinz/vim-startify' "vim start screen
+
   Plug 'ryanoasis/vim-devicons' "icons; MUST BE LOADED LAST TO WORK WITH OTHER PLUGINS
 
   call plug#end()
@@ -130,6 +134,12 @@
   if has ('mouse')
     set mouse=a
   endif
+
+  "Run Neoformat on write
+  augroup fmt
+    autocmd!
+    autocmd BufWritePre * undojoin | Neoformat
+  augroup END
 
 " }}}
 
