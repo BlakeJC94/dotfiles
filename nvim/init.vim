@@ -98,9 +98,6 @@
 
   "Set colorscheme
   colorscheme daycula
- 
-  "Override default pythonDot color
-  highlight link pythonDot Red
 
   " any buffer can be hidden (keeping its changes) without first writing the buffer to a file
   set hidden
@@ -154,14 +151,11 @@
 
 "set colorcolumn=80
 hi ColorColumn ctermbg=lightgrey guibg=#24285e
+
 "Change to current directory upon opening file, anytime
 "set autochdir
 autocmd BufEnter * silent! lcd %:p:h
 
-" augroup vimrc_autocmds
-"   autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
-"   autocmd BufEnter * match OverLength /\%79v.*/
-" augroup END
 
 " Lightline Settings {{{
   "Component functions need to go after 'active' block

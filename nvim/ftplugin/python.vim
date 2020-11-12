@@ -12,7 +12,13 @@ setl fileformat=unix
 setl formatoptions+=t 
 setl cc=+1
 
-match Whitespace /\s\+$/
+augroup highlight_over_width
+  autocmd BufEnter *.py highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
+  autocmd BufEnter *.py match OverLength /\%79v.*/
+augroup END
+
+"Override default pythonDot color
+highlight link pythonDot Red
 
 "TODO: make these functions not echo the text
 function! Run_python()
