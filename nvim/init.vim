@@ -15,8 +15,6 @@
 
   Plug 'tpope/vim-commentary' "Easy commenting
 
-  Plug 'tpope/vim-dispatch' "General Async runner
-
   Plug 'ap/vim-css-color' "Convert hex values to color
 
   Plug 'airblade/vim-gitgutter' "git diff in side column
@@ -216,6 +214,8 @@ autocmd BufEnter * silent! lcd %:p:h
 
 " }}}
 
+" NERDTree {{{
+
 "NERDTreeToggle shortcut
 let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
@@ -240,6 +240,8 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 "    let bookmarks = bookmarks[0:-2] " Slices an empty last line
 "    return map(bookmarks, \"{'line': v:val, 'path': v:val}")
 "endfunction
+
+" }}}
 
 " Startify {{{
   let g:startify_lists = [
