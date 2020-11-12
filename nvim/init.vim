@@ -17,8 +17,6 @@
 
   Plug 'tpope/vim-dispatch' "General Async runner
 
-  Plug 'aliev/vim-python' "Fixes for Python's use with vim-dispatch
-
   Plug 'ap/vim-css-color' "Convert hex values to color
 
   Plug 'airblade/vim-gitgutter' "git diff in side column
