@@ -43,6 +43,10 @@
 
   Plug 'tpope/vim-fugitive' "git integration
 
+  Plug 'tpope/vim-dispatch' "General Async runner
+
+  Plug 'aliev/vim-python' "Python compatibility for vim-dispatch
+
   Plug 'sheerun/vim-polyglot' "lots of syntax highlighting
   
   Plug 'mhinz/vim-startify' "vim start screen
@@ -94,6 +98,9 @@
 
   "Set colorscheme
   colorscheme daycula
+ 
+  "Override default pythonDot color
+  highlight link pythonDot Red
 
   " any buffer can be hidden (keeping its changes) without first writing the buffer to a file
   set hidden
@@ -139,6 +146,10 @@
     autocmd BufWritePre * undojoin | Neoformat
   augroup END
 
+" }}}
+
+" vim-compiler-python {{{
+  let g:python_compiler_fixqflist = 1
 " }}}
 
 "set colorcolumn=80
