@@ -46,7 +46,7 @@
   Plug 'aliev/vim-python' "Python compatibility for vim-dispatch
 
   Plug 'sheerun/vim-polyglot' "lots of syntax highlighting
-  
+
   Plug 'mhinz/vim-startify' "vim start screen
 
   Plug 'ryanoasis/vim-devicons' "icons; MUST BE LOADED LAST TO WORK WITH OTHER PLUGINS
@@ -55,7 +55,7 @@
 " }}}
 
 " General {{{
-  " 
+  "
   "Force leader character
   let mapleader = '\'
 
@@ -259,13 +259,13 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
   let g:startify_session_dir = '.vim/sessions/'
 
   "Startify bookmarks
-  let g:startify_bookmarks= [ 
-              \ {'pr': '$CONF/bash/.profile'}, 
-              \ {'br': '$CONF/bash/.bashrc'}, 
-              \ {'ba': '$CONF/bash/.bash_aliases'}, 
-              \ {'v': '$CONF/nvim/init.vim'}, 
-              \ {'a': '$CONF/alacritty/alacritty.yml'}, 
-              \ {'t': '$CONF/tmux/tmux.conf'}, 
+  let g:startify_bookmarks= [
+              \ {'pr': '$CONF/bash/.profile'},
+              \ {'br': '$CONF/bash/.bashrc'},
+              \ {'ba': '$CONF/bash/.bash_aliases'},
+              \ {'v': '$CONF/nvim/init.vim'},
+              \ {'a': '$CONF/alacritty/alacritty.yml'},
+              \ {'t': '$CONF/tmux/tmux.conf'},
               \ ]
 
   "Startify commands
@@ -284,7 +284,7 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
               \ '     | |\  |  __/ (_) \ V /| | | | | | |   ',
               \ '     |_| \_|\___|\___/ \_/ |_|_| |_| |_|   ',
               \ '                                           ',
-              \ ] 
+              \ ]
 
   "When opening a file or bookmark, change to its directory.
   let g:startify_change_to_dir = 1
@@ -305,7 +305,7 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 
 
 "Location of session scripts
-"let g:session_directory = 
+"let g:session_directory =
 
 "Name of default session
 "let g:session_default_name='std'
@@ -323,17 +323,20 @@ endif
 
 
 " Neoformat {{{
- 
-  let g:neoformat_python_autopep8 = { 
+
+  let g:neoformat_python_autopep8 = {
   \ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/autopep8",
   \ }
 
-  let g:neoformat_python_docformatter = { 
-  \ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/docformatter",
+  let g:neoformat_python_yapf = {
+  \ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/yapf",
   \ }
 
   "Enabled formatters for Python
-  let g:neoformat_enabled_python = ['autopep8', 'docformatter']
+  let g:neoformat_enabled_python = ['autopep8', 'yapf']
+
+  "Remove trailing whitespace
+  let g:neoformat_basic_format_trim = 1
 
   "Shell formatting
   let g:shfmt_opt="-ci"
@@ -363,10 +366,13 @@ endif
   "Folding with spacebar
   nnoremap <space> za
 
+  "Resize buffer to 80
+  nnoremap \80 :vertical resize 80<CR>
+
   "Change splits
   nnoremap \| <C-W><C-V>
   nnoremap _ <C-W><C-S>
-  
+
   "Easy quit
   nnoremap <C-q> <C-W><C-Q>
 
