@@ -3,6 +3,8 @@
 " vim-plug {{{
   call plug#begin('~/.local/share/nvim/site/plugged')
 
+  Plug 'benmills/vimux' "easily interact with tmux
+
   Plug 'itchyny/lightline.vim' "Status bar
 
   Plug 'scrooloose/nerdtree' "Fancy file explorer
@@ -23,7 +25,7 @@
 
   Plug 'deoplete-plugins/deoplete-jedi' " python autocomplete
 
-  Plug 'racer-rust/vim-racer' "rust auto
+  "Plug 'racer-rust/vim-racer' "rust auto
 
   Plug 'sbdchd/neoformat' "Code formatter
 
@@ -40,10 +42,6 @@
   Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'} "colorscheme
 
   Plug 'tpope/vim-fugitive' "git integration
-
-  Plug 'tpope/vim-dispatch' "General Async runner
-
-  Plug 'aliev/vim-python' "Python compatibility for vim-dispatch
 
   Plug 'sheerun/vim-polyglot' "lots of syntax highlighting
 
@@ -74,6 +72,7 @@
   set clipboard=unnamedplus
 
   "Relative line Numbers
+  set nu
   set rnu
 
   "Syntax highlighting
