@@ -11,12 +11,19 @@ setl autoindent
 setl fileformat=unix
 setl formatoptions+=t
 setl cc=+1
+setl nofoldenable
 
-highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
-match OverLength /\%80v.*/
+" highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
+" match OverLength /\%80v.*/
 
 "Override default pythonDot color
 highlight link pythonDot Red
+
+"Only use these fixers
+let b:ale_fixers = ['autopep8', 'isort', 'black', 'add_blank_lines_for_python_control_statements', 'remove_trailing_lines', 'trim_whitespace']
+
+"Only use these linters
+let b:ale_linters = ['mypy', 'flake8', 'pydocstyle']
 
 ""TODO: make these functions not echo the text
 "function! Run_python()

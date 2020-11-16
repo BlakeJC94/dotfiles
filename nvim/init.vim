@@ -11,7 +11,9 @@
 
   Plug 'tiagofumo/vim-nerdtree-syntax-highlight' "Pretty colors for NERDTree files/glyphs
 
-  Plug 'tmhedberg/SimpylFold' "Code folding for Python
+  "Plug 'tmhedberg/SimpylFold' "Code folding for Python
+  "
+  Plug 'dense-analysis/ale' "async linting
 
   Plug 'mengelbrecht/lightline-bufferline' "Lightline-like bufferline
 
@@ -85,8 +87,8 @@
   set cursorline
 
   "Enable code folding
-  set foldmethod=indent
-  set foldlevel=99
+  "set foldmethod=indent
+  "set foldlevel=99
 
   set termguicolors
 
@@ -157,6 +159,28 @@
 
 " }}}
 
+" ALE {{{
+
+  let pynvim_path = $HOME . '/.virtualenvs/pynvim/bin/'
+
+  let g:ale_python_mypy_executable = pynvim_path . 'mypy'
+
+  let g:ale_python_mypy_options = '--ignore-missing-imports'
+
+  let g:ale_python_flake8_executable = pynvim_path . 'flake8'
+
+  let g:ale_python_autopep8_executable = pynvim_path . 'autopep8'
+
+  let g:ale_python_isort_executable = pynvim_path . 'isort'
+
+  let g:ale_python_black_executable = pynvim_path . 'black'
+
+  let g:ale_python_pydocstyle_executable = pynvim_path . 'pydocstyle'
+
+  let g:ale_fix_on_save = 1
+
+" }}}
+
 " Lightline Settings {{{
   "Component functions need to go after 'active' block
   let g:lightline = {
@@ -217,29 +241,29 @@
 " NERDTree {{{
 
 "NERDTreeToggle shortcut
-let g:NERDTreeDirArrowExpandable = '▸'
-let g:NERDTreeDirArrowCollapsible = '▾'
+  let g:NERDTreeDirArrowExpandable = '▸'
+  let g:NERDTreeDirArrowCollapsible = '▾'
 
-"NERDTree Alternate bindings
-nmap <leader>t :NERDTreeToggle<CR>
-let g:NERDTreeMapOpenVSplit = "v"
-let g:NERDTreeMapOpenSplit = "s"
-nmap <leader>f :NERDTreeFind<cr>
+  "NERDTree Alternate bindings
+  nmap <leader>t :NERDTreeToggle<CR>
+  let g:NERDTreeMapOpenVSplit = "v"
+  let g:NERDTreeMapOpenSplit = "s"
+  nmap <leader>f :NERDTreeFind<cr>
 
-"let g:NERDTreeLimitedSyntax = 1 *Use in case icons slow down navigation
-let g:NERDTreeShowBookmarks = 1
-
-
-"Close NERDTree if it is last thing open
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+  "let g:NERDTreeLimitedSyntax = 1 *Use in case icons slow down navigation
+  let g:NERDTreeShowBookmarks = 1
 
 
-" Read ~/.NERDTreeBookmarks file and takes its second column
-"function! s:nerdtreeBookmarks()
-"    let bookmarks = systemlist("cut -d' ' -f 2 ~/.NERDTreeBookmarks")
-"    let bookmarks = bookmarks[0:-2] " Slices an empty last line
-"    return map(bookmarks, \"{'line': v:val, 'path': v:val}")
-"endfunction
+  "Close NERDTree if it is last thing open
+  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+
+  " Read ~/.NERDTreeBookmarks file and takes its second column
+  "function! s:nerdtreeBookmarks()
+  "    let bookmarks = systemlist("cut -d' ' -f 2 ~/.NERDTreeBookmarks")
+  "    let bookmarks = bookmarks[0:-2] " Slices an empty last line
+  "    return map(bookmarks, \"{'line': v:val, 'path': v:val}")
+  "endfunction
 
 " }}}
 
@@ -324,31 +348,42 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 
 " Neoformat {{{
 
-  let g:neoformat_python_autopep8 = {
-  \ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/autopep8",
-  \ }
+  "let g:neoformat_python_autopep8 = {
+  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/autopep8",
+  "\ }
 
-  let g:neoformat_python_yapf = {
-  \ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/yapf",
-  \ }
+  "let g:neoformat_python_black = {
+  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/black",
+  "\ 'replace': '1',
+  "\ }
 
-  "Enabled formatters for Python
-  let g:neoformat_enabled_python = ['autopep8', 'yapf']
+  "let g:neoformat_python_isort = {
+  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/isort",
+  "\ 'replace': '1',
+  "\ }
 
-  "Remove trailing whitespace
-  let g:neoformat_basic_format_trim = 1
+  "let g:neoformat_python_docformatter = {
+  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/docformatter",
+  "\ 'replace': '1',
+  "\ }
 
-  "Shell formatting
-  let g:shfmt_opt="-ci"
+  ""Enabled formatters for Python
+  "let g:neoformat_enabled_python = ['autopep8', 'isort', 'black', 'docformatter']
 
-  "Run all enabled formatters
-  let g:neoformat_run_all_formatters = 1
+  ""Remove trailing whitespace
+  "let g:neoformat_basic_format_trim = 1
 
-  "Run Neoformat on write
-  augroup fmt
-    autocmd!
-    autocmd BufWritePre * undojoin | Neoformat
-  augroup END
+  ""Shell formatting
+  "let g:shfmt_opt="-ci"
+
+  ""Run all enabled formatters
+  "let g:neoformat_run_all_formatters = 1
+
+  ""Run Neoformat on write
+  "augroup fmt
+  "  autocmd!
+  "  autocmd BufWritePre * undojoin | Neoformat
+  "augroup END
 
 " }}}
 
@@ -394,16 +429,16 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 " }}}
 
 " tmux shortcuts {{{
-"/******************/
-"/* tmux shortcuts */
-"/******************/
+  "/******************/
+  "/* tmux shortcuts */
+  "/******************/
 
-function! Run_cd()
-  let select = helpers#tmux_panes#check_panes()
-  exe ' !' . select . 'tmux send-keys -t 2 "clear; cd "' . expand('%:p:h') . ' C-m'
-endfunction
+  function! Run_cd()
+    let select = helpers#tmux_panes#check_panes()
+    exe ' !' . select . 'tmux send-keys -t 2 "clear; cd "' . expand('%:p:h') . ' C-m'
+  endfunction
 
-nnoremap <leader>cd :silent call Run_cd() <CR>
+  nnoremap <leader>cd :silent call Run_cd() <CR>
 
-" nnoremap <leader>cd :silent !tmux select-pane -t 2;tmux send-keys C-m 'cd ' %:p:h C-m<CR>
+  " nnoremap <leader>cd :silent !tmux select-pane -t 2;tmux send-keys C-m 'cd ' %:p:h C-m<CR>
 " }}}
