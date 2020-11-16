@@ -29,8 +29,8 @@ highlight link pythonDot Red
 "  exe ' !' . select . 'tmux send-keys -t 2 C-m "py.test -v"'
 "endfunction
 
-nnoremap <F8> :w<CR> :call VimuxRunCommand('python ' . bufname("%")) <CR>
+nnoremap <F8> :w<CR> :silent call VimuxRunCommand('python ' . bufname("%")) <CR>
 
-nnoremap <F7> :w<CR> :call VimuxRunCommandInDir('py.test -v', 0)<CR>
+nnoremap <F7> :w<CR> :silent call VimuxRunCommandInDir('py.test -v', 0)<CR>
 
 

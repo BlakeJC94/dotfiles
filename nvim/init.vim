@@ -134,6 +134,19 @@
     set mouse=a
   endif
 
+  "set colorcolumn=80
+  hi ColorColumn ctermbg=lightgrey guibg=#24285e
+
+  "Change to current directory upon opening file, anytime
+  "set autochdir
+  autocmd BufEnter * silent! lcd %:p:h
+
+" }}}
+
+" Vimux {{{
+
+  let g:VimuxHeight = '40'
+
 " }}}
 
 " Deoplete {{{
@@ -143,18 +156,6 @@
   let g:deoplete#enable_at_startup = 1
 
 " }}}
-
-" vim-compiler-python {{{
-  let g:python_compiler_fixqflist = 1
-" }}}
-
-"set colorcolumn=80
-hi ColorColumn ctermbg=lightgrey guibg=#24285e
-
-"Change to current directory upon opening file, anytime
-"set autochdir
-autocmd BufEnter * silent! lcd %:p:h
-
 
 " Lightline Settings {{{
   "Component functions need to go after 'active' block
@@ -302,24 +303,24 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 
 " }}}
 
+" vim-session {{{
+  "Location of session scripts
+  "let g:session_directory =
 
-"Location of session scripts
-"let g:session_directory =
+  "Name of default session
+  "let g:session_default_name='std'
 
-"Name of default session
-"let g:session_default_name='std'
+  "Open default session without prompt
+  let g:session_autoload='no'
 
-"Open default session without prompt
-let g:session_autoload='no'
-
-let g:session_autosave='no'
+  let g:session_autosave='no'
 
 
-"get rid of [  ] around icons in NerdTree
-if exists("g:loaded_webdevicons")
-  call webdevicons#refresh()
-endif
-
+  "get rid of [  ] around icons in NerdTree
+  if exists("g:loaded_webdevicons")
+    call webdevicons#refresh()
+  endif
+" }}}
 
 " Neoformat {{{
 
@@ -351,7 +352,6 @@ endif
 
 " }}}
 
-
 " Remaps {{{
   "Window movements
   nnoremap <C-J> <C-W><C-J>
@@ -364,6 +364,9 @@ endif
 
   "Folding with spacebar
   nnoremap <space> za
+
+  "Quick local replace
+  nnoremap \r :%s/
 
   "Resize buffer to 80
   nnoremap \80 :vertical resize 80<CR>
@@ -384,24 +387,23 @@ endif
   "open init.vim in a vsplit
   nnoremap <leader>ev :vsplit $MYVIMRC<CR>
 
-  "close preview window
-  nnoremap <leader>pq :pclose<CR>
-
   "deoplete selection remap
   inoremap <C-j> <C-n>
   inoremap <C-k> <C-p>
 
 " }}}
 
+" tmux shortcuts {{{
 "/******************/
 "/* tmux shortcuts */
 "/******************/
 
 function! Run_cd()
   let select = helpers#tmux_panes#check_panes()
-  exe ' !' . select . 'tmux send-keys -t 2 "cd "' . expand('%:p:h') . ' C-m'
+  exe ' !' . select . 'tmux send-keys -t 2 "clear; cd "' . expand('%:p:h') . ' C-m'
 endfunction
 
 nnoremap <leader>cd :silent call Run_cd() <CR>
 
 " nnoremap <leader>cd :silent !tmux select-pane -t 2;tmux send-keys C-m 'cd ' %:p:h C-m<CR>
+" }}}
