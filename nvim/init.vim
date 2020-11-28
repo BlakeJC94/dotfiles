@@ -156,6 +156,8 @@
   let g:python3_host_prog = $HOME . '/.virtualenvs/pynvim/bin/python3'
 
   let g:deoplete#enable_at_startup = 1
+  
+  set completeopt-=preview
 
 " }}}
 
@@ -400,8 +402,9 @@
   "Folding with spacebar
   nnoremap <space> za
 
-  "Quick local replace
-  nnoremap \r :%s/
+  "Local Refactor
+  "(https://stackoverflow.com/questions/14942104/vim-using-contents-of-a-variable-inside-search-and-replace-expression)
+  nnoremap \rf :execute "normal! viw\"ry"<CR> :%s/<C-R><C-R>=@r<CR>//g<Left><Left>
 
   "Resize buffer to 80
   nnoremap \80 :vertical resize 80<CR>
