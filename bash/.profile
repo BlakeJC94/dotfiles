@@ -40,6 +40,11 @@ if [ -f "$HOME/.api_keys" ] ; then
     . "$HOME/.api_keys"
 fi
 
+#source local anacron (https://askubuntu.com/questions/235089/how-can-i-run-anacron-in-user-mode)
+if [ -f "$HOME/.anacron/etc/anacrontab" ] ; then
+    /usr/sbin/anacron -s -t $HOME/.anacron/etc/anacrontab -S $HOME/.anacron/spool
+fi
+
 # detect when running in wsl  = = = = = = = = = = = = = = = = = = = = 
 kernel=`uname -r`
 variant=${kernel:9}

@@ -19,6 +19,7 @@ alias auto_unsubscriber="~/code/automations/auto_unsubscriber/venv/bin/python ~/
 alias tmux_py="bash $CONF/tmux/tmux_sessions/python_session.sh"
 alias tmux_menu="bash $CONF/tmux/tmux_session.sh"
 alias cdl='_func(){ cd "$1" && ll ;}; _func'
+alias borg="~/.virtualenvs/borg/bin/python ~/.virtualenvs/borg/bin/borg"
 
 
 # Automatically activate Git projects' virtual environments based on the

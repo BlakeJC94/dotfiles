@@ -426,6 +426,9 @@
   inoremap <C-j> <C-n>
   inoremap <C-k> <C-p>
 
+  "deoplete preview window close
+  nnoremap \pq :pclose<CR>
+
 " }}}
 
 " tmux shortcuts {{{
