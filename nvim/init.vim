@@ -323,7 +323,7 @@
   autocmd VimEnter *
                   \   if !argc()
                   \ |   Startify
-                  \ |   NERDTree
+                  " \ |   NERDTree
                   \ |   wincmd w
                   \ | endif
 
