@@ -20,6 +20,7 @@ alias tmux_py="bash $CONF/tmux/tmux_sessions/python_session.sh"
 alias tmux_menu="bash $CONF/tmux/tmux_session.sh"
 alias cdl='_func(){ cd "$1" && ll ;}; _func'
 alias borg="~/.virtualenvs/borg/bin/python ~/.virtualenvs/borg/bin/borg"
+alias borg_check="echo "---";borg list /mnt/pc_backups/borg/; echo "----";borg info /mnt/pc_backups/borg"
 
 
 # Automatically activate Git projects' virtual environments based on the
