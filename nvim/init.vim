@@ -13,6 +13,10 @@
 
   "Plug 'tmhedberg/SimpylFold' "Code folding for Python
   "
+  Plug 'sirver/UltiSnips' "Special Snippets for nvim
+
+  " Plug 'honza/vim-snippets' "A lot of snippets
+  
   Plug 'dense-analysis/ale' "async linting
 
   Plug 'mengelbrecht/lightline-bufferline' "Lightline-like bufferline
@@ -348,44 +352,16 @@
   endif
 " }}}
 
-" Neoformat {{{
+" UltiSnips {{{
+  let g:UltiSnipsExpandTrigger='<tab>'
 
-  "let g:neoformat_python_autopep8 = {
-  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/autopep8",
-  "\ }
+  " shortcut to go to next position
+  let g:UltiSnipsJumpForwardTrigger='<c-m>'
 
-  "let g:neoformat_python_black = {
-  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/black",
-  "\ 'replace': '1',
-  "\ }
+  " shortcut to go to previous position
+  let g:UltiSnipsJumpBackwardTrigger='<c-n>'
 
-  "let g:neoformat_python_isort = {
-  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/isort",
-  "\ 'replace': '1',
-  "\ }
-
-  "let g:neoformat_python_docformatter = {
-  "\ 'exe' : $HOME . "/.virtualenvs/pynvim/bin/docformatter",
-  "\ 'replace': '1',
-  "\ }
-
-  ""Enabled formatters for Python
-  "let g:neoformat_enabled_python = ['autopep8', 'isort', 'black', 'docformatter']
-
-  ""Remove trailing whitespace
-  "let g:neoformat_basic_format_trim = 1
-
-  ""Shell formatting
-  "let g:shfmt_opt="-ci"
-
-  ""Run all enabled formatters
-  "let g:neoformat_run_all_formatters = 1
-
-  ""Run Neoformat on write
-  "augroup fmt
-  "  autocmd!
-  "  autocmd BufWritePre * undojoin | Neoformat
-  "augroup END
+  let g:UltiSnipsEditSplit='horizontal'
 
 " }}}
 
@@ -448,3 +424,4 @@
 
   " nnoremap <leader>cd :silent !tmux select-pane -t 2;tmux send-keys C-m 'cd ' %:p:h C-m<CR>
 " }}}
+
