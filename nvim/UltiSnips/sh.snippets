@@ -1,0 +1,63 @@
+#! bash header
+snippet #! "#!/usr/bin/env bash"
+#!/usr/bin/env bash
+$0
+endsnippet
+
+snippet case "case"
+case ${1:word} in
+	${2:pattern} )
+		${0:${VISUAL}};;
+esac
+
+	*) echo "Invalid entry" >&2
+		exit 1
+		;;
+endsnippet
+
+snippet if "if statement"
+if [[${1:command}]]; then
+	${2:command}
+fi
+endsnippet
+
+snippet ife "if/else statement"
+if [[${1:command}]]; then
+	${2:command}
+else
+	${3:command}
+fi
+endsnippet
+
+snippet ifee "if/elif/else statement"
+if [[${1:expr}]]; then
+	${2:command}
+elif [[${3:expr}]]; then
+	${4:command}
+else 
+	${5:command}
+fi
+endsnippet
+
+snippet here "here doc"
+${1:command} <<- _EOF_
+								${2:args}
+								_EOF
+endsnippet
+
+snippet read "read prompt"
+read -p "${1:prompt} > "
+endsnippet
+
+snippet def "function"
+${1:name}() {
+	${2:${VISUAL:pass}}
+}
+endsnippet
+
+snippet for "for loop"
+for ${1:i}${2/.+/ in /}${2:words}; do
+	${0:${VISUAL}}
+done
+endsnippet
+
