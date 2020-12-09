@@ -356,12 +356,14 @@
   let g:UltiSnipsExpandTrigger='<tab>'
 
   " shortcut to go to next position
-  let g:UltiSnipsJumpForwardTrigger='<c-m>'
+  let g:UltiSnipsJumpForwardTrigger='<c-n>'
 
   " shortcut to go to previous position
-  let g:UltiSnipsJumpBackwardTrigger='<c-n>'
+  let g:UltiSnipsJumpBackwardTrigger='<c-p>'
 
   let g:UltiSnipsEditSplit='horizontal'
+
+  let g:ultisnips_python_style='sphinx'
 
 " }}}
 
