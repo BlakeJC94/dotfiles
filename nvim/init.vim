@@ -27,9 +27,9 @@
 
   Plug 'airblade/vim-gitgutter' "git diff in side column
 
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } "autocomplete
-
   Plug 'deoplete-plugins/deoplete-jedi' " python autocomplete
+
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } "autocomplete
 
   "Plug 'racer-rust/vim-racer' "rust auto
 
@@ -169,15 +169,13 @@
 
   let pynvim_path = $HOME . '/.virtualenvs/pynvim/bin/'
 
-  let g:ale_python_mypy_executable = pynvim_path . 'mypy'
-
-  let g:ale_python_mypy_options = '--ignore-missing-imports'
-
   let g:ale_python_flake8_executable = pynvim_path . 'flake8'
 
-  let g:ale_python_autopep8_executable = pynvim_path . 'autopep8'
+  let g:ale_python_flake8_options = '--max-line-length=88 --extend-ignore=88'
 
   let g:ale_python_isort_executable = pynvim_path . 'isort'
+
+  let g:ale_python_isort_options = '--profile black'
 
   let g:ale_python_black_executable = pynvim_path . 'black'
 

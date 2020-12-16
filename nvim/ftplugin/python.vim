@@ -5,7 +5,7 @@
 setl tabstop=4
 setl softtabstop=4
 setl shiftwidth=4
-setl textwidth=79
+setl textwidth=88
 setl expandtab
 setl autoindent
 setl fileformat=unix
@@ -20,10 +20,11 @@ setl nofoldenable
 highlight link pythonDot Red
 
 "Only use these fixers
-let b:ale_fixers = ['autopep8', 'isort', 'black', 'add_blank_lines_for_python_control_statements', 'remove_trailing_lines', 'trim_whitespace']
+let b:ale_fixers = ['black', 'isort']
+" let b:ale_fixers = ['autopep8', 'isort', 'black', 'add_blank_lines_for_python_control_statements', 'remove_trailing_lines', 'trim_whitespace']
 
 "Only use these linters
-let b:ale_linters = ['mypy', 'flake8', 'pydocstyle']
+let b:ale_linters = ['flake8', 'pydocstyle']
 
 ""TODO: make these functions not echo the text
 "function! Run_python()

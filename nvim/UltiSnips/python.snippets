@@ -25,6 +25,11 @@ while ${1:condition}:
 	${2:${VISUAL:pass}}
 endsnippet
 
+snippet timeit "Timeit test" b
+t${1:test_number} = Timer("${2:function}", "from __main__ import ${3:${VISUAL:function}}")
+print("$2: ", t$1.timeit(number=1000), "milliseconds")
+endsnippet
+
 ##########
 # COMMON #
 ##########
