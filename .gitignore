@@ -2,5 +2,6 @@
 !.gitignore
 !bash/
 !nvim/
+nvim/pythonx/__pycache__/*
 !tmux/
 !alacritty/
