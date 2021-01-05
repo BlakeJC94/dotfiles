@@ -37,8 +37,8 @@ let b:ale_linters = ['flake8', 'pydocstyle']
 "  exe ' !' . select . 'tmux send-keys -t 2 C-m "py.test -v"'
 "endfunction
 
-nnoremap <F8> :w<CR> :silent call VimuxRunCommand('python ' . bufname("%")) <CR>
+nnoremap <buffer> <F8> :w<CR> :silent call VimuxRunCommand('python ' . bufname("%")) <CR>
 
-nnoremap <F7> :w<CR> :silent call VimuxRunCommandInDir('py.test -v', 0)<CR>
+nnoremap <buffer> <F7> :w<CR> :silent call VimuxRunCommandInDir('py.test -v', 0)<CR>
 
 

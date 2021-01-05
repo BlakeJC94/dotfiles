@@ -1,0 +1,54 @@
+snippet gvar "Global / configuration variable" b
+if !exists("g:$(1:MyUltraImportantVar}")
+	let g:$1 = ${2:"${3:<tab>}"}
+endif
+endsnippet
+
+snippet def "function" b
+function ${1:function_start_with_capital_letter}($2)
+	${3:code}
+endif
+endsnippet
+
+snippet function_arg "Variable with argument scope" b
+a:${1:name}
+endsnippet
+
+snippet var "variable" b
+let ${1:var_name} = ${2:"something"}
+endsnippet
+
+snippet register_var "Register as variable" b
+let @${1:register_letter} = ${2:"something"}
+endsnippet
+
+snippet if "if statement" b
+if ${1:comparison}:
+	${2:action}
+endif
+endsnippet
+
+snippet ife "if/else statement" b
+if ${1:comparison}:
+	${2:action}
+else
+	${3:other_action}
+endif
+endsnippet
+
+snippet ifee "if/elif/else statement" b
+if ${1:comparison}:
+	${2:action}
+elif ${3:comparison}:
+	${4:action}
+else
+	${5:other_action}
+endif
+endsnippet
+
+snippet augroup "Autocommand group" b
+augroup ${1:title}
+	autocmd!
+	autocmd ${2:event} ${3:filter} ${4:action}
+augroup END
+endsnippet

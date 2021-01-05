@@ -9,7 +9,8 @@
 
   Plug 'scrooloose/nerdtree' "Fancy file explorer
 
-  Plug 'tiagofumo/vim-nerdtree-syntax-highlight' "Pretty colors for NERDTree files/glyphs
+  Plug 'tiagofumo/vim-nerdtree-syntax-highlight' "Pretty colors for NERDTree 
+    " files/glyphs
 
   "Plug 'tmhedberg/SimpylFold' "Code folding for Python
   "
@@ -53,7 +54,8 @@
 
   Plug 'mhinz/vim-startify' "vim start screen
 
-  Plug 'ryanoasis/vim-devicons' "icons; MUST BE LOADED LAST TO WORK WITH OTHER PLUGINS
+  Plug 'ryanoasis/vim-devicons' "icons; MUST BE LOADED LAST TO WORK WITH OTHER 
+    " PLUGINS
 
   call plug#end()
 " }}}
@@ -102,7 +104,8 @@
   "Set colorscheme
   colorscheme daycula
 
-  " any buffer can be hidden (keeping its changes) without first writing the buffer to a file
+  " any buffer can be hidden (keeping its changes) without first writing the 
+    " buffer to a file
   set hidden
 
 
@@ -177,7 +180,7 @@
 
   let g:ale_python_isort_options = '--profile black'
 
-  let g:ale_python_black_executable = pynvim_path . 'black'
+  let g:ale_python_black_executable = pynvim_path . "black"
 
   let g:ale_python_pydocstyle_executable = pynvim_path . 'pydocstyle'
 
@@ -212,15 +215,17 @@
     \ }
 
     "	  'gitbranch': 'helpers#lightline#gitBranch',
-  "********************Makes icons work with lightline**********************************
+  "********************Makes icons work with lightline**************************
   function! MyFiletype()
-    return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
+    return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . 
+          \ WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
   endfunction
 
   function! MyFileformat()
-    return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
+    return winwidth(0) > 70 ? (&fileformat . ' ' . 
+          \ WebDevIconsGetFileFormatSymbol()) : ''
   endfunction
-  "*************************************************************************************
+  "*****************************************************************************
 
   "bufferline
   let g:lightline#bufferline#show_number=2
@@ -259,7 +264,8 @@
 
 
   "Close NERDTree if it is last thing open
-  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && 
+        \ b:NERDTree.isTabTree()) | q | endif
 
 
   " Read ~/.NERDTreeBookmarks file and takes its second column
@@ -383,7 +389,7 @@
   nnoremap \rf :execute "normal! viw\"ry"<CR> :%s/<C-R><C-R>=@r<CR>//g<Left><Left>
 
   "Resize buffer to 80
-  nnoremap \80 :vertical resize 80<CR>
+  nnoremap \w80 :vertical resize 80<CR>
 
   "Change splits
   nnoremap \| <C-W><C-V>
@@ -405,8 +411,9 @@
   inoremap <C-j> <C-n>
   inoremap <C-k> <C-p>
 
-  "deoplete preview window close
-  nnoremap \pq :pclose<CR>
+  nnoremap <leader>tab :tabs<CR>
+  
+  nnoremap <leader>deo :call deoplete#toggle()<CR>
 
 " }}}
 
@@ -415,13 +422,13 @@
   "/* tmux shortcuts */
   "/******************/
 
-  function! Run_cd()
+  function Run_cd()
     let select = helpers#tmux_panes#check_panes()
-    exe ' !' . select . 'tmux send-keys -t 2 "clear; cd "' . expand('%:p:h') . ' C-m'
+    exe ' !' . select . 'tmux send-keys -t 2 "clear; cd "' . expand('%:p:h') . 
+          \ ' C-m'
   endfunction
 
   nnoremap <leader>cd :silent call Run_cd() <CR>
 
-  " nnoremap <leader>cd :silent !tmux select-pane -t 2;tmux send-keys C-m 'cd ' %:p:h C-m<CR>
 " }}}
 
