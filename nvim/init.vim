@@ -34,8 +34,6 @@
 
   "Plug 'racer-rust/vim-racer' "rust auto
 
-  Plug 'sbdchd/neoformat' "Code formatter
-
   Plug 'machakann/vim-highlightedyank' "Highlight when I yank
 
   "Plug 'momota/cisco.vim'
