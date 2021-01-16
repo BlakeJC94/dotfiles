@@ -13,6 +13,6 @@ function helpers#tmux_panes#check_panes()
     if panes =~ '2:'
       return 'tmux select-pane -t 2;'
     else
-      return 'tmux split-window -v;'
+      return 'tmux split-window -v -l 20;'
     endif
 endfunction

@@ -28,7 +28,7 @@ alias gsa="~/code/bash/git_status_all/git_status_all"
 # Automatically activate Git projects' virtual environments based on the
 # directory name of the project. Virtual environment name can be overridden
 # by placing a .venv file in the project root with a virtualenv name in it
-function workon_cwd {
+workon_cwd() {
   # Check that this is a Git repo
   GIT_DIR=`git rev-parse --git-dir 2> /dev/null`
   if [ $? == 0 ]; then
@@ -50,10 +50,10 @@ function workon_cwd {
    # Note: this only happens if the virtualenv was activated automatically
      deactivate && unset CD_VIRTUAL_ENV
    fi
-}
+} 
 
 # New cd function that does the virtualenv magic
-function venv_cd {
+venv_cd() {
   cd "$@" && workon_cwd
 }
 
