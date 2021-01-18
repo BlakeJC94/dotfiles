@@ -32,8 +32,8 @@ let b:ale_linters = ['flake8', 'pydocstyle']
 ""TODO: make these functions not echo the text
 function! Run_python()
   let select = helpers#tmux_panes#check_panes()
-  exe ' !' . select . 'tmux send-keys -t 2 "clear; python "' . expand('%') 
-        \ . ' C-m'
+  exe ' !' . select . 'tmux send-keys -t 2 "clear; pipenv run python "' . 
+        \ expand('%') . ' C-m'
 endfunction
 
 nnoremap <buffer> <F8> :w<CR> :silent call Run_python() <CR>

@@ -54,6 +54,7 @@ if [ $variant == 'microsoft-standard' ]; then
     export onedrive="/mnt/c/Users/dclayton/'OneDrive - Bluegrass Cellular'/"
     export desktop="/mnt/c/Users/dclayton/'OneDrive - Bluegrass Cellular'/Desktop/"
     export win_alacritty="$win_home/AppData/Roaming/alacritty/"
+    sudo /etc/init.d/xrdp start > /dev/null
 fi
 # == = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
