@@ -30,6 +30,17 @@ t${1:test_number} = Timer("${2:function}", "from __main__ import ${3:${VISUAL:fu
 print("$2: ", t$1.timeit(number=1000), "milliseconds")
 endsnippet
 
+snippet req.get "HTTP GET Request" b
+auth = HTTPBasicAuth('${1:username}', '${2:password}')
+headers = {
+    'Accept': '${3:application/json}'
+    'Content-Type': '${4:application/json}'
+}
+
+url = "${5:url}"
+response = requests.get(url, auth=auth, headers=headers, verify=${6:/path/to/certfile})
+endsnippet
+
 ##########
 # COMMON #
 ##########
