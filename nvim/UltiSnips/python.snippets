@@ -30,6 +30,11 @@ t${1:test_number} = Timer("${2:function}", "from __main__ import ${3:${VISUAL:fu
 print("$2: ", t$1.timeit(number=1000), "milliseconds")
 endsnippet
 
+##############
+#  requests  #
+##############
+
+
 snippet req.get "HTTP GET Request" b
 auth = HTTPBasicAuth('${1:username}', '${2:password}')
 headers = {
@@ -39,6 +44,32 @@ headers = {
 
 url = "${5:url}"
 response = requests.get(url, auth=auth, headers=headers, verify=${6:/path/to/certfile})
+endsnippet
+
+#########
+#  csv  #
+#########
+
+snippet csv.read "CSV Dict Reader" b
+import csv
+
+with open('${1:csvfile}', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        # print(row['first_name'], row['last_name'])
+				pass
+endsnippet
+
+snippet csv.write "CSV Dict Writer" b
+import csv
+
+with open('${1:csvfile}', 'w', newline='') as csvfile:
+    fieldnames = ['${2:fieldname}', '${3:fieldname}']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+    # writer.writeheader()
+    # writer.writerow({'first_name': 'Baked', 'last_name': 'Beans'})
+    # writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
 endsnippet
 
 ##########
