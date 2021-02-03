@@ -174,11 +174,15 @@
 
   let g:ale_python_flake8_options = '--max-line-length=88 --extend-ignore=88'
 
+  let g:ale_python_flake8_change_directory = 0
+
   let g:ale_python_isort_executable = pynvim_path . 'isort'
 
   let g:ale_python_isort_options = '--profile black'
 
   let g:ale_python_black_executable = pynvim_path . "black"
+
+  let g:ale_python_black_change_directory = 0
 
   let g:ale_python_pydocstyle_executable = pynvim_path . 'pydocstyle'
 
@@ -404,6 +408,9 @@
 
   "open init.vim in a vsplit
   nnoremap <leader>ev :vsplit $MYVIMRC<CR>
+
+  "open startify menu
+  nnoremap <leader>st :Startify<CR>
 
   "deoplete selection remap
   inoremap <C-j> <C-n>
