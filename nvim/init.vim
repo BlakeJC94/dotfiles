@@ -362,10 +362,10 @@
   let g:UltiSnipsExpandTrigger='<tab>'
 
   " shortcut to go to next position
-  let g:UltiSnipsJumpForwardTrigger='<c-n>'
+  " let g:UltiSnipsJumpForwardTrigger='<c-j>'
 
   " shortcut to go to previous position
-  let g:UltiSnipsJumpBackwardTrigger='<c-p>'
+  " let g:UltiSnipsJumpBackwardTrigger='<c-k>'
 
   let g:UltiSnipsEditSplit='horizontal'
 
@@ -413,8 +413,8 @@
   nnoremap <leader>st :Startify<CR>
 
   "deoplete selection remap
-  inoremap <C-j> <C-n>
-  inoremap <C-k> <C-p>
+  " inoremap <C-j> <C-n>
+  " inoremap <C-k> <C-p>
 
   nnoremap <leader>tab :tabs<CR>
   
