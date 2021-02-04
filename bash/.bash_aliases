@@ -17,11 +17,13 @@ alias md_table_gen="~/code/automations/md_table_gen/venv/bin/python ~/code/autom
 alias quick_weather="~/code/automations/quick_weather/venv/bin/python ~/code/automations/quick_weather/quick_weather.py"
 alias auto_unsubscriber="~/code/automations/auto_unsubscriber/venv/bin/python ~/code/automations/auto_unsubscriber/auto_unsubscriber.py"
 alias cdl='_func(){ cd "$1" && ll ;}; _func'
-alias borg="~/.virtualenvs/borg/bin/python ~/.virtualenvs/borg/bin/borg"
+alias tailf='_func(){ tail -f "$1" | bat --paging=never -l log ;}; _func'
 alias borg_check="echo "---";borg list /mnt/pc_backups/borg/; echo "----";borg info /mnt/pc_backups/borg"
 alias hash_check="~/code/bash/hash_check/hash_check"
 alias gsa="~/code/bash/git_status_all/git_status_all"
 alias dyfams="~/code/bash/dyfams/dyfams"
+alias batdiff="git diff --name-only --diff-filter=d | xargs bat --diff"
+
 
 
 # Automatically activate Git projects' virtual environments based on the
