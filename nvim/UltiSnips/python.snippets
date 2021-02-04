@@ -252,6 +252,59 @@ def get_dir_and_file_name(snip):
 	return os.getcwd().split(os.sep)[-1] + '.' + snip.basename
 endglobal
 
+#############
+#  Classes  #
+#############
+
+
+snippet class "class with docstrings" b
+class ${1:MyClass}(${2:object}):
+
+	`!p snip.rv = triple_quotes(snip)`${3:Docstring for $1. }`!p snip.rv = triple_quotes(snip)`
+
+	def __init__(self$4):
+		`!p snip.rv = triple_quotes(snip)`${5:TODO: to be defined.}`!p
+snip.rv = ""
+snip >> 2
+args = get_args(t[4])
+write_docstring_args(args, snip)
+if args:
+	snip.rv += '\n' + snip.mkline('', indent='')
+	snip += '{0}'.format(triple_quotes(snip))
+write_init_body(args, t[2], snip)
+`
+		$0
+endsnippet
+
+
+snippet slotclass "class with slots and docstrings" b
+class ${1:MyClass}(${2:object}):
+
+	`!p snip.rv = triple_quotes(snip)`${3:Docstring for $1. }`!p snip.rv = triple_quotes(snip)`
+`!p
+snip >> 1
+args = get_args(t[4])
+write_slots_args(args, snip)
+`
+
+	def __init__(self$4):
+		`!p snip.rv = triple_quotes(snip)`${5:TODO: to be defined.}`!p
+snip.rv = ""
+snip >> 2
+args = get_args(t[4])
+write_docstring_args(args, snip)
+if args:
+	snip.rv += '\n' + snip.mkline('', indent='')
+	snip += triple_quotes(snip)
+write_init_body(args, t[2], snip)
+`
+		$0
+endsnippet
+
+###############
+#  Functions  #
+###############
+
 
 snippet def "function with docstrings" b
 def ${1:function}(`!p
@@ -325,8 +378,19 @@ finally:
 	${7:pass}
 endsnippet
 
+##########
+#  Docs  #
+##########
+
+
 snippet doc "doc block (triple quotes)"
 `!p snip.rv = triple_quotes(snip)`
 ${1:${VISUAL:doc}}
 `!p snip.rv = triple_quotes(snip)`
+endsnippet
+
+snippet " "triple quoted string (double quotes)" b
+"""
+${1:${VISUAL:doc}}
+`!p triple_quotes_handle_trailing(snip, '"')`
 endsnippet
