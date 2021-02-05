@@ -23,6 +23,7 @@ alias hash_check="~/code/bash/hash_check/hash_check"
 alias gsa="~/code/bash/git_status_all/git_status_all"
 alias dyfams="~/code/bash/dyfams/dyfams"
 alias batdiff="git diff --name-only --diff-filter=d | xargs bat --diff"
+alias gcgp="git commit && git push"
 
 
 
