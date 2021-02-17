@@ -3,21 +3,12 @@
 " vim-plug {{{
   call plug#begin('~/.local/share/nvim/site/plugged')
 
-  Plug 'benmills/vimux' "easily interact with tmux
-
   Plug 'itchyny/lightline.vim' "Status bar
 
-  Plug 'scrooloose/nerdtree' "Fancy file explorer
+  Plug 'ctrlpvim/ctrlp.vim'
 
-  Plug 'tiagofumo/vim-nerdtree-syntax-highlight' "Pretty colors for NERDTree 
-    " files/glyphs
-
-  "Plug 'tmhedberg/SimpylFold' "Code folding for Python
-  "
   Plug 'sirver/UltiSnips' "Special Snippets for nvim
 
-  " Plug 'honza/vim-snippets' "A lot of snippets
-  
   Plug 'dense-analysis/ale' "async linting
 
   Plug 'mengelbrecht/lightline-bufferline' "Lightline-like bufferline
@@ -32,13 +23,7 @@
 
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } "autocomplete
 
-  "Plug 'racer-rust/vim-racer' "rust auto
-
   Plug 'machakann/vim-highlightedyank' "Highlight when I yank
-
-  "Plug 'momota/cisco.vim'
-
-  "Plug 'mtdl9/vim-log-highlighting'
 
   Plug 'xolox/vim-misc' "Required stuff for vim-session
 
@@ -150,18 +135,16 @@
 
 " }}}
 
-" Vimux {{{
-
-  let g:VimuxHeight = '40'
-
-" }}}
-
 " Deoplete {{{
 
   let g:python3_host_prog = $HOME . '/.virtualenvs/pynvim/bin/python3'
 
   let g:deoplete#enable_at_startup = 1
-  
+
+  " Make sure that deoplete starts
+  " Fixes issue when opening a file or (files) from stdin
+  autocmd VimEnter * call deoplete#enable()
+
   set completeopt-=preview
 
 " }}}
@@ -249,35 +232,24 @@
 
 " }}}
 
-" NERDTree {{{
+" CtrlP {{{
 
-"NERDTreeToggle shortcut
-  let g:NERDTreeDirArrowExpandable = '▸'
-  let g:NERDTreeDirArrowCollapsible = '▾'
+  let g:ctrlP_root_markers = ['Pipfile', 'Pipfile.lock']
 
-  "NERDTree Alternate bindings
-  nmap <leader>t :NERDTreeToggle<CR>
-  let g:NERDTreeMapOpenVSplit = "v"
-  let g:NERDTreeMapOpenSplit = "s"
-  nmap <leader>f :NERDTreeFind<cr>
+  let g:ctrlp_by_filename = 1
 
-  "let g:NERDTreeLimitedSyntax = 1 *Use in case icons slow down navigation
-  let g:NERDTreeShowBookmarks = 1
+  let g:ctrlp_regexp = 1
 
+  set wildignore+=*/tmp/*,*.so,*.swp,*.zip,**__pycache__**
 
-  "Close NERDTree if it is last thing open
-  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && 
-        \ b:NERDTree.isTabTree()) | q | endif
+  let g:ctrlp_prompt_mappings = {
+    \ 'PrtSelectMove("j")':   ['<c-n>', '<down>'],
+    \ 'PrtSelectMove("k")':   ['<c-p>', '<up>'],
+    \ 'PrtHistory(-1)':       [''],
+    \ 'PrtHistory(1)':        [''],
+    \ }
 
-
-  " Read ~/.NERDTreeBookmarks file and takes its second column
-  "function! s:nerdtreeBookmarks()
-  "    let bookmarks = systemlist("cut -d' ' -f 2 ~/.NERDTreeBookmarks")
-  "    let bookmarks = bookmarks[0:-2] " Slices an empty last line
-  "    return map(bookmarks, \"{'line': v:val, 'path': v:val}")
-  "endfunction
-
-" }}}
+" }}} 
 
 " Startify {{{
   let g:startify_lists = [
@@ -286,7 +258,7 @@
           \ { 'type': 'bookmarks', 'header': ['   Bookmarks']     },
           \ ]
           "\ { 'type': 'commands',  'header': ['   Commands']      },
-          "\ { 'type': 'dir',     'header': ['   '. getcwd()]  },
+          " \ { 'type': 'dir',     'header': ['   '. getcwd()]  },
           "\ { 'type': function('s:nerdtreeBookmarks'), 'header': ['   NERDTree Bookmarks']},
           "\ { 'type': 'commands',  'header': ['   Commands']      },
 
@@ -352,10 +324,6 @@
   let g:session_autosave='no'
 
 
-  "get rid of [  ] around icons in NerdTree
-  if exists("g:loaded_webdevicons")
-    call webdevicons#refresh()
-  endif
 " }}}
 
 " UltiSnips {{{
@@ -400,25 +368,15 @@
   "Easy quit
   nnoremap <C-q> <C-W><C-Q>
 
-  "Startify
-  nnoremap <leader>s :Startify<CR>
-
-  "Uppercase a word from normal mode
-  nnoremap \u <C-v>bU
-
   "open init.vim in a vsplit
   nnoremap <leader>ev :vsplit $MYVIMRC<CR>
 
   "open startify menu
   nnoremap <leader>st :Startify<CR>
 
-  "deoplete selection remap
-  " inoremap <C-j> <C-n>
-  " inoremap <C-k> <C-p>
-
-  nnoremap <leader>tab :tabs<CR>
-  
   nnoremap <leader>deo :call deoplete#toggle()<CR>
+
+  nnoremap <leader>t :!tree<CR>
 
 " }}}
 
