@@ -13,6 +13,12 @@ setl formatoptions+=t
 setl cc=+1
 setl nofoldenable
 
+inoremap " ""<left>
+inoremap ' ''<left>
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { {}<left>
+
 " highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
 " match OverLength /\%80v.*/
 
