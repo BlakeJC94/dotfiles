@@ -6,3 +6,4 @@ nvim/pythonx/__pycache__/*
 !tmux/
 !alacritty/
 !bat/
+!cookiecutter/
