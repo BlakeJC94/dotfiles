@@ -27,7 +27,7 @@
   # If the position is not set, the window manager will handle the placement.
     position:
       x: 150
-      y: 300
+      y: 380
 
   # Window padding (changes require restart)
   #

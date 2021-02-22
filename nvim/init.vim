@@ -5,7 +5,9 @@
 
   Plug 'itchyny/lightline.vim' "Status bar
 
-  Plug 'ctrlpvim/ctrlp.vim'
+  Plug 'ctrlpvim/ctrlp.vim' "fuzzy finder
+
+  Plug 'jiangmiao/auto-pairs' "prevent 'missing parenthesis and brackets' typos
 
   Plug 'sirver/UltiSnips' "Special Snippets for nvim
 
@@ -233,6 +235,8 @@
 " }}}
 
 " CtrlP {{{
+
+  let g:ctrlP_working_path_mode = 'wra'
 
   let g:ctrlP_root_markers = ['Pipfile', 'Pipfile.lock']
 

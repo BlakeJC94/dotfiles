@@ -25,6 +25,8 @@ alias dyfams="~/code/bash/dyfams/dyfams"
 alias batdiff="git diff --name-only --diff-filter=d | xargs bat --diff"
 alias gcgp="git commit && git push"
 alias mac_convert="python $HOME/code/python/ms_to_cisco_mac_converter/main.py"
+alias new_project="cookiecutter cookiecutter-pypackage-custom --directory $HOME/.config/cookiecutter/cookiecutter-pypackage-custom"
+alias ra=". $HOME/.config/bash/.bash_aliases"
 
 
 # Automatically activate Git projects' virtual environments based on the
