@@ -7,3 +7,4 @@ nvim/pythonx/__pycache__/*
 !alacritty/
 !bat/
 !cookiecutter/
+!conky/
