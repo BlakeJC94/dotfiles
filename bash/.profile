@@ -62,11 +62,13 @@ export EDITOR="$VISUAL"
 export CONF
 
 # virtualenvwrapper stuff
-export WORKON_HOME=$HOME/.virtualenvs
-export PROJECT_HOME=$HOME/code
-source $HOME/.local/bin/virtualenvwrapper.sh
+# export WORKON_HOME=$HOME/.virtualenvs
+# export PROJECT_HOME=$HOME/code
+# source $HOME/.local/bin/virtualenvwrapper.sh
 
 # man page syntax highlighting via bat
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/library/"
+
+export PATH="$HOME/.poetry/bin:$PATH"
