@@ -182,10 +182,11 @@
     \ 'active': {
     \	'left': [ [ 'mode', 'paste' ],
     \     [ 'gitbranch' ],
-    \     [ 'readonly', 'filename', 'modified' ] ]
+    \     [ 'readonly', 'filename', 'modified', 'venv' ] ]
     \ },
     \ 'component_function': {
     \   'gitbranch': 'helpers#lightline#gitBranch',
+    \   'venv': 'helpers#lightline#venv',
     \   'filetype': 'MyFiletype',
     \   'fileformat': 'MyFileformat'
     \ },
