@@ -155,21 +155,21 @@
 
   let pynvim_path = $HOME . '/.virtualenvs/pynvim/bin/'
 
+  let g:ale_python_auto_pipenv = 1
+
   let g:ale_python_flake8_executable = pynvim_path . 'flake8'
 
-  let g:ale_python_flake8_options = '--max-line-length=88 --extend-ignore=88'
-
-  let g:ale_python_flake8_change_directory = 0
+  let g:ale_python_flake8_change_directory = 1 
 
   let g:ale_python_isort_executable = pynvim_path . 'isort'
 
-  let g:ale_python_isort_options = '--profile black'
-
   let g:ale_python_black_executable = pynvim_path . "black"
 
-  let g:ale_python_black_change_directory = 0
+  let g:ale_python_black_change_directory = 1
 
   let g:ale_python_pydocstyle_executable = pynvim_path . 'pydocstyle'
+
+  let g:ale_mypy_ignore_invalid_syntax = 1
 
   let g:ale_fix_on_save = 1
 
@@ -236,15 +236,17 @@
 
 " CtrlP {{{
 
-  let g:ctrlP_working_path_mode = 'wra'
+  let g:ctrlp_working_path_mode = 'ra'
 
-  let g:ctrlP_root_markers = ['Pipfile', 'Pipfile.lock']
+  let g:ctrlp_root_markers = ['pyproject.toml', 'poetry.lock']
 
   let g:ctrlp_by_filename = 1
 
   let g:ctrlp_regexp = 1
 
-  set wildignore+=*/tmp/*,*.so,*.swp,*.zip,**__pycache__**
+  let g:ctrlp_show_hidden = 1
+
+  set wildignore+=*/tmp/*,*.so,*.swp,*.zip,**__pycache__**,*/.venv/*,*/.git/*
 
   let g:ctrlp_prompt_mappings = {
     \ 'PrtSelectMove("j")':   ['<c-n>', '<down>'],

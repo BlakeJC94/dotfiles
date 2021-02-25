@@ -8,3 +8,4 @@ nvim/pythonx/__pycache__/*
 !bat/
 !cookiecutter/
 !conky/
+!pypoetry/

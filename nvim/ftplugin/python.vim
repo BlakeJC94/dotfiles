@@ -13,40 +13,46 @@ setl formatoptions+=t
 setl cc=+1
 setl nofoldenable
 
-" highlight OverLength ctermbg=darkgrey guibg=#ff4ea5
-" match OverLength /\%80v.*/
-
 "Override default pythonDot color
 highlight link pythonDot Red
 
+"Use .venv/bin/python with deoplete-jedi when using venv
+if ale#python#FindVirtualenv(bufnr('%')) !=# ''
+  let g:deoplete#sources#jedi#python_path = ale#python#FindVirtualenv(bufnr('%'))
+        \ . '/bin/python'
+  "Map F8 to 'poetry run python <filename>' when using venv
+  nnoremap <buffer> <F8> :w<CR> :silent call Run_python_poetry() <CR>
+else
+  "Map F8 to regular python when not using venv
+  nnoremap <buffer> <F8> :w<CR> :silent call Run_python() <CR>
+
+endif  
+
 "Only use these fixers
 let b:ale_fixers = ['black', 'isort']
-" let b:ale_fixers = ['autopep8', 'isort', 'black', 
-"       \ 'add_blank_lines_for_python_control_statements', 
-"       \ 'remove_trailing_lines', 
-"       \ 'trim_whitespace']
 
 "Only use these linters
-let b:ale_linters = ['flake8', 'pydocstyle']
+let b:ale_linters = ['flake8', 'mypy', 'pydocstyle', 'jedils']
 
-""TODO: make these functions not echo the text
-function! Run_python()
+
+function! Run_python_poetry()
   let pane = helpers#tmux_panes#check_panes()
   exe ' !' . pane . 'tmux send-keys -t 2 "clear; poetry run python "' . 
         \ expand('%') . ' C-m'
 endfunction
 
-nnoremap <buffer> <F8> :w<CR> :silent call Run_python() <CR>
+function! Run_python()
+  let pane = helpers#tmux_panes#check_panes()
+  exe ' !' . pane . 'tmux send-keys -t 2 "clear; python "' . 
+        \ expand('%') . ' C-m'
+endfunction
 
-"function! Run_python_tests()
-"  let select = helpers#tmux_panes#check_panes()
-"  exe ' !' . select . 'tmux send-keys -t 2 C-m "py.test -v"'
-"endfunction
+function! Run_python_tests()
+  let select = helpers#tmux_panes#check_panes()
+  exe ' !' . select . 'tmux send-keys -t 2 "clear; poetry run pytest -v"'
+        \ . ' C-m'
+endfunction
 
- " nnoremap <buffer> <F8> :w<CR> :silent call 
- "       \ VimuxRunCommand('python ' . bufname("%")) <CR>
-
-" nnoremap <buffer> <F7> :w<CR> :silent call 
-"       \ VimuxRunCommandInDir('py.test -v', 0)<CR>
+nnoremap <buffer> <F7> :w<CR> :silent call Run_python_tests() <CR>
 
 
