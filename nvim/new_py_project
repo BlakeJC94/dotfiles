@@ -1,0 +1,7 @@
+# Save current tmux pane number
+# Open tmux pane below
+# Ask for project path
+# Ask for git init
+# Run cookiecutter
+# Run "tree" in lower pane
+# Focus upper pane and open main file in nvim
