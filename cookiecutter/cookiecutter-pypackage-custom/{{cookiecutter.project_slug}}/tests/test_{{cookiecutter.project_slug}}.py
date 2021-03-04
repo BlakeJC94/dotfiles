@@ -4,6 +4,7 @@
 
 {% if cookiecutter.use_pytest == 'y' -%}
 import pytest
+import pytest_mock
 {% else %}
 import unittest
 {%- endif %}
