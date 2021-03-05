@@ -34,6 +34,12 @@ Features
 
 * TODO
 
+Usage
+-----
+
+::
+
+
 Installation
 ------------
 
