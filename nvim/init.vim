@@ -139,9 +139,15 @@
 
 " Deoplete {{{
 
+  let g:deoplete#sources#jedi#show_docstring = 1
+
   let g:python3_host_prog = $HOME . '/.virtualenvs/pynvim/bin/python3'
 
   let g:deoplete#enable_at_startup = 1
+
+  call deoplete#custom#option('sources', {
+		\ 'python': ['jedi', 'ultisnips'],
+		\ })
 
   " Make sure that deoplete starts
   " Fixes issue when opening a file or (files) from stdin
@@ -152,7 +158,7 @@
 " }}}
 
 " ALE {{{
-
+"
   let pynvim_path = $HOME . '/.virtualenvs/pynvim/bin/'
 
   let g:ale_python_auto_pipenv = 1
@@ -363,10 +369,19 @@
 
   "Local Refactor
   "(https://stackoverflow.com/questions/14942104/vim-using-contents-of-a-variable-inside-search-and-replace-expression)
-  nnoremap \rf :execute "normal! viw\"ry"<CR> :%s/<C-R><C-R>=@r<CR>//g<Left><Left>
+  " nnoremap \rf :execute "normal! viw\"ry"<CR> :%s/<C-R><C-R>=@r<CR>//g<Left><Left>
+  
+  "ALE Refactor/Rename
+  nnoremap <leader>rf :ALERename<CR>
 
-  "Resize buffer to 80
-  nnoremap \w80 :vertical resize 80<CR>
+  "ALE Find References
+  nnoremap <leader>fr :ALEFindReferences<CR>
+
+  "ALE Go to Definition
+  nnoremap <leader>gd :ALEGoToDefinition<CR> 
+  
+  ""Resize buffer to 80
+  nnoremap \wr :vertical resize 88<CR>
 
   "Change splits
   nnoremap \| <C-W><C-V>
@@ -383,7 +398,7 @@
 
   nnoremap <leader>deo :call deoplete#toggle()<CR>
 
-  nnoremap <leader>t :!tree<CR>
+  nnoremap <leader>t :!tree --noreport -I *.pyc  "%:p:h"<CR>
 
 " }}}
 

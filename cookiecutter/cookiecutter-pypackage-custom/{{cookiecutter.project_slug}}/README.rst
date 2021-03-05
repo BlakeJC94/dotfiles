@@ -34,6 +34,17 @@ Features
 
 * TODO
 
+Installation
+------------
+
+Installing with pipx from Github::
+
+        pipx install git+https://www.github.com/{{ github_username }}/{{ project_slug }}
+
+Installing with pip from Github::
+
+        pip install git+https://www.github.com/{{ github_username }}/{{ project_slug }}
+
 Credits
 -------
 

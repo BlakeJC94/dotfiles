@@ -36,7 +36,7 @@ endif
 let b:ale_fixers = ['black', 'isort']
 
 "Only use these linters
-let b:ale_linters = ['flake8', 'mypy', 'pydocstyle']
+let b:ale_linters = ['flake8', 'mypy', 'pydocstyle', 'jedils']
 
 
 function! Run_python_poetry()
