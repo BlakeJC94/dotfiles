@@ -3,6 +3,8 @@
 " vim-plug {{{
   call plug#begin('~/.local/share/nvim/site/plugged')
 
+  Plug 'stefandtw/quickfix-reflector.vim' "modifiable quickfix list
+
   Plug 'itchyny/lightline.vim' "Status bar
 
   Plug 'ctrlpvim/ctrlp.vim' "fuzzy finder
@@ -134,6 +136,13 @@
   "Change to current directory upon opening file, anytime
   "set autochdir
   autocmd BufEnter * silent! lcd %:p:h
+
+  "Open quickix list after :make and :grep
+  " augroup grep_quickfix
+  "   autocmd!
+  "   autocmd QuickFixCmdPost [^l]* :copen
+  "   autocmd QuickFixCmdPost l*    :copen
+  " augroup END
 
 " }}}
 
@@ -281,6 +290,7 @@
 
   "Startify bookmarks
   let g:startify_bookmarks= [
+              \ {'py': '$HOME/code/python/'},
               \ {'pr': '$CONF/bash/.profile'},
               \ {'br': '$CONF/bash/.bashrc'},
               \ {'ba': '$CONF/bash/.bash_aliases'},
@@ -367,18 +377,9 @@
   "Folding with spacebar
   nnoremap <space> za
 
-  "Local Refactor
-  "(https://stackoverflow.com/questions/14942104/vim-using-contents-of-a-variable-inside-search-and-replace-expression)
-  " nnoremap \rf :execute "normal! viw\"ry"<CR> :%s/<C-R><C-R>=@r<CR>//g<Left><Left>
-  
-  "ALE Refactor/Rename
-  nnoremap <leader>rf :ALERename<CR>
-
-  "ALE Find References
-  nnoremap <leader>fr :ALEFindReferences<CR>
-
-  "ALE Go to Definition
-  nnoremap <leader>gd :ALEGoToDefinition<CR> 
+  " Local Refactor
+  " (https://stackoverflow.com/questions/14942104/vim-using-contents-of-a-variable-inside-search-and-replace-expression)
+  nnoremap \rf :execute "normal! viw\"ry"<CR> :%s/<C-R><C-R>=@r<CR>//g<Left><Left>
   
   ""Resize buffer to 80
   nnoremap \wr :vertical resize 88<CR>
@@ -400,6 +401,7 @@
 
   nnoremap <leader>t :!tree --noreport -I *.pyc  "%:p:h"<CR>
 
+  nnoremap <leader>gg :Ggrep 
 " }}}
 
 " tmux shortcuts {{{
