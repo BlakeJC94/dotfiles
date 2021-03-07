@@ -13,6 +13,11 @@ setl formatoptions+=t
 setl cc=+1
 setl nofoldenable
 
+let test#strategy = "dispatch"
+
+compiler pyunit  "Fix quickfix list for python tracebacks
+setl makeprg=python\ %  "Default makeprg for python
+
 "Override default pythonDot color
 highlight link pythonDot Red
 
@@ -24,11 +29,14 @@ if ale#python#FindVirtualenv(bufnr('%')) !=# ''
   let g:deoplete#sources#jedi#python_path = ale#python#FindVirtualenv(bufnr('%'))
         \ . '/bin/python'
 
-  "Map F8 to 'poetry run python <filename>' when using venv
-  nnoremap <buffer> <F8> :w<CR> :silent call Run_python_poetry() <CR>
-else
-  "Map F8 to regular python when not using venv
-  nnoremap <buffer> <F8> :w<CR> :silent call Run_python() <CR>
+  "Set makeprg to use poetry when a venv is available
+  setl makeprg=poetry\ run\ python\
+
+  "Map F8 to use vim-dispatch :Make
+  nnoremap <buffer> <F8> :w<CR> :Make %<CR>
+
+  let test#project_root = ale#python#FindProjectRoot(bufnr('%'))
+  nnoremap <buffer> <F7> :w<CR> :exe 'Start -dir=root poetry run pytest -v '
 
 endif  
 
@@ -38,25 +46,17 @@ let b:ale_fixers = ['black', 'isort']
 "Only use these linters
 let b:ale_linters = ['flake8', 'mypy', 'pydocstyle', 'jedils']
 
+"Map F8 to use vim-dispatch :Make
+nnoremap <buffer> <F8> :w<CR> :Make python\ %<CR>
 
-function! Run_python_poetry()
-  let pane = helpers#tmux_panes#check_panes()
-  exe ' !' . pane . 'tmux send-keys -t 2 "clear; poetry run python "' . 
-        \ expand('%') . ' C-m'
-endfunction
+" function! Run_python_poetry()
+"   let b:make = "poetry run python %"
+" endfunction
 
-function! Run_python()
-  let pane = helpers#tmux_panes#check_panes()
-  exe ' !' . pane . 'tmux send-keys -t 2 "clear; python "' . 
-        \ expand('%') . ' C-m'
-endfunction
+" function! Run_python()
+"   let b:make = "python %"
+" endfunction
 
-function! Run_python_tests()
-  let select = helpers#tmux_panes#check_panes()
-  exe ' !' . select . 'tmux send-keys -t 2 "clear; poetry run pytest -v"'
-        \ . ' C-m'
-endfunction
-
-nnoremap <buffer> <F7> :w<CR> :silent call Run_python_tests() <CR>
+nnoremap <buffer> <F7> :w<CR> :TestSuite <CR>
 
 

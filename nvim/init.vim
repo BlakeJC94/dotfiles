@@ -3,7 +3,11 @@
 " vim-plug {{{
   call plug#begin('~/.local/share/nvim/site/plugged')
 
+  " Plug 'vim-test/vim-test'
+
   Plug 'stefandtw/quickfix-reflector.vim' "modifiable quickfix list
+
+  Plug 'tpope/vim-dispatch' "tpope, his holiness
 
   Plug 'itchyny/lightline.vim' "Status bar
 
