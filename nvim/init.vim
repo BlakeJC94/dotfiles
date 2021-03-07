@@ -384,6 +384,7 @@
   " Local Refactor
   " (https://stackoverflow.com/questions/14942104/vim-using-contents-of-a-variable-inside-search-and-replace-expression)
   nnoremap \rf :execute "normal! viw\"ry"<CR> :%s/<C-R><C-R>=@r<CR>//g<Left><Left>
+  " nnoremap \rf :execute ':%s/' . expand('<cword>') . '//g'
   
   ""Resize buffer to 80
   nnoremap \wr :vertical resize 88<CR>
@@ -405,7 +406,7 @@
 
   nnoremap <leader>t :!tree --noreport -I *.pyc  "%:p:h"<CR>
 
-  nnoremap <leader>gg :Ggrep 
+  nnoremap <leader>gg :call helpers#ggrep#GgrepHelper()<CR>
 " }}}
 
 " tmux shortcuts {{{

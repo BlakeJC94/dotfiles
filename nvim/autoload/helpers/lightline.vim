@@ -10,7 +10,7 @@ endfunction
 
 function! helpers#lightline#venv()
   if expand("%:e") ==# 'py'
-    if ale#python#FindVirtualenv(bufnr('%')) !=# ''
+    if b:venv_available ==# 1
       return "venv: " . "\u2705"
     else
       return "venv: " . "\u274C"

@@ -8,7 +8,7 @@
 "     endif
 " endfunction
 
-function helpers#tmux_panes#check_panes()
+function! helpers#tmux_panes#check_panes()
     let panes = system('tmux list-panes')
     if panes =~ '2:'
       return 'tmux select-pane -t 2;'
