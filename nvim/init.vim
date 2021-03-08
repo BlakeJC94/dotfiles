@@ -375,6 +375,9 @@
   nnoremap <C-L> <C-W><C-L>
   nnoremap <C-H> <C-W><C-H>
 
+  "Vert diff
+  nnoremap <leader>diff :vert diffsplit 
+ 
   "File refresh
   nnoremap <F5> :so %<CR>
 
