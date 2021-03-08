@@ -170,6 +170,30 @@
 
 " }}}
 
+" Netrw {{{ 
+
+  "Use tree listing style
+  let g:netrw_liststyle = 3
+  
+  "Open files in vertical split
+  let g:netrw_browse_split = 2
+
+  "Size of netrw
+  let g:netrw_winsize = 25
+
+  "Disable banner
+  let g:netrw_banner = 0
+
+  "Use wildignore list as netrw hide list
+  let g:netrw_list_hide = &wildignore
+
+  "Keep the current directory and the browsing directory synced. 
+  "This helps you avoid the move files error.
+  let g:netrw_keepdir = 0
+
+  autocmd FileType netrw setl bufhidden=wipe
+" }}} 
+
 " ALE {{{
 "
   let pynvim_path = $HOME . '/.virtualenvs/pynvim/bin/'
@@ -407,7 +431,7 @@
 
   nnoremap <leader>deo :call deoplete#toggle()<CR>
 
-  nnoremap <leader>t :!tree --noreport -I *.pyc  "%:p:h"<CR>
+  nnoremap <leader>t :Lexplore<CR>
 
   nnoremap <leader>gg :call helpers#ggrep#GgrepHelper()<CR>
 " }}}
