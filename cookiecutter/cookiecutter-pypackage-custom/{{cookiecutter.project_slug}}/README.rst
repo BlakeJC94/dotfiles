@@ -45,11 +45,11 @@ Installation
 
 Installing with pipx from Github::
 
-        pipx install git+https://www.github.com/{{ github_username }}/{{ project_slug }}
+        pipx install git+https://www.github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}
 
 Installing with pip from Github::
 
-        pip install git+https://www.github.com/{{ github_username }}/{{ project_slug }}
+        pip install git+https://www.github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}
 
 Credits
 -------
