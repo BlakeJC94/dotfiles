@@ -181,9 +181,6 @@
   "Size of netrw
   let g:netrw_winsize = 25
 
-  "Disable banner
-  let g:netrw_banner = 0
-
   "Use wildignore list as netrw hide list
   let g:netrw_list_hide = &wildignore
 
