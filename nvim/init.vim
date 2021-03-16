@@ -385,7 +385,7 @@
 
   let g:UltiSnipsEditSplit='horizontal'
 
-  let g:ultisnips_python_style='sphinx'
+  let g:ultisnips_python_style='google'
 
 " }}}
 
