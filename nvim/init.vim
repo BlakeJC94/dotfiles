@@ -396,7 +396,10 @@
   nnoremap <C-L> <C-W><C-L>
   nnoremap <C-H> <C-W><C-H>
 
-  "Vert diff
+  nnoremap <M-h> <C-o>
+  nnoremap <M-l> <C-i>
+  
+  ""Vert diff
   nnoremap <leader>diff :vert diffsplit 
  
   "File refresh
@@ -447,4 +450,3 @@
   nnoremap <leader>cd :silent call Run_cd() <CR>
 
 " }}}
-
