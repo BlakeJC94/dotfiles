@@ -1,0 +1,74 @@
+snippet server_header "Boilerplate code for server playbook" b
+---
+- hosts: ${1:all}
+  user: ${2:vagrant}
+  tasks: 
+endsnippet
+
+snippet template "Create a file according to a jinja2 template"
+- name: Create the file "${1:name}" with the "${2:template_name}" template
+  template:
+    src: $2
+    dest: $1
+    owner: ${3:root}
+    group: ${4:root}
+    mode: ${5:0644}
+  become: True
+endsnippet
+
+snippet apt_install "Install a package via apt" b
+- name: Ensure ${1:package} is present
+  apt:
+    name: $1
+    state: present
+    update_cache: yes  # same as apt-get update (this is optional)
+  become: True
+endsnippet
+
+snippet apt_upgrade "Upgrade all packages" b
+- name: Ensure we have lastest version of every package
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes  # same as apt-get update (this is optional)
+  become: True
+endsnippet
+
+snippet service "Modify a service" b
+- name: Ensure the ${1:service} service is running and enabled
+  service:
+    name: $1
+    state: ${2:started}
+    enabled: ${3:True}
+  become: True
+endsnippet
+
+snippet hostname "Modify hostname" b
+- name: Modify hostname
+  hostname:
+    name: ${1:hostname}
+  become: True
+endsnippet
+
+snippet ansible_user "Creates the ansible user on machine" b
+    - name: Ensure ansible user exists 
+      user: 
+        name: ${3:ansible}
+        state: present 
+        comment: Ansible 
+      become: True
+    - name: Ensure ansible user accepts the SSH key 
+      authorized_key: 
+        user: $3
+        key: https://github.com/fale.keys 
+        state: present 
+      become: True
+    - name: Ensure the ansible user is sudoer with no password required 
+      lineinfile: 
+        dest: /etc/sudoers 
+        state: present 
+        regexp: '^$3 ALL\=' 
+        line: '$3 ALL=(ALL) NOPASSWD:ALL' 
+        validate: 'visudo -cf %s'
+      become: True
+endsnippet
