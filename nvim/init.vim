@@ -3,7 +3,7 @@
 " vim-plug {{{
   call plug#begin('~/.local/share/nvim/site/plugged')
 
-  " Plug 'vim-test/vim-test'
+  Plug 'vim-test/vim-test'
 
   Plug 'stefandtw/quickfix-reflector.vim' "modifiable quickfix list
 
@@ -434,6 +434,11 @@
   nnoremap <leader>t :Lexplore<CR>
 
   nnoremap <leader>gg :call helpers#ggrep#GgrepHelper()<CR>
+
+  nnoremap <leader>tn :TestNearest <CR>
+  nnoremap <leader>tf :TestFile <CR>
+
+
 " }}}
 
 " tmux shortcuts {{{

@@ -2,8 +2,9 @@
 
 alias wget="wget2"
 # alias ll='ls -lah'
-alias ll="exa -al --classify --icons --git --color-scale"
+alias ll="exa -al --classify --git --color-scale"
 alias ls="exa --oneline --classify"
+alias tree="exa --long --tree"
 alias fhere='find . -name '
 alias top='htop'
 alias myip="curl http://ipecho.net/plain; echo"
