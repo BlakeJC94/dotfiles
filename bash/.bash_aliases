@@ -1,7 +1,6 @@
 #custom aliases
 
-alias wget="wget2"
-# alias ll='ls -lah'
+alias wget="wget2 --progress bar"
 alias ll="exa -al --classify --icons --git --color-scale"
 alias ls="exa --oneline --classify"
 alias fhere='find . -name '
@@ -21,6 +20,8 @@ alias gcgp="git commit && git push"
 alias mac_convert="python $HOME/code/python/ms_to_cisco_mac_converter/main.py"
 alias new_project="cookiecutter cookiecutter-pypackage-custom --directory $HOME/.config/cookiecutter/cookiecutter-pypackage-custom"
 alias ra=". $HOME/.config/bash/.bash_aliases"
+alias progress="watch progress -q"
+alias scp="scp -v"
 
 
 # Automatically activate Git projects' virtual environments based on the
