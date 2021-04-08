@@ -435,8 +435,8 @@
 
   nnoremap <leader>gg :call helpers#ggrep#GgrepHelper()<CR>
 
-  nnoremap <leader>tn :TestNearest <CR>
-  nnoremap <leader>tf :TestFile <CR>
+  nnoremap :tn :TestNearest <CR>
+  nnoremap :tf :TestFile <CR>
 
 
 " }}}

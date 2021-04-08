@@ -25,6 +25,7 @@ let b:ale_linters = ['flake8', 'mypy', 'pydocstyle']
 "Insert breakpoint
 nnoremap <leader>b :execute "normal! Obreakpoint()\e"<cr>
 
+let b:project_root = ale#python#FindProjectRoot(bufnr('%'))
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             vim-test for Python                              "
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -55,12 +56,10 @@ let g:test#strategy = {
 let test#python#pytest#executable = 'poetry run pytest'
 
 
+let test#project_root = b:project_root
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                   Handle venvs and define dispatch.vim stuff             "
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-let b:project_root = ale#python#FindProjectRoot(bufnr('%'))
 
 if ale#python#FindVirtualenv(bufnr('%')) != ''
   let b:venv_available = 1
