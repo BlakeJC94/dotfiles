@@ -37,7 +37,9 @@
 
   Plug 'xolox/vim-session' "Vim session persistence 'easy button'
 
-  Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'} "colorscheme
+  " Plug 'ghifarit53/daycula-vim' , {'branch' : 'main'} "colorscheme
+
+  Plug 'dracula/vim', { 'as': 'dracula' }
 
   Plug 'tpope/vim-fugitive' "git integration
 
@@ -89,32 +91,21 @@
 
   set termguicolors
 
-  let g:daycula_transparent_background=1
+  " let g:daycula_transparent_background=1
   "hi! Normal ctermbg=NONE guibg=NONE
+  
+  set t_Co=256 " Explicitly tell vim that the terminal supports 256 colors
 
   "Set colorscheme
-  colorscheme daycula
+  colorscheme dracula
 
   " any buffer can be hidden (keeping its changes) without first writing the 
     " buffer to a file
   set hidden
 
-
-  set t_Co=256 " Explicitly tell vim that the terminal supports 256 colors
-
-
-  if &term =~ '256color' " disable background color erase
-      set t_ut=
-  endif
-
-  " enable 24 bit color support if supported
-  if (has("termguicolors"))
-      if (!(has("nvim")))
-          let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-          let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-      endif
-      set termguicolors
-  endif
+  " if &term =~ '256color' " disable background color erase
+  "     set t_ut=
+  " endif
 
   " highlight conflicts
   match ErrorMsg '^\(<\|=\|>\)\{7\}\([^=].\+\)\?$'
@@ -135,7 +126,10 @@
   endif
 
   "set colorcolumn=80
-  hi ColorColumn ctermbg=lightgrey guibg=#24285e
+  hi ColorColumn ctermbg=lightgrey guibg=grey
+
+  "use italics for booleans
+  highlight link Boolean DraculaPurpleItalic
 
   "Change to current directory upon opening file, anytime
   "set autochdir
@@ -218,7 +212,7 @@
 " Lightline Settings {{{
   "Component functions need to go after 'active' block
   let g:lightline = {
-    \ 'colorscheme': 'daycula',
+    \ 'colorscheme': 'dracula',
     \ 'active': {
     \	'left': [ [ 'mode', 'paste' ],
     \     [ 'gitbranch' ],
@@ -331,17 +325,34 @@
   "        \   { 'uc': [ 'Clean Up Plugins', ':PlugClean' ] },
   "        \ ]
 
-  let g:startify_custom_header = [
-              \ '                                           ',
-              \ '      _   _                 _              ',
-              \ '     | \ | |               (_)             ',
-              \ '     |  \| | ___  _____   ___ _ __ ___     ',
-              \ '     | . ` |/ _ \/ _ \ \ / / | ''_ ` _ \    ',
-              \ '     | |\  |  __/ (_) \ V /| | | | | | |   ',
-              \ '     |_| \_|\___|\___/ \_/ |_|_| |_| |_|   ',
-              \ '                                           ',
-              \ ]
+  " let g:startify_custom_header = [
+  "             \ '                                           ',
+  "             \ '      _   _                 _              ',
+  "             \ '     | \ | |               (_)             ',
+  "             \ '     |  \| | ___  _____   ___ _ __ ___     ',
+  "             \ '     | . ` |/ _ \/ _ \ \ / / | ''_ ` _ \    ',
+  "             \ '     | |\  |  __/ (_) \ V /| | | | | | |   ',
+  "             \ '     |_| \_|\___|\___/ \_/ |_|_| |_| |_|   ',
+  "             \ '                                           ',
+  "             \ ]
 
+  let g:startify_custom_header = [
+        \ '                                                              ',
+        \ '         __    __                             __              ',
+        \ '        |  \  |  \                           |  \             ',
+        \ '        | ▓▓\ | ▓▓ ______   ______  __     __ \▓▓______ ____  ',
+        \ '        | ▓▓▓\| ▓▓/      \ /      \|  \   /  \  \      \    \ ',
+        \ '        | ▓▓▓▓\ ▓▓  ▓▓▓▓▓▓\  ▓▓▓▓▓▓\\▓▓\ /  ▓▓ ▓▓ ▓▓▓▓▓▓\▓▓▓▓\',
+        \ '        | ▓▓\▓▓ ▓▓ ▓▓    ▓▓ ▓▓  | ▓▓ \▓▓\  ▓▓| ▓▓ ▓▓ | ▓▓ | ▓▓',
+        \ '        | ▓▓ \▓▓▓▓ ▓▓▓▓▓▓▓▓ ▓▓__/ ▓▓  \▓▓ ▓▓ | ▓▓ ▓▓ | ▓▓ | ▓▓',
+        \ '        | ▓▓  \▓▓▓\▓▓     \\▓▓    ▓▓   \▓▓▓  | ▓▓ ▓▓ | ▓▓ | ▓▓',
+        \ '         \▓▓   \▓▓ \▓▓▓▓▓▓▓ \▓▓▓▓▓▓     \▓    \▓▓\▓▓  \▓▓  \▓▓',
+        \ '                                                              ',
+        \ '                                                              ',
+        \ '                                                              ',
+        \ ]                                                      
+                                                      
+                                                      
   "When opening a file or bookmark, change to its directory.
   let g:startify_change_to_dir = 1
 

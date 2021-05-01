@@ -13,9 +13,6 @@ setl formatoptions+=t
 setl cc=+1
 setl nofoldenable
 
-"Override default pythonDot color
-highlight link pythonDot Red
-
 "Only use these fixers
 let b:ale_fixers = ['black', 'isort']
 
@@ -26,6 +23,7 @@ let b:ale_linters = ['flake8', 'mypy', 'pydocstyle']
 nnoremap <leader>b :execute "normal! Obreakpoint()\e"<cr>
 
 let b:project_root = ale#python#FindProjectRoot(bufnr('%'))
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             vim-test for Python                              "
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

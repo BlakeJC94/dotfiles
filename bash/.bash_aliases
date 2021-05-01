@@ -23,6 +23,7 @@ alias new_project="cookiecutter cookiecutter-pypackage-custom --directory $HOME/
 alias ra=". $HOME/.config/bash/.bash_aliases"
 alias progress="watch progress -q"
 alias scp="scp -v"
+alias dd="dd status=progress"
 
 
 # Automatically activate Git projects' virtual environments based on the
