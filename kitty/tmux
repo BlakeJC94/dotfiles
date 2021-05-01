@@ -1,0 +1,4 @@
+# Make the current window the active (focused) window
+focus
+ 
+launch tmux
