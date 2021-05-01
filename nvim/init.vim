@@ -126,7 +126,7 @@
   endif
 
   "set colorcolumn=80
-  hi ColorColumn ctermbg=lightgrey guibg=grey
+  hi ColorColumn ctermbg=lightgrey guibg=#44475a
 
   "use italics for booleans
   highlight link Boolean DraculaPurpleItalic
