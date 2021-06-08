@@ -17,7 +17,7 @@ setl nofoldenable
 let b:ale_fixers = ['black', 'isort']
 
 "Only use these linters
-let b:ale_linters = ['flake8', 'mypy', 'pydocstyle']
+let b:ale_linters = ['flake8', 'mypy']
 
 "Insert breakpoint
 nnoremap <leader>b :execute "normal! Obreakpoint()\e"<cr>
