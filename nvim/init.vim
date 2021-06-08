@@ -47,6 +47,8 @@
 
   Plug 'ryanoasis/vim-devicons' "icons; MUST BE LOADED LAST TO WORK WITH OTHER 
     " PLUGINS
+  
+  Plug 'preservim/vimux'
 
   call plug#end()
 " }}}
