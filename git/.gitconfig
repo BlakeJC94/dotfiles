@@ -1,0 +1,17 @@
+[user]
+	name = claytod5
+	email = claytod5@protonmail.com
+[diff]
+    tool = meld
+[difftool]
+    prompt = false
+[difftool "meld"]
+    cmd = meld "$LOCAL" "$REMOTE"
+[core]
+	excludesfile = .gitignore_global
+	editor = ~/.local/bin/nvim
+[credential]
+	help = manager
+	helper = store
+[init]
+	defaultBranch = main

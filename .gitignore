@@ -1,13 +1,2 @@
-/*
-!.gitignore
-!bash/
-!nvim/
 nvim/pythonx/__pycache__/*
 nvim/.netrwhist
-!tmux/
-!alacritty/
-!bat/
-!cookiecutter/
-!conky/
-!pypoetry/
-!kitty/

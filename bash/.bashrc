@@ -117,10 +117,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# source completions for bash in alacritty if installed
-if [[ -f /usr/local/bin/alacritty ]]; then
-    . ~/.config/bash/alacritty.bash
-fi
+# # source completions for bash in alacritty if installed
+# if [[ -f /usr/local/bin/alacritty ]]; then
+#     . ~/.config/bash/alacritty.bash
+# fi
 
 export VISUAL=/usr/bin/vim
 export EDITOR="$VISUAL"
