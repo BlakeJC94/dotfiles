@@ -67,18 +67,18 @@ endif
 
 let b:venv_path = ale#python#FindVirtualenv(bufnr('%')) . '/bin/python'
 
-compiler pyunit  "Fix quickfix list for python tracebacks
-setl makeprg=python\ % "Default makeprg for python
+" compiler pyunit  "Fix quickfix list for python tracebacks
+" setl makeprg=python\ % "Default makeprg for python
 
 "Use .venv/bin/python with deoplete-jedi when using venv
 if b:venv_available ==# 1
   let g:deoplete#sources#jedi#python_path = b:venv_path
 
   "Set makeprg to use poetry when a venv is available
-  setl makeprg=poetry\ run\ python\ %
+  " setl makeprg=poetry\ run\ python\ %
 
   "Map F8 to use vim-dispatch :Make
-  " nnoremap <buffer> <F8> :w<CR> :Make <CR>
+  nnoremap <buffer> <F8> :w<CR> :call VimuxRunCommand("clear; poetry run python " . bufname("%"))<CR>
 
   "Run all tests for a project
   nnoremap <buffer> <F7> :w<CR> :call helpers#test_helpers#RunAllTests('pytest') <CR>
@@ -86,4 +86,4 @@ if b:venv_available ==# 1
 endif  
 
 "Map F8 to use vim-dispatch :Make
-nnoremap <buffer> <F8> :w<CR> :Make <CR>
+" nnoremap <buffer> <F8> :w<CR> :Make <CR>

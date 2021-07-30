@@ -8,7 +8,6 @@ alias fhere='find . -name '
 alias top='htop'
 alias publicip="curl http://ipecho.net/plain; echo"
 alias localip="ip addr show dev eno1 | grep inet"
-alias nvim="~/Applications/nvim"
 alias conky="~/Applications/conky"
 alias pip="pip3"
 alias cdl='_func(){ cd "$1" && ll ;}; _func'
@@ -25,6 +24,7 @@ alias ra=". $HOME/.config/bash/.bash_aliases"
 alias progress="watch progress -q"
 alias scp="scp -v"
 alias dd="dd status=progress"
+alias icat="kitty +kitten icat"
 
 
 # Automatically activate Git projects' virtual environments based on the

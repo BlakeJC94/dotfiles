@@ -56,6 +56,8 @@ if [ $variant == 'microsoft-standard' ]; then
 fi
 # == = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+/usr/bin/setxkbmap -option "ctrl:nocaps"
+
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
