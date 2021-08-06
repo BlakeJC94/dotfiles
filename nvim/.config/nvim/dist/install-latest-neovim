@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# cd ~
+sudo rm -r neovim-nightly
+# e --branch master --depth 1 https://github.com/neovim/neovim
+wget https://github.com/neovim/neovim/archive/refs/tags/nightly.tar.gz
+tar xf nightly.tar.gz
+cd neovim-nightly
+sudo make CMAKE_BUILD_TYPE=Release install
+cd ..
+sudo rm -r neovim-nightly
+sudo rm nightly.tar.gz
+# sudo rm -r /usr/local/share/nvim/runtime/plugin/
