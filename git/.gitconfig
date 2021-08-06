@@ -9,7 +9,7 @@
     cmd = meld "$LOCAL" "$REMOTE"
 [core]
 	excludesfile = .gitignore_global
-	editor = ~/.local/bin/nvim
+	editor = nvim
 [credential]
 	help = manager
 	helper = store
