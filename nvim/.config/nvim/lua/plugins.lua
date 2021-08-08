@@ -124,13 +124,13 @@ return require('packer').startup(function()
  -- }
 
    -- Dashboard
-  -- use {
-  --   "ChristianChiarulli/dashboard-nvim",
-  --   event = "BufWinEnter",
-  --   config = function()
-  --     require("core.dashboard").setup()
-  --   end,
-  -- }
+  use {
+    "glepnir/dashboard-nvim",
+    event = "BufWinEnter",
+    config = function()
+      require("config.dashboard").setup()
+    end,
+  }
 
   -- Terminal
   use {
@@ -162,6 +162,15 @@ return require('packer').startup(function()
     "hoob3rt/lualine.nvim",
     config = function()
       require("lualine").setup({ options = {theme = 'tokyonight'} })
+    end
+  }
+
+  use {
+    'NTBBloodbath/rest.nvim',
+    requires = { 'nvim-lua/plenary.nvim' },
+    ft = 'http',
+    config = function()
+        require('rest-nvim').setup()
     end
   }
 
