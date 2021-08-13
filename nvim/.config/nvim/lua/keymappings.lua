@@ -37,12 +37,13 @@ local default_keys = {
     -- Telescope
     { "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
     { "<leader>gg", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
+    { "<leader>r", "<cmd>lua require('telescope.builtin').oldfiles()<cr>"},
 
     -- NvimTree
-    -- { "<leader>t", ":NvimTreeToggle<CR>" },
-    { "<leader>t", "<cmd>lua require('config.nvimtree').toggle_tree()<cr>" },
-    -- { "<leader>ff", ":NvimTreeFindFile<CR>"},
-    { "<leader>ff", "<cmd>lua require('config.nvimtree').find_file()<cr>" },
+    { "<leader>t", ":NvimTreeToggle<CR>" },
+    -- { "<leader>t", "<cmd>lua require('config.nvimtree').toggle_tree()<cr>" },
+    { "<leader>ff", ":NvimTreeFindFile<CR>"},
+    -- { "<leader>ff", "<cmd>lua require('config.nvimtree').find_file()<cr>" },
 
     -- nvim-bufferline
     { '<leader><leader>', ':BufferLineCycleNext<CR>' },

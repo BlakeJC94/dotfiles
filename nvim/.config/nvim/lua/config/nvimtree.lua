@@ -14,10 +14,12 @@ nvimtree_config = {
   auto_close = 1,
   quit_on_open = 0,
   follow = 1,
-  hide_dotfiles = 1,
+  hide_dotfiles = 0,
   git_hl = 1,
   root_folder_modifier = ":t",
   tab_open = 0,
+  group_empty = 1,
+  -- respect_buf_cwd = 1,
   -- allow_resize = 1,
   lsp_diagnostics = 1,
   auto_ignore_ft = { "startify", "dashboard" },
@@ -60,39 +62,39 @@ M.setup = function()
   }
 end
 
--- allocate space for bufferline when toggling nvimtree
-M.toggle_tree = function()
-  local view_status_ok, view = pcall(require, "nvim-tree.view")
-  if not view_status_ok then
-    return
-  end
-  if view.win_open() then
-    require("nvim-tree").close()
-    if package.loaded["bufferline.state"] then
-      require("bufferline.state").set_offset(0)
-    end
-  else
-    if package.loaded["bufferline.state"] and nvimtree_config.side == "left" then
-      -- require'bufferline.state'.set_offset(lvim.builtin.nvimtree.width + 1, 'File Explorer')
-      require("bufferline.state").set_offset(nvimtree_config.width + 1, "File Explorer")
-    end
-    require("nvim-tree").toggle()
-  end
-end
-
--- allocate space for bufferline when finding a file in nvimtree
-M.find_file = function()
-  local view_status_ok, view = pcall(require, "nvim-tree.view")
-  if not view_status_ok then
-    return
-  end
-  if package.loaded["bufferline.state"] and nvimtree_config.side == "left" then
-    -- require'bufferline.state'.set_offset(lvim.builtin.nvimtree.width + 1, 'File Explorer')
-    require("bufferline.state").set_offset(nvimtree_config.width + 1, "File Explorer")
-  end
-  require("nvim-tree").find_file(true)
-end
-
-
-
+-- -- allocate space for bufferline when toggling nvimtree
+-- M.toggle_tree = function()
+--   local view_status_ok, view = pcall(require, "nvim-tree.view")
+--   if not view_status_ok then
+--     return
+--   end
+--   if view.win_open() then
+--     require("nvim-tree").close()
+--     if package.loaded["bufferline.state"] then
+--       require("bufferline.state").set_offset(0)
+--     end
+--   else
+--     if package.loaded["bufferline.state"] and nvimtree_config.side == "left" then
+--       -- require'bufferline.state'.set_offset(lvim.builtin.nvimtree.width + 1, 'File Explorer')
+--       require("bufferline.state").set_offset(nvimtree_config.width + 1, "File Explorer")
+--     end
+--     require("nvim-tree").toggle()
+--   end
+-- end
+-- 
+-- -- allocate space for bufferline when finding a file in nvimtree
+-- M.find_file = function()
+--   local view_status_ok, view = pcall(require, "nvim-tree.view")
+--   if not view_status_ok then
+--     return
+--   end
+--   if package.loaded["bufferline.state"] and nvimtree_config.side == "left" then
+--     -- require'bufferline.state'.set_offset(lvim.builtin.nvimtree.width + 1, 'File Explorer')
+--     require("bufferline.state").set_offset(nvimtree_config.width + 1, "File Explorer")
+--   end
+--   require("nvim-tree").find_file(true)
+-- end
+-- 
+-- 
+-- 
 return M

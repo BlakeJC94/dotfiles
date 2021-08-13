@@ -27,7 +27,7 @@ dashboard_config = {
       -- },
       c = {
         description = { "  Settings           " },
-        command = ":e " .. "$MYVIMRC"
+        command = ":e " .. "$MYVIMRC | :NvimTreeToggle"
       },
     },
 }
