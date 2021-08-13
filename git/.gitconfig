@@ -2,7 +2,7 @@
 	name = claytod5
 	email = claytod5@protonmail.com
 [diff]
-    tool = meld
+	tool = nvimdiff
 [difftool]
     prompt = false
 [difftool "meld"]
@@ -15,3 +15,5 @@
 	helper = store
 [init]
 	defaultBranch = main
+[merge]
+	tool = nvimdiff
