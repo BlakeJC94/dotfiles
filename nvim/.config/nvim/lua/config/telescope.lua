@@ -2,7 +2,7 @@ local M = {}
 
 M.setup = function()
   local actions = require('telescope.actions')
-  telescope = require "telescope"
+  local telescope = require "telescope"
   -- telescope.setup(telescope_config)
   telescope.setup {
     defaults = {

@@ -1,4 +1,4 @@
-return require('packer').startup(function()
+return require('packer').startup(function(use)
 
   use "wbthomason/packer.nvim" -- Packer can manage itself
 
@@ -7,45 +7,46 @@ return require('packer').startup(function()
   use "folke/tokyonight.nvim"  -- Colorscheme
 
   -- LSP UI
-  --use {
-  --  "glepnir/lspsaga.nvim",
-  --  config = function()
-  --    local saga = require 'lspsaga'
-  --    saga.init_lsp_saga()
-  --  end
-  --}
+  use {
+    "glepnir/lspsaga.nvim",
+    config = function()
+      local saga = require 'lspsaga'
+      saga.init_lsp_saga()
+    end
+  }
 
   -- change cwd to the project's root using LSP
-  --use {
-  --  "ahmedkhalf/lsp-rooter.nvim",
-  --  config = function()
-  --    require("lsp-rooter").setup()
-  --  end
-  --}
+  use {
+    "ahmedkhalf/project.nvim",
+    -- disable = true,
+    config = function()
+      require("project_nvim").setup{}
+    end
+  }
 
   -- manage LSP implementations
-  --use { 
-  --  "kabouzeid/nvim-lspinstall", 
-  --  event = "VimEnter",
-  --  config = function()
-  --    local lspinstall = require "lspinstall"
-  --    lspinstall.setup()
-  --    local servers = lspinstall.installed_servers()
-  --    for _, server in pairs(servers) do
-  --      require"lspconfig"[server].setup()
-  --    end
-  --  end,
- -- }
+  -- use { 
+  --   "kabouzeid/nvim-lspinstall", 
+  --   event = "VimEnter",
+  --   config = function()
+  --     require"lspinstall".setup()
+  --     local servers = require"lspinstall".installed_servers()
+  --     for _, server in pairs(servers) do
+  --       require"lspconfig"[server].setup{}
+  --     end
+  --   end,
+  -- }
 
   -- search
   use {
     "nvim-telescope/telescope.nvim",
-     requires = {'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim'},
-     config = function()
-       require("config.telescope").setup()
-     end,
+    -- disable = true,
+    requires = {'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim'},
+    config = function()
+      require("config.telescope").setup()
+    end,
   }
-  
+
   -- completion
   --use {
   --  "hrsh7th/nvim-compe",
@@ -165,6 +166,7 @@ return require('packer').startup(function()
     end
   }
 
+  -- Rest client
   use {
     'NTBBloodbath/rest.nvim',
     requires = { 'nvim-lua/plenary.nvim' },

@@ -72,7 +72,7 @@ M.load_commands = function()
    local cmd = vim.cmd
 
    cmd "au BufWritePost plugins.lua source <afile> | PackerCompile"  -- automatically run :PackerCompile whenever plugins.lua is updated 
-   cmd "au BufEnter * silent! lcd %:p:h"
+   -- cmd "au BufEnter * silent! lcd %:p:h"
 end
 
 return M

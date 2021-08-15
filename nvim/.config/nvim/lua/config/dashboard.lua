@@ -10,22 +10,28 @@ dashboard_config = {
 "  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ",
 "  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ",
 "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ",
+"                                                     ",
+"                                                     ",
 
       },
     custom_section = {
-      a = {
+      -- a = {
+      --   description = { "  New Project          " },
+      --   command = "",
+      -- },
+      c = {
         description = { "  Find File          " },
         command = "Telescope find_files",
       },
-      b = {
+      d = {
         description = { "  Recently Used Files" },
         command = "Telescope oldfiles",
       },
-      -- c = {
+      -- e = {
       --   description = { "  Load Last Session  " },
       --   command = "SessionLoad",
       -- },
-      c = {
+      f = {
         description = { "  Settings           " },
         command = ":e " .. "$MYVIMRC | :NvimTreeToggle"
       },

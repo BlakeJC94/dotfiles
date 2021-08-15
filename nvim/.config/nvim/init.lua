@@ -18,7 +18,7 @@ for _, i in pairs(disabled_built_ins) do
   vim.g['loaded_' .. i] = 1
 end
 
--- require("plugins")
+require("plugins")
 
 require("settings").load_options()
 
