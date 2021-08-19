@@ -17,4 +17,4 @@
 -- 
 -- vim.opt_local.nofoldenable = true  -- do not allow code folding
 
-vim.api.nvim_buf_set_keymap(0, 'n', '<leader>r', ':hello', { noremap = true })
+-- vim.api.nvim_buf_set_keymap(0, 'n', '<leader>r', ':hello', { noremap = true })

@@ -75,4 +75,6 @@ export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/library/"
 
 export PATH="$HOME/.poetry/bin:$PATH"
 
+# export PATH="$HOME/go/bin/"
+
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"

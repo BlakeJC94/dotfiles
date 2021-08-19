@@ -14,7 +14,7 @@ local disabled_built_ins = {
   '2html_plugin'
 }
 
-for _, i in pairs(disabled_built_ins) do 
+for _, i in pairs(disabled_built_ins) do
   vim.g['loaded_' .. i] = 1
 end
 
