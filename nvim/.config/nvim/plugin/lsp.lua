@@ -127,7 +127,8 @@ local servers = {
     settings = {
         python = {
           analysis = {
-            typeCheckingMode = "off"
+            typeCheckingMode = "off",
+            autoImportCompletions = true,
           },
       },
     },

@@ -50,7 +50,7 @@ local default_keys = {
     { '<leader>bd', ':BufferLinePickClose<CR>' },
 
     -- See all ToggleTerm terminals
-    { "<tab><tab>", ":ToggleTermOpenAll<CR>" },  
+    { "<tab><tab>", ":ToggleTermOpenAll<CR>" },
   },
 
   term_mode = {

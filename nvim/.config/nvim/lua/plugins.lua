@@ -6,8 +6,6 @@ return require('packer').startup(function(use)
 
   use "folke/tokyonight.nvim"  -- Colorscheme
 
-  use "tjdevries/nlua.nvim"
-
   -- LSP UI
   use {
     "glepnir/lspsaga.nvim",
@@ -38,13 +36,13 @@ return require('packer').startup(function(use)
   }
 
   -- completion
-  --use {
-  --  "hrsh7th/nvim-compe",
-  --  event = "InsertEnter",
-  --  config = function()
-  --    require("config.compe").setup()
-  --  end,
- -- }
+  use {
+   "hrsh7th/nvim-compe",
+   -- event = "InsertEnter",
+   config = function()
+     require("config.compe").setup()
+   end,
+  }
 
   -- autopairs
   use {

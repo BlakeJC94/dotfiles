@@ -54,6 +54,7 @@ M.load_options = function()
       vim.opt[k] = v
    end
 
+  vim.o.completeopt = "menuone,noselect"
 
   vim.g.tokyonight_style = "storm"
   vim.g.tokyonight_terminal_colors = true

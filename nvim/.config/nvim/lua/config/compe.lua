@@ -1,6 +1,7 @@
 local M = {}
-M.config = function()
-  compe_config = {
+
+M.setup = function()
+  require'compe'.setup {
     enabled = true,
     autocomplete = true,
     debug = false,
@@ -15,17 +16,17 @@ M.config = function()
     documentation = {
       border = "single",
       winhighlight = "NormalFloat:CompeDocumentation,FloatBorder:CompeDocumentationBorder",
-    },
+    };
     -- documentation = true,
 
     source = {
-      path = { kind = "   (Path)" },
-      buffer = { kind = "   (Buffer)" },
-      calc = { kind = "   (Calc)" },
-      vsnip = { kind = "   (Snippet)" },
-      nvim_lsp = { kind = "   (LSP)" },
-      nvim_lua = false,
-      spell = { kind = "   (Spell)" },
+      path = true,
+      buffer = true,
+      calc = false,
+      vsnip = false,
+      nvim_lsp = true,
+      nvim_lua = true,
+      spell = true,
       tags = false,
       vim_dadbod_completion = false,
       snippets_nvim = false,
@@ -33,12 +34,19 @@ M.config = function()
       treesitter = false,
       emoji = { kind = " ﲃ  (Emoji)", filetypes = { "markdown", "text" } },
       -- for emoji press : (idk if that in compe tho)
-    },
+    };
   }
-end
 
-M.setup = function()
-  compe.setup(compe_config)
+
+
+  local keymap = vim.api.nvim_set_keymap
+  local options = { noremap = true, silent = true, expr = true }
+  keymap("i", "<C-Space>", [[compe#complete()]], options)
+  keymap("i", "<CR>", [[compe#confirm(luaeval('require 'nvim-autopairs'.autopairs_cr()')]], options)
+  keymap("i", "<C-e>", [[compe#close('<C-e>')]], options)
+  keymap("i", "<C-f>", [[compe#scroll({ 'delta': +4 })]], options)
+  keymap("i", "<C-d>", [[compe#scroll({ 'delta': -4 })]], options)
+
 end
 
 return M
