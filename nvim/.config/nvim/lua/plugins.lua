@@ -6,41 +6,31 @@ return require('packer').startup(function(use)
 
   use "folke/tokyonight.nvim"  -- Colorscheme
 
+  use "tjdevries/nlua.nvim"
+
   -- LSP UI
   use {
     "glepnir/lspsaga.nvim",
-    config = function()
-      local saga = require 'lspsaga'
-      saga.init_lsp_saga()
-    end
+    -- config = function()
+    --   local saga = require 'lspsaga'
+    --   saga.init_lsp_saga()
+    -- end
   }
 
   -- change cwd to the project's root using LSP
   use {
     "ahmedkhalf/project.nvim",
-    -- disable = true,
     config = function()
-      require("project_nvim").setup{}
+      require("project_nvim").setup{
+        patterns = {"init.lua", ".git"},
+        ignore_lsp = {"sumneko_lua"}
+      }
     end
   }
-
-  -- manage LSP implementations
-  -- use { 
-  --   "kabouzeid/nvim-lspinstall", 
-  --   event = "VimEnter",
-  --   config = function()
-  --     require"lspinstall".setup()
-  --     local servers = require"lspinstall".installed_servers()
-  --     for _, server in pairs(servers) do
-  --       require"lspconfig"[server].setup{}
-  --     end
-  --   end,
-  -- }
 
   -- search
   use {
     "nvim-telescope/telescope.nvim",
-    -- disable = true,
     requires = {'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim'},
     config = function()
       require("config.telescope").setup()
