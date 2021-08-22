@@ -55,6 +55,8 @@ M.load_options = function()
    end
 
   vim.o.completeopt = "menuone,noselect"
+  vim.o.sessionoptions="blank,buffers,curdir,folds,help,options,tabpages,winsize,resize,winpos,terminal"
+
 
   vim.g.tokyonight_style = "storm"
   vim.g.tokyonight_terminal_colors = true
@@ -72,7 +74,7 @@ end
 M.load_commands = function()
    local cmd = vim.cmd
 
-   cmd "au BufWritePost plugins.lua source <afile> | PackerCompile"  -- automatically run :PackerCompile whenever plugins.lua is updated 
+   cmd "au BufWritePost plugins.lua source <afile> | PackerCompile"  -- automatically run :PackerCompile whenever plugins.lua is updated
    -- cmd "au BufEnter * silent! lcd %:p:h"
 end
 

@@ -21,7 +21,7 @@ return require('packer').startup(function(use)
     config = function()
       require("project_nvim").setup{
         patterns = {"init.lua", ".git"},
-        ignore_lsp = {"sumneko_lua"}
+        ignore_lsp = {"sumneko_lua"},
       }
     end
   }
@@ -33,6 +33,26 @@ return require('packer').startup(function(use)
     config = function()
       require("config.telescope").setup()
     end,
+  }
+
+  -- Sessions
+  use {
+    "rmagatti/auto-session",
+    config = function()
+      require("auto-session").setup{
+        auto_restore_enabled = false,
+        auto_session_enabled = false,
+        auto_save_enabled = false,
+      }
+    end
+  }
+
+  -- Search sessions via Telescope
+  use {
+    "rmagatti/session-lens",
+    config = function()
+      require('session-lens').setup({--[[your custom config--]]})
+    end
   }
 
   -- completion
@@ -137,7 +157,7 @@ return require('packer').startup(function(use)
       require("colorizer").setup()
     end
  }
-  
+
   -- Devicons
   use {
     "kyazdani42/nvim-web-devicons",
@@ -150,6 +170,7 @@ return require('packer').startup(function(use)
   use {
     "hoob3rt/lualine.nvim",
     config = function()
+      -- require("config.lualine").setup({ options = {theme = 'tokyonight'} })
       require("lualine").setup({ options = {theme = 'tokyonight'} })
     end
   }

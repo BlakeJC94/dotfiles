@@ -19,7 +19,7 @@ local function get_python_path(workspace)
   end
 
   -- Fallback to system Python.
-  return exepath('python3') or exepath('python') or 'python'
+  return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
 end
 
 -- LSP Saga
@@ -104,11 +104,8 @@ local servers = {
   yamlls = {
     cmd = { "yaml-language-server", "--stdio" },
   },
-  cssls = {
-    filetypes = { 'css', 'scss', 'less', 'sass' },
-    root_dir = lspconfig.util.root_pattern('package.json', '.git'),
-  },
-  html = {},
+  cssls = { },
+  html = { filetypes = { "html", "htmldjango" } },
   jsonls = { cmd = { 'vscode-json-languageserver', '--stdio' } },
   -- jedi_language_server = {
   --   root_dir = function(fname)
