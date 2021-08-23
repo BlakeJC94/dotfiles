@@ -187,4 +187,12 @@ return require('packer').startup(function(use)
     end
   }
 
+  -- Indent lines
+  use {
+    "lukas-reineke/indent-blankline.nvim",
+    config = function()
+      require('config.blankline').setup()
+    end
+  }
+
 end)
