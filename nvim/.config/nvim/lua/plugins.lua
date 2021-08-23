@@ -7,13 +7,7 @@ return require('packer').startup(function(use)
   use "folke/tokyonight.nvim"  -- Colorscheme
 
   -- LSP UI
-  use {
-    "glepnir/lspsaga.nvim",
-    -- config = function()
-    --   local saga = require 'lspsaga'
-    --   saga.init_lsp_saga()
-    -- end
-  }
+  use { "glepnir/lspsaga.nvim" }
 
   -- change cwd to the project's root using LSP
   use {
@@ -124,13 +118,22 @@ return require('packer').startup(function(use)
 
 
   -- Debugging
-  --use {
-  --  "mfussenegger/nvim-dap",
-  --  -- event = "BufWinEnter",
-  --  config = function()
-  --    require("config.dap").setup()
-  --  end,
- -- }
+  use {
+   "mfussenegger/nvim-dap",
+   event = "BufWinEnter",
+   config = function()
+     require("config.dap").setup()
+   end,
+   }
+
+  -- DAP UI
+  use {
+    'rcarriga/nvim-dap-ui',
+    event = "BufWinEnter",
+    config = function()
+      require('config.dapui').setup()
+    end,
+  }
 
    -- Dashboard
   use {
@@ -170,8 +173,7 @@ return require('packer').startup(function(use)
   use {
     "hoob3rt/lualine.nvim",
     config = function()
-      -- require("config.lualine").setup({ options = {theme = 'tokyonight'} })
-      require("lualine").setup({ options = {theme = 'tokyonight'} })
+      require("config.lualine").setup()
     end
   }
 

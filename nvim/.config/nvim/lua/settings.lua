@@ -54,15 +54,19 @@ M.load_options = function()
       vim.opt[k] = v
    end
 
+  -- completion global settings
   vim.o.completeopt = "menuone,noselect"
+
+  -- good defaults for sessions
   vim.o.sessionoptions="blank,buffers,curdir,folds,help,options,tabpages,winsize,resize,winpos,terminal"
 
 
+  -- colorscheme
   vim.g.tokyonight_style = "storm"
   vim.g.tokyonight_terminal_colors = true
   vim.g.tokyonight_italic_keywords = true
   vim.g.tokyonight_transparent = false
-  vim.g.tokyonight_sidebars = { "terminal", "packer" }
+  vim.g.tokyonight_sidebars = { "terminal", "packer", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches", "dap-repl" }
   vim.cmd[[colorscheme tokyonight]]
 
 end
