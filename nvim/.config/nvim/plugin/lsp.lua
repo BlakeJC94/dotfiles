@@ -95,6 +95,7 @@ local sumneko_binary = sumneko_root_path.."/bin/Linux/lua-language-server"
 local black = require "config/efm/black"
 local flake8 = require "config/efm/flake8"
 local isort = require "config/efm/isort"
+local prettier = require "config/efm/prettier"
 
 -- TODO: fix html, css, json servers
 -- TODO: setup dockerls and ansiblels
@@ -140,6 +141,12 @@ local servers = {
       rootMarkers = {".git/", "pyproject.toml", "poetry.lock"},
       languages = {
         python = {black, flake8, isort},
+        html = {prettier},
+        json = {prettier},
+        css = {prettier},
+        javascript = {prettier},
+        yaml = {prettier},
+        markdown = {prettier},
       }
     }
   },
