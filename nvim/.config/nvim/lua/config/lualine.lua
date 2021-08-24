@@ -12,6 +12,14 @@ M.setup = function()
     symbols = {error = ' ', warn = ' ', info = ' '},
   }
 
+  -- local git_diff = {
+  --   'diff',
+  --   symbols = {added = ' ', modified = '柳 ', removed = ' '},
+  --   color_added = "#9ece6a",
+  --   color_modified = "#ff9e64",
+  --   color_red = "#f7768e",
+  -- }
+
   -- local spacing = function()
   --   return '%='
   -- end
@@ -44,7 +52,7 @@ M.setup = function()
     theme = 'tokyonight',
     component_separators = {'', ''},
     section_separators = {'', ''},
-    disabled_filetypes = {'dashboard'}
+    disabled_filetypes = {'dashboard', 'NvimTree'}
   },
   sections = {
     lualine_a = {'mode'},
