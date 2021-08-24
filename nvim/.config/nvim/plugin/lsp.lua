@@ -1,7 +1,7 @@
 local lspconfig = require 'lspconfig'
 local lspsaga = require 'lspsaga'
 -- local lsp_status = require 'lsp-status'
--- local lspkind = require 'lspkind'
+local lspkind = require 'lspkind'
 local lsp = vim.lsp
 local buf_keymap = vim.api.nvim_buf_set_keymap
 local cmd = vim.cmd
@@ -21,6 +21,15 @@ local function get_python_path(workspace)
   -- Fallback to system Python.
   return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
 end
+
+-- LSP Kind (symbols)
+lspkind.init {}
+
+-- LSP Signature config
+require('lsp_signature').setup{
+  bind = false,
+  use_lspsaga = true,
+}
 
 -- LSP Saga
 lspsaga.init_lsp_saga {
@@ -42,10 +51,14 @@ lspsaga.init_lsp_saga {
 
 local keymap_opts = { noremap = true, silent = true }
 local function on_attach(client)
-  -- lsp_status.on_attach(client)
-  -- require('lsp_signature').on_attach { bind = true, handler_opts = { border = 'single' } }
-  -- buf_keymap(0, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', keymap_opts)
 
+  -- Attach LSP Signature
+  require('lsp_signature').on_attach({
+    bind = false,
+    use_lspsaga = true,
+  })
+
+  -- buf_keymap(0, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', keymap_opts)
   -- buf_keymap(0, "n", "gf", ":Lspsaga lsp_finder<CR>", keymap_opts)  -- LSP Finder
   buf_keymap(0, 'n', 'gd', '<cmd>lua require"telescope.builtin".lsp_definitions()<CR>', keymap_opts)
   -- code actions
@@ -59,8 +72,8 @@ local function on_attach(client)
   buf_keymap(0, "n", "<C-f>", "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(1)<CR>", keymap_opts)
   buf_keymap(0, "n", "<C-b>", "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>", keymap_opts)
 
-  buf_keymap(0, "n", "gs", ":Lspsaga signature_help<CR>", keymap_opts)  -- signature help
-  buf_keymap(0, "n", "gr", ":Lspsaga rename<CR>", keymap_opts)  -- LSP rename
+  -- buf_keymap(0, "n", "gs", ":Lspsaga signature_help<CR>", keymap_opts)  -- signature help
+  buf_keymap(0, "n", "<leader>rf", ":Lspsaga rename<CR>", keymap_opts)  -- LSP rename (refactor)
   buf_keymap(0, "n", "gp", ":Lspsaga preview_definition<CR>", keymap_opts)  -- Preview Definition
   buf_keymap(0, "n", "<leader>sd", ":Lspsaga show_line_diagnostics<CR>", keymap_opts)  -- Show Line Diagnostics
   buf_keymap(0, 'n', 'gTD', '<cmd>lua vim.lsp.buf.type_definition()<CR>', keymap_opts)

@@ -52,11 +52,14 @@ return require('packer').startup(function(use)
   -- completion
   use {
    "hrsh7th/nvim-compe",
+   requires = "onsails/lspkind-nvim",
    -- event = "InsertEnter",
    config = function()
      require("config.compe").setup()
    end,
   }
+
+  use { "ray-x/lsp_signature.nvim" }
 
   -- autopairs
   use {
@@ -194,5 +197,8 @@ return require('packer').startup(function(use)
       require('config.blankline').setup()
     end
   }
+
+  -- Vim-test
+  use { "vim-test/vim-test" }
 
 end)
