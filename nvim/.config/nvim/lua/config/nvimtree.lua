@@ -17,6 +17,7 @@ nvimtree_config = {
   hide_dotfiles = 0,
   git_hl = 1,
   root_folder_modifier = ":t",
+  respect_buf_cwd = 1,
   tab_open = 0,
   group_empty = 1,
   -- respect_buf_cwd = 1,
