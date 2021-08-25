@@ -201,4 +201,8 @@ return require('packer').startup(function(use)
   -- Vim-test
   use { "vim-test/vim-test" }
 
+  use { "L3MON4D3/LuaSnip"}
+
 end)
+
+

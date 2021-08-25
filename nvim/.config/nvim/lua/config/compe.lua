@@ -22,17 +22,10 @@ M.setup = function()
     source = {
       path = true,
       buffer = true,
-      calc = false,
-      vsnip = false,
       nvim_lsp = true,
       nvim_lua = true,
-      spell = true,
-      tags = false,
-      vim_dadbod_completion = false,
-      snippets_nvim = false,
-      ultisnips = false,
-      treesitter = false,
       emoji = { kind = " ﲃ  (Emoji)", filetypes = { "markdown", "text" } },
+      luasnip = true,
       -- for emoji press : (idk if that in compe tho)
     };
   }

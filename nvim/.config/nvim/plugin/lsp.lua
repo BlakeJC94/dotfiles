@@ -185,6 +185,11 @@ local servers = {
 -- snippet_capabilities.textDocument.completion.completionItem.resolveSupport = {
 --   properties = { 'documentation', 'detail', 'additionalTextEdits' },
 -- }
+local snippet_capabilities = vim.lsp.protocol.make_client_capabilities()
+snippet_capabilities.textDocument.completion.completionItem.snippetSupport = true
+snippet_capabilities.textDocument.completion.completionItem.resolveSupport = {
+  properties = { 'documentation', 'detail', 'additionalTextEdits' },
+}
 
 for server, config in pairs(servers) do
   if type(config) == 'function' then
@@ -197,5 +202,10 @@ for server, config in pairs(servers) do
   --   -- snippet_capabilities,
   --   -- lsp_status.capabilities
   -- )
+  config.capabilities = vim.tbl_deep_extend(
+    'keep',
+    config.capabilities or {},
+    snippet_capabilities
+  )
   lspconfig[server].setup(config)
 end
