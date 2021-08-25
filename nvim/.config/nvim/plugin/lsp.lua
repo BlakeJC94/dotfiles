@@ -6,21 +6,24 @@ local lsp = vim.lsp
 local buf_keymap = vim.api.nvim_buf_set_keymap
 local cmd = vim.cmd
 
-local util = require('lspconfig/util')
-local path = util.path
+local utils = require('utils')
+-- local util = require('lspconfig/util')
+-- local path = util.path
 
--- use project .venv if available
-local function get_python_path(workspace)
-  -- Find and use virtualenv via poetry in workspace directory.
-  local match = vim.fn.glob(path.join(workspace, 'poetry.lock'))
-  if match ~= '' then
-    local venv = vim.fn.trim(vim.fn.system('poetry env info -p'))
-    return path.join(venv, 'bin', 'python')
-  end
+-- -- use project .venv if available
+-- local function get_python_path(workspace)
+--   -- Find and use virtualenv via poetry in workspace directory.
+--   local match = vim.fn.glob(path.join(workspace, 'poetry.lock'))
+--   if match ~= '' then
+--     local venv = vim.fn.trim(vim.fn.system('poetry env info -p'))
+--     return path.join(venv, 'bin', 'python')
+--   end
+-- 
+--   -- Fallback to system Python.
+--   return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
+-- end
 
-  -- Fallback to system Python.
-  return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
-end
+
 
 -- LSP Kind (symbols)
 lspkind.init {}
@@ -98,6 +101,7 @@ local function on_attach(client)
 
   -- cmd 'au CursorHold,CursorHoldI <buffer> lua require"nvim-lightbulb".update_lightbulb {sign = {enabled = false}, virtual_text = {enabled = true, text = ""}, float = {enabled = false, text = "", win_opts = {winblend = 100, anchor = "NE"}}}'
   cmd 'augroup END'
+
 end
 
 -- local settings for Lua LSP
@@ -112,6 +116,7 @@ local prettier = require "config/efm/prettier"
 
 -- TODO: fix html, css, json servers
 -- TODO: setup dockerls and ansiblels
+
 
 local servers = {
   -- bashls = {},
@@ -144,7 +149,7 @@ local servers = {
       },
     },
     on_init = function(client)
-      client.config.settings.python.pythonPath = get_python_path(client.config.root_dir)
+      client.config.settings.python.pythonPath = utils.get_python_path(client.config.root_dir)
     end
   },
   efm = {
@@ -180,11 +185,6 @@ local servers = {
   },
 }
 
--- local snippet_capabilities = vim.lsp.protocol.make_client_capabilities()
--- snippet_capabilities.textDocument.completion.completionItem.snippetSupport = true
--- snippet_capabilities.textDocument.completion.completionItem.resolveSupport = {
---   properties = { 'documentation', 'detail', 'additionalTextEdits' },
--- }
 local snippet_capabilities = vim.lsp.protocol.make_client_capabilities()
 snippet_capabilities.textDocument.completion.completionItem.snippetSupport = true
 snippet_capabilities.textDocument.completion.completionItem.resolveSupport = {
@@ -196,12 +196,6 @@ for server, config in pairs(servers) do
     config = config()
   end
   config.on_attach = on_attach
-  -- config.capabilities = vim.tbl_deep_extend(
-  --   'keep',
-  --   config.capabilities or {},
-  --   -- snippet_capabilities,
-  --   -- lsp_status.capabilities
-  -- )
   config.capabilities = vim.tbl_deep_extend(
     'keep',
     config.capabilities or {},
