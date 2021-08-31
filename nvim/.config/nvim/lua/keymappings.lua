@@ -58,8 +58,6 @@ local default_keys = {
     { '<leader>8', '<cmd>BufferLineGoToBuffer 8<CR>'},
     { '<leader>9', '<cmd>BufferLineGoToBuffer 9<CR>'},
 
-    -- See all ToggleTerm terminals
-    { "<tab><tab>", ":ToggleTermOpenAll<CR>" },
   },
 
   term_mode = {
@@ -74,10 +72,10 @@ local default_keys = {
     { "<C-w>J", "<C-\\><C-N>z20<CR>i" },
 
     -- ToggleTerm
-    { "<tab><tab>", "<C-\\><C-n>:ToggleTermCloseAll<CR>" },
-    { "<leader>2", "<C-\\><C-n>:2ToggleTerm<CR>" },
-    { "<leader>3", "<C-\\><C-n>:3ToggleTerm<CR>" },
-    { "<leader>4", "<C-\\><C-n>:4ToggleTerm<CR>" },
+    -- { "<tab><tab>", "<C-\\><C-n>:ToggleTermCloseAll<CR>" },
+    -- { "<leader>2", "<C-\\><C-n>:2ToggleTerm<CR>" },
+    -- { "<leader>3", "<C-\\><C-n>:3ToggleTerm<CR>" },
+    -- { "<leader>4", "<C-\\><C-n>:4ToggleTerm<CR>" },
   },
 
   visual_mode = {

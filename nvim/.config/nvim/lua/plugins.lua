@@ -6,15 +6,18 @@ return require('packer').startup(function(use)
 
   use "folke/tokyonight.nvim"  -- Colorscheme
 
+  -- Lua REPL
+  use "rafcamlet/nvim-luapad"
+
   -- LSP UI
-  use { "glepnir/lspsaga.nvim" }
+  use "glepnir/lspsaga.nvim"
 
   -- change cwd to the project's root using LSP
   use {
     "ahmedkhalf/project.nvim",
     config = function()
       require("project_nvim").setup{
-        patterns = {"init.lua", ".git"},
+        patterns = {"init.lua", ".env", ".git"},
         ignore_lsp = {"sumneko_lua"},
       }
     end
@@ -180,7 +183,7 @@ return require('packer').startup(function(use)
     end
   }
 
-  -- Rest client
+  -- REST client
   use {
     'NTBBloodbath/rest.nvim',
     requires = { 'nvim-lua/plenary.nvim' },
@@ -199,9 +202,10 @@ return require('packer').startup(function(use)
   }
 
   -- Vim-test
-  use { "vim-test/vim-test" }
+  use "vim-test/vim-test"
 
-  use { "L3MON4D3/LuaSnip"}
+  -- Snippets
+  use "L3MON4D3/LuaSnip"
 
 end)
 
