@@ -26,7 +26,7 @@ return require('packer').startup(function(use)
   -- search
   use {
     "nvim-telescope/telescope.nvim",
-    requires = {'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim'},
+    requires = {'nvim-lua/plenary.nvim'},
     config = function()
       require("config.telescope").setup()
     end,
@@ -62,7 +62,7 @@ return require('packer').startup(function(use)
    end,
   }
 
-  use { "ray-x/lsp_signature.nvim" }
+  use "ray-x/lsp_signature.nvim"
 
   -- autopairs
   use {
@@ -83,6 +83,9 @@ return require('packer').startup(function(use)
       require("config.treesitter").setup()
     end,
   }
+
+  use "windwp/nvim-ts-autotag"
+
 
   -- NvimTree
   use {
