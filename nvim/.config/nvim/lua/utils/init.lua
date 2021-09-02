@@ -49,5 +49,16 @@ function utils.run_python()
   return require('toggleterm').exec(("%s %s"):format(python_bin, file_path))
 end
 
+function utils.loaded_plugins()
+  local count = 0
+
+  for _, v in pairs(packer_plugins) do
+    if (v.loaded == true) then
+      count = count + 1
+    end
+  end
+
+  return count
+end
 
 return utils
