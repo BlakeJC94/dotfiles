@@ -22,6 +22,14 @@ distro_packages() {
   sudo apt install -f packages.txt
 }
 
+install_exa() {
+  echo "Installing exa manually"
+}
+
+install_starship() {
+  echo "Installing starship"
+}
+
 pyenv() {
   echo "Installing pyenv"
 
