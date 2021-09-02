@@ -23,10 +23,14 @@ devicons_config = {
       name = "Dockerfile",
     },
     http = {
-      icon = "爵",
-      color = "#FFFFFF",
+      icon = " ",
+      -- color = "#FF7F50",
       name = "http",
     },
+    md = {
+      icon = " ",
+      name = "markdown",
+    }
   },
 }
 
