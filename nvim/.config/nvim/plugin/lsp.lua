@@ -1,8 +1,8 @@
-local lspconfig = require 'lspconfig'
-local lspsaga = require 'lspsaga'
+local lspconfig = require('lspconfig')
+local lspsaga = require('lspsaga')
 -- local lsp_status = require 'lsp-status'
-local lspkind = require 'lspkind'
-local lsp = vim.lsp
+local lspkind = require('lspkind')
+-- local lsp = vim.lsp
 local buf_keymap = vim.api.nvim_buf_set_keymap
 local cmd = vim.cmd
 
@@ -18,7 +18,7 @@ local utils = require('utils')
 --     local venv = vim.fn.trim(vim.fn.system('poetry env info -p'))
 --     return path.join(venv, 'bin', 'python')
 --   end
--- 
+--
 --   -- Fallback to system Python.
 --   return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
 -- end
@@ -119,13 +119,13 @@ local prettier = require "config/efm/prettier"
 
 
 local servers = {
-  -- bashls = {},
+  bashls = {},
   yamlls = {
     cmd = { "yaml-language-server", "--stdio" },
   },
-  cssls = { },
+  cssls = {},
   html = { filetypes = { "html", "htmldjango" } },
-  jsonls = { cmd = { 'vscode-json-languageserver', '--stdio' } },
+  jsonls = {},
   -- jedi_language_server = {
   --   root_dir = function(fname)
   --       local root_files = {
@@ -153,7 +153,9 @@ local servers = {
     end
   },
   efm = {
-    init_options = {documentFormatting = true},
+    init_options = {
+      documentFormatting = true,
+    },
     root_dir = vim.loop.cwd,
     settings = {
       rootMarkers = {".git/", "pyproject.toml", "poetry.lock"},
