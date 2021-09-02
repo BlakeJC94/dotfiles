@@ -37,7 +37,7 @@ local default_keys = {
     -- Telescope
     { "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
     { "<leader>gg", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
-    { "<leader>r", "<cmd>lua require('telescope.builtin').oldfiles()<cr>"},
+    { "<leader>rr", "<cmd>lua require('telescope.builtin').oldfiles()<cr>"},
 
     -- NvimTree
     { "<leader>t", ":NvimTreeToggle<CR>" },
@@ -68,8 +68,8 @@ local default_keys = {
     { "<C-l>", "<C-\\><C-N><C-w>l" },
 
     -- Terminal resize
-    { "<C-w>K", "<C-\\><C-N>z70<CR>i" },
-    { "<C-w>J", "<C-\\><C-N>z20<CR>i" },
+    { "<Tab>k", "<C-\\><C-N>z70<CR>i" },
+    { "<Tab>j", "<C-\\><C-N>z20<CR>i" },
 
     -- ToggleTerm
     -- { "<tab><tab>", "<C-\\><C-n>:ToggleTermCloseAll<CR>" },
