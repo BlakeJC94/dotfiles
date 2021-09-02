@@ -1,32 +1,11 @@
 local lspconfig = require('lspconfig')
 local lspsaga = require('lspsaga')
--- local lsp_status = require 'lsp-status'
 local lspkind = require('lspkind')
 -- local lsp = vim.lsp
 local buf_keymap = vim.api.nvim_buf_set_keymap
 local cmd = vim.cmd
 
 local utils = require('utils')
--- local util = require('lspconfig/util')
--- local path = util.path
-
--- -- use project .venv if available
--- local function get_python_path(workspace)
---   -- Find and use virtualenv via poetry in workspace directory.
---   local match = vim.fn.glob(path.join(workspace, 'poetry.lock'))
---   if match ~= '' then
---     local venv = vim.fn.trim(vim.fn.system('poetry env info -p'))
---     return path.join(venv, 'bin', 'python')
---   end
---
---   -- Fallback to system Python.
---   return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
--- end
-
-
-
--- LSP Kind (symbols)
-lspkind.init {}
 
 -- LSP Signature config
 require('lsp_signature').setup{
@@ -52,6 +31,11 @@ lspsaga.init_lsp_saga {
   },
 }
 
+
+-- LSP Kind (symbols)
+lspkind.init {}
+
+
 local keymap_opts = { noremap = true, silent = true }
 local function on_attach(client)
 
@@ -60,6 +44,7 @@ local function on_attach(client)
     bind = false,
     use_lspsaga = true,
   })
+
 
   -- buf_keymap(0, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', keymap_opts)
   -- buf_keymap(0, "n", "gf", ":Lspsaga lsp_finder<CR>", keymap_opts)  -- LSP Finder

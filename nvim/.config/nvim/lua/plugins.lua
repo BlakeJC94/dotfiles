@@ -6,11 +6,11 @@ return require('packer').startup(function(use)
 
   use "folke/tokyonight.nvim"  -- Colorscheme
 
-  -- Lua REPL
-  use "rafcamlet/nvim-luapad"
+  use "machakann/vim-highlightedyank"  -- Highlight yanking
 
-  -- LSP UI
-  use "glepnir/lspsaga.nvim"
+  use "rafcamlet/nvim-luapad"  -- Lua REPL
+
+  use "glepnir/lspsaga.nvim" -- LSP UI
 
   -- change cwd to the project's root using LSP
   use {
