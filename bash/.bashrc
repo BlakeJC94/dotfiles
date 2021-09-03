@@ -101,8 +101,8 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-if [ -f ~/.config/bash/.bash_aliases ]; then
-    . ~/.config/bash/.bash_aliases 
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases 
 fi
 
 
@@ -117,10 +117,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# source completions for bash in alacritty if installed
-if [[ -f /usr/local/bin/alacritty ]]; then
-    . ~/.config/bash/alacritty.bash
-fi
+# # source completions for bash in alacritty if installed
+# if [[ -f /usr/local/bin/alacritty ]]; then
+#     . ~/.config/bash/alacritty.bash
+# fi
 
 export VISUAL=/usr/bin/vim
 export EDITOR="$VISUAL"
@@ -128,3 +128,11 @@ export EDITOR="$VISUAL"
 set -o vi
 
 eval "$(starship init bash)"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+alias luamake=/home/dclayton/.cache/nvim/nlua/sumneko_lua/lua-language-server/3rd/luamake/luamake
+
+eval "$(pyenv init -)"

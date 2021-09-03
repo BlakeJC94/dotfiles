@@ -1,0 +1,3 @@
+cookiecutters_dir: "~/cookiecutter_templates/"
+abbreviations:
+  cli: "cookiecutter-python-cli"

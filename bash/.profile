@@ -11,13 +11,13 @@
 CONF="$HOME/.config"
 
 
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
-    # include .bashrc from .config if it exists
-    if [ -f "$CONF/bash/.bashrc" ]; then
-    	. "$CONF/bash/.bashrc"
     # include .bashrc if it exists
-    elif [ -f "$HOME/.bashrc" ]; then
+    if [ -f "$HOME/.bashrc" ]; then
     	. "$HOME/.bashrc"
     fi
 fi
@@ -56,6 +56,8 @@ if [ $variant == 'microsoft-standard' ]; then
 fi
 # == = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+/usr/bin/setxkbmap -option "ctrl:nocaps"
+
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
@@ -73,4 +75,8 @@ export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/library/"
 
 export PATH="$HOME/.poetry/bin:$PATH"
 
+# export PATH="$HOME/go/bin/"
+
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
+
+eval "$(pyenv init --path)"
