@@ -1,8 +1,21 @@
 # My dotfiles and such
 
-WIP: install.sh
+# Features
+
+* Neovim: Development (in terminal)
+  * LSP
+  * DAP
+  * REST Client
+* Kitty: Terminal
+* Lazygit: Git operations
+* Starship: Bash prompt
+* Zathura: PDF reading
+* Conky: System monitoring
+* Poetry: Python dev/build tool
 
 # Install
+
+WIP: install.sh
 
 When install.sh is done and tested, running install.sh will install all development
 environment dependencies.
