@@ -7,40 +7,44 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+PYTHON_VERSION="3.9.7"
+DEBUGPY_PATH="$HOME/.local/debugpy"
+
 function red {
-    printf "${RED}$@${NC}\n"
+    printf "%s%s%s\n" "$RED" "$@" "$NC"
 }
 
 function green {
-    printf "${GREEN}$@${NC}\n"
+    printf "%s%s%s\n" "$GREEN" "$@" "$NC"
 }
 
 function yellow {
-    printf "${YELLOW}$@${NC}\n"
+    printf "%s%s%s\n" "$YELLOW" "$@" "$NC"
 }
 
 font() {
-  echo $(yellow "Installing font: JetBrains Nerd Font")
+  echo -e "$(yellow "Installing font: JetBrains Nerd Font")"
   if [[ -e "$HOME/.fonts/" ]]; then
-    echo $(yellow "Fonts directory found")
+    echo -e "$(yellow "Fonts directory found")"
   else
-    echo $(yellow "Creating fonts directory")
-    mkdir $HOME/.fonts/
+    echo -e "$(yellow "Creating fonts directory")"
+    mkdir "$HOME/.fonts/"
   fi
-  cd $HOME/.fonts/
+  (
+  cd "$HOME/.fonts/" || exit
   wget2 --progress bar https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
   unzip ./JetBrainsMono.zip
   fc-cache -f -v
-  cd -
-  echo $(green "Finished installing font")
+  )
+  echo -e "$(green "Finished installing font")"
 }
 
 distro_packages() {
-  echo $(yellow "Updating Package Repository")
+  echo -e "$(yellow "Updating Package Repository")"
   sudo apt update
-  echo $(yellow "Attempting to upgrade packages")
+  echo -e "$(yellow "Attempting to upgrade packages")"
   sudo apt upgrade
-  echo $(yellow "Installing Python build dependencies")
+  echo -e "$(yellow "Installing Python build dependencies")"
   sudo apt install \
                   make \
                   build-essential \
@@ -59,17 +63,17 @@ distro_packages() {
                   libxmlsec1-dev \
                   libffi-dev \
                   liblzma-dev
-  echo $(yellow "Installing other packages")
+  echo -e "$(yellow "\nInstalling other packages\n")"
   sudo apt install \
                   stow \
                   ripgrep \
                   bat \
                   dust
-  echo $(green "Finished installing packages")
+  echo -e "$(green "\nFinished installing packages\n")"
 }
 
 install_exa() {
-  echo $(yellow "Installing exa")
+  echo -e "$(yellow "Installing exa")"
   wget2 --progress bar https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip
   unzip exa-linux-x86_64-v0.10.1.zip -d exa
   sudo cp ./exa/bin/exa /usr/local/bin 
@@ -77,49 +81,65 @@ install_exa() {
   sudo cp ./exa/completions/exa.bash /etc/bash_completion.d/
   rm -r exa
   rm exa-linux-x86_64-v0.10.1.zip
-  echo $(green "Finished installing exa")
+  echo -e "$(green "Finished installing exa")"
 }
 
 install_starship() {
-  echo $(yellow "Installing Starship")
+  echo -e "$(yellow "Installing Starship")"
   sh -c "$(curl -fsSL https://starship.rs/install.sh)"
-  echo $(green "Finished installing Starship")
+  echo -e "$(green "Finished installing Starship")"
 }
 
 pyenv() {
-  echo "Installing pyenv"
-
-  echo "Installing latest stable Python interpreter"
+  echo -e "$(yellow "Installing pyenv")"
+  git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+  ( cd ~/.pyenv && src/configure && make -C src )
+  echo -e "$(green "Finished installing pyenv")"
+  echo -e "\n\n"
+  echo -e "$(yellow "Installing latest stable Python interpreter")"
+  pyenv install $PYTHON_VERSION || echo -e "$(red Failed installing latest Python interpreter)"
+  echo -e "$(green Finished installing Python)"
 }
 
-pip() {
-  echo "Installing Pip"
+debugpy() {
+  echo -e "$(yellow "Installing debugpy")"  # separate venv
+  python -m venv DEBUGPY_PATH
+  "$DEBUGPY_PATH/bin/python" -m pip install debugpy
+  echo -e "$(green "Finished installing debugpy")"
+}
 
-  echo "Installing debugpy"  # separate venv
-
-  echo "Installing Pipx"
+pipx() {
+  echo -e "$(yellow "Installing Pipx")"
+  python -m pip install --user pipx
+  python -m pipx ensurepath
+  echo -e "$(green "Finished installing Pipx")"
 }
 
 poetry() {
-  echo "Installing poetry"
-
-  echo "Finished installing poetry"
+  echo -e "$(yellow "Installing poetry")"
+  curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+  echo -e "$(green "Finished installing poetry")"
 }
 
 pipx_programs() {
   echo "Installing black"
+  pipx install black
   echo "Installing isort"
+  pipx install isort
   echo "Installing flake8"
+  pipx install flake8
   echo "Installing cookiecutter"
+  pipx install cookiecutter
   echo "Installing ranger"
+  pipx install ranger
 }
 
 python() {
   echo "Beginning Python setup"
   pyenv
   pip
-  pipx_programs
   poetry
+  pipx_programs
   echo "Python setup complete"
 }
 
@@ -181,5 +201,7 @@ stow() {
 
 # TODO: Handle cases where some software or component is already installed
 # ... prompt to update when necessary
+
+# TODO: Exit upon a component failure (requires above todo for re-running)
 
 # install_distro_packages
