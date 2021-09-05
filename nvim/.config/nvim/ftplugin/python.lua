@@ -6,6 +6,7 @@
 -- vim.opt_local.softtabstop = 4
 -- vim.opt_local.shiftwidth = 4
 -- vim.opt_local.textwidth = 88
+vim.cmd("command! FlaskRun :TermExec cmd='poetry run flask run'")
 
 vim.opt_local.expandtab = true
 
