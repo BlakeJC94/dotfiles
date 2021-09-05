@@ -98,6 +98,7 @@ local black = require "config/efm/black"
 local flake8 = require "config/efm/flake8"
 local isort = require "config/efm/isort"
 local prettier = require "config/efm/prettier"
+local shellcheck = require "config/efm/shellcheck"
 
 -- TODO: fix html, css, json servers
 -- TODO: setup dockerls and ansiblels
@@ -152,6 +153,7 @@ local servers = {
         javascript = {prettier},
         yaml = {prettier},
         markdown = {prettier},
+        sh = {shellcheck},
       }
     }
   },
