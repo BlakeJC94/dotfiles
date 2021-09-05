@@ -136,3 +136,12 @@ export NVM_DIR="$HOME/.nvm"
 alias luamake=/home/dclayton/.cache/nvim/nlua/sumneko_lua/lua-language-server/3rd/luamake/luamake
 
 eval "$(pyenv init -)"
+
+# Get weather info either from IP location or user input
+function weather() {
+if [[ $COLUMNS -lt 125 ]]; then
+ curl wttr.in/$@?2n
+else
+ curl wttr.in/$@
+fi
+}
