@@ -32,26 +32,6 @@ return require('packer').startup(function(use)
     end,
   }
 
-  -- Sessions
-  use {
-    "rmagatti/auto-session",
-    config = function()
-      require("auto-session").setup{
-        auto_restore_enabled = false,
-        auto_session_enabled = false,
-        auto_save_enabled = false,
-      }
-    end
-  }
-
-  -- Search sessions via Telescope
-  use {
-    "rmagatti/session-lens",
-    config = function()
-      require('session-lens').setup({--[[your custom config--]]})
-    end
-  }
-
   -- completion
   use {
    "hrsh7th/nvim-compe",
@@ -67,7 +47,7 @@ return require('packer').startup(function(use)
   -- autopairs
   use {
    "windwp/nvim-autopairs",
-   event = "InsertEnter",
+   -- event = "InsertEnter",
    -- after = "nvim-compe",
    config = function()
      require "config.autopairs"
@@ -104,13 +84,14 @@ return require('packer').startup(function(use)
     config = function()
       require("config.gitsigns").setup()
     end,
-    event = "BufRead",
+    commit = "daa233aabb4dbc7c870ea7300bcfeef96d49c2a3"
+    -- event = "BufRead",
   }
 
   -- Comments
   use {
     "terrortylor/nvim-comment",
-    event = "BufRead",
+    -- event = "BufRead",
     config = function()
       require("nvim_comment").setup()
     end,
@@ -122,14 +103,14 @@ return require('packer').startup(function(use)
     config = function()
       require("config.bufferline").setup()
     end,
-    event = "BufWinEnter",
+    -- event = "BufWinEnter",
   }
 
 
   -- Debugging
   use {
    "mfussenegger/nvim-dap",
-   event = "BufWinEnter",
+   -- event = "BufWinEnter",
    config = function()
      require("config.dap").setup()
    end,
@@ -138,16 +119,25 @@ return require('packer').startup(function(use)
   -- DAP UI
   use {
     'rcarriga/nvim-dap-ui',
-    event = "BufWinEnter",
+    -- event = "BufWinEnter",
     config = function()
       require('config.dapui').setup()
     end,
   }
 
+  -- Virtual Debug Text (need option to clear virtual text on disconnect)
+  -- use {
+  --   "theHamsta/nvim-dap-virtual-text",
+  --   config = function()
+  --     vim.g.dap_virtual_text = true
+  --     vim.cmd [[highlight default link NvimDapVirtualText LspDiagnosticsVirtualTextInformation]]
+  --   end,
+  -- }
+
    -- Dashboard
   use {
     "glepnir/dashboard-nvim",
-    event = "BufWinEnter",
+    -- event = "BufWinEnter",
     config = function()
       require("config.dashboard").setup()
     end,
@@ -156,7 +146,7 @@ return require('packer').startup(function(use)
   -- Terminal
   use {
     "akinsho/nvim-toggleterm.lua",
-    event = "BufWinEnter",
+    -- event = "BufWinEnter",
     config = function()
       require("config.terminal").setup()
     end,
