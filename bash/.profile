@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # ~/.profile: executed by the command interpreter for login shells.
 # This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
 # exists.
@@ -70,8 +72,6 @@ export CONF
 
 # man page syntax highlighting via bat
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-
-export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/library/"
 
 export PATH="$HOME/.poetry/bin:$PATH"
 
