@@ -58,6 +58,8 @@ local default_keys = {
     { '<leader>8', '<cmd>BufferLineGoToBuffer 8<CR>'},
     { '<leader>9', '<cmd>BufferLineGoToBuffer 9<CR>'},
 
+    --nvim-dap-ui
+    { '<leader>d', '<cmd>lua require("dapui").toggle()<CR>' }
   },
 
   term_mode = {

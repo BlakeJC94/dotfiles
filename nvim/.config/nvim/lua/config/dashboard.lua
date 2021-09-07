@@ -34,16 +34,12 @@ M.setup = function()
         command = "",
       },
       c = {
-        description = { "  REST Client             "},
+        description = { "  REST Client             "},
         command = ":e $HOME/code/rest/README.md | :NvimTreeToggle"
       },
       d = {
         description = { "..........................."},
         command = "",
-      },
-      e = {
-        description = { "  Load Recent Session     " },
-        command = ":lua require('session-lens').search_session()",
       },
       f = {
         description = { "  New File                " },

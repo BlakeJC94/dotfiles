@@ -3,7 +3,7 @@ local M = {}
 devicons_config = {
   override = {
     py = {
-      icon = " ",
+      icon = "",
       color = "#FFD845",  -- change color to yellow
       name = "Python",
     },
@@ -14,21 +14,20 @@ devicons_config = {
     },
     html = {
       icon = "",
-      color = "#FF7F50",
+      color = "#e34c26",
       name = "HTML",
     },
     Dockerfile = {
-      icon = " ",
+      icon = "",
       color = "#088DA5",
       name = "Dockerfile",
     },
     http = {
-      icon = " ",
-      -- color = "#FF7F50",
+      icon = "",
       name = "http",
     },
     md = {
-      icon = " ",
+      icon = "",
       name = "markdown",
     }
   },

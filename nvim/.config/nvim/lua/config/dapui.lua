@@ -23,7 +23,7 @@ M.setup = function()
       { id = "stacks", size = 0.40 },
       -- { id = "watches", size = 00.25 },
     },
-    width = 50,
+    size = 50,
     position = "right", -- Can be "left" or "right"
   },
   tray = {
@@ -31,7 +31,7 @@ M.setup = function()
     elements = { "repl",
       { id = "watches", size = 0.25 },
     },
-    height = 10,
+    size = 10,
     position = "bottom", -- Can be "bottom" or "top"
   },
   floating = {
