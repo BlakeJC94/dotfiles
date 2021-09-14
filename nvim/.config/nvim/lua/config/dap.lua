@@ -1,13 +1,19 @@
 local M = {}
 
+local dap = require('dap')
+
+M.stop_debugger = function()
+  dap.disconnect()
+  dap.close()
+end
+
 M.setup = function()
-  local dap = require('dap')
 
   local options = { noremap = true, silent = true }
   vim.api.nvim_set_keymap("n", "<leader>b", "<cmd>lua require'dap'.toggle_breakpoint()<cr>", options)
   vim.api.nvim_set_keymap("n", "<leader>rc", "<cmd>lua require'dap'.run_to_cursor()<cr>", options)
   vim.api.nvim_set_keymap("n", "<F9>", "<cmd>lua require'dap'.continue()<cr>", options)
-  vim.api.nvim_set_keymap("n", "<F10>", "<cmd>lua require'dap'.close()<cr>", options)
+  vim.api.nvim_set_keymap("n", "<F10>", "<cmd>lua require'config.dap'.stop_debugger()<cr>", options)
   vim.api.nvim_set_keymap("n", "<F11>", "<cmd>lua require'dap'.repl.open()<cr>", options)
   vim.api.nvim_set_keymap("n", "<F6>", "<cmd>lua require'dap'.step_over()<cr>", options)
   vim.api.nvim_set_keymap("n", "<F7>", "<cmd>lua require'dap'.step_into()<cr>", options)
