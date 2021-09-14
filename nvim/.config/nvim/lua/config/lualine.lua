@@ -52,7 +52,7 @@ M.setup = function()
     theme = 'tokyonight',
     component_separators = {'', ''},
     section_separators = {'', ''},
-    disabled_filetypes = {'dashboard', 'NvimTree'}
+    disabled_filetypes = {'dashboard', 'NvimTree', 'toggleterm'}
   },
   sections = {
     lualine_a = {'mode'},

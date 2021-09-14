@@ -1,3 +1,4 @@
+#!/bin/bash
 #custom aliases
 
 alias wget="wget2 --progress bar"

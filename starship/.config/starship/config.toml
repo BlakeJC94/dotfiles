@@ -3,3 +3,6 @@ symbol = " "
 
 [lua]
 symbol = " "
+
+[golang]
+symbol = " "

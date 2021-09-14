@@ -132,6 +132,7 @@ pipx_programs() {
   pipx install cookiecutter
   echo "Installing ranger"
   pipx install ranger
+  pipx inject ranger pillow
 }
 
 python() {
@@ -145,21 +146,26 @@ python() {
 
 nvm() {
   echo "Installing nvm"
-
-  echo "Finished nvm install"
+  if wget --progress bar -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash; then
+    echo "Successfully installed nvm"
+  else
+    echo "Error installing nvm. Exiting..."; exit 1
+  fi
 }
 
 npm() {
   echo "Installing npm packages"
-  # pyright
-  # vscode-langservers-extracted
-  # yaml-language-server
-  # prettier
+  npm install -g pyright \
+    vscode-langservers-extracted \
+    yaml-language-server \
+    prettier \
+    bash-language-server
   echo "Finished npm packages"
 }
 node() {
   echo "Beginning node setup"
   nvm
+  nvm install node --latest-npm
   npm
   echo "Finished node setup"
 }
