@@ -62,13 +62,13 @@ distro_packages() {
                   libxml2-dev \
                   libxmlsec1-dev \
                   libffi-dev \
-                  liblzma-dev
+                  liblzma-dev \
+                  ninja-build
   echo -e "$(yellow "\nInstalling other packages\n")"
   sudo apt install \
                   stow \
                   ripgrep \
                   bat \
-                  dust
   echo -e "$(green "\nFinished installing packages\n")"
 }
 
@@ -122,17 +122,17 @@ poetry() {
 }
 
 pipx_programs() {
-  echo "Installing black"
-  pipx install black
-  echo "Installing isort"
-  pipx install isort
-  echo "Installing flake8"
-  pipx install flake8
-  echo "Installing cookiecutter"
-  pipx install cookiecutter
-  echo "Installing ranger"
-  pipx install ranger
-  pipx inject ranger pillow
+  prgs=('black' 'isort' 'flake8' 'cookiecutter')
+
+  for i in "${prgs[@]}"; do
+    if pipx install "$i"; then
+      echo -e "$(green "Installed $i")"
+    else
+      echo -e "$(red "Error installing $i")"
+      echo Exiting; exit
+    fi
+  done
+
 }
 
 python() {
@@ -140,7 +140,9 @@ python() {
   pyenv
   pip
   poetry
+  pipx
   pipx_programs
+  debugpy
   echo "Python setup complete"
 }
 
@@ -160,8 +162,10 @@ npm() {
     yaml-language-server \
     prettier \
     bash-language-server
+  npm config set ignore-scripts true
   echo "Finished npm packages"
 }
+
 node() {
   echo "Beginning node setup"
   nvm
@@ -172,7 +176,16 @@ node() {
 
 lua_lang_server() {
   echo "Installing lua lang server"
-
+  git clone https://github.com/sumneko/lua-language-server
+  (
+  cd lua-language-server || exit
+  git submodule update --init --recursive
+    (
+    cd 3rd/luamake || exit
+    ./compile/install.sh
+    )
+  ./3rd/luamake/luamake rebuild
+  )
   echo "Finished installing lua lang server"
 }
 
