@@ -15,12 +15,10 @@ alias cdl='_func(){ cd "$1" && ll ;}; _func'
 alias tailf='_func(){ tail -f "$1" | bat --paging=never -l log ;}; _func'
 alias borg_check="echo "---";borg list /mnt/pc_backups/borg/; echo "----";borg info /mnt/pc_backups/borg"
 alias hash_check="~/code/bash/hash_check/hash_check"
-alias gsa="~/code/bash/git_status_all/git_status_all"
 alias dyfams="~/code/bash/dyfams/dyfams"
 alias batdiff="git diff --name-only --diff-filter=d | xargs bat --diff"
-alias gcgp="git commit && git push"
 alias mac_convert="python $HOME/code/python/ms_to_cisco_mac_converter/main.py"
-alias ra=". $HOME/.config/bash/.bash_aliases"
 alias scp="scp -v"
 alias dd="dd status=progress"
 alias icat="kitty +kitten icat"
+alias dust="du -ha | sort -hr | head -n 10"
