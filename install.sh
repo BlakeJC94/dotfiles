@@ -147,31 +147,34 @@ python() {
 }
 
 nvm() {
-  echo "Installing nvm"
+  echo -e "$(yellow "Installing nvm")"
   if wget --progress bar -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash; then
-    echo "Successfully installed nvm"
+    echo -e "$(green "Successfully installed nvm")"
   else
-    echo "Error installing nvm. Exiting..."; exit 1
+    echo -e "$(red "Error installing nvm. Exiting...")"; exit 1
   fi
 }
 
 npm() {
-  echo "Installing npm packages"
-  npm install -g pyright \
+  echo -e "$(yellow "Installing npm packages")"
+  if npm install -g pyright \
     vscode-langservers-extracted \
     yaml-language-server \
     prettier \
-    bash-language-server
-  npm config set ignore-scripts true
-  echo "Finished npm packages"
+    bash-language-server; then
+    npm config set ignore-scripts true
+    echo -e "$(green "Finished npm packages")"
+  else
+    echo -e "$(red "Failed to install npm packages")"; exit 1
+  fi
 }
 
 node() {
-  echo "Beginning node setup"
+  echo -e "$(yellow "Beginning node setup")"
   nvm
   nvm install node --latest-npm
   npm
-  echo "Finished node setup"
+  echo -e "$(green "Finished node setup")"
 }
 
 lua_lang_server() {
@@ -197,9 +200,11 @@ go_programs() {
 }
 
 go() {
-  echo "Installing Golang"
-
-  echo "Finished installing Golang"
+  echo -e "$(yellow "Installing Golang")"
+  wget2 --progress bar https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+  rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+  echo -e "$(green "Finished installing Golang")"
+  go_programs
 }
 
 build_neovim() {
