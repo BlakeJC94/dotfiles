@@ -36,7 +36,7 @@ font() {
   unzip ./JetBrainsMono.zip
   fc-cache -f -v
   )
-  echo -e "$(green "Finished installing font")"
+  echo -e "$(green "Finished installing font\n")"
 }
 
 distro_packages() {
@@ -81,44 +81,44 @@ install_exa() {
   sudo cp ./exa/completions/exa.bash /etc/bash_completion.d/
   rm -r exa
   rm exa-linux-x86_64-v0.10.1.zip
-  echo -e "$(green "Finished installing exa")"
+  echo -e "$(green "Finished installing exa\n")"
 }
 
 install_starship() {
   echo -e "$(yellow "Installing Starship")"
   sh -c "$(curl -fsSL https://starship.rs/install.sh)"
-  echo -e "$(green "Finished installing Starship")"
+  echo -e "$(green "Finished installing Starship\n")"
 }
 
 pyenv() {
   echo -e "$(yellow "Installing pyenv")"
   git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   ( cd ~/.pyenv && src/configure && make -C src )
-  echo -e "$(green "Finished installing pyenv")"
+  echo -e "$(green "Finished installing pyenv\n")"
   echo -e "\n\n"
   echo -e "$(yellow "Installing latest stable Python interpreter")"
-  pyenv install $PYTHON_VERSION || echo -e "$(red Failed installing latest Python interpreter)"
-  echo -e "$(green Finished installing Python)"
+  pyenv install $PYTHON_VERSION || echo -e "$(red "Failed installing latest Python interpreter")"
+  echo -e "$(green "Finished installing Python\n")"
 }
 
 debugpy() {
   echo -e "$(yellow "Installing debugpy")"  # separate venv
   python -m venv DEBUGPY_PATH
   "$DEBUGPY_PATH/bin/python" -m pip install debugpy
-  echo -e "$(green "Finished installing debugpy")"
+  echo -e "$(green "Finished installing debugpy\n")"
 }
 
 pipx() {
   echo -e "$(yellow "Installing Pipx")"
   python -m pip install --user pipx
   python -m pipx ensurepath
-  echo -e "$(green "Finished installing Pipx")"
+  echo -e "$(green "Finished installing Pipx\n")"
 }
 
 poetry() {
   echo -e "$(yellow "Installing poetry")"
   curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-  echo -e "$(green "Finished installing poetry")"
+  echo -e "$(green "Finished installing poetry\n")"
 }
 
 pipx_programs() {
@@ -132,18 +132,17 @@ pipx_programs() {
       echo Exiting; exit
     fi
   done
-
 }
 
 python() {
-  echo "Beginning Python setup"
+  echo -e "$(yellow "Beginning Python setup")"
   pyenv
   pip
   poetry
   pipx
   pipx_programs
   debugpy
-  echo "Python setup complete"
+  echo -e "$("Python setup complete\n")"
 }
 
 nvm() {
@@ -193,10 +192,10 @@ lua_lang_server() {
 }
 
 go_programs() {
-  echo "Installing Go programs"
+  echo -e "$(yellow "Installing Go programs")"
   go get efm-lang-server
   go get lazygit
-  echo "Finished installing Go programs"
+  echo -e "$(green "Finished installing Go programs")"
 }
 
 go() {
@@ -208,14 +207,27 @@ go() {
 }
 
 build_neovim() {
-  echo "Building Neovim"
-
-  echo "Finished building Neovim"
+  echo -e "$(yellow "Building Neovim")"
+  wget https://github.com/neovim/neovim/archive/refs/tags/v0.5.0.tar.gz
+  tar xf v0.5.0.tar.gz
+  (
+  cd neovim-0.5.0 || exit
+  sudo make CMAKE_BUILD_TYPE=Release install
+  )
+  sudo rm -r neovim-0.5.0
+  sudo rm v0.5.0.tar.gz 
+  echo -e "$(green "Finished building Neovim")"
 }
 
-stow() {
-  echo "Creating symlinks"
+deploy_config() {
+  echo -e "$(yellow "Deploying dotfiles")"
+  git clone https://github.com/claytod5/dotfiles
+  echo -e "$(yellow "Creating symlinks")"
+  (
+  cd dotfiles/ || exit 1
   stow
+  )
+  echo -e "$(green "Finished deploying dotfiles")"
 }
 
 
@@ -228,4 +240,6 @@ stow() {
 
 # TODO: Exit upon a component failure (requires above todo for re-running)
 
-# install_distro_packages
+# TODO: Progress bar: https://github.com/pollev/bash_progress_bar
+
+# TODO: Don't display stdout; Show stderr if exit code is 1
