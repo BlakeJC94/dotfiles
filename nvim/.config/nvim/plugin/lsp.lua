@@ -11,6 +11,7 @@ local utils = require('utils')
 require('lsp_signature').setup{
   bind = false,
   use_lspsaga = true,
+  hint_enable = false,
 }
 
 -- LSP Saga
@@ -43,6 +44,7 @@ local function on_attach(client)
   require('lsp_signature').on_attach({
     bind = false,
     use_lspsaga = true,
+    hint_enable = false,
   })
 
 
