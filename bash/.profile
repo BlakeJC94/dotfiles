@@ -48,14 +48,9 @@ if [ -f "$HOME/.anacron/etc/anacrontab" ] ; then
 fi
 
 # detect when running in wsl  = = = = = = = = = = = = = = = = = = = = 
-kernel=`uname -r`
-variant=${kernel:9}
+# kernel=`uname -r`
+# variant=${kernel:9}
 
-if [ $variant == 'microsoft-standard' ]; then
-    export win_home="/mnt/c/Users/dclayton/"
-    export onedrive="/mnt/c/Users/dclayton/'OneDrive - Bluegrass Cellular'/"
-    export desktop="/mnt/c/Users/dclayton/'OneDrive - Bluegrass Cellular'/Desktop/"
-fi
 # == = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 /usr/bin/setxkbmap -option "ctrl:nocaps"
@@ -65,17 +60,12 @@ export VISUAL=vim
 export EDITOR="$VISUAL"
 export CONF
 
-# virtualenvwrapper stuff
-# export WORKON_HOME=$HOME/.virtualenvs
-# export PROJECT_HOME=$HOME/code
-# source $HOME/.local/bin/virtualenvwrapper.sh
-
 # man page syntax highlighting via bat
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 export PATH="$HOME/.poetry/bin:$PATH"
 
-# export PATH="$HOME/go/bin/"
+export PATH="$HOME/go/bin/:$PATH"
 
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
 
