@@ -65,8 +65,6 @@ export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 export PATH="$HOME/.poetry/bin:$PATH"
 
-export PATH="$HOME/go/bin/:$PATH"
-
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
 
 eval "$(pyenv init --path)"
