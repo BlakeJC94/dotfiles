@@ -22,6 +22,11 @@ function yellow {
     printf "%s%s%s\n" "$YELLOW" "$@" "$NC"
 }
 
+function get_download_url {
+  #https://gist.github.com/steinwaywhw/a4cd19cda655b8249d908261a62687f8#gistcomment-2758561
+  wget -nv -O- https://api.github.com/repos/"$1"/"$2"/releases/latest 2>/dev/null |  jq -r ".assets[] | select(.browser_download_url | contains(\"$3\")) | .browser_download_url"
+}
+
 font() {
   echo -e "$(yellow "Installing font: JetBrains Nerd Font")"
   if [[ -e "$HOME/.fonts/" ]]; then
@@ -32,8 +37,9 @@ font() {
   fi
   (
   cd "$HOME/.fonts/" || exit
-  wget2 --progress bar https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
-  unzip ./JetBrainsMono.zip
+  URL=$(get_download_url "ryanoasis" "nerd-fonts" "JetBrainsMono.zip")
+	BASE=$(basename "$URL")
+  unzip "$BASE"
   fc-cache -f -v
   )
   echo -e "$(green "Finished installing font\n")"
@@ -72,15 +78,40 @@ distro_packages() {
   echo -e "$(green "\nFinished installing packages\n")"
 }
 
+efm-langserver() {
+  URL=$(get_download_url "mattn" "efm-langserver" "linux_amd64")
+	BASE=$(basename "$URL")
+	wget -q -nv -O "$BASE" "$URL"
+  tar -xf "$BASE"
+  (
+  cd "${BASE%.tar.gz}" || exit
+  mv "efm-langserver" ~/.local/bin/
+  )
+  rm "${BASE%.tar.gz}"
+  rm -r "$BASE"
+}
+
+lazygit() {
+  URL=$(get_download_url "jesseduffield" "lazygit" "Linux_x86_64")
+	BASE=$(basename "$URL")
+	wget -q -nv -O "$BASE" "$URL"
+  tar -C ~/.local/bin/ -xf "$BASE"
+  rm -r "$BASE"
+  rm ~/.local/bin/LICENSE
+}
+
 install_exa() {
   echo -e "$(yellow "Installing exa")"
-  wget2 --progress bar https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip
-  unzip exa-linux-x86_64-v0.10.1.zip -d exa
+  # wget2 --progress bar https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip
+  URL=$(get_download_url "ogham" "exa" "linux-x86_64")
+	BASE=$(basename "$URL")
+	wget -q -nv -O "$BASE" "$URL"
+  unzip "$BASE" -d exa
   sudo cp ./exa/bin/exa /usr/local/bin 
   sudo cp ./exa/man/exa.1 /usr/share/man/man1
   sudo cp ./exa/completions/exa.bash /etc/bash_completion.d/
   rm -r exa
-  rm exa-linux-x86_64-v0.10.1.zip
+  rm "$BASE"
   echo -e "$(green "Finished installing exa\n")"
 }
 
@@ -191,31 +222,33 @@ lua_lang_server() {
   echo "Finished installing lua lang server"
 }
 
-go_programs() {
-  echo -e "$(yellow "Installing Go programs")"
-  go get efm-lang-server
-  go get lazygit
-  echo -e "$(green "Finished installing Go programs")"
-}
-
-go() {
-  echo -e "$(yellow "Installing Golang")"
-  wget2 --progress bar https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
-  rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
-  echo -e "$(green "Finished installing Golang")"
-  go_programs
-}
+# go_programs() {
+#   echo -e "$(yellow "Installing Go programs")"
+#   go get efm-lang-server
+#   go get lazygit
+#   echo -e "$(green "Finished installing Go programs")"
+# }
+# 
+# go() {
+#   echo -e "$(yellow "Installing Golang")"
+#   wget2 --progress bar https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+#   rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+#   echo -e "$(green "Finished installing Golang")"
+#   go_programs
+# }
 
 build_neovim() {
   echo -e "$(yellow "Building Neovim")"
-  wget https://github.com/neovim/neovim/archive/refs/tags/v0.5.0.tar.gz
-  tar xf v0.5.0.tar.gz
+  URL=$(wget -nv -O- https://api.github.com/repos/neovim/neovim/releases/latest 2>/dev/null |  jq -r "select(.tarball_url) | .tarball_url")
+	BASE=$(basename "$URL")
+	wget -q -nv -O "$BASE" "$URL"
+  tar xf "$BASE"
   (
-  cd neovim-0.5.0 || exit
+  cd "${BASE%.tar.gz}" || exit
   sudo make CMAKE_BUILD_TYPE=Release install
   )
-  sudo rm -r neovim-0.5.0
-  sudo rm v0.5.0.tar.gz 
+  sudo rm -r "${BASE%.tar.gz}"
+  sudo rm "$BASE"
   echo -e "$(green "Finished building Neovim")"
 }
 
@@ -243,3 +276,5 @@ deploy_config() {
 # TODO: Progress bar: https://github.com/pollev/bash_progress_bar
 
 # TODO: Don't display stdout; Show stderr if exit code is 1
+
+# TODO: Take optional --update argument to update third-party programs
