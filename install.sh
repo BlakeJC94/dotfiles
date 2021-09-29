@@ -151,7 +151,7 @@ install_pip() {
 
 debugpy() {
   echo -e "$(yellow "Installing debugpy")"  # separate venv
-  python -m venv DEBUGPY_PATH
+  python -m venv "$DEBUGPY_PATH"
   "$DEBUGPY_PATH/bin/python" -m pip install debugpy
   echo -e "$(green "Finished installing debugpy\n")"
 }
@@ -190,7 +190,7 @@ install_python() {
   install_pipx
   pipx_programs
   debugpy
-  echo -e "$("Python setup complete\n")"
+  echo -e "$(green "Python setup complete\n")"
 }
 
 install_nvm() {
@@ -218,9 +218,9 @@ npm_pkgs() {
 
 install_node() {
   echo -e "$(yellow "Beginning node setup")"
-  nvm
+  install_nvm
   nvm install node --latest-npm
-  npm
+  npm_pkgs
   echo -e "$(green "Finished node setup")"
 }
 
@@ -309,9 +309,7 @@ lazygit
 exa
 starship
 install_python
-install_nvmnvm
-install_nodenode
-npm_pkgs
+install_node
 lua_lang_server
 build_neovim
 
