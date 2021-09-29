@@ -193,7 +193,7 @@ install_python() {
   echo -e "$("Python setup complete\n")"
 }
 
-nvm() {
+install_nvm() {
   echo -e "$(yellow "Installing nvm")"
   if wget --progress bar -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash; then
     echo -e "$(green "Successfully installed nvm")"
@@ -202,7 +202,7 @@ nvm() {
   fi
 }
 
-npm() {
+npm_pkgs() {
   echo -e "$(yellow "Installing npm packages")"
   if npm install -g pyright \
     vscode-langservers-extracted \
@@ -216,7 +216,7 @@ npm() {
   fi
 }
 
-node() {
+install_node() {
   echo -e "$(yellow "Beginning node setup")"
   nvm
   nvm install node --latest-npm
@@ -309,9 +309,9 @@ lazygit
 exa
 starship
 install_python
-nvm
-node
-npm
+install_nvmnvm
+install_nodenode
+npm_pkgs
 lua_lang_server
 build_neovim
 
