@@ -39,6 +39,7 @@ font() {
   cd "$HOME/.fonts/" || exit
   URL=$(get_download_url "ryanoasis" "nerd-fonts" "JetBrainsMono.zip")
 	BASE=$(basename "$URL")
+	wget -q -nv -O "$BASE" "$URL"
   unzip "$BASE"
   fc-cache -f -v
   )
@@ -76,7 +77,7 @@ distro_packages() {
   sudo apt install \
                   stow \
                   ripgrep \
-                  bat \
+                  bat
   echo -e "$(green "\nFinished installing packages\n")"
 }
 
@@ -89,8 +90,8 @@ efm-langserver() {
   cd "${BASE%.tar.gz}" || exit
   mv "efm-langserver" ~/.local/bin/
   )
-  rm "${BASE%.tar.gz}"
-  rm -r "$BASE"
+  rm -r "${BASE%.tar.gz}"
+  rm "$BASE"
 }
 
 lazygit() {
@@ -100,6 +101,7 @@ lazygit() {
   tar -C ~/.local/bin/ -xf "$BASE"
   rm -r "$BASE"
   rm ~/.local/bin/LICENSE
+  rm ~/.local/bin/README.md
 }
 
 exa() {
