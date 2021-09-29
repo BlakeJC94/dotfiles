@@ -219,7 +219,9 @@ npm_pkgs() {
 install_node() {
   echo -e "$(yellow "Beginning node setup")"
   install_nvm
-  . ~/.profile
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   nvm install node --latest-npm
   npm_pkgs
   echo -e "$(green "Finished node setup")"
