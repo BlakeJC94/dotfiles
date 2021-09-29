@@ -50,9 +50,9 @@ distro_packages() {
   echo -e "$(yellow "\nUpdating Package Repository\n")"
   sudo apt update
   echo -e "$(yellow "\nAttempting to upgrade packages\n")"
-  sudo apt upgrade
+  sudo apt upgrade -y
   echo -e "$(yellow "\nInstalling Python build dependencies\n")"
-  sudo apt install \
+  sudo apt install -y \
                   make \
                   build-essential \
                   libssl-dev \
@@ -74,10 +74,10 @@ distro_packages() {
                   jq \
                   unzip
   echo -e "$(yellow "Installing Neovim build dependencies")"
-  sudo apt-get install gettext libtool libtool-bin autoconf automake cmake g++ pkg-config curl
+  sudo apt-get install -y gettext libtool libtool-bin autoconf automake cmake g++ pkg-config curl
 
   echo -e "$(yellow "\nInstalling other packages\n")"
-  sudo apt install \
+  sudo apt install -y \
                   stow \
                   bat
   echo -e "$(green "\nFinished installing packages\n")"
@@ -124,7 +124,7 @@ exa() {
 
 starship() {
   echo -e "$(yellow "Installing Starship")"
-  sh -c "$(curl -fsSL https://starship.rs/install.sh)"
+  sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y
   echo -e "$(green "Finished installing Starship\n")"
 }
 
@@ -182,7 +182,7 @@ pipx_programs() {
   done
 }
 
-python() {
+install_python() {
   echo -e "$(yellow "Beginning Python setup")"
   install_pyenv
   install_pip
@@ -308,7 +308,7 @@ efm-langserver
 lazygit
 exa
 starship
-python
+install_python
 nvm
 node
 npm
