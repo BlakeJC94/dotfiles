@@ -69,7 +69,9 @@ distro_packages() {
                   libxmlsec1-dev \
                   libffi-dev \
                   liblzma-dev \
-                  ninja-build
+                  ninja-build \
+                  jq \
+                  unzip
   echo -e "$(yellow "\nInstalling other packages\n")"
   sudo apt install \
                   stow \
@@ -100,7 +102,7 @@ lazygit() {
   rm ~/.local/bin/LICENSE
 }
 
-install_exa() {
+exa() {
   echo -e "$(yellow "Installing exa")"
   # wget2 --progress bar https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip
   URL=$(get_download_url "ogham" "exa" "linux-x86_64")
@@ -115,7 +117,7 @@ install_exa() {
   echo -e "$(green "Finished installing exa\n")"
 }
 
-install_starship() {
+starship() {
   echo -e "$(yellow "Installing Starship")"
   sh -c "$(curl -fsSL https://starship.rs/install.sh)"
   echo -e "$(green "Finished installing Starship\n")"
@@ -238,24 +240,25 @@ lua_lang_server() {
 # }
 
 build_neovim() {
+  sudo rm /usr/local/bin/nvim
+  sudo rm -r /usr/local/share/nvim/
   echo -e "$(yellow "Building Neovim")"
   URL=$(wget -nv -O- https://api.github.com/repos/neovim/neovim/releases/latest 2>/dev/null |  jq -r "select(.tarball_url) | .tarball_url")
-	BASE=$(basename "$URL")
-	wget -q -nv -O "$BASE" "$URL"
-  tar xf "$BASE"
+  BASE=$(basename "$URL").tar.gz
+  wget -q -nv -O "$BASE" "$URL"
+  mkdir ./neovim-src
+  tar xf "$BASE" -C ./neovim-src/ --strip-components 1
   (
-  cd "${BASE%.tar.gz}" || exit
+  cd ./neovim-src/ || exit
   sudo make CMAKE_BUILD_TYPE=Release install
   )
-  sudo rm -r "${BASE%.tar.gz}"
   sudo rm "$BASE"
+  sudo rm -r ./neovim-src/
   echo -e "$(green "Finished building Neovim")"
 }
 
 deploy_config() {
   echo -e "$(yellow "Deploying dotfiles")"
-  git clone https://github.com/claytod5/dotfiles
-  echo -e "$(yellow "Creating symlinks")"
   (
   cd dotfiles/ || exit 1
   stow
@@ -278,3 +281,18 @@ deploy_config() {
 # TODO: Don't display stdout; Show stderr if exit code is 1
 
 # TODO: Take optional --update argument to update third-party programs
+
+distro_packages
+deploy_config
+font
+efm-langserver
+lazygit
+exa
+starship
+python
+nvm
+node
+npm
+lua_lang_server
+build_neovim
+
