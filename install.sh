@@ -229,9 +229,9 @@ install_node() {
 
 lua_lang_server() {
   echo "Installing lua lang server"
-  git clone https://github.com/sumneko/lua-language-server
+  git clone https://github.com/sumneko/lua-language-server .cache/nvim/lua-language-server
   (
-  cd lua-language-server || exit
+  cd .cache/nvim/lua-language-server || exit
   git submodule update --init --recursive
     (
     cd 3rd/luamake || exit
@@ -273,12 +273,20 @@ build_neovim() {
   sudo rm "$BASE"
   sudo rm -r ./neovim-src/
   echo -e "$(green "Finished building Neovim")"
+  echo -e "$(yellow "\nInstalling Packer\n")"
+  git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+    ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+  echo -e "$(green "\nFinished Installing Packer\n")"
+  # echo -e "$(yellow "\nInstalling Plugins\n")"
+  # nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+  # echo -e "$(green "\nFinished Installing Plugins\n")"
 }
 
 deploy_config() {
   echo -e "$(yellow "Deploying dotfiles")"
   rm .bashrc
   rm .profile
+  rm .bash_aliases
   (
   cd dotfiles/ || exit 1
   # some files (i.e. install.sh, LICENSE.md, etc) cause stow to throw an error
