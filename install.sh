@@ -135,6 +135,7 @@ install_pyenv() {
   echo -e "$(green "Finished installing pyenv\n")"
   echo -e "\n\n"
   echo -e "$(yellow "Installing latest stable Python interpreter")"
+  . ~/.profile 
   pyenv install $PYTHON_VERSION || echo -e "$(red "Failed installing latest Python interpreter")"
   echo -e "$(green "Finished installing Python\n")"
 }
@@ -184,7 +185,7 @@ pipx_programs() {
 python() {
   echo -e "$(yellow "Beginning Python setup")"
   install_pyenv
-  pip
+  install_pip
   poetry
   install_pipx
   pipx_programs
