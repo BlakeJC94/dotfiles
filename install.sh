@@ -47,11 +47,11 @@ font() {
 }
 
 distro_packages() {
-  echo -e "$(yellow "Updating Package Repository")"
+  echo -e "$(yellow "\nUpdating Package Repository\n")"
   sudo apt update
-  echo -e "$(yellow "Attempting to upgrade packages")"
+  echo -e "$(yellow "\nAttempting to upgrade packages\n")"
   sudo apt upgrade
-  echo -e "$(yellow "Installing Python build dependencies")"
+  echo -e "$(yellow "\nInstalling Python build dependencies\n")"
   sudo apt install \
                   make \
                   build-essential \
@@ -73,10 +73,12 @@ distro_packages() {
                   ninja-build \
                   jq \
                   unzip
+  echo -e "$(yellow "Installing Neovim build dependencies")"
+  sudo apt-get install gettext libtool libtool-bin autoconf automake cmake g++ pkg-config curl
+
   echo -e "$(yellow "\nInstalling other packages\n")"
   sudo apt install \
                   stow \
-                  ripgrep \
                   bat
   echo -e "$(green "\nFinished installing packages\n")"
 }
@@ -100,14 +102,15 @@ lazygit() {
 	wget -q -nv -O "$BASE" "$URL"
   tar -C ~/.local/bin/ -xf "$BASE"
   rm -r "$BASE"
+  # these files are included in the archive and are not needed
   rm ~/.local/bin/LICENSE
   rm ~/.local/bin/README.md
 }
 
 exa() {
   echo -e "$(yellow "Installing exa")"
-  # wget2 --progress bar https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip
-  URL=$(get_download_url "ogham" "exa" "linux-x86_64")
+  # we need the '-v' at the end to prevent it from matching with "linux-x86_64-musl"
+  URL=$(get_download_url "ogham" "exa" "linux-x86_64-v")
 	BASE=$(basename "$URL")
 	wget -q -nv -O "$BASE" "$URL"
   unzip "$BASE" -d exa
@@ -248,7 +251,7 @@ build_neovim() {
   URL=$(wget -nv -O- https://api.github.com/repos/neovim/neovim/releases/latest 2>/dev/null |  jq -r "select(.tarball_url) | .tarball_url")
   BASE=$(basename "$URL").tar.gz
   wget -q -nv -O "$BASE" "$URL"
-  mkdir ./neovim-src
+  mkdir ./neovim-src  # the dir name after extraction can be unpreditable, so we extract to a predictable location
   tar xf "$BASE" -C ./neovim-src/ --strip-components 1
   (
   cd ./neovim-src/ || exit
@@ -261,9 +264,13 @@ build_neovim() {
 
 deploy_config() {
   echo -e "$(yellow "Deploying dotfiles")"
+  rm .bashrc
+  rm .profile
   (
   cd dotfiles/ || exit 1
-  stow
+  # some files (i.e. install.sh, LICENSE.md, etc) cause stow to throw an error
+  # we provide specific packages to stow so it will ignore those files
+  stow nvim pypoetry starship zathura lazygit kitty git cookiecutter conky bash
   )
   echo -e "$(green "Finished deploying dotfiles")"
 }
