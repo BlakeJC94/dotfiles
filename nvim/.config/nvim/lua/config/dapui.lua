@@ -12,7 +12,6 @@ M.setup = function()
     repl = "r",
   },
   sidebar = {
-    open_on_start = true,
     -- You can change the order of elements in the sidebar
     elements = {
       -- Provide as ID strings or tables with "id" and "size" keys
@@ -27,7 +26,7 @@ M.setup = function()
     position = "right", -- Can be "left" or "right"
   },
   tray = {
-    open_on_start = true,
+    -- open_on_start = true,
     elements = { "repl",
       { id = "watches", size = 0.25 },
     },
@@ -43,6 +42,12 @@ M.setup = function()
   },
   windows = { indent = 1 },
 })
+
+  local dap, dapui = require('dap'), require('dapui')
+  dap.listeners.after.event_initialized['dapui_config'] = function() dapui.open() end
+  dap.listeners.before.event_terminated['dapui_config'] = function() dapui.close() end
+  dap.listeners.before.event_exited['dapui_config'] = function() dapui.close() end
+
 end
 
 return M

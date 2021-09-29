@@ -10,7 +10,7 @@ return require('packer').startup(function(use)
 
   use "rafcamlet/nvim-luapad"  -- Lua REPL
 
-  use "glepnir/lspsaga.nvim" -- LSP UI
+  use "rinx/lspsaga.nvim" -- LSP UI
 
   -- change cwd to the project's root using LSP
   use {
@@ -36,6 +36,7 @@ return require('packer').startup(function(use)
   use {
    "hrsh7th/nvim-compe",
    requires = "onsails/lspkind-nvim",
+   -- disable = true,
    -- event = "InsertEnter",
    config = function()
      require("config.compe").setup()
