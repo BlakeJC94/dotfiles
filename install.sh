@@ -128,7 +128,7 @@ starship() {
   echo -e "$(green "Finished installing Starship\n")"
 }
 
-pyenv() {
+install_pyenv() {
   echo -e "$(yellow "Installing pyenv")"
   git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   ( cd ~/.pyenv && src/configure && make -C src )
@@ -139,6 +139,15 @@ pyenv() {
   echo -e "$(green "Finished installing Python\n")"
 }
 
+install_pip() {
+  echo -e "$(yellow "\nInstalling pip\n")"
+  if python -m ensurepip --upgrade; then
+    echo -e "$(green "Finished installing pip\n")"
+  else
+    echo -e "$(red "Error installing pip\n")"
+  fi
+}
+
 debugpy() {
   echo -e "$(yellow "Installing debugpy")"  # separate venv
   python -m venv DEBUGPY_PATH
@@ -146,7 +155,7 @@ debugpy() {
   echo -e "$(green "Finished installing debugpy\n")"
 }
 
-pipx() {
+install_pipx() {
   echo -e "$(yellow "Installing Pipx")"
   python -m pip install --user pipx
   python -m pipx ensurepath
@@ -174,10 +183,10 @@ pipx_programs() {
 
 python() {
   echo -e "$(yellow "Beginning Python setup")"
-  pyenv
+  install_pyenv
   pip
   poetry
-  pipx
+  install_pipx
   pipx_programs
   debugpy
   echo -e "$("Python setup complete\n")"
