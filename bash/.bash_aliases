@@ -1,5 +1,4 @@
 #!/bin/bash
-#custom aliases
 
 alias wget="wget2 --progress bar"
 alias ll="exa -al --classify --icons --git --color-scale"
@@ -22,3 +21,7 @@ alias scp="scp -v"
 alias dd="dd status=progress"
 alias icat="kitty +kitten icat"
 alias dust="du -ha | sort -hr | head -n 10"
+alias dinopass="curl https://www.dinopass.com/password/strong"
+alias gs="git status"
+alias ga="git add"
+alias gc="git commit && git push"
