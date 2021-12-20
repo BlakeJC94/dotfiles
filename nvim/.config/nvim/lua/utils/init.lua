@@ -31,10 +31,10 @@ end
 function utils.get_python_path(workspace)
   local path = lsp_util.path
   -- Find and use virtualenv via poetry in workspace directory.
-  local match = vim.fn.glob(path.join(workspace, 'poetry.lock'))
+  local match = vim.fn.glob(path.join(workspace, '.venv'))
   if match ~= '' then
-    local venv = vim.fn.trim(vim.fn.system('poetry env info -p'))
-    return path.join(venv, 'bin', 'python')
+    -- local venv = vim.fn.trim(vim.fn.system('poetry env info -p'))
+    return path.join(workspace, '.venv', 'bin', 'python')
   end
 
   -- Fallback to system Python.
