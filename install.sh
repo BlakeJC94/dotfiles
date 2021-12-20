@@ -73,6 +73,9 @@ distro_packages() {
                   ninja-build \
                   jq \
                   unzip
+
+# TODO: install latest stable python
+
   echo -e "$(yellow "Installing Neovim build dependencies")"
   sudo apt-get install -y gettext libtool libtool-bin autoconf automake cmake g++ pkg-config curl
 
@@ -96,49 +99,49 @@ efm-langserver() {
   rm "$BASE"
 }
 
-lazygit() {
-  URL=$(get_download_url "jesseduffield" "lazygit" "Linux_x86_64")
-	BASE=$(basename "$URL")
-	wget -q -nv -O "$BASE" "$URL"
-  tar -C ~/.local/bin/ -xf "$BASE"
-  rm -r "$BASE"
-  # these files are included in the archive and are not needed
-  rm ~/.local/bin/LICENSE
-  rm ~/.local/bin/README.md
-}
+# lazygit() {
+#   URL=$(get_download_url "jesseduffield" "lazygit" "Linux_x86_64")
+# 	BASE=$(basename "$URL")
+# 	wget -q -nv -O "$BASE" "$URL"
+#   tar -C ~/.local/bin/ -xf "$BASE"
+#   rm -r "$BASE"
+#   # these files are included in the archive and are not needed
+#   rm ~/.local/bin/LICENSE
+#   rm ~/.local/bin/README.md
+# }
 
-exa() {
-  echo -e "$(yellow "Installing exa")"
-  # we need the '-v' at the end to prevent it from matching with "linux-x86_64-musl"
-  URL=$(get_download_url "ogham" "exa" "linux-x86_64-v")
-	BASE=$(basename "$URL")
-	wget -q -nv -O "$BASE" "$URL"
-  unzip "$BASE" -d exa
-  sudo cp ./exa/bin/exa /usr/local/bin 
-  sudo cp ./exa/man/exa.1 /usr/share/man/man1
-  sudo cp ./exa/completions/exa.bash /etc/bash_completion.d/
-  rm -r exa
-  rm "$BASE"
-  echo -e "$(green "Finished installing exa\n")"
-}
+# exa() {
+#   echo -e "$(yellow "Installing exa")"
+#   # we need the '-v' at the end to prevent it from matching with "linux-x86_64-musl"
+#   URL=$(get_download_url "ogham" "exa" "linux-x86_64-v")
+# 	BASE=$(basename "$URL")
+# 	wget -q -nv -O "$BASE" "$URL"
+#   unzip "$BASE" -d exa
+#   sudo cp ./exa/bin/exa /usr/local/bin 
+#   sudo cp ./exa/man/exa.1 /usr/share/man/man1
+#   sudo cp ./exa/completions/exa.bash /etc/bash_completion.d/
+#   rm -r exa
+#   rm "$BASE"
+#   echo -e "$(green "Finished installing exa\n")"
+# }
 
-starship() {
-  echo -e "$(yellow "Installing Starship")"
-  sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y
-  echo -e "$(green "Finished installing Starship\n")"
-}
+# starship() {
+#   echo -e "$(yellow "Installing Starship")"
+#   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y
+#   echo -e "$(green "Finished installing Starship\n")"
+# }
 
-install_pyenv() {
-  echo -e "$(yellow "Installing pyenv")"
-  git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-  ( cd ~/.pyenv && src/configure && make -C src )
-  echo -e "$(green "Finished installing pyenv\n")"
-  echo -e "\n\n"
-  echo -e "$(yellow "Installing latest stable Python interpreter")"
-  . ~/.profile 
-  pyenv install $PYTHON_VERSION || echo -e "$(red "Failed installing latest Python interpreter")"
-  echo -e "$(green "Finished installing Python\n")"
-}
+# install_pyenv() {
+#   echo -e "$(yellow "Installing pyenv")"
+#   git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+#   ( cd ~/.pyenv && src/configure && make -C src )
+#   echo -e "$(green "Finished installing pyenv\n")"
+#   echo -e "\n\n"
+#   echo -e "$(yellow "Installing latest stable Python interpreter")"
+#   . ~/.profile 
+#   pyenv install $PYTHON_VERSION || echo -e "$(red "Failed installing latest Python interpreter")"
+#   echo -e "$(green "Finished installing Python\n")"
+# }
 
 install_pip() {
   echo -e "$(yellow "\nInstalling pip\n")"
@@ -156,12 +159,13 @@ debugpy() {
   echo -e "$(green "Finished installing debugpy\n")"
 }
 
-install_pipx() {
-  echo -e "$(yellow "Installing Pipx")"
-  python -m pip install --user pipx
-  python -m pipx ensurepath
-  echo -e "$(green "Finished installing Pipx\n")"
-}
+# TODO: just use pip install --user
+# install_pipx() {
+#   echo -e "$(yellow "Installing Pipx")"
+#   python -m pip install --user pipx
+#   python -m pipx ensurepath
+#   echo -e "$(green "Finished installing Pipx\n")"
+# }
 
 poetry() {
   echo -e "$(yellow "Installing poetry")"
