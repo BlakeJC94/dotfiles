@@ -135,8 +135,6 @@ export NVM_DIR="$HOME/.nvm"
 
 alias luamake=$HOME/.cache/nvim/nlua/sumneko_lua/lua-language-server/3rd/luamake/luamake
 
-# eval "$(pyenv init -)"
-
 # Get weather info either from IP location or user input
 function weather() {
 if [[ $COLUMNS -lt 125 ]]; then
@@ -148,10 +146,10 @@ fi
 
 # get current branch in git repo
 function parse_git_branch() {
-	BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
+  BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
 	if [ ! "${BRANCH}" == "" ]
 	then
-		STAT=`parse_git_dirty`
+    STAT=$(parse_git_dirty)
 		echo "[${BRANCH}${STAT}]"
 	else
 		echo ""
@@ -160,13 +158,13 @@ function parse_git_branch() {
 
 # get current status of git repo
 function parse_git_dirty {
-	status=`git status 2>&1 | tee`
-	dirty=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
-	untracked=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
-	ahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
-	newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
-	renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
-	deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
+  status=$(git status 2>&1 | tee)
+  dirty=$(echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?")
+  untracked=$(echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?")
+  ahead=$(echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?")
+  newfile=$(echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?")
+  renamed=$(echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?")
+  deleted=$(echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?")
 	bits=''
 	if [ "${renamed}" == "0" ]; then
 		bits=">${bits}"
@@ -193,4 +191,15 @@ function parse_git_dirty {
 	fi
 }
 
-export PS1="\n\[\e[34m\]\w\[\e[m\] \[\e[33m\]\`parse_git_branch\`\[\e[m\] \[\e[32m\]\\n\$\[\e[m\] "
+function venv_detect {
+  if [ -n "$VIRTUAL_ENV" ]; then
+        # Strip out the path and just leave the env name
+        echo "(${VIRTUAL_ENV##*/})"
+  else
+      # In case you don't have one activated
+      echo ''
+  fi
+}
+
+export PS1="\n\[\e[34m\]\w\[\e[m\] \[\e[33m\]\$(parse_git_branch)\[\e[m\] \[\e[35m\]\$(venv_detect)\[\e[m\] \n\[\e[32m\]\\$\[\e[m\] "
+export VIRTUAL_ENV_DISABLE_PROMPT=1
