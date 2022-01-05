@@ -24,9 +24,10 @@ alias dinopass="curl https://www.dinopass.com/password/strong"
 # Git
 alias gs="git status"
 alias ga="git add"
-alias gc="git commit && git push"
+alias gc="git commit"
+alias gr="git rm"
 
 # Python
-alias a="source .venv/bin/activate"
+alias a="source .venv/bin/activate 2> /dev/null || source \$(git rev-parse --show-toplevel)/.venv/bin/activate"
 alias d="deactivate"
 alias pipf="pip freeze > ./requirements.txt"
