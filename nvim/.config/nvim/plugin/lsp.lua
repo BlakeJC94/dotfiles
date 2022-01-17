@@ -16,10 +16,11 @@ require('lsp_signature').setup{
 
 -- LSP Saga
 lspsaga.init_lsp_saga {
-  error_sign = "",
-  warn_sign = "",
-  hint_sign = "",
-  infor_sign = "",
+  use_saga_diagnostic_sign = true,
+  error_sign = " ",
+  warn_sign = " ",
+  hint_sign = " ",
+  infor_sign = " ",
   max_preview_lines = 30,
   finder_action_keys = {
   open = 'o', vsplit = 's',split = 'i',quit = {'q', "<esc>"},scroll_down = '<C-f>', scroll_up = '<C-b>' -- quit can be a table
@@ -47,6 +48,11 @@ local function on_attach(client)
     hint_enable = false,
   })
 
+  local signs = { Error = "", Warn = "", Hint = "", Info = "" }
+  for type, icon in pairs(signs) do
+    local hl = "DiagnosticSign" .. type
+    vim.fn.sign_define(hl, { text = icon, texthl = hl })
+  end
 
   -- buf_keymap(0, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', keymap_opts)
   -- buf_keymap(0, "n", "gf", ":Lspsaga lsp_finder<CR>", keymap_opts)  -- LSP Finder
