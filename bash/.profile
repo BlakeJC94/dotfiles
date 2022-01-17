@@ -10,12 +10,6 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-CONF="$HOME/.config"
-
-
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc if it exists
@@ -34,9 +28,6 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-#Add cargo to path for Rust stuff
-export PATH="$HOME/.cargo/bin:$PATH"
-
 # load api keys
 if [ -f "$HOME/.api_keys" ] ; then
     . "$HOME/.api_keys"
@@ -47,21 +38,5 @@ if [ -f "$HOME/.anacron/etc/anacrontab" ] ; then
     /usr/sbin/anacron -s -t $HOME/.anacron/etc/anacrontab -S $HOME/.anacron/spool
 fi
 
-# detect when running in wsl  = = = = = = = = = = = = = = = = = = = = 
-# kernel=`uname -r`
-# variant=${kernel:9}
-
-# == = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
-
 export VISUAL=vim
 export EDITOR="$VISUAL"
-export CONF
-
-# man page syntax highlighting via bat
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-
-export PATH="$HOME/.poetry/bin:$PATH"
-
-# export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
-
-eval "$(pyenv init --path)"
