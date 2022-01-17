@@ -45,7 +45,7 @@ M.load_options = function()
       autoread = true,  -- Detect changes in files if they are edited outside of nvim
       wildmenu = true,  -- Shows possible matches when using tab completion
       showtabline = 2,  -- always show tabs
-      guifont = "JetBrains\\ Mono\\ Regular\\ Nerd\\ Font\\ Complete:h11",
+      guifont = "Hack\\ Nerd\\ Font:h11",
       hidden = true,  -- any buffer can be hidden (keeping its changes)
    }
 
@@ -76,10 +76,38 @@ end
 ----------------------------
 
 M.load_commands = function()
-   local cmd = vim.cmd
 
-   cmd "au BufWritePost plugins.lua source <afile> | PackerCompile"  -- automatically run :PackerCompile whenever plugins.lua is updated
-   -- cmd "au BufEnter * silent! lcd %:p:h"
+-- autocommands
+--- This function is taken from https://github.com/norcalli/nvim_utils
+local function nvim_create_augroups(definitions)
+  for group_name, definition in pairs(definitions) do
+    vim.api.nvim_command('augroup '..group_name)
+    vim.api.nvim_command('autocmd!')
+    for _, def in ipairs(definition) do
+      local command = table.concat(vim.tbl_flatten{'autocmd', def}, ' ')
+      vim.api.nvim_command(command)
+    end
+    vim.api.nvim_command('augroup END')
+  end
+end
+
+local autocmds = {
+    -- reload_vimrc = {
+    --     -- Reload vim config automatically
+    --     {"BufWritePost",[[$VIM_PATH/{init.vim,*.vim,*.yaml} nested source $MYVIMRC | redraw]]};
+    -- };
+    packer = {
+        { "BufWritePost", "plugins.lua", "PackerCompile" };
+    };
+    terminal_job = {
+        { "TermOpen", "*", [[tnoremap <buffer> <Esc> <c-\><c-n>]] };
+        { "TermOpen", "*", "startinsert" };
+        { "TermOpen", "*", "setlocal listchars= nonumber norelativenumber" };
+    };
+}
+
+nvim_create_augroups(autocmds)
+
 end
 
 return M
