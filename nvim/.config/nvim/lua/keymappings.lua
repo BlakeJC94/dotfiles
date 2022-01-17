@@ -37,7 +37,7 @@ local default_keys = {
     -- Telescope
     { "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
     { "<leader>gg", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
-    { "<leader>rr", "<cmd>lua require('telescope.builtin').oldfiles()<cr>"},
+    { "<C-S-p>", "<cmd>lua require('telescope.builtin').oldfiles()<cr>"},
 
     -- NvimTree
     { "<leader>t", ":NvimTreeToggle<CR>" },
@@ -46,20 +46,21 @@ local default_keys = {
     -- { "<leader>ff", "<cmd>lua require('config.nvimtree').find_file()<cr>" },
 
     -- nvim-bufferline
-    { '<leader><leader>', ':BufferLineCycleNext<CR>' },
+    { '<C-m>', ':BufferLineCycleNext<CR>' },
+    { '<C-n>', ':BufferLineCyclePrev<CR>' },
     { '<leader>bd', ':BufferLinePickClose<CR>' },
-    { '<leader>1', '<cmd>BufferLineGoToBuffer 1<CR>'},
-    { '<leader>2', '<cmd>BufferLineGoToBuffer 2<CR>'},
-    { '<leader>3', '<cmd>BufferLineGoToBuffer 3<CR>'},
-    { '<leader>4', '<cmd>BufferLineGoToBuffer 4<CR>'},
-    { '<leader>5', '<cmd>BufferLineGoToBuffer 5<CR>'},
-    { '<leader>6', '<cmd>BufferLineGoToBuffer 6<CR>'},
-    { '<leader>7', '<cmd>BufferLineGoToBuffer 7<CR>'},
-    { '<leader>8', '<cmd>BufferLineGoToBuffer 8<CR>'},
-    { '<leader>9', '<cmd>BufferLineGoToBuffer 9<CR>'},
+    { '<M-1>', '<cmd>BufferLineGoToBuffer 1<CR>'},
+    { '<M-2>', '<cmd>BufferLineGoToBuffer 2<CR>'},
+    { '<M-3>', '<cmd>BufferLineGoToBuffer 3<CR>'},
+    { '<M-4>', '<cmd>BufferLineGoToBuffer 4<CR>'},
+    { '<M-5>', '<cmd>BufferLineGoToBuffer 5<CR>'},
+    { '<M-6>', '<cmd>BufferLineGoToBuffer 6<CR>'},
+    { '<M-7>', '<cmd>BufferLineGoToBuffer 7<CR>'},
+    { '<M-8>', '<cmd>BufferLineGoToBuffer 8<CR>'},
+    { '<M-9>', '<cmd>BufferLineGoToBuffer 9<CR>'},
 
     --nvim-dap-ui
-    { '<leader>d', '<cmd>lua require("dapui").toggle()<CR>' }
+    { '<leader>d', '<cmd>lua require("dapui").toggle()<CR>' },
   },
 
   term_mode = {
@@ -68,16 +69,11 @@ local default_keys = {
     { "<C-j>", "<C-\\><C-N><C-w>j" },
     { "<C-k>", "<C-\\><C-N><C-w>k" },
     { "<C-l>", "<C-\\><C-N><C-w>l" },
+    { "<Esc>", "<C-\\><C-N><Esc>l" },
 
-    -- Terminal resize
-    { "<Tab>k", "<C-\\><C-N>z70<CR>i" },
-    { "<Tab>j", "<C-\\><C-N>z20<CR>i" },
+    -- Resize terminal with z80 and z20 in normal mode
 
-    -- ToggleTerm
-    -- { "<tab><tab>", "<C-\\><C-n>:ToggleTermCloseAll<CR>" },
-    -- { "<leader>2", "<C-\\><C-n>:2ToggleTerm<CR>" },
-    -- { "<leader>3", "<C-\\><C-n>:3ToggleTerm<CR>" },
-    -- { "<leader>4", "<C-\\><C-n>:4ToggleTerm<CR>" },
+    -- Create a split with [3,4,5,6,...] Ctrl + \
   },
 
   visual_mode = {
