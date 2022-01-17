@@ -6,24 +6,6 @@ local M = {}
 -- end
 
 M.setup = function()
-  local diags = {
-    'diagnostics',
-    sources = {'nvim_lsp'},
-    symbols = {error = ' ', warn = ' ', info = ' '},
-  }
-
-  -- local git_diff = {
-  --   'diff',
-  --   symbols = {added = ' ', modified = '柳 ', removed = ' '},
-  --   color_added = "#9ece6a",
-  --   color_modified = "#ff9e64",
-  --   color_red = "#f7768e",
-  -- }
-
-  -- local spacing = function()
-  --   return '%='
-  -- end
-
   -- Lsp server name
   local lsp = {
     function()
@@ -39,31 +21,38 @@ M.setup = function()
     end
     return msg
   end,
-  -- icon = '力',
-  separator = nil,
-  -- color = {fg = '#7dcfff'},
 }
 
 
   require('lualine').setup({
 
     options = {
-    icons_enabled = true,
-    theme = 'tokyonight',
-    component_separators = {'', ''},
-    section_separators = {'', ''},
-    disabled_filetypes = {'dashboard', 'NvimTree', 'toggleterm'}
-  },
-  sections = {
-    lualine_a = {'mode'},
-    lualine_b = {'branch'},
-    lualine_c = {'filename', diags},
-    lualine_x = {lsp, 'encoding', 'fileformat', 'filetype'},
-    lualine_y = {'progress'},
-    lualine_z = {'location'}
-  },
-
-})
+      icons_enabled = true,
+      theme = 'auto',
+      -- component_separators = {'', ''},
+      -- section_separators = {'', ''},
+      disabled_filetypes = {'dashboard', 'NvimTree', 'toggleterm'},
+      always_divide_middle = true,
+    },
+    sections = {
+      lualine_a = {'mode'},
+      lualine_b = {'branch', 'diagnostics'},
+      lualine_c = {'filename'},
+      lualine_x = {lsp, 'encoding', 'fileformat', 'filetype'},
+      lualine_y = {'progress'},
+      lualine_z = {'location'}
+    },
+    inactive_sections = {
+      -- lualine_a = {},
+      -- lualine_b = {'diff'},
+      -- lualine_c = {'filename'},
+      -- lualine_x = {'location'},
+      -- lualine_y = {},
+      -- lualine_z = {}
+    },
+    tabline = {},
+    extensions = {}
+  })
 end
 
 return M
