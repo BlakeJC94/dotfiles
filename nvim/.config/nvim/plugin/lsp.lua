@@ -1,6 +1,6 @@
 local lspconfig = require('lspconfig')
-local lspsaga = require('lspsaga')
-local lspkind = require('lspkind')
+-- local lspsaga = require('lspsaga')
+-- local lspkind = require('lspkind')
 -- local lsp = vim.lsp
 local buf_keymap = vim.api.nvim_buf_set_keymap
 local cmd = vim.cmd
@@ -8,45 +8,45 @@ local cmd = vim.cmd
 local utils = require('utils')
 
 -- LSP Signature config
-require('lsp_signature').setup{
-  bind = false,
-  use_lspsaga = true,
-  hint_enable = false,
-}
+-- require('lsp_signature').setup{
+--   bind = false,
+--   use_lspsaga = true,
+--   hint_enable = false,
+-- }
 
 -- LSP Saga
-lspsaga.init_lsp_saga {
-  use_saga_diagnostic_sign = true,
-  error_sign = " ",
-  warn_sign = " ",
-  hint_sign = " ",
-  infor_sign = " ",
-  max_preview_lines = 30,
-  finder_action_keys = {
-  open = 'o', vsplit = 's',split = 'i',quit = {'q', "<esc>"},scroll_down = '<C-f>', scroll_up = '<C-b>' -- quit can be a table
-  },
-  code_action_keys = {
-    quit = {'q', "<esc>"},exec = '<CR>'
-  },
-  rename_action_keys = {
-    quit = {'<C-c>', "<esc>"},exec = '<CR>'  -- quit can be a table
-  },
-}
+-- lspsaga.init_lsp_saga {
+--   use_saga_diagnostic_sign = true,
+--   error_sign = " ",
+--   warn_sign = " ",
+--   hint_sign = " ",
+--   infor_sign = " ",
+--   max_preview_lines = 30,
+--   finder_action_keys = {
+--   open = 'o', vsplit = 's',split = 'i',quit = {'q', "<esc>"},scroll_down = '<C-f>', scroll_up = '<C-b>' -- quit can be a table
+--   },
+--   code_action_keys = {
+--     quit = {'q', "<esc>"},exec = '<CR>'
+--   },
+--   rename_action_keys = {
+--     quit = {'<C-c>', "<esc>"},exec = '<CR>'  -- quit can be a table
+--   },
+-- }
 
 
 -- LSP Kind (symbols)
-lspkind.init {}
+-- lspkind.init {}
 
 
 local keymap_opts = { noremap = true, silent = true }
 local function on_attach(client)
 
   -- Attach LSP Signature
-  require('lsp_signature').on_attach({
-    bind = false,
-    use_lspsaga = true,
-    hint_enable = false,
-  })
+  -- require('lsp_signature').on_attach({
+  --   bind = false,
+  --   use_lspsaga = true,
+  --   hint_enable = false,
+  -- })
 
   local signs = { Error = "", Warn = "", Hint = "", Info = "" }
   for type, icon in pairs(signs) do
@@ -54,29 +54,29 @@ local function on_attach(client)
     vim.fn.sign_define(hl, { text = icon, texthl = hl })
   end
 
-  -- buf_keymap(0, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', keymap_opts)
+  buf_keymap(0, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', keymap_opts)
   -- buf_keymap(0, "n", "gf", ":Lspsaga lsp_finder<CR>", keymap_opts)  -- LSP Finder
   buf_keymap(0, 'n', 'gd', '<cmd>lua require"telescope.builtin".lsp_definitions()<CR>', keymap_opts)
   -- code actions
-  buf_keymap(0, "n", "<leader>ca", ":Lspsaga code_action<CR>", keymap_opts)
-  buf_keymap(0, "v", "<leader>ca", ":Lspsaga range_code_action<CR>", keymap_opts)
+  -- buf_keymap(0, "n", "<leader>ca", ":Lspsaga code_action<CR>", keymap_opts)
+  -- buf_keymap(0, "v", "<leader>ca", ":Lspsaga range_code_action<CR>", keymap_opts)
 
-  buf_keymap(0, "n", "K", ":Lspsaga hover_doc<CR>", keymap_opts)  -- hover
-  -- buf_keymap(0, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", keymap_opts)  -- hover
+  -- buf_keymap(0, "n", "K", ":Lspsaga hover_doc<CR>", keymap_opts)  -- hover
+  buf_keymap(0, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", keymap_opts)  -- hover
 
   -- scroll down hover doc or scroll in definition preview
-  buf_keymap(0, "n", "<C-f>", "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(1)<CR>", keymap_opts)
-  buf_keymap(0, "n", "<C-b>", "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>", keymap_opts)
+  -- buf_keymap(0, "n", "<C-f>", "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(1)<CR>", keymap_opts)
+  -- buf_keymap(0, "n", "<C-b>", "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>", keymap_opts)
 
-  -- buf_keymap(0, "n", "gs", ":Lspsaga signature_help<CR>", keymap_opts)  -- signature help
-  buf_keymap(0, "n", "<leader>rf", ":Lspsaga rename<CR>", keymap_opts)  -- LSP rename (refactor)
-  buf_keymap(0, "n", "gp", ":Lspsaga preview_definition<CR>", keymap_opts)  -- Preview Definition
-  buf_keymap(0, "n", "<leader>sd", ":Lspsaga show_line_diagnostics<CR>", keymap_opts)  -- Show Line Diagnostics
+  buf_keymap(0, "n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<CR>", keymap_opts)  -- signature help
+  buf_keymap(0, "n", "<leader>rf", "<cmd>lua vim.lsp.buf.rename()<CR>", keymap_opts)  -- LSP rename (refactor)
+  -- buf_keymap(0, "n", "gp", ":Lspsaga preview_definition<CR>", keymap_opts)  -- Preview Definition
+  -- buf_keymap(0, "n", "<leader>sd", ":Lspsaga show_line_diagnostics<CR>", keymap_opts)  -- Show Line Diagnostics
   buf_keymap(0, 'n', 'gTD', '<cmd>lua vim.lsp.buf.type_definition()<CR>', keymap_opts)
   buf_keymap(0, 'n', 'gf', '<cmd>lua require"telescope.builtin".lsp_references()<CR>', keymap_opts)
   -- Diagnostic Navigation
-  buf_keymap(0, "n", "]e", ":Lspsaga diagnostic_jump_next<CR>", keymap_opts)
-  buf_keymap(0, "n", "[e", ":Lspsaga diagnostic_jump_prev<CR>", keymap_opts)
+  -- buf_keymap(0, "n", "]e", ":Lspsaga diagnostic_jump_next<CR>", keymap_opts)
+  -- buf_keymap(0, "n", "[e", ":Lspsaga diagnostic_jump_prev<CR>", keymap_opts)
 
   -- format, if LSP supports it
   if client.resolved_capabilities.document_formatting then
@@ -111,6 +111,30 @@ local shellcheck = require "config/efm/shellcheck"
 -- TODO: fix html, css, json servers
 -- TODO: setup dockerls and ansiblels
 
+local border = {
+  {"┌", "FloatBorder"},  --top-left
+  {"─", "FloatBorder"},  --top
+  {"┐", "FloatBorder"},  --top-right
+  {"│", "FloatBorder"},  --right
+  {"┘", "FloatBorder"},  --bottom-right
+  {"─", "FloatBorder"},  --bottom
+  {"└", "FloatBorder"},  --bottom-left
+  {"│", "FloatBorder"},  --left
+}
+
+-- local handlers =  {
+--   ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = border}),
+--   ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = border }),
+--   ["textDocument/rename"] = vim.lsp.with(vim.lsp.handlers.re)
+-- }
+
+-- To instead override globally
+local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {}
+  opts.border = opts.border or border
+  return orig_util_open_floating_preview(contents, syntax, opts, ...)
+end
 
 local servers = {
   bashls = {},
@@ -133,6 +157,7 @@ local servers = {
   --   end
   -- },
   pyright = {
+    handlers=handlers,
     disableOrganizeImports = true,
     settings = {
         python = {
@@ -152,7 +177,7 @@ local servers = {
     },
     root_dir = vim.loop.cwd,
     settings = {
-      rootMarkers = {".git/", "pyproject.toml", "poetry.lock"},
+      rootMarkers = {".git/", "requirements.txt", "pyproject.toml"},
       languages = {
         python = {black, flake8, isort},
         html = {prettier},
