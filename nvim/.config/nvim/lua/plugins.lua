@@ -178,14 +178,14 @@ return require('packer').startup(function(use)
   }
 
   -- REST client
-  use {
-    'NTBBloodbath/rest.nvim',
-    requires = { 'nvim-lua/plenary.nvim' },
-    ft = 'http',
-    config = function()
-        require('rest-nvim').setup()
-    end
-  }
+  -- use {
+  --   'NTBBloodbath/rest.nvim',
+  --   requires = { 'nvim-lua/plenary.nvim' },
+  --   ft = 'http',
+  --   config = function()
+  --       require('rest-nvim').setup()
+  --   end
+  -- }
 
   -- Indent lines
   use {

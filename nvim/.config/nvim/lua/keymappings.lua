@@ -46,8 +46,8 @@ local default_keys = {
     -- { "<leader>ff", "<cmd>lua require('config.nvimtree').find_file()<cr>" },
 
     -- nvim-bufferline
-    { '<C-m>', ':BufferLineCycleNext<CR>' },
-    { '<C-n>', ':BufferLineCyclePrev<CR>' },
+    { '<M-n>', ':BufferLineCycleNext<CR>' },
+    { '<M-p>', ':BufferLineCyclePrev<CR>' },
     { '<leader>bd', ':BufferLinePickClose<CR>' },
     { '<M-1>', '<cmd>BufferLineGoToBuffer 1<CR>'},
     { '<M-2>', '<cmd>BufferLineGoToBuffer 2<CR>'},
