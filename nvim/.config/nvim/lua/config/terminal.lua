@@ -3,6 +3,12 @@ local M = {}
 M.setup = function()
   local toggleterm = require "toggleterm"
 
+  if vim.g.windows == true then  -- if we are on Windows
+    myshell = "powershell.exe" -- change the default shell
+  else
+    myshell = vim.o.shell -- else use the default shell for vim (/bin/bash)
+  end
+
   toggleterm.setup{
   -- size can be a number or function which is passed the current terminal
   size = 20,
@@ -23,8 +29,8 @@ M.setup = function()
   -- insert_mappings = true, -- whether or not the open mapping applies in insert mode
   persist_size = true,
   direction = 'horizontal',
-  close_on_exit = true, -- close the terminal window when the process exits
-  shell = vim.o.shell, -- change the default shell
+  close_on_exit = true, -- close the terminal window when the process exits 
+  shell = myshell,
   -- This field is only relevant if direction is set to 'float'
   -- float_opts = {
   --   -- The border key is *almost* the same as 'nvim_win_open'

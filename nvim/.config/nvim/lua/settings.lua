@@ -45,7 +45,6 @@ M.load_options = function()
       autoread = true,  -- Detect changes in files if they are edited outside of nvim
       wildmenu = true,  -- Shows possible matches when using tab completion
       showtabline = 2,  -- always show tabs
-      guifont = "Hack\\ Nerd\\ Font:h11",
       hidden = true,  -- any buffer can be hidden (keeping its changes)
    }
 
@@ -69,6 +68,15 @@ M.load_options = function()
   vim.g.tokyonight_sidebars = { "terminal", "packer", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches", "dap-repl" }
   vim.cmd[[colorscheme tokyonight]]
 
+end
+
+----------------------------
+--    Windows Settings    --
+----------------------------
+if (vim.loop.os_uname().sysname == "Windows_NT") then
+  vim.cmd(
+    [[cnoreabbrev terminal terminal powershell]]
+  )  
 end
 
 ----------------------------

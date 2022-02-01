@@ -18,6 +18,13 @@ for _, i in pairs(disabled_built_ins) do
   vim.g['loaded_' .. i] = 1
 end
 
+-- detect if we are on Windows and set global variable
+if (vim.loop.os_uname().sysname == "Windows_NT") then
+  vim.g.windows = true
+else
+  vim.g.windows = false
+end
+
 require("plugins")
 
 require("settings").load_options()
