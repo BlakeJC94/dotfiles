@@ -2,10 +2,7 @@
 
 alias wget="wget2 --progress bar"
 alias ll="ls -lahF"
-# alias ls="ls"
-# alias tree="exa --long --tree"
 alias fhere='find . -name '
-alias top='htop'
 alias publicip="curl http://ipecho.net/plain; echo"
 alias localip="ip -4 -br addr show dev eno1"
 alias conky="~/Applications/conky"
@@ -21,8 +18,9 @@ alias gs="git status"
 alias ga="git add"
 alias gc="git commit"
 alias gr="git rm"
+alias gd="git diff"
 
 # Python
 alias a="source .venv/bin/activate 2> /dev/null || source \$(git rev-parse --show-toplevel)/.venv/bin/activate"
 alias d="deactivate"
-alias pipf="pip freeze > ./requirements.txt"
+alias pipf="pip freeze --exclude python-dotenv > ./requirements.txt"
