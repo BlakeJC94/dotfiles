@@ -24,11 +24,11 @@ function yellow {
 
 function get_download_url {
   #https://gist.github.com/steinwaywhw/a4cd19cda655b8249d908261a62687f8#gistcomment-2758561
-  wget -nv -O- https://api.github.com/repos/"$1"/"$2"/releases/latest 2>/dev/null |  jq -r ".assets[] | select(.browser_download_url | contains(\"$3\")) | .browser_download_url"
+  curl -s https://api.github.com/repos/"$1"/"$2"/releases/latest 2>/dev/null |  jq -r ".assets[] | select(.browser_download_url | contains(\"$3\")) | .browser_download_url"
 }
 
 font() {
-  echo -e "$(yellow "Installing font: JetBrains Nerd Font")"
+  echo -e "$(yellow "Installing font: Hack Nerd Font")"
   if [[ -e "$HOME/.fonts/" ]]; then
     echo -e "$(yellow "Fonts directory found")"
   else
@@ -37,19 +37,19 @@ font() {
   fi
   (
   cd "$HOME/.fonts/" || exit
-  URL=$(get_download_url "ryanoasis" "nerd-fonts" "JetBrainsMono.zip")
+  URL=$(get_download_url "ryanoasis" "nerd-fonts" "Hack.zip")
 	BASE=$(basename "$URL")
-	wget -q -nv -O "$BASE" "$URL"
-  unzip "$BASE"
-  fc-cache -f -v
-  )
-  echo -e "$(green "Finished installing font\n")"
+	curl -sLO "$URL"
+	  unzip "$BASE"
+	  fc-cache -f -v
+	  )
+	  echo -e "$(green "Finished installing font\n")"
 }
 
 distro_packages() {
   echo -e "$(yellow "\nUpdating Package Repository\n")"
   sudo apt update
-  echo -e "$(yellow "\nAttempting to upgrade packages\n")"
+  echo -e "$(yellow "\nUpgrading packages\n")"
   sudo apt upgrade -y
   echo -e "$(yellow "\nInstalling Python build dependencies\n")"
   sudo apt install -y \
@@ -82,7 +82,6 @@ distro_packages() {
   echo -e "$(yellow "\nInstalling other packages\n")"
   sudo apt install -y \
                   stow \
-                  bat
   echo -e "$(green "\nFinished installing packages\n")"
 }
 
@@ -98,50 +97,6 @@ efm-langserver() {
   rm -r "${BASE%.tar.gz}"
   rm "$BASE"
 }
-
-# lazygit() {
-#   URL=$(get_download_url "jesseduffield" "lazygit" "Linux_x86_64")
-# 	BASE=$(basename "$URL")
-# 	wget -q -nv -O "$BASE" "$URL"
-#   tar -C ~/.local/bin/ -xf "$BASE"
-#   rm -r "$BASE"
-#   # these files are included in the archive and are not needed
-#   rm ~/.local/bin/LICENSE
-#   rm ~/.local/bin/README.md
-# }
-
-# exa() {
-#   echo -e "$(yellow "Installing exa")"
-#   # we need the '-v' at the end to prevent it from matching with "linux-x86_64-musl"
-#   URL=$(get_download_url "ogham" "exa" "linux-x86_64-v")
-# 	BASE=$(basename "$URL")
-# 	wget -q -nv -O "$BASE" "$URL"
-#   unzip "$BASE" -d exa
-#   sudo cp ./exa/bin/exa /usr/local/bin 
-#   sudo cp ./exa/man/exa.1 /usr/share/man/man1
-#   sudo cp ./exa/completions/exa.bash /etc/bash_completion.d/
-#   rm -r exa
-#   rm "$BASE"
-#   echo -e "$(green "Finished installing exa\n")"
-# }
-
-# starship() {
-#   echo -e "$(yellow "Installing Starship")"
-#   sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y
-#   echo -e "$(green "Finished installing Starship\n")"
-# }
-
-# install_pyenv() {
-#   echo -e "$(yellow "Installing pyenv")"
-#   git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-#   ( cd ~/.pyenv && src/configure && make -C src )
-#   echo -e "$(green "Finished installing pyenv\n")"
-#   echo -e "\n\n"
-#   echo -e "$(yellow "Installing latest stable Python interpreter")"
-#   . ~/.profile 
-#   pyenv install $PYTHON_VERSION || echo -e "$(red "Failed installing latest Python interpreter")"
-#   echo -e "$(green "Finished installing Python\n")"
-# }
 
 install_pip() {
   echo -e "$(yellow "\nInstalling pip\n")"
@@ -167,17 +122,17 @@ debugpy() {
 #   echo -e "$(green "Finished installing Pipx\n")"
 # }
 
-poetry() {
-  echo -e "$(yellow "Installing poetry")"
-  curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-  echo -e "$(green "Finished installing poetry\n")"
-}
+# poetry() {
+#   echo -e "$(yellow "Installing poetry")"
+#   curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+#   echo -e "$(green "Finished installing poetry\n")"
+# }
 
-pipx_programs() {
+local_pip_programs() {
   prgs=('black' 'isort' 'flake8' 'cookiecutter')
 
   for i in "${prgs[@]}"; do
-    if pipx install "$i"; then
+    if pip install --user "$i"; then
       echo -e "$(green "Installed $i")"
     else
       echo -e "$(red "Error installing $i")"
@@ -192,7 +147,7 @@ install_python() {
   install_pip
   poetry
   install_pipx
-  pipx_programs
+  local_pip_programs
   debugpy
   echo -e "$(green "Python setup complete\n")"
 }
@@ -246,21 +201,6 @@ lua_lang_server() {
   echo "Finished installing lua lang server"
 }
 
-# go_programs() {
-#   echo -e "$(yellow "Installing Go programs")"
-#   go get efm-lang-server
-#   go get lazygit
-#   echo -e "$(green "Finished installing Go programs")"
-# }
-# 
-# go() {
-#   echo -e "$(yellow "Installing Golang")"
-#   wget2 --progress bar https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
-#   rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
-#   echo -e "$(green "Finished installing Golang")"
-#   go_programs
-# }
-
 build_neovim() {
   sudo rm /usr/local/bin/nvim
   sudo rm -r /usr/local/share/nvim/
@@ -277,10 +217,10 @@ build_neovim() {
   sudo rm "$BASE"
   sudo rm -r ./neovim-src/
   echo -e "$(green "Finished building Neovim")"
-  echo -e "$(yellow "\nInstalling Packer\n")"
-  git clone --depth 1 https://github.com/wbthomason/packer.nvim\
-    ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-  echo -e "$(green "\nFinished Installing Packer\n")"
+  # echo -e "$(yellow "\nInstalling Packer\n")"
+  # git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+  #   ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+  # echo -e "$(green "\nFinished Installing Packer\n")"
   # echo -e "$(yellow "\nInstalling Plugins\n")"
   # nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
   # echo -e "$(green "\nFinished Installing Plugins\n")"
@@ -316,15 +256,16 @@ deploy_config() {
 
 # TODO: Take optional --update argument to update third-party programs
 
-distro_packages
-deploy_config
-font
-efm-langserver
-lazygit
-exa
-starship
-install_python
-install_node
-lua_lang_server
-build_neovim
+# distro_packages
+# deploy_config
+# font
+# efm-langserver
+# lazygit
+# exa
+# starship
+# install_python
+# install_node
+# lua_lang_server
+# build_neovim
+# font
 
