@@ -97,12 +97,11 @@ local autocmds = {
     --     {"BufWritePost",[[$VIM_PATH/{init.vim,*.vim,*.yaml} nested source $MYVIMRC | redraw]]};
     -- };
     packer = {
-        { "BufWritePost", "plugins.lua", "PackerCompile" };
+        { "BufWritePost", "plugins.lua", "PackerCompile" };  -- PackerCompile after write
     };
     terminal_job = {
-        { "TermOpen", "*", [[tnoremap <buffer> <Esc> <c-\><c-n>]] };
-        { "TermOpen", "*", "startinsert" };
-        { "TermOpen", "*", "setlocal listchars= nonumber norelativenumber" };
+        { "TermOpen", "*", "startinsert" };  -- start terminal w/ insert mode
+        { "TermOpen", "*", "setlocal listchars= nonumber norelativenumber" };  -- no line numbers for term mode
     };
 }
 

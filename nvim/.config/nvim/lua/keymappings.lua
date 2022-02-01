@@ -69,7 +69,8 @@ local default_keys = {
     { "<C-j>", "<C-\\><C-N><C-w>j" },
     { "<C-k>", "<C-\\><C-N><C-w>k" },
     { "<C-l>", "<C-\\><C-N><C-w>l" },
-    { "<Esc>", "<C-\\><C-N><Esc>l" },
+
+    -- { "<Esc>", "<C-\\><C-N>" },
 
     -- Resize terminal with z80 and z20 in normal mode
 

@@ -5,8 +5,6 @@
 	tool = nvimdiff
 [difftool]
     prompt = false
-[difftool "meld"]
-    cmd = meld "$LOCAL" "$REMOTE"
 [core]
 	excludesfile = .gitignore_global
 	editor = nvim
