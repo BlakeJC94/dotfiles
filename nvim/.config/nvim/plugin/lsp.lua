@@ -6,6 +6,7 @@ local buf_keymap = vim.api.nvim_buf_set_keymap
 local cmd = vim.cmd
 
 local utils = require('utils')
+local util = require('lspconfig.util')
 
 -- LSP Signature config
 -- require('lsp_signature').setup{
@@ -159,6 +160,17 @@ local servers = {
   pyright = {
     handlers=handlers,
     disableOrganizeImports = true,
+    openFilesOnly = true,
+    root_dir = function(fname)
+        local root_files = {
+        'pyproject.toml',
+        'setup.py',
+        'setup.cfg',
+        'requirements.txt',
+        'Pipfile',
+      }
+      return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname) or util.path.dirname(fname)
+    end,
     settings = {
         python = {
           analysis = {
@@ -175,9 +187,9 @@ local servers = {
     init_options = {
       documentFormatting = true,
     },
-    root_dir = vim.loop.cwd,
+    -- root_dir = vim.loop.cwd,
     settings = {
-      rootMarkers = {".git/", "requirements.txt", "pyproject.toml"},
+      rootMarkers = {".git/", "requirements.txt", ".venv/"},
       languages = {
         python = {black, flake8, isort},
         html = {prettier},
