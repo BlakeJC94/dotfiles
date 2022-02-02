@@ -28,7 +28,10 @@ M.setup = function()
                               "vmware",
                               ".local",
                               "__pycache__",
-                              ".*%.pdf"},
+                              ".*%.pdf",
+                              ".git",
+                              ".venv"
+                            },
       mappings = {
         i = {
           ["<C-j>"] = actions.move_selection_next,
