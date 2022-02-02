@@ -46,7 +46,12 @@ function utils.run_python()
   local root = vim.loop.cwd()
   local file_path = vim.fn.expand("%:p")
   local python_bin = require('utils').get_python_path(root)
-  return require('toggleterm').exec(("%s %s"):format(python_bin, file_path))
+  if vim.g.windows then
+    return vim.cmd(("normal! terminal %s %s"):format(python_bin, file_path))
+  else
+    return require('toggleterm').exec(("%s %s"):format(python_bin, file_path))
+  end
+
 end
 
 function utils.loaded_plugins()
