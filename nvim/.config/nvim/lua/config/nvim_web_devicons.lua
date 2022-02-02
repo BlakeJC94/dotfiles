@@ -23,10 +23,6 @@ M.setup = function()
           color = "#088DA5",
           name = "Dockerfile",
         },
-        http = {
-          icon = "",
-          name = "http",
-        },
         md = {
           icon = "",
           name = "markdown",
@@ -34,7 +30,7 @@ M.setup = function()
         sql = {
           icon = "",
           color = "#ff409f",
-          name = "sql"
+          name = "sql",
         }
     }
 }
