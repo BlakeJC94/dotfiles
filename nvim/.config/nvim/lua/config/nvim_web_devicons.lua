@@ -30,6 +30,11 @@ M.setup = function()
         md = {
           icon = "",
           name = "markdown",
+        },
+        sql = {
+          icon = "",
+          color = "#ff409f",
+          name = "sql"
         }
     }
 }
