@@ -13,6 +13,7 @@ M.load_options = function()
       clipboard = "unnamedplus", -- allows neovim to access the system clipboard
       cmdheight = 2, -- more space in the neovim command line for displaying messages
       fileencoding = "utf-8",  -- use utf-8 file encoding
+      fileformat = "unix",
       foldmethod = "manual",  -- code folding, set to "expr" for treesitter based folding
       foldexpr = "", -- set to "nvim_treesitter#foldexpr()" for treesitter based folding 
       hlsearch = true,  -- highlight all matches on previous search pattern
