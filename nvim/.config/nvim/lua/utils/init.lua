@@ -33,8 +33,11 @@ function utils.get_python_path(workspace)
   -- Find and use virtualenv via poetry in workspace directory.
   local match = vim.fn.glob(path.join(workspace, '.venv'))
   if match ~= '' then
-    -- local venv = vim.fn.trim(vim.fn.system('poetry env info -p'))
-    return path.join(workspace, '.venv', 'bin', 'python')
+    if vim.g.windows then
+      return path.join(workspace, '.venv', 'Scripts', 'python')
+    else
+      return path.join(workspace, '.venv', 'bin', 'python')
+    end
   end
 
   -- Fallback to system Python.
@@ -46,7 +49,11 @@ function utils.run_python()
   local root = vim.loop.cwd()
   local file_path = vim.fn.expand("%:p")
   local python_bin = require('utils').get_python_path(root)
-  return require('toggleterm').exec(("%s %s"):format(python_bin, file_path))
+  if vim.g.windows then
+    return vim.api.nvim_command(string.format(':split term://%s %s', python_bin, file_path))
+  else
+    return require('toggleterm').exec(("%s %s"):format(python_bin, file_path))
+  end
 end
 
 function utils.loaded_plugins()
