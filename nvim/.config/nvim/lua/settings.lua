@@ -15,7 +15,7 @@ M.load_options = function()
       fileencoding = "utf-8",  -- use utf-8 file encoding
       fileformat = "unix",
       foldmethod = "manual",  -- code folding, set to "expr" for treesitter based folding
-      foldexpr = "", -- set to "nvim_treesitter#foldexpr()" for treesitter based folding 
+      foldexpr = "", -- set to "nvim_treesitter#foldexpr()" for treesitter based folding
       hlsearch = true,  -- highlight all matches on previous search pattern
       ignorecase = true,  -- ignore case when searching, see also: smartcase
       smartcase = true, -- case sensitive search if at least one letter is uppercase
@@ -24,7 +24,7 @@ M.load_options = function()
       -- pumheight = 10,  -- popup menu height
       splitbelow = true,  -- force all horizontal splits to go below current window
       splitright = true, -- force all vertical splits to go to the right of current window
-      termguicolors = true,  -- set term gui colors 
+      termguicolors = true,  -- set term gui colors
       title = true,  -- set the title of window to the value of the titlestring
       expandtab = true,  -- convert tabs to spaces
       shiftwidth = 2,  -- the number of spaces inserted for each indentation
@@ -34,8 +34,8 @@ M.load_options = function()
       relativenumber = true,  -- set relative numbered lines
       numberwidth = 4,  -- set number column width
       signcolumn = "yes",  -- always show the sign column, otherwise it would shift text each time
-      spell = false,  -- 
-      spelllang = "en",  -- 
+      spell = false,  --
+      spelllang = "en",  --
       scrolloff = 8,  -- Minimal number of lines to keep above and below the cursor
       sidescrolloff = 8,  -- same as above, except for left and right, if nowrap is set
       -- timeoutlen = 100, -- time to wait for a mapped sequence to complete (in milliseconds)
@@ -76,8 +76,8 @@ end
 ----------------------------
 if (vim.loop.os_uname().sysname == "Windows_NT") then
   vim.cmd(
-    [[cnoreabbrev terminal terminal powershell]]
-  )  
+    [[cnoreabbrev term terminal powershell -nologo]]
+  )
 end
 
 ----------------------------
