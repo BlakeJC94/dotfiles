@@ -41,7 +41,7 @@ function utils.get_python_path(workspace)
   end
 
   -- Fallback to system Python.
-  return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
+  return vim.fn.exepath('python') or 'python'
 end
 
 -- Use current working directory as 'workspace' to find python and run current buffer
