@@ -1,5 +1,19 @@
 local M = {}
 
+M.no_preview = function()
+  return require('telescope.themes').get_dropdown({
+    borderchars = {
+      { '─', '│', '─', '│', '┌', '┐', '┘', '└'},
+      prompt = {"─", "│", " ", "│", '┌', '┐', "│", "│"},
+      results = {"─", "│", "─", "│", "├", "┤", "┘", "└"},
+      preview = { '─', '│', '─', '│', '┌', '┐', '┘', '└'},
+    },
+    width = 0.8,
+    previewer = false,
+    prompt_title = false
+  })
+end
+
 M.setup = function()
   local actions = require('telescope.actions')
   local telescope = require "telescope"
@@ -30,7 +44,8 @@ M.setup = function()
                               "__pycache__",
                               ".*%.pdf",
                               ".git",
-                              ".venv"
+                              ".venv",
+                              "scoop",
                             },
       mappings = {
         i = {

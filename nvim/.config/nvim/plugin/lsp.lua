@@ -99,8 +99,13 @@ local function on_attach(client)
 end
 
 -- local settings for Lua LSP
-local sumneko_root_path = vim.fn.stdpath('cache')..'/lua-language-server'
-local sumneko_binary = sumneko_root_path.."/bin/Linux/lua-language-server"
+if vim.g.windows then
+  sumneko_root_path = vim.fn.expand("$HOME" .. "\\bin\\lua-language-server-2.6.3-win32-x64")
+  sumneko_binary = sumneko_root_path.."\\bin\\lua-language-server.exe"
+else
+  sumneko_root_path = vim.fn.stdpath('cache')..'/lua-language-server'
+  sumneko_binary = sumneko_root_path.."/bin/Linux/lua-language-server"
+end
 
 -- linter/formatter configs
 local black = require "config/efm/black"
@@ -158,7 +163,7 @@ local servers = {
   --   end
   -- },
   pyright = {
-    handlers=handlers,
+    -- handlers=handlers,
     disableOrganizeImports = true,
     openFilesOnly = true,
     root_dir = function(fname)
