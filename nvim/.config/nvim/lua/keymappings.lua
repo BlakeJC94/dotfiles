@@ -35,9 +35,9 @@ local default_keys = {
     { "<C-q>", "<C-W><C-Q>" },  -- easy quit
 
     -- Telescope
-    { "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
-    { "<leader>gg", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
-    { "<C-S-p>", "<cmd>lua require('telescope.builtin').oldfiles()<cr>"},
+    { "<C-p>", "<cmd>lua require('telescope.builtin').find_files(require('config.telescope').no_preview())<cr>" },
+    { "<leader>gg", "<cmd>lua require('telescope.builtin').live_grep(require('config.telescope').no_preview())<cr>" },
+    { "<C-o>", "<cmd>lua require('telescope.builtin').oldfiles(require('config.telescope').no_preview())<cr>"},
 
     -- NvimTree
     { "<leader>t", ":NvimTreeToggle<CR>" },
