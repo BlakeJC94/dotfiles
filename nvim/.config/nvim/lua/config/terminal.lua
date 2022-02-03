@@ -4,21 +4,21 @@ M.setup = function()
   local toggleterm = require "toggleterm"
 
   if vim.g.windows == true then  -- if we are on Windows
-    myshell = "powershell.exe" -- change the default shell
+    myshell = "powershell.exe -nologo" -- change the default shell
   else
     myshell = vim.o.shell -- else use the default shell for vim (/bin/bash)
   end
 
   toggleterm.setup{
   -- size can be a number or function which is passed the current terminal
-  size = 20,
-  -- function(term)
-  --   if term.direction == "horizontal" then
-  --     return 15
-  --   elseif term.direction == "vertical" then
-  --     return vim.o.columns * 0.4
-  --   end
-  -- end,
+  -- size = 110,
+  size = function(term)
+    if term.direction == "horizontal" then
+      return 30
+    elseif term.direction == "vertical" then
+      return vim.o.columns * 0.45
+    end
+  end,
   -- open_mapping = [[<leader><tab>]],
   open_mapping = [[<c-\>]],
   hide_numbers = true, -- hide the number column in toggleterm buffers
@@ -28,7 +28,7 @@ M.setup = function()
   start_in_insert = true,
   -- insert_mappings = true, -- whether or not the open mapping applies in insert mode
   persist_size = true,
-  direction = 'horizontal',
+  direction = 'vertical',
   close_on_exit = true, -- close the terminal window when the process exits 
   shell = myshell,
   -- This field is only relevant if direction is set to 'float'
