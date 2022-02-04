@@ -20,7 +20,7 @@ M.setup = function()
 
   local breakpoint = {
       text = "",
-      texthl = "LspDiagnosticsSignHint",
+      texthl = "DiagnosticSignHint",
       linehl = "",
       numhl = "",
     }
