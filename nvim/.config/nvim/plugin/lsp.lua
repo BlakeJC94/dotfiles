@@ -80,12 +80,20 @@ local function on_attach(client)
   -- buf_keymap(0, "n", "[e", ":Lspsaga diagnostic_jump_prev<CR>", keymap_opts)
 
   -- format, if LSP supports it
-  if client.resolved_capabilities.document_formatting then
-        vim.cmd [[augroup Format]]
-        vim.cmd [[autocmd! * <buffer>]]
-        vim.cmd [[autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting_sync()]]
-        vim.cmd [[augroup END]]
+  -- manual formatting on windows, format before write on linux
+  if vim.g.windows then
+    vim.cmd [[command! Format :lua vim.lsp.buf.formatting_sync({}, 2000)<CR>]]
+  else
+    if client.resolved_capabilities.document_formatting then
+      vim.cmd [[augroup Format]]
+      vim.cmd [[autocmd! * <buffer>]]
+
+      -- https://github.com/mattn/efm-langserver/issues/88
+      vim.cmd [[autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting_sync()]]
+
+      vim.cmd [[augroup END]]
     end
+  end
 
   cmd 'augroup lsp_aucmds'
   if client.resolved_capabilities.document_highlight == true then
@@ -128,11 +136,11 @@ local border = {
   {"│", "FloatBorder"},  --left
 }
 
--- local handlers =  {
---   ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = border}),
---   ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = border }),
---   ["textDocument/rename"] = vim.lsp.with(vim.lsp.handlers.re)
--- }
+local handlers =  {
+  ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = border}),
+  ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = border }),
+  ["textDocument/rename"] = vim.lsp.with(vim.lsp.handlers.re)
+}
 
 -- To instead override globally
 local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
@@ -163,7 +171,7 @@ local servers = {
   --   end
   -- },
   pyright = {
-    -- handlers=handlers,
+    handlers=handlers,
     disableOrganizeImports = true,
     openFilesOnly = true,
     root_dir = function(fname)
