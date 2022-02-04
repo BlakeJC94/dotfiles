@@ -26,7 +26,7 @@ M.setup = function()
         sql = {
           icon = "",
           color = "#ff409f",
-          name = "sql",
+          name = "SQL",
         }
     }
 }
