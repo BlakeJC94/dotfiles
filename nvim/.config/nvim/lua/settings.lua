@@ -13,6 +13,8 @@ M.load_options = function()
       clipboard = "unnamedplus", -- allows neovim to access the system clipboard
       cmdheight = 2, -- more space in the neovim command line for displaying messages
       fileencoding = "utf-8",  -- use utf-8 file encoding
+      fileformat = "unix", --force unix file format
+      fileformats= "unix,dos",
       foldmethod = "manual",  -- code folding, set to "expr" for treesitter based folding
       foldexpr = "", -- set to "nvim_treesitter#foldexpr()" for treesitter based folding
       hlsearch = true,  -- highlight all matches on previous search pattern
@@ -75,7 +77,7 @@ end
 ----------------------------
 if (vim.loop.os_uname().sysname == "Windows_NT") then
   vim.cmd(
-    [[cnoreabbrev term terminal powershell -nologo]]
+    [[cnoreabbrev term edit term://bash]]
   )
 end
 
