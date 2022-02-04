@@ -9,6 +9,9 @@ case $- in
       *) return;;
 esac
 
+# detect OS ('Msys' for Git Bash)
+platform=$(uname -o)
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -48,9 +51,17 @@ fi
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-if [ -f ~/.bash_aliases ]; then
-    . "$HOME/.bash_aliases"
+if [[ $platform == "Msys" ]]; then
+  alias_file="$HOME/dotfiles/bash/.bash_aliases"
+else
+  alias_file="$HOME/.bash_aliases"
 fi
+
+if [[ -f "$alias_file" ]]; then
+    . "$alias_file"
+fi
+
+
 
 
 # enable programmable completion features (you don't need to enable
@@ -139,5 +150,10 @@ function venv_detect {
   fi
 }
 
-export PS1="\n\[\e[34m\]\w\[\e[m\] \[\e[33m\]\$(parse_git_branch)\[\e[m\] \[\e[35m\]\$(venv_detect)\[\e[m\] \n\[\e[32m\]\\$\[\e[m\] "
+if [[ "$platform" == "Msys" ]]; then
+  export PS1="\n\[\e[34m\]\w\[\e[m\] \[\e[33m\] \[\e[35m\]\`venv_detect\`\[\e[m\] \n\[\e[32m\]\\$\[\e[m\] "
+else
+  export PS1="\n\[\e[34m\]\w\[\e[m\] \[\e[33m\]\`parse_git_branch\`\[\e[m\] \[\e[35m\]\`venv_detect\`\[\e[m\] \n\[\e[32m\]\\$\[\e[m\] "
+fi
+
 export VIRTUAL_ENV_DISABLE_PROMPT=1
