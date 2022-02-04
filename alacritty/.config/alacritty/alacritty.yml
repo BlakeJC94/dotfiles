@@ -747,9 +747,7 @@ font:
 # 
 #     u stands for unicode.
 #
-key_bindings:
-- { key: P,        mods: Control|Shift, chars: "\x1b[80;5u"                }
-# - { key: F5,       mods: Alt,     chars: "\x1b[15;6~"                  }
+# key_bindings:
 #- { key: Paste,                                       action: Paste          }
 #- { key: Copy,                                        action: Copy           }
 #- { key: L,         mods: Control,                    action: ClearLogNotice }
