@@ -4,7 +4,7 @@ M.setup = function()
   local toggleterm = require "toggleterm"
 
   if vim.g.windows == true then  -- if we are on Windows
-    myshell = "powershell.exe -nologo" -- change the default shell
+    myshell = "bash.exe" -- change the default shell
   else
     myshell = vim.o.shell -- else use the default shell for vim (/bin/bash)
   end
