@@ -9,9 +9,9 @@ nvimtree_config = {
     files = 1,
     folder_arrows = 1,
   },
-  ignore = { "__pycache__", ".git", "node_modules", ".cache" },
+  -- ignore = { "__pycache__", ".git", "node_modules", ".cache" },
   quit_on_open = 0,
-  hide_dotfiles = 0,
+  -- hide_dotfiles = 0,
   git_hl = 1,
   root_folder_modifier = ":t",
   respect_buf_cwd = 1,
@@ -23,8 +23,8 @@ nvimtree_config = {
     default = "",
     symlink = "",
     git = {
-      unstaged = "✗",
-      staged = "✓",
+      unstaged = "",
+      staged = "",
       unmerged = "",
       renamed = "➜",
       deleted = "",
@@ -71,6 +71,8 @@ M.setup = function()
     -- updates the root directory of the tree on `DirChanged` (when your run `:cd` usually)
     update_cwd          = true,
 
+    hide_dotfiles = 0,
+
     diagnostics = {
       enable = true
     },
@@ -94,7 +96,7 @@ M.setup = function()
       -- the command arguments as a list
       args = {}
     },
-
+    ignore = { "__pycache__", ".git", "node_modules", ".cache" },
     view = {
       -- width of the window, can be either a number (columns) or a string in `%`
       width = 30,
