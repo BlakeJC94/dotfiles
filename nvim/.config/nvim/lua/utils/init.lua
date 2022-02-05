@@ -49,11 +49,8 @@ function utils.run_python()
   local root = vim.loop.cwd()
   local file_path = vim.fn.expand("%:p")
   local python_bin = require('utils').get_python_path(root)
-  if vim.g.windows then
-    return vim.api.nvim_command(string.format(':split term://%s %s', python_bin, file_path))
-  else
-    return require('toggleterm').exec(("%s %s"):format(python_bin, file_path))
-  end
+  vim.api.nvim_command(string.format(':vsplit term://%s %s', python_bin, file_path))
+  print(string.format("%s %s", python_bin, file_path))
 end
 
 function utils.loaded_plugins()
