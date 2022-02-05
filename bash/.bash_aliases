@@ -21,6 +21,10 @@ alias gr="git rm"
 alias gd="git diff"
 
 # Python
-alias a="source .venv/bin/activate 2> /dev/null || source \$(git rev-parse --show-toplevel)/.venv/bin/activate"
+if [[ $(uname -o) == 'Msys' ]]; then
+  alias a="source .venv/Scripts/activate 2> /dev/null || source \$(git rev-parse --show-toplevel)/.venv/Scripts/activate"
+else
+  alias a="source .venv/bin/activate 2> /dev/null || source \$(git rev-parse --show-toplevel)/.venv/bin/activate"
+fi
 alias d="deactivate"
 alias pipf="pip freeze --exclude python-dotenv > ./requirements.txt"
