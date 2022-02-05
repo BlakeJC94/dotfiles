@@ -143,7 +143,11 @@ function parse_git_dirty {
 function venv_detect {
   if [ -n "$VIRTUAL_ENV" ]; then
         # Strip out the path and just leave the env name
-        echo "(${VIRTUAL_ENV##*/})"
+        if [[ "$platform" == "Msys" ]]; then
+          echo "(${VIRTUAL_ENV##*\\})"
+        else
+          echo "(${VIRTUAL_ENV##*/})"
+        fi
   else
       # In case you don't have one activated
       echo ''
