@@ -200,7 +200,7 @@ local servers = {
     init_options = {
       documentFormatting = true,
     },
-    -- root_dir = vim.loop.cwd,
+    root_dir = util.root_pattern {".git/", "."},
     settings = {
       rootMarkers = {".git/", "requirements.txt", ".venv/"},
       languages = {
