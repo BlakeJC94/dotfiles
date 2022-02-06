@@ -1,15 +1,6 @@
 local M = {}
 
 M.setup = function()
-  local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
-  parser_configs.http = {
-    install_info = {
-      url = "https://github.com/NTBBloodbath/tree-sitter-http",
-      files = { "src/parser.c" },
-      branch = "main",
-    },
-  }
-
   local nvim_treesitter = require "nvim-treesitter.configs"
   nvim_treesitter.setup {
     autotag = {
@@ -23,14 +14,12 @@ M.setup = function()
                          "dockerfile",
                          "go",
                          "html",
-                         "http",
                          "javascript",
                          "json",
                          "lua",
                          "regex",
                          "toml",
                          "yaml",
-                         -- "yang",
                        },
     highlight = {
       enable = true
