@@ -10,8 +10,6 @@ return require('packer').startup(function(use)
 
   use "rafcamlet/nvim-luapad"  -- Lua REPL
 
-  -- use "rinx/lspsaga.nvim" -- LSP UI
-
   -- change cwd to the project's root using LSP
   use {
     "ahmedkhalf/project.nvim",
@@ -177,16 +175,6 @@ return require('packer').startup(function(use)
     end
   }
 
-  -- REST client
-  -- use {
-  --   'NTBBloodbath/rest.nvim',
-  --   requires = { 'nvim-lua/plenary.nvim' },
-  --   ft = 'http',
-  --   config = function()
-  --       require('rest-nvim').setup()
-  --   end
-  -- }
-
   -- Indent lines
   use {
     "lukas-reineke/indent-blankline.nvim",
@@ -195,11 +183,12 @@ return require('packer').startup(function(use)
     end
   }
 
-  -- Vim-test
-  use "vim-test/vim-test"
-
-  -- Snippets
-  use "L3MON4D3/LuaSnip"
+  use {
+    "theHamsta/nvim-dap-virtual-text",
+    config = function()
+      require('nvim-dap-virtual-text').setup()
+    end
+  }
 
 end)
 
