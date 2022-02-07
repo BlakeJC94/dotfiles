@@ -97,7 +97,12 @@ M.setup = function()
       args = {}
     },
     ignore = { "__pycache__", ".git", "node_modules", ".cache" },
-    view = {
+    git = {
+      enable = true,
+      ignore = false,
+      timeout = 500,
+    },
+      view = {
       -- width of the window, can be either a number (columns) or a string in `%`
       width = 30,
       -- side of the tree, can be one of 'left' | 'right' | 'top' | 'bottom'
