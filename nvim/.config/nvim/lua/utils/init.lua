@@ -63,21 +63,21 @@ function utils.run_python()
 end
 
 -- Use current working directory as 'workspace' to find python and run unittests in current file
--- function utils.run_python_tests()
---   local root = vim.loop.cwd()
---   local file_path = vim.fn.expand("%:p")
---   local python_bin = require('utils').get_python_path(root)
---   local python_run_tests = Terminal:new({
---     cmd = string.format('%s -m unittest %s', python_bin, file_path),
---     direction = 'vertical',
---     close_on_exit = false,
---     on_open = function()
---       print(string.format('%s -m unittest %s', python_bin, file_path))
---     end
---   })
---   python_run_tests:toggle()
---
--- end
+function utils.run_python_tests()
+  local root = vim.loop.cwd()
+  local file_path = vim.fn.expand("%:p")
+  local python_bin = require('utils').get_python_path(root)
+  local python_run_tests = Terminal:new({
+    cmd = string.format('%s -m unittest %s', python_bin, file_path),
+    direction = 'vertical',
+    close_on_exit = false,
+    on_open = function()
+      print(string.format('%s -m unittest %s', python_bin, file_path))
+  end
+  })
+  python_run_tests:toggle()
+
+end
 
 function utils.python_bin()
   local root = vim.loop.cwd()

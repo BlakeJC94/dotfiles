@@ -16,7 +16,7 @@ vim.cmd[[ :iabbrev ifmain if __name__ == "__main__":<CR> ]]
 vim.api.nvim_buf_set_keymap(0, 'n', '<F8>', '<cmd>lua require("utils").run_python()<CR>', { noremap = true })
 
 -- Test runner
--- vim.api.nvim_buf_set_keymap(0, 'n', '<F4>', '<cmd>lua require("utils").run_python_tests()<CR>', { noremap = true })
+vim.api.nvim_buf_set_keymap(0, 'n', '<F4>', '<cmd>lua require("utils").run_python_tests()<CR>', { noremap = true })
 
 -- Easy skip test
 vim.api.nvim_buf_set_keymap(0, 'n', '<leader>st', 'O@unittest.skip("skipping")<ESC>', { noremap = true })
