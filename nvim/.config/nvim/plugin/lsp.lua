@@ -200,9 +200,9 @@ local servers = {
     init_options = {
       documentFormatting = true,
     },
-    root_dir = util.root_pattern {".git/", "."},
+    root_dir = util.find_git_ancestor,
     settings = {
-      rootMarkers = {".git/", "requirements.txt", ".venv/"},
+      rootMarkers = {".git/"},
       languages = {
         python = {black, flake8, isort},
         html = {prettier},
