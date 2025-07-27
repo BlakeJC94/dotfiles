@@ -251,4 +251,69 @@ function! field_notes#BlogHeader() abort
 endfunction
 
 
+function! field_notes#CatFilesBetweenDates(remove_files, start, end)
+  let l:remove_files = a:remove_files
+  let l:start = a:start
+  let l:end = a:end
+  let l:outfile = l:start . '--' . l:end . '.md'
 
+  " Extract just the date part for comparison (yyyy_mm_dd), ignoring day of week suffix
+  " For input like "2025_07_14_Mon", extract "2025_07_14"
+  let l:start_date = matchstr(l:start, '^\d\{4\}_\d\{2\}_\d\{2\}')
+  let l:end_date = matchstr(l:end, '^\d\{4\}_\d\{2\}_\d\{2\}')
+
+  " Get all .md files from field notes directory using full path
+  let l:notes_dir = expand(g:field_notes_dir)
+  let l:all_files = glob(l:notes_dir . '/*.md', 0, 1)
+  let l:matching_files = []
+
+  for l:full_path in l:all_files
+    let l:filename = fnamemodify(l:full_path, ':t')
+    let l:basename = fnamemodify(l:filename, ':r')
+    
+    " Only process files that match the date pattern ^yyyy_mm_dd
+    if l:basename =~# '^\d\{4\}_\d\{2\}_\d\{2\}'
+      " Extract the date part (first 10 characters: yyyy_mm_dd)
+      let l:file_date = l:basename[0:9]
+      
+      " Compare dates directly as strings (yyyy_mm_dd format sorts correctly)
+      if l:file_date >= l:start_date && l:file_date <= l:end_date
+        call add(l:matching_files, l:full_path)
+      endif
+    endif
+  endfor
+
+  " Sort the files by their full paths (which includes the date)
+  call sort(l:matching_files)
+
+  if empty(l:matching_files)
+    echo "No files found between " . l:start . " and " . l:end
+    return
+  endif
+
+  " Create new buffer
+  execute 'enew'
+  execute 'file ' . l:outfile
+
+  " Read and concatenate all matching files
+  for l:full_path in l:matching_files
+    if filereadable(l:full_path)
+      call append('$', readfile(l:full_path))
+      call append('$', '')
+    endif
+  endfor
+  
+  " Remove the first empty line and set filetype
+  normal! ggdd
+  setfiletype markdown
+
+  " Remove original files if bang was used
+  if l:remove_files
+    for l:full_path in l:matching_files
+      call delete(l:full_path)
+    endfor
+    echo "Concatenated " . len(l:matching_files) . " files and removed originals"
+  else
+    echo "Concatenated " . len(l:matching_files) . " files"
+  endif
+endfunction
