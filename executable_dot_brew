@@ -3,6 +3,16 @@
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
 list=(
+    "dprint"
+    "prettier"  # css html markdown yaml js
+    "cspell"
+    "shfmt"
+    "write-good"
+    "jq"
+    "jsonlint"
+    "checkmake"
+    "sqlfluff"
+
     "aider"
     "awk"
     "bat"
@@ -21,7 +31,6 @@ list=(
     "gnu-sed"
     "grep"
     "hugo"
-    "jq"
     "just"
     "less"
     "llm"
@@ -40,7 +49,6 @@ list=(
     "tree"
     "vint"
     "wget"
-    "write-good"
 )
 for item in "${list[@]}"; do
     if brew list --formula | grep -q "^${item}$"; then
