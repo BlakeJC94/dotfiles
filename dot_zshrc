@@ -46,6 +46,9 @@ export CLOUDSDK_PYTHON_SITEPACKAGES=1
 # Intiliase Brew package manager
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# Initialise Mise
+eval "$(mise activate)"
+
 # Initialise Starship prompt
 eval "$(starship init zsh)"
 
