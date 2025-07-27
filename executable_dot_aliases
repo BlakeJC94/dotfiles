@@ -8,6 +8,7 @@ alias myip='curl http://ifconfig.me/ip'
 alias wttr='curl https://wttr.in/'
 
 alias least='fmt -w 80 | bat --paging always --style plain'
+alias chz='chezmoi'
 alias leastmd='least -l markdown'
 
 alias meminfo='free -m -l -t'
