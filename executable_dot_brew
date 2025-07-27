@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
@@ -53,15 +54,18 @@ done
 
 # macOS-specific casks
 casks=(
-    "firefox"
+    "caffeine"
     "docker"
-    "docker-desktop"
+    "firefox"
     "font-jetbrains-mono-nerd-font"
+    "iterm2"
     "macmediakeyforwarder"
-    "write"
+    "protonvpn"
+    "rectangle"
     "slack"
     "spotify"
-    "iterm2"
+    "wezterm"
+    "write"
 )
 if [[ "$OSTYPE" == "darwin"* ]]; then
 
