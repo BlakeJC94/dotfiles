@@ -1,5 +1,6 @@
 let g:ale_linters_explicit = 1
 let g:ale_linters = {
+      \'make': ['checkmake'],
       \'markdown': ['writegood'],
       \'python': ['ruff', 'cspell'],
       \'sh': ['shellcheck'],
