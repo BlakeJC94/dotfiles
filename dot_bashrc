@@ -47,6 +47,9 @@ source $HOME/.bash/modules/tab_cycle.sh
 # Linuxbrew
 [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
+# Mise
+eval "$(mise activate bash)"
+
 # Initialise Starship prompt
 eval "$(starship init bash)"
 

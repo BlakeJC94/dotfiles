@@ -1,11 +1,15 @@
-#!/usr/bin/env bash
+[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 list=(
+    "aider"
     "awk"
     "bat"
     "bitwarden-cli"
     "coreutils"
     "ctags"
     "curl"
+    "datasette"
     "diffutils"
     "duckdb"
     "fd"
@@ -17,19 +21,59 @@ list=(
     "grep"
     "hugo"
     "jq"
+    "just"
     "less"
+    "llm"
+    "mdformat"
     "mise"
     "nano"
     "neofetch"
     "pandoc"
+    "pre-commit"
+    "python-lsp-server"
     "rg"
+    "shellcheck"
+    "sqlite-utils"
     "starship"
     "tealdeer"
     "tmux"
     "tree"
+    "vint"
     "wget"
+    "write-good"
 )
 for item in "${list[@]}"; do
-    brew install $item
+    if brew list --formula | grep -q "^${item}$"; then
+        echo "Upgrading $item..."
+        brew upgrade $item
+    else
+        echo "Installing $item..."
+        brew install $item
+    fi
 done
 
+# macOS-specific casks
+casks=(
+    "firefox"
+    "docker"
+    "docker-desktop"
+    "font-jetbrains-mono-nerd-font"
+    "macmediakeyforwarder"
+    "write"
+    "slack"
+    "zoom"
+    "spotify"
+    "iterm2"
+)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+
+    for cask in "${casks[@]}"; do
+        if brew list --cask | grep -q "^${cask}$"; then
+            echo "Upgrading cask $cask..."
+            brew upgrade --cask $cask
+        else
+            echo "Installing cask $cask..."
+            brew install --cask $cask
+        fi
+    done
+fi
