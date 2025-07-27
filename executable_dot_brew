@@ -27,7 +27,6 @@ list=(
     "mdformat"
     "mise"
     "nano"
-    "neofetch"
     "pandoc"
     "pre-commit"
     "python-lsp-server"
@@ -61,7 +60,6 @@ casks=(
     "macmediakeyforwarder"
     "write"
     "slack"
-    "zoom"
     "spotify"
     "iterm2"
 )
