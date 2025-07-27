@@ -1,5 +1,11 @@
 #!usr/bin/env sh
 alias ls='ls --color=auto'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
 alias duh='du -d 1 -h'
 
 alias today='vim -c "Today!"'
