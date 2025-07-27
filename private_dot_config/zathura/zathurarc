@@ -1,0 +1,8 @@
+set recolor true
+set recolor-lightcolor \#1d2021
+set recolor-keephue
+set default-bg \#101010
+set window-title-basename "true"
+set selection-clipboard "clipboard"
+set window-height 1200
+set window-width 1000

@@ -1,0 +1,78 @@
+[user]
+    name = BlakeJC94
+    email = blake.c@montu.com.au
+    username = BlakeJC94
+
+[includeIf "gitdir:~/Workspace/repos/work/"]
+    path = ~/.gitconfig-montu
+
+[alias]
+    st = "!git status -sb"
+    cm = "!git commit -m"
+    cma = "!git add . && git commit -m"
+    dif = "!git diff --stat"
+    lg = "!git log --oneline"
+    lgs = "!git log --name-status --oneline"
+    hub = "!gh"
+    co = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
+    b = "!git checkout -"
+    vim = "!vim $(git diff --name-only)"
+    forget = "!git reset --hard HEAD"
+    last = log -1 HEAD --stat
+    primebranch = "!git symbolic-ref --short HEAD"
+    hist = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue) <%an> %Creset' --abbrev-commit
+    clonetree = !sh -c 'url=$1 && base=$(basename ${url}) && dir=${2:-${base%.*}} && mkdir ${dir} && echo cd ${dir} && cd ${dir} && git clone --bare ${url} .git && git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch origin && git worktree add $(git primebranch) && cd $(git primebranch) && git pullup' -
+    sync = "!git add . && git commit -m \"sync by $(whoami) from $(hostname) at $(date)\" ; git push"
+
+[color]
+    ui = auto
+
+[core]
+    editor = "vim"
+
+[credential]
+    helper = cache --timeout=3600
+
+[diff]
+    colorMoved = plain
+    algorithm = histogram
+    mnemonicPrefix = true
+    renames = true
+
+[mergetool]
+    prompt = true
+
+[pull]
+    rebase = false
+
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+[commit]
+    verbose = true
+
+[help]
+    autocorrect = prompt
+[init]
+    defaultBranch = main
+[branch]
+    sort = -committerdate
+[column]
+    ui = auto
+[tag]
+    sort = version:refname
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+[rebase]
+    autoSquash = true
+    autoStash = true
+    updateRefs = true

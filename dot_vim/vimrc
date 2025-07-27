@@ -1,0 +1,9 @@
+"" BlakeJC94s Vim configuration
+"""""""""""""""""""""""""""""""
+filetype plugin indent on
+let mapleader = "\<Space>"
+
+source ~/.vim/plugs.vim
+source ~/.vim/options.vim
+source ~/.vim/mappings.vim
+source ~/.vim/scratchpad.vim

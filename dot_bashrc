@@ -31,14 +31,14 @@ source $HOME/.bash/modules/tab_cycle.sh
 # Env vars
 
 # Setup common env vars
-[ -f ~/.envvars.sh ] && source ~/.envvars.sh
+[ -f ~/.envvars ] && source ~/.envvars
 
 
 ##
 # Aliases
 
 # Setup common alias definitions
-[ -f ~/.aliases.sh ] && source ~/.aliases.sh
+[ -f ~/.aliases ] && source ~/.aliases
 
 
 ##
