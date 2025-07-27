@@ -56,9 +56,6 @@ eval "$(starship init bash)"
 # Initialise FZF
 source <(fzf --bash)
 
-# Initisliase asdf
-[ -f $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh ] && source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh
-
 
 # print a fortune when starting up a bash session
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
