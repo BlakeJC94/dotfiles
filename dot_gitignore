@@ -1,1 +1,6 @@
 tags
+.aider.chat.history.md
+.aider.input.history
+.aider.llm.history
+.aider.tags.cache.*/*
+scrap/*
