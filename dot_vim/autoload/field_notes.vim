@@ -255,7 +255,7 @@ function! field_notes#CatFilesBetweenDates(remove_files, start, end)
   let l:remove_files = a:remove_files
   let l:start = a:start
   let l:end = a:end
-  let l:outfile = l:start . '--' . l:end . '.md'
+  let l:outfile = l:start . '_to_' . l:end . '.md'
 
   " Extract just the date part for comparison (yyyy_mm_dd), ignoring day of week suffix
   " For input like "2025_07_14_Mon", extract "2025_07_14"
@@ -270,12 +270,12 @@ function! field_notes#CatFilesBetweenDates(remove_files, start, end)
   for l:full_path in l:all_files
     let l:filename = fnamemodify(l:full_path, ':t')
     let l:basename = fnamemodify(l:filename, ':r')
-    
+
     " Only process files that match the date pattern ^yyyy_mm_dd
     if l:basename =~# '^\d\{4\}_\d\{2\}_\d\{2\}'
       " Extract the date part (first 10 characters: yyyy_mm_dd)
       let l:file_date = l:basename[0:9]
-      
+
       " Compare dates directly as strings (yyyy_mm_dd format sorts correctly)
       if l:file_date >= l:start_date && l:file_date <= l:end_date
         call add(l:matching_files, l:full_path)
@@ -302,7 +302,7 @@ function! field_notes#CatFilesBetweenDates(remove_files, start, end)
       call append('$', '')
     endif
   endfor
-  
+
   " Remove the first empty line and set filetype
   normal! ggdd
   setfiletype markdown
@@ -312,6 +312,7 @@ function! field_notes#CatFilesBetweenDates(remove_files, start, end)
     for l:full_path in l:matching_files
       call delete(l:full_path)
     endfor
+    execute 'write'
     echo "Concatenated " . len(l:matching_files) . " files and removed originals"
   else
     echo "Concatenated " . len(l:matching_files) . " files"

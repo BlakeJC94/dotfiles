@@ -9,12 +9,14 @@ alias egrep='egrep --color=auto'
 alias duh='du -d 1 -h'
 
 alias today='vim -c "Today!"'
+alias notes='vim -c "Notes!"'
 
 alias myip='curl http://ifconfig.me/ip'
 alias wttr='curl https://wttr.in/'
 
-alias least='fmt -w 80 | bat --paging always --style plain'
 alias chz='chezmoi'
+
+alias least='fmt -w 80 | bat --paging always --style plain'
 alias leastmd='least -l markdown'
 
 alias meminfo='free -m -l -t'
