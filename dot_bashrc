@@ -57,6 +57,7 @@ source <(fzf --bash)
 [ -f $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh ] && source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh
 
 
-# TODO rfc
-[ -f ~/.bash/modules/tex.sh ] && source $HOME/.bash/modules/tex.sh
-[ -f ~/.bash/modules/fortune.sh ] && source $HOME/.bash/modules/fortune.sh
+# print a fortune when starting up a bash session
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    codehelp
+fi

@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+
+usage() {
+    cat 1>&2 <<EOF
+envy
+Subshell spawner for Python
+
+This utility searches the current directory for a virtual environment
+in the current directory, travels up the directory tree (up to the
+users home directory) until a virtual env is found, then spawns a
+subshell that sources '.bashrc' and the virtual environment (and sets
+a value for 'ENVY').
+
+By default, searches for a virtual environment called '.venv', can be
+specified in the first argument.
+
+If a virtual environment is not found, a new virtual environment is
+created at the current directory and a subshell sourcing the new venv
+is invoked.
+
+Different venvs can be targeted/created via first positional arg (e.g.
+look for '.venv-foo' by using 'envy foo').
+
+USAGE:
+    envy [OPTIONS] [NAME]
+
+ARGS:
+    NAME            Virtual env suffix to search/create (default: '')
+
+OPTIONS:
+    -h, --help                                     Show documentation
+    -n, --new         Skip search and create/activate new virtual env
+EOF
+}
+
+main() {
+
+    local requested_new
+    requested_new=0
+
+    local arg_idx
+    arg_idx=1
+
+    for arg in "$@"; do
+        case "$arg" in
+            --help)
+                usage
+                return 0
+                ;;
+            --new)
+                requested_new=1
+                ;;
+            *)
+                while getopts :hn sub_arg "$arg"; do
+                    case "$sub_arg" in
+                        h)
+                            usage
+                            return 0
+                            ;;
+                        n)
+                            requested_new=1
+                            ;;
+                        *)
+                            ;;
+                        esac
+                done
+                ;;
+        esac
+        arg_idx=$(( ${arg_idx} + 1 ))
+    done
+
+    # Check envy var and exit subshell
+    if [ ! -z "${ENVY}" ]; then
+        echo "Already set venv (${VIRTUAL_ENV}), exit to deactivate."
+        exit 0
+    fi
+
+    local venv_name
+
+    # Create new venv if requested
+    if [ "${requested_new}" -eq 1 ]; then
+        venv_name=${2}
+        new_venv "${venv_name}"
+        return 0
+    fi
+
+    # Otherwise search upwards for the selected venv
+    venv_name=${1}
+
+    local selected_dir
+    local venv_dir
+
+    selected_dir=$(pwd)
+    for i in $(seq $(dir_depth ${selected_dir})); do
+        # Don't activate venvs in /home/user, or any dirs that that are less than this depth
+        if [ $(dir_depth "${selected_dir}") -le 2 ]; then break; fi
+
+        venv_dir="${selected_dir}/$(venv_prefix ${venv_name})"
+        if [ -d "${venv_dir}" ]; then
+            echo "Found ${venv_dir}"
+            break
+        fi
+        selected_dir=$(dirname ${selected_dir})
+    done
+
+    if ! [ -d "${venv_dir}" ]; then
+        echo "Couldn't find a venv named ${venv_name}, creating one in current directory"
+        new_venv ${venv_name}
+    else
+        venv_subshell "${venv_dir}"
+    fi
+
+    return 0
+}
+
+new_venv() {
+    local venv_name
+    venv_name=$(venv_prefix ${1})
+    if [ ! -d "$(pwd)/${venv_name}" ]; then
+        echo "Creating and activating venv (${venv_name}) in current dir"
+        python -m venv ${venv_name}
+    else
+        echo "Activating venv (${venv_name}) in current dir"
+    fi
+    venv_subshell ${venv_name}
+}
+
+venv_prefix() {
+    local venv_prefix
+    venv_prefix=".venv"
+    ( [ -z "${1}" ] && echo "${venv_prefix}" ) || echo "${venv_prefix}-${1}"
+}
+
+venv_subshell() {
+    if [[ "$SHELL" == */bash ]]; then
+        bash --init-file <(echo "source ${1}/bin/activate; export ENVY=1" | cat ~/.bashrc -) -i
+    elif [[ "$SHELL" == */zsh ]]; then
+        zsh -i -c "source ${1}/bin/activate; export ENVY=1; exec zsh"
+    else
+        echo "Only supports bash and zsh"
+        exit 1
+    fi
+}
+
+dir_depth() {
+    echo "${1}" | grep -o "/" | wc -l
+}
+
+main "$@"
