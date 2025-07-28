@@ -9,7 +9,6 @@ list=(
     "bitwarden-cli"
     "checkmake"
     "coreutils"
-    "cspell"
     "ctags"
     "curl"
     "datasette"

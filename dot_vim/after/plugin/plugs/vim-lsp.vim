@@ -1,11 +1,51 @@
-if executable('pylsp')
-    " pipx install python-lsp-server
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'pylsp',
-        \ 'cmd': {server_info->['pylsp']},
-        \ 'allowlist': ['python'],
-        \ })
-endif
+" if executable('pylsp')
+"   augroup LspPython
+"     autocmd!
+"     " brew install python-lsp-server
+"     au User lsp_setup call lsp#register_server({
+"         \ 'name': 'pylsp',
+"         \ 'cmd': {server_info->['pylsp']},
+"         \ 'allowlist': ['python'],
+"         \ })
+"   augroup END
+" endif
+
+" if executable('bash-language-server')
+"   augroup LspBash
+"     autocmd!
+"     autocmd User lsp_setup call lsp#register_server({
+"           \ 'name': 'bash-language-server',
+"           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'bash-language-server start']},
+"           \ 'allowlist': ['sh'],
+"           \ })
+"   augroup END
+" endif
+
+" if executable('docker-langserver')
+"   augroup LspDocker
+"     autocmd!
+"     au User lsp_setup call lsp#register_server({
+"         \ 'name': 'docker-langserver',
+"         \ 'cmd': {server_info->[&shell, &shellcmdflag, 'docker-langserver --stdio']},
+"         \ 'whitelist': ['dockerfile'],
+"         \ })
+"   augroup END
+" endif
+
+" if executable('vim-language-server')
+"   augroup LspVim
+"     autocmd!
+"     autocmd User lsp_setup call lsp#register_server({
+"         \ 'name': 'vim-language-server',
+"         \ 'cmd': {server_info->['vim-language-server', '--stdio']},
+"         \ 'whitelist': ['vim'],
+"         \ 'initialization_options': {
+"         \   'vimruntime': $VIMRUNTIME,
+"         \   'runtimepath': &rtp,
+"         \ }})
+"   augroup END
+" endif
+
 
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
