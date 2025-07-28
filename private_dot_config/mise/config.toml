@@ -1,6 +1,6 @@
 [tools]
 julia = "1.11"
-node = "20.2.1"
+node = "20.19.1"
 python = "3.12"
 
 [settings]
