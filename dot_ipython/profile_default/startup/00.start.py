@@ -22,7 +22,7 @@ else:
 q = exit
 
 import os
-os.environ["PYTHONBREAKPOINT"] = "ipdb.set_trace"
+# os.environ["PYTHONBREAKPOINT"] = "ipdb.set_trace"
 
 # imports
 _imports = [

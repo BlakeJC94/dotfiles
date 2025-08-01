@@ -4,7 +4,7 @@ let g:field_notes_dir = "~/Dropbox/field-notes"
 command! -nargs=* -bang Note exec '<mods> silent ' . (<bang>0 ? 'edit' : 'split') . ' ' . field_notes#StartNote(<q-args>) | call field_notes#InitializeNoteIfNeeded(<q-args>) | exec 'lcd ' . expand("%:p:h") | echo expand("%:p")
 command! -nargs=* -bang Notes exec'<mods> silent ' . (<bang>0 ? 'edit' : 'split') . ' ' . g:field_notes_dir | exec 'silent lcd ' . expand("%:p:h")
 
-command! -nargs=1 -bang Journal exec '<mods> Note<bang> ' . strftime("%Y-%m-%d_%a", localtime() + (<args> * 86400))
+command! -nargs=1 -bang Journal exec '<mods> Note<bang> ' . strftime("%Y-%m-%d %a", localtime() + (<args> * 86400))
 
 command! -bang Today exec '<mods> Journal<bang> 0'
 command! -bang Tomorrow exec '<mods> Journal<bang> 1'

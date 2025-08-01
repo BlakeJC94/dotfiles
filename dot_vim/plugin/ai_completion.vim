@@ -2,9 +2,9 @@
 
 " Configuration
 let g:ai_completion_endpoint = get(g:, 'ai_completion_endpoint', 'https://openrouter.ai/api/v1/chat/completions')
-let g:ai_completion_model = get(g:, 'ai_completion_model', 'google/gemini-2.5-flash-lite-preview-06-17')
+let g:ai_completion_model = get(g:, 'ai_completion_model', 'mistralai/codestral-2501')
+
 let g:ai_completion_max_tokens = get(g:, 'ai_completion_max_tokens', 200)
-let g:ai_completion_temperature = get(g:, 'ai_completion_temperature', 0.2)
 let g:ai_completion_context_lines = get(g:, 'ai_completion_context_lines', 10)
 let g:ai_completion_env_file = get(g:, 'ai_completion_env_file', '~/.env')
 
@@ -54,21 +54,28 @@ function! s:BuildApiRequest() abort
   let current_line = getline('.')
   let code_context = join(context_lines + [current_line], "\n")
 
-  let system_prompt = "You are a " . &filetype . " code autocompletion engine. " .
-        \ "When extending a snippet of code, prefer adding helpful lines such as " .
-        \ "logging, printing, or debugging statements when they are appropriate. " .
-        \ "Respond only with the next few lines of code that continue the input. " .
-        \ "Do not explain or format — only output the code."
+  let system_prompt = 'You are a ' . &filetype . ' code autocompletion engine. ' .
+        \ 'When extending a snippet of code, prefer adding helpful lines such as ' .
+        \ 'logging, printing, or debugging statements when they are appropriate. ' .
+        \ 'Respond only with the next few lines of code that continue the input. ' .
+        \ 'Do not explain or format — only output the code.'
+
+  " let payload = {
+  "       \ "model": g:ai_completion_model,
+  "       \ "messages": [
+  "       \   {"role": "system", "content": system_prompt},
+  "       \   {"role": "user", "content": code_context}
+  "       \ ],
+  "       \ "stream": v:false,
+  "       \ "max_tokens": g:ai_completion_max_tokens,
+  "       \ "stop": ["```", "###", "<|endoftext|>"]
+  "       \ }
 
   let payload = {
-        \ "model": g:ai_completion_model,
-        \ "messages": [
-        \   {"role": "system", "content": system_prompt},
-        \   {"role": "user", "content": code_context}
-        \ ],
-        \ "max_tokens": g:ai_completion_max_tokens,
-        \ "temperature": g:ai_completion_temperature,
-        \ "stop": ["```", "###", "<|endoftext|>"]
+        \ 'model': g:ai_completion_model,
+        \ "prompt": join([system_prompt, code_context], "\n"),
+        \ 'stream': v:false,
+        \ 'max_tokens': g:ai_completion_max_tokens,
         \ }
 
   let body = ['-d', json_encode(payload)]
@@ -94,20 +101,24 @@ function! s:CallApi(request) abort
   try
     let decoded = json_decode(raw_response)
   catch
-    echoerr "Failed to parse API response as JSON"
+    echo raw_response
+    echoerr 'Failed to parse API response as JSON'
     return ''
   endtry
 
   if !has_key(decoded, 'choices') || len(decoded.choices) == 0
     if has_key(decoded, 'error')
       echoerr "API error: " . get(decoded.error, 'message', 'Unknown error')
+    elseif has_key(decoded, 'response')
+      return decoded.response
     else
+      echo decoded
       echoerr 'No completion returned from API'
     endif
     return ''
   endif
 
-  return decoded.choices[0].message.content
+  return decoded.choices[0].text
 endfunction
 
 function! s:InsertCompletion(completion_text) abort
@@ -144,5 +155,5 @@ function! s:GetAiCompletion() abort
 endfunction
 
 command! AiComplete call s:GetAiCompletion()
-inoremap <C-f> <C-o>:AiComplete<CR>
+inoremap <C-q> <C-o>:AiComplete<CR>
 

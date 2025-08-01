@@ -1,3 +1,4 @@
+if !exists('*Switch')
 function! Switch() abort
     let current_file = expand('%:p')
     let plugin_dir = '/plugin/'
@@ -19,6 +20,7 @@ function! Switch() abort
         echo 'Created new file: ' . target
     endif
 endfunction
+endif
 
 command! Switch call Switch()
 

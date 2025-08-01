@@ -11,6 +11,6 @@ inoreabbrev ubm # TODO: uncomment before merging
 cnoremap <expr> %% getcmdtype() == ':' ? expand('%:h').'/' : '%%'
 
 " C-q : Code fence in insert mode <>
-inoremap <C-q> <cmd>exec 'norm! i```<C-o>O```<Space>' \| startinsert<CR>
-" C-v : Code block in insert mode <>
-inoremap <C-v> <cmd>exec 'norm! i%%<C-o><Plug>CommentaryLine<C-o>A ' \| startinsert<CR>
+" inoremap <C-q> <cmd>exec 'norm! i```<C-o>O```<Space>' \| startinsert<CR>
+" " C-v : Code block in insert mode <>
+" inoremap <C-v> <cmd>exec 'norm! i%%<C-o><Plug>CommentaryLine<C-o>A ' \| startinsert<CR>

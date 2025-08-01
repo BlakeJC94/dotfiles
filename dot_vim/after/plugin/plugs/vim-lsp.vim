@@ -1,14 +1,24 @@
-" if executable('pylsp')
-"   augroup LspPython
-"     autocmd!
-"     " brew install python-lsp-server
-"     au User lsp_setup call lsp#register_server({
-"         \ 'name': 'pylsp',
-"         \ 'cmd': {server_info->['pylsp']},
-"         \ 'allowlist': ['python'],
-"         \ })
-"   augroup END
-" endif
+let g:lsp_inlay_hints_enabled = 1
+" let g:lsp_inlay_hints_delay = 900000000
+let g:lsp_inlay_hints_mode = {
+\  'normal': ['curline'],
+\}
+let g:lsp_diagnostics_enabled = 0
+
+highlight lspInlayHintsType guifg=#1d2021 guibg=#282828
+highlight lspInlayHintsParameter guifg=#1d2021 guibg=#282828
+
+if executable('pylsp')
+  augroup LspPython
+    autocmd!
+    " brew install python-lsp-server
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pylsp',
+        \ 'cmd': {server_info->['pylsp']},
+        \ 'allowlist': ['python'],
+        \ })
+  augroup END
+endif
 
 " if executable('bash-language-server')
 "   augroup LspBash
