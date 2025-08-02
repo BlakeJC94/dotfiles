@@ -18,10 +18,22 @@
     b = "!git checkout -"
     vim = "!vim $(git diff --name-only)"
     forget = "!git reset --hard HEAD"
-    last = log -1 HEAD --stat
     primebranch = "!git symbolic-ref --short HEAD"
-    hist = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue) <%an> %Creset' --abbrev-commit
-    clonetree = !sh -c 'url=$1 && base=$(basename ${url}) && dir=${2:-${base%.*}} && mkdir ${dir} && echo cd ${dir} && cd ${dir} && git clone --bare ${url} .git && git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch origin && git worktree add $(git primebranch) && cd $(git primebranch) && git pullup' -
+    last = log -1 HEAD --stat
+    hist = log --graph --color=auto --abbrev-commit --pretty=concise
+    clonetree = "!f() { \
+        url=\"$1\"; \
+        base=\"$(basename \"$url\")\"; \
+        dir=\"${2:-${base%.*}}\"; \
+        mkdir -p \"$dir\" && \
+        cd \"$dir\" && \
+        git clone --bare \"$url\" .git && \
+        git config remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\" && \
+        git fetch origin && \
+        git worktree add \"$(git primebranch)\" && \
+        cd \"$(git primebranch)\" && \
+        git pullup; \
+    }; f"
     sync = "!f() { \
         msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\"; \
         git add . && \
@@ -31,6 +43,9 @@
 
 [color]
     ui = auto
+
+[pretty]
+    concise = "%C(red)%h%C(reset) -%C(yellow)%d%C(reset) %s %C(green)(%cr)%C(bold blue) <%an>%C(reset)"
 
 [core]
     editor = "vim"

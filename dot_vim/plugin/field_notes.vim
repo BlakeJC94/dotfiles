@@ -1,5 +1,5 @@
-let g:field_notes_dir = "~/Dropbox/field-notes"
-
+let g:field_notes_dir = '~/Dropbox/field-notes'
+let g:blog_content_dir = '~/Workspace/repos/blog/content/All posts'
 
 command! -nargs=* -bang Note exec '<mods> silent ' . (<bang>0 ? 'edit' : 'split') . ' ' . field_notes#StartNote(<q-args>) | call field_notes#InitializeNoteIfNeeded(<q-args>) | exec 'lcd ' . expand("%:p:h") | echo expand("%:p")
 command! -nargs=* -bang Notes exec'<mods> silent ' . (<bang>0 ? 'edit' : 'split') . ' ' . g:field_notes_dir | exec 'silent lcd ' . expand("%:p:h")
@@ -21,7 +21,6 @@ command! -nargs=* Diagram call field_notes#NewDiagram(<q-args>)
 
 command! -nargs=* -complete=file_in_path Image call field_notes#MoveImage(<q-args>)
 
-command! BlogHeader call field_notes#BlogHeader()
 command! -nargs=* Slugify echo field_notes#Slugify(<q-args>)
 command! -nargs=1 Link exec "let pos = getpos('.') | norm! :s/" . escape(expand('<cWORD>'), '/\') . "/[" . escape(expand('<cWORD>'), '/\') . "](" . escape(<q-args>, '/\') . ")/<CR> | call setpos('.', pos)"
 
@@ -30,3 +29,24 @@ nnoremap <Leader>n :Note<CR>
 nnoremap <Leader>N :split \| edit ~/Workspace/repos/field-notes/notes \| lcd %:p:h<CR>
 
 command! -nargs=* -bang CatBetweenDates call field_notes#CatFilesBetweenDates(<bang>0, <f-args>)
+
+
+command! BlogHeader call field_notes#BlogHeader()
+command! BlogWrite call s:BlogWrite()
+
+function! s:BlogWrite()
+    let l:target = expand(g:blog_content_dir) . '/' . expand('%:t')
+
+    if filereadable(l:target)
+        let l:choice = confirm("File already exists:\n" . l:target . "\nOverwrite?", "&Yes\n&No", 2)
+        if l:choice != 1
+            echo "Aborted: file not written."
+            return
+        endif
+    endif
+
+    execute 'write' fnameescape(l:target)
+    execute 'edit' fnameescape(l:target)
+    echo "File written to: " . l:target
+    call field_notes#BlogHeader()
+endfunction

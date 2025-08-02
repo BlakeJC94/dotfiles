@@ -1,5 +1,5 @@
 nnoremap <Leader>; <cmd>edit ~/.vim/vimrc <bar> lcd %:p:h<CR>
-nnoremap <Leader>: <cmd>exec 'edit ' . system("chezmoi source-path")<CR>
+nnoremap <Leader>: <cmd>exec 'edit ' . system("chezmoi source-path") <bar> lcd %:p:h<CR>
 
 command! DotPull !chezmoi update
 command! DotPush !chezmoi git sync
