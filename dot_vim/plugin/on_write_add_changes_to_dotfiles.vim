@@ -1,3 +1,10 @@
+nnoremap <Leader>; <cmd>edit ~/.vim/vimrc <bar> lcd %:p:h<CR>
+nnoremap <Leader>: <cmd>exec 'edit ' . system("chezmoi source-path")<CR>
+
+command! DotPull !chezmoi update
+command! DotPush !chezmoi git sync
+
+
 function! AddChangesToDotfiles()
   let current_file = expand('%')
   if (system('chezmoi managed ' . current_file) !=? '') && (system('chezmoi diff ' . current_file) != '')
@@ -23,8 +30,12 @@ augroup apply_changes_from_dotfiles
 augroup END
 
 
-nnoremap <Leader>; <cmd>edit ~/.vim/vimrc <bar> lcd %:p:h<CR>
-nnoremap <Leader>: <cmd>exec 'edit ' . system("chezmoi source-path")<CR>
+function! DotfilesSetFiletype()
+  let l:realpath = trim(system('chezmoi target-path ' . shellescape(expand('%:p'))))
+  execute 'setfiletype ' fnameescape(fnamemodify(l:realpath, ':t'))
+endfunction
 
-command! DotPull !chezmoi update
-command! DotPush !chezmoi git sync
+augroup dotfiles_set_filetype
+  autocmd!
+  autocmd BufRead,BufNewFile ~/.local/share/chezmoi/* call DotfilesSetFiletype()
+augroup END
