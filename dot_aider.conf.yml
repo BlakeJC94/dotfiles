@@ -316,7 +316,7 @@ yes-always: true
 #notifications: false
 
 ## Specify a command to run for notifications instead of the terminal bell. If not specified, a default command for your OS may be used.
-notifications-command: osascript -e "display alert 'Bingbong' message 'Aider is ready.'"
+# notifications-command: osascript -e "display alert 'Bingbong' message 'Aider is ready.'"
 
 ## Enable/disable detection and offering to add URLs to chat (default: True)
 detect-urls: false
