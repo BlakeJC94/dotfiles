@@ -319,7 +319,7 @@ yes-always: true
 notifications-command: osascript -e "display alert 'Bingbong' message 'Aider is ready.'"
 
 ## Enable/disable detection and offering to add URLs to chat (default: True)
-#detect-urls: true
+detect-urls: false
 
 ## Specify which editor to use for the /editor command
 #editor: xxx
