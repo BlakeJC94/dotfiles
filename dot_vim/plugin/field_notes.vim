@@ -1,8 +1,30 @@
 let g:field_notes_dir = '~/Dropbox/field-notes'
+let g:field_notes_vert = v:true
 let g:blog_content_dir = '~/Workspace/repos/blog/content/All posts'
 
-command! -nargs=* -bang Note exec '<mods> silent ' . (<bang>0 ? 'edit' : 'split') . ' ' . field_notes#StartNote(<q-args>) | call field_notes#InitializeNoteIfNeeded(<q-args>) | exec 'lcd ' . expand("%:p:h") | echo expand("%:p")
-command! -nargs=* -bang Notes exec'<mods> silent ' . (<bang>0 ? 'edit' : 'split') . ' ' . g:field_notes_dir | exec 'silent lcd ' . expand("%:p:h")
+command! -nargs=* -bang Note call s:OpenNote(<bang>0, <q-args>)
+command! -nargs=* -bang Notes call s:OpenNotesDir(<bang>0)
+
+function! s:OpenNote(bang, args)
+    let l:split_cmd = a:bang ? 'edit' : 'split'
+    let l:vert_prefix = g:field_notes_vert ? 'vert' : ''
+    let l:note_path = field_notes#StartNote(a:args)
+
+    let l:cmd = 'silent ' . l:vert_prefix . ' ' . l:split_cmd . ' ' . fnameescape(l:note_path)
+    execute l:cmd
+    call field_notes#InitializeNoteIfNeeded(a:args)
+    execute 'lcd' expand("%:p:h")
+    echo expand("%:p")
+endfunction
+
+function! s:OpenNotesDir(bang)
+    let l:split_cmd = a:bang ? 'edit' : 'split'
+    let l:vert_prefix = g:field_notes_vert ? 'vert' : ''
+
+    let l:cmd = 'silent ' . l:vert_prefix . ' ' . l:split_cmd . ' ' . fnameescape(g:field_notes_dir)
+    execute l:cmd
+    execute 'silent lcd' expand("%:p:h")
+endfunction
 
 command! -nargs=1 -bang Journal exec '<mods> Note<bang> ' . strftime("%Y-%m-%d %a", localtime() + (<args> * 86400))
 

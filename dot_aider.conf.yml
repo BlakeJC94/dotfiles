@@ -88,7 +88,7 @@ code-theme: gruvbox-dark
 #show-diffs: false
 
 ## Enable/disable streaming responses (default: True)
-stream: false
+stream: true
 
 ## Set the color for user input (default: #00cc00)
 user-input-color: "#B8BB26"
@@ -195,7 +195,7 @@ watch-files: true
 #just-check-update: false
 
 ## Check for new aider versions on launch
-#check-update: true
+check-update: false
 
 ## Show release notes on first run of new version (default: None, ask user)
 #show-release-notes: xxx

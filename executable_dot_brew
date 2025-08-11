@@ -15,6 +15,7 @@ list=(
     "diffutils"
     "dprint"
     "duckdb"
+    "eza"
     "fd"
     "findutils"
     "fzf"
@@ -69,6 +70,7 @@ casks=(
     "rectangle"
     "slack"
     "spotify"
+    "todoist"
     "wezterm"
     "write"
 )

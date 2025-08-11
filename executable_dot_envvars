@@ -28,3 +28,5 @@ export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git/**'"
 # https://tex.stackexchange.com/questions/467824/is-it-possible-to-relocate-my-texmf-directory
 export TEXMFHOME='~/.texmf'
 
+# Use bat as manpager
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"

@@ -29,7 +29,7 @@ set -g set-titles-string "#T"
 # set-option -g default-command bash
 
 # Mouse stuff
-set -g mouse off
+set -g mouse on
 
 # Set vi-mode copy keybinds
 setw -g mode-keys vi

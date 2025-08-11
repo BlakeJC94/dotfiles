@@ -1,8 +1,10 @@
 " AI-powered code completion plugin
 
 " Configuration
-let g:ai_completion_endpoint = get(g:, 'ai_completion_endpoint', 'https://openrouter.ai/api/v1/chat/completions')
-let g:ai_completion_model = get(g:, 'ai_completion_model', 'mistralai/codestral-2501')
+" let g:ai_completion_endpoint = get(g:, 'ai_completion_endpoint', 'https://openrouter.ai/api/v1/chat/completions')
+" let g:ai_completion_model = get(g:, 'ai_completion_model', 'mistralai/codestral-2501')
+let g:ai_completion_endpoint = get(g:, 'ai_completion_endpoint', 'http://localhost:11434/api/generate')
+let g:ai_completion_model = get(g:, 'ai_completion_model', 'qwen3:30b-a3b-instruct-2507-q4_K_M')
 
 let g:ai_completion_max_tokens = get(g:, 'ai_completion_max_tokens', 200)
 let g:ai_completion_context_lines = get(g:, 'ai_completion_context_lines', 10)
@@ -71,11 +73,20 @@ function! s:BuildApiRequest() abort
   "       \ "stop": ["```", "###", "<|endoftext|>"]
   "       \ }
 
+  " let payload = {
+  "       \ 'model': g:ai_completion_model,
+  "       \ "prompt": join([system_prompt, code_context], "\n"),
+  "       \ 'stream': v:false,
+  "       \ 'max_tokens': g:ai_completion_max_tokens,
+  "       \ }
+  "
+
   let payload = {
         \ 'model': g:ai_completion_model,
         \ "prompt": join([system_prompt, code_context], "\n"),
         \ 'stream': v:false,
         \ 'max_tokens': g:ai_completion_max_tokens,
+        \ 'options': {"stop": ["\n\n"]},
         \ }
 
   let body = ['-d', json_encode(payload)]

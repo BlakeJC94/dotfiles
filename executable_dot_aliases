@@ -16,6 +16,7 @@ alias wttr='curl https://wttr.in/'
 
 alias chz='chezmoi'
 alias dotsync='chezmoi managed | xargs chezmoi re-add && git -C $(chezmoi source-path) sync'
+alias l='eza'
 
 alias least='fmt -w 80 | bat --paging always --style plain'
 alias leastmd='least -l markdown'
