@@ -30,3 +30,7 @@ export TEXMFHOME='~/.texmf'
 
 # Use bat as manpager
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+
+export AICHAT_CONFIG_DIR=~/.config/aichat
+export AICHAT_ENV_FILE=~/.env
