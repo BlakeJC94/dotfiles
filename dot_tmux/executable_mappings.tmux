@@ -14,12 +14,12 @@ if-shell "uname | grep -q Darwin" "bind -T copy-mode-vi y send -X copy-pipe-and-
 # bind -T copy-mode-vi y send -X copy-pipe-and-cancel 'pbcopy'
 
 # Disable annoying mouse shit
-unbind -n MouseDown1Pane      # prevent selecting a pane with left-click
-unbind -n MouseDrag1Pane      # prevent dragging to resize panes
-unbind -n MouseUp1Pane        # prevent activating panes on release
-unbind -n MouseDown1Status    # prevent clicking on the status bar
-unbind -n MouseDown1StatusLeft
-unbind -n MouseDown1StatusRight
+# unbind -n MouseDown1Pane      # prevent selecting a pane with left-click
+# unbind -n MouseDrag1Pane      # prevent dragging to resize panes
+# unbind -n MouseUp1Pane        # prevent activating panes on release
+# unbind -n MouseDown1Status    # prevent clicking on the status bar
+# unbind -n MouseDown1StatusLeft
+# unbind -n MouseDown1StatusRight
 
 # Goto last pane <C-z><C-z>
 bind C-z select-pane -l

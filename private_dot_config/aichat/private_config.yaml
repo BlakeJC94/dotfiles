@@ -1,6 +1,41 @@
 # see https://github.com/sigoden/aichat/blob/main/config.example.yaml
 
 model: openrouter:google/gemini-2.5-flash
+
+stream: true                     # Controls whether to use the stream-style API.
+save: true                       # Indicates whether to persist the message
+keybindings: emacs               # Choose keybinding style (emacs, vi)
+editor: vim                     # Specifies the command used to edit input buffer or session.yaml. env: EDITOR
+wrap: 99                         # Controls text wrapping (no, auto, <max-width>)
+wrap_code: false                 # Enables or disables wrapping of code blocks
+
+# Controls the persistence of the session. if true, auto save; if false, not save; if null, asking the user
+save_session: true
+# Compress session when token count reaches or exceeds this threshold
+compress_threshold: 4000
+
+# ANSI COLORS
+# color.black: "#1D2021"
+# color.reset: "#282828"
+# color.dark_grey: "#32302F"
+# color.red: "#CC241D"
+# color.light_red: "#FB4934"
+# color.green: "#98971A"
+# color.light_green: "#B8BB26"
+# color.yellow: "#D79921"
+# color.light_yellow: "#FABD2F"
+# color.blue: "#458588"
+# color.light_blue: "#83A598"
+# color.purple: "#B16286"
+# color.light_purple: "#D3869B"
+# color.magenta: "#D65D0E"
+# color.light_magentg: "#FE8019"
+# golor.cyan: "#689D6A"
+# color.light_cyan: "#8EC07C"
+# color.white: "#F9F5D7"
+# color.light_gray: "#928374"
+
+
 clients:
 - type: openai-compatible
   name: openrouter
