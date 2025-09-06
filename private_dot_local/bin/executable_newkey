@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+printf "%s" "Enter email: "
+read -r email
+ssh-keygen -t ed25519 -C "${email}"
+cat ${HOME}/.ssh/id_ed25519.pub
