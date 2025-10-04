@@ -34,3 +34,5 @@ export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 export AICHAT_CONFIG_DIR=~/.config/aichat
 export AICHAT_ENV_FILE=~/.env
+
+export GLOW_STYLE="$HOME/.config/glow/styles/gruvbox-dark.json"
