@@ -21,6 +21,7 @@ list=(
     "fzf"
     "gh"
     "git"
+    "glow"
     "gnu-sed"
     "grep"
     "hugo"

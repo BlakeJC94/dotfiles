@@ -61,6 +61,8 @@ Plug 'https://github.com/BlakeJC94/vim-sage'
 Plug 'https://github.com/mbbill/undotree'
 " Disable highlighting after search automatically
 Plug 'https://github.com/romainl/vim-cool'
+" Color picker for vim
+Plug 'https://github.com/ap/vim-css-color'
 
 "" COMPLETION
 " Autocomplete
