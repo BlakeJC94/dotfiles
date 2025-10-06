@@ -55,13 +55,16 @@ function! field_notes#StartNote(...) abort
   return l:filepath
 endfunction
 
-function! field_notes#LinkNote(title)
-  let l:filename = field_notes#Slugify(a:title) . ".md"
+function! field_notes#LinkNote(...)
+  let l:title = call('field_notes#GetNoteTitle', a:000)
+  let l:filename = field_notes#Slugify(l:title) . ".md"
   let l:filepath = join(['.', l:filename], '/')
 
   let l:markdown_text = '![' . a:title . '](' . l:filepath . ')'
-  call append(line('.'), l:markdown_text)
 
+  if expand("%:e") == "md"
+    call append(line('.'), l:markdown_text)
+  endif
 endfunction
 
 function! field_notes#GetNoteHeading(...)

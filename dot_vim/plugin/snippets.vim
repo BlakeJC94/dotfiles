@@ -1,5 +1,5 @@
-iabbrev <expr> @@d strftime('%Y-%m-%d')
-iabbrev <expr> @@t strftime('%Y-%m-%dT%T%z')[:21] . ':00'
+iabbrev <expr> @@D strftime('%Y-%m-%d %a')
+iabbrev <expr> @@T strftime('%Y-%m-%dT%T%z')[:21] . ':00'
 
 inoreabbrev <expr> ,u system('uuidgen')->trim()->tolower()
 
