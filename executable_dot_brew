@@ -6,6 +6,7 @@ list=(
     "aider"
     "awk"
     "bat"
+    "bat-extras"
     "bitwarden-cli"
     "checkmake"
     "coreutils"
