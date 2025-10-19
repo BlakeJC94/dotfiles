@@ -16,7 +16,7 @@ local palette = {
 
 local is_mac = ((io.popen('uname -s','r'):read('*l')):lower()):match("darwin")
 
-return {
+config = {
     font = wezterm.font("JetBrainsMono Nerd Font"),
     font_size = 18,
     -- colors = {
@@ -88,3 +88,10 @@ return {
     warn_about_missing_glyphs = false,
     hide_mouse_cursor_when_typing = false,
 }
+
+if wezterm.target_triple == "x86_64-pc-windows-msvc" then
+    config.default_domain = 'WSL:Ubuntu'
+end
+
+return config
+
