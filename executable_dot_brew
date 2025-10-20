@@ -33,6 +33,7 @@ list=(
     "mdformat"
     "mise"
     "nano"
+    "numbat"
     "pandoc"
     "pre-commit"
     "prettier"

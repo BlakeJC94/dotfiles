@@ -14,6 +14,11 @@ esac
 # Ensure the emacs bindings are working
 bindkey -e
 
+# Bind delete key properly in TMUX
+if [[ -n $TMUX ]]; then
+    bindkey '^[[3~' delete-char
+fi
+
 
 ##
 # Env vars
