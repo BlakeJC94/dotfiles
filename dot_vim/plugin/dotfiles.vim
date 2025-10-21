@@ -1,5 +1,5 @@
-nnoremap <Leader>; <cmd>edit ~/.vim/vimrc <bar> lcd %:p:h<CR>
-nnoremap <Leader>: <cmd>exec 'edit ' . system("chezmoi source-path") <bar> lcd %:p:h<CR>
+nnoremap <Leader>; :edit ~/.vim/vimrc <Bar> lcd %:p:h<CR>
+nnoremap <Leader>: :execute 'edit ' . trim(system("chezmoi source-path")) <Bar> lcd %:p:h<CR>
 
 command! DotPull !chezmoi update
 command! DotPush !chezmoi git sync
@@ -7,8 +7,11 @@ command! DotPush !chezmoi git sync
 
 function! AddChangesToDotfiles()
   let current_file = expand('%')
-  if (system('chezmoi managed ' . current_file) !=? '') && (system('chezmoi diff ' . current_file) != '')
-    execute 'silent !chezmoi add ' . current_file
+  let managed_result = systemlist('chezmoi managed ' . shellescape(current_file))
+  let diff_result = systemlist('chezmoi diff ' . shellescape(current_file))
+
+  if !empty(managed_result) && !empty(diff_result)
+    call system('chezmoi add ' . shellescape(current_file))
     echo 'Added to dotfiles'
   endif
 endfunction
@@ -20,8 +23,12 @@ augroup END
 
 
 function! ApplyChangesFromDotfiles()
-  execute 'silent !chezmoi target-path ' . expand('%') . ' | chezmoi apply'
-  echo 'Applied from dotfiles'
+  let target_path = systemlist('chezmoi target-path ' . shellescape(expand('%')))
+  if !empty(target_path)
+    call system('chezmoi apply ' . shellescape(target_path[0]))
+    redraw!
+    echo 'Applied from dotfiles'
+  endif
 endfunction
 
 augroup apply_changes_from_dotfiles

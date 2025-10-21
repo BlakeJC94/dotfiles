@@ -10,6 +10,7 @@ alias duh='du -d 1 -h'
 
 alias today='vim -c "Today!"'
 alias notes='vim -c "Notes!"'
+alias vimpy='vim -c "S uv run ipython"'
 
 alias myip='curl http://ifconfig.me/ip'
 alias wttr='curl https://wttr.in/'
@@ -27,7 +28,7 @@ alias pscpu='ps auxf | sort -nr -k 3'
 
 alias todo='rg -o --hidden --iglob "!.git" --iglob "!TODO.md" "TODO.*"'
 
-alias genpr="git diff main..HEAD -- ':(exclude)*.lock' | llm prompt -f .github/PULL_REQUEST_TEMPLATE.md 'write a short pull request description for this change using this template'"
+alias genpr="git diff origin/main..HEAD -- ':(exclude)uv.lock' > PULL_REQUEST.md && aider PULL_REQUEST.md --read .github/PULL_REQUEST_TEMPLATE.md --message-file ~/.aider/message_files/replace_diff_with_pr_description.md"
 alias genoverlaps="touch OVERLAPS.md && aider OVERLAPS.md --message-file ~/.aider/message_files/overlaps.md"
 
 # mcdir () { mkdir "$1" && cd "$_" }

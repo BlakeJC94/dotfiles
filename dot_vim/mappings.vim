@@ -29,7 +29,6 @@ nnoremap N Nzv
 " Remap q and Q to stop polluting registers accidentally!
 nnoremap q gw
 nnoremap Q q
-" nnoremap <silent> <C-l> :checktime<Bar>nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
 
 " Maintain Visual Mode after >/</= actions
 vnoremap < <gv
@@ -51,3 +50,4 @@ inoremap <F1> <nop>
 nnoremap <Leader><Tab> <C-^>
 nnoremap <Leader>. <cmd>lcd %:p:h \| echo 'Changed local dir to ' . getcwd()<CR>
 nnoremap <Leader>, <cmd>cd %:p:h \| echo 'Changed dir to ' . getcwd()<CR>
+nnoremap <Leader>/ <cmd>cd `git rev-parse --show-toplevel` \| echo 'Changed dir to project root: ' . getcwd()<CR>

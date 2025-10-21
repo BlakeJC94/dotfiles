@@ -55,7 +55,7 @@ function! s:IsIpython()
 
     " Look for child processes of the shell that contain 'ipython'
     let child_processes = system('pgrep -P ' . shell_pid . ' 2>/dev/null')
-    
+
     if v:shell_error == 0 && !empty(child_processes)
         " Check each child process
         for child_pid in split(child_processes, '\n')
@@ -142,6 +142,21 @@ function! s:SendOperator(type) range
     call s:SendToShellLines(lines, 0)
 endfunction
 
+" Function specifically for visual mode selection
+function! s:SendVisualSelection()
+    if !mode() =~# '[vV<C-v>]'
+        echo "Not in visual mode."
+        return []
+    endif
+
+    " Get the starting and ending line numbers of the visual selection
+    let l:firstline = line("'<")
+    let l:lastline = line("'>")
+
+    let lines = getline(l:firstline, l:lastline)
+    call s:SendToShellLines(lines, 1)
+endfunction
+
 " Helper function to send lines (extracted from s:SendToShell)
 function! s:SendToShellLines(lines, bang)
     if !s:InTmux()
@@ -155,13 +170,17 @@ function! s:SendToShellLines(lines, bang)
         return
     endif
 
+    echom a:lines
+
     " Send the lines to the pane
     if a:bang
         " Bang modifier: use %cpaste for ipython (only if ipython is running)
         if s:IsIpython()
             call system('tmux send-keys -t ' . pane_id . ' "%cpaste -q" Enter')
+            " Send each line individually, properly escaped
             for line in a:lines
-                call system('tmux send-keys -t ' . pane_id . ' ' . shellescape(line) . ' Enter')
+                call system('tmux send-keys -t ' . pane_id . ' ' . shellescape(line))
+                call system('tmux send-keys -t ' . pane_id . ' Enter')
             endfor
             call system('tmux send-keys -t ' . pane_id . ' C-d')
         else
@@ -236,7 +255,7 @@ endfunction
 
 " Set up operator mapping
 nnoremap <silent> <C-c> :set operatorfunc=<SID>SendOperator<CR>g@
-vnoremap <silent> <C-c> :<C-u>call <SID>SendOperator(visualmode())<CR>
+vnoremap <silent> <C-c> :<C-u>call <SID>SendVisualSelection()<CR>
 
 " Add cell motion mapping
 nnoremap <silent> <C-c><C-c> :call <SID>SendCell()<CR>

@@ -49,7 +49,7 @@ source $HOME/.bash/modules/tab_cycle.sh
 
 # Mise
 eval "$(mise activate bash)"
-source <(mise completion bash --include-bash-completion-lib)
+# source <(mise completion bash --include-bash-completion-lib)
 
 # Initialise Starship prompt
 eval "$(starship init bash)"
