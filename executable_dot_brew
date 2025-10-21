@@ -25,6 +25,7 @@ list=(
     "glow"
     "gnu-sed"
     "grep"
+    "httpie"
     "hugo"
     "jq"
     "just"
