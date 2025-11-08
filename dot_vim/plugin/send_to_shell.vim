@@ -24,8 +24,18 @@ function! s:InTmux()
     return !empty($TMUX)
 endfunction
 
+
 " Function to get or create a shell pane
 function! s:GetShellPane()
+
+    " let pane = dispatch#tmux#get_pane()
+    " if empty(pane)
+    "     echohl ErrorMsg
+    "     echo "No active dispatch tmux pane found. Use :Start to create one."
+    "     echohl None
+    "     return
+    " endif
+
     " If we already have a pane, check if it still exists
     if !empty(g:tmux_shell_pane)
         let pane_exists = system('tmux list-panes -F "#{pane_id}" | grep -q "' . g:tmux_shell_pane . '"')
@@ -142,21 +152,6 @@ function! s:SendOperator(type) range
     call s:SendToShellLines(lines, 0)
 endfunction
 
-" Function specifically for visual mode selection
-function! s:SendVisualSelection()
-    if !mode() =~# '[vV<C-v>]'
-        echo "Not in visual mode."
-        return []
-    endif
-
-    " Get the starting and ending line numbers of the visual selection
-    let l:firstline = line("'<")
-    let l:lastline = line("'>")
-
-    let lines = getline(l:firstline, l:lastline)
-    call s:SendToShellLines(lines, 1)
-endfunction
-
 " Helper function to send lines (extracted from s:SendToShell)
 function! s:SendToShellLines(lines, bang)
     if !s:InTmux()
@@ -170,17 +165,13 @@ function! s:SendToShellLines(lines, bang)
         return
     endif
 
-    echom a:lines
-
     " Send the lines to the pane
     if a:bang
         " Bang modifier: use %cpaste for ipython (only if ipython is running)
         if s:IsIpython()
             call system('tmux send-keys -t ' . pane_id . ' "%cpaste -q" Enter')
-            " Send each line individually, properly escaped
             for line in a:lines
-                call system('tmux send-keys -t ' . pane_id . ' ' . shellescape(line))
-                call system('tmux send-keys -t ' . pane_id . ' Enter')
+                call system('tmux send-keys -t ' . pane_id . ' ' . shellescape(line) . ' Enter')
             endfor
             call system('tmux send-keys -t ' . pane_id . ' C-d')
         else
@@ -255,7 +246,7 @@ endfunction
 
 " Set up operator mapping
 nnoremap <silent> <C-c> :set operatorfunc=<SID>SendOperator<CR>g@
-vnoremap <silent> <C-c> :<C-u>call <SID>SendVisualSelection()<CR>
+vnoremap <silent> <C-c> :<C-u>call <SID>SendOperator(visualmode())<CR>
 
 " Add cell motion mapping
 nnoremap <silent> <C-c><C-c> :call <SID>SendCell()<CR>

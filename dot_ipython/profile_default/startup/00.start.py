@@ -87,7 +87,14 @@ def __randpl(rows=10, cols=3, dtypes=None):
     return pl.DataFrame(__randpd(rows, cols, dtypes))
 
 def __explore(obj):
-    for i in dir(obj):
-        print(f"{i:16} ({type(getattr(obj, i)).__name__})")
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            print(f"{k:16} ({type(v).__name__})")
+    elif isinstance(obj, list):
+        for k in obj:
+            print(f"({type(getattr(obj, k)).__name__})")
+    else:
+        for k in dir(obj):
+            print(f"{k:16} ({type(getattr(obj, k)).__name__})")
 
 print("<<<< ipython startup <<<<")
