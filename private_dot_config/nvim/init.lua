@@ -14,21 +14,73 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Install plugins
 require("lazy").setup({
-  { "tpope/vim-rsi" }, -- Readline keybindings for insert/command mode (<C-a> <A-b> <A-f> <C-e>)
-  { "tpope/vim-eunuch" }, -- Unix commands
-  { "tpope/vim-repeat" }, -- Better .-repeat actions
-  { "tpope/vim-surround" }, -- cs] => Change surrounding brackets
-  { "tpope/vim-commentary" }, -- gc<motion> => toggle comments
+  { "tpope/vim-rsi" },
+  { "tpope/vim-eunuch" },
+  { "tpope/vim-repeat" },
+  { "tpope/vim-surround" },
+  { "tpope/vim-commentary" },
   { "tpope/vim-unimpaired" },
   { "tpope/vim-dispatch" },
   { "tpope/vim-sleuth" },
-  { "tpope/vim-fugitive" }, -- The ultimate git plugin for Vim
+  { "tpope/vim-fugitive" },
   { "tpope/vim-rhubarb" },
   { "tpope/vim-vinegar" },
-  { "BlakeJC94/vim-convict" },
-  { "rhysd/conflict-marker.vim" },
+  -- { "BlakeJC94/vim-convict" },  -- TODO fixme
+  { "rhysd/conflict-marker.vim" },  -- Get the mappings from this and rm
   { "brenoprata10/nvim-highlight-colors" },
-  { "ibhagwan/fzf-lua" },
+  { 
+    "ibhagwan/fzf-lua",
+    opts= {
+      winopts = {
+        border = "none",
+      },
+      previewers = {
+        man = { cmd = "man %s | col -bx" },
+      },
+      grep = {
+        rg_opts = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 --hidden",
+      },
+      highlights = {
+        actions = {
+          ["default"] = function(selected)  -- TODO open PR for this action
+            local bufnr = vim.api.nvim_get_current_buf()
+            if not vim.api.nvim_buf_is_valid(bufnr) or vim.api.nvim_buf_get_option(bufnr, "readonly") then
+              return
+            end
+            local cursor = vim.api.nvim_win_get_cursor(0)
+            local row, col = cursor[1] - 1, cursor[2]
+            local results = {}
+            for i = 1, #selected do
+              results[i] = string.gsub(selected[i], '^@', "")
+            end
+            vim.api.nvim_buf_set_text(bufnr, row, col, row, col, results)
+          end
+        },
+        fzf_opts = {
+          ["--no-multi"]  = nil,
+        },
+      }
+    },
+    keys = {
+      { "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },
+      { "<C-r><C-r>", "<cmd>FzfLua registers<CR>", mode="i"},
+      {'<Leader>ff',":FzfLua resume<CR>", },
+      {'<Leader>fF',":FzfLua<CR>", },
+      {'<Leader>fb',":FzfLua buffers<CR>", },
+      {'<Leader>fo',":FzfLua oldfiles cwd_only=true<CR>", },     -- Recently changed files
+      {'<Leader>fO',":FzfLua oldfiles<CR>", },                   -- Recently changed files
+      {'<Leader>f/',":FzfLua lgrep_curbuf<CR>", },
+      {'<Leader>fg',":FzfLua live_grep_native<CR>", },                   -- Jumping with livegrep
+      {'<Leader>fh',":FzfLua help_tags<CR>", },
+      {'<Leader>fH',":FzfLua man_pages<CR>", },
+      {'<Leader>fq',":FzfLua quickfix<CR>", },
+      {'<Leader>fl',":FzfLua loclist<CR>", },
+      {'<Leader>fv',":FzfLua lsp_document_symbols<CR>", },
+      { "<Leader><BS>", ":FzfLua files<CR>" },
+      { "<Leader><CR>", ":FzfLua buffers<CR>" },
+    }
+
+  },
   { "nvim-treesitter/nvim-treesitter", lazy = false, branch = "main", build = ':TSUpdate' },
   {
     "chrisgrieser/nvim-various-textobjs",
@@ -39,6 +91,107 @@ require("lazy").setup({
     },
   },
   { "neovim/nvim-lspconfig" },
+  { "hrsh7th/nvim-cmp", 
+  dependencies = {
+    "hrsh7th/cmp-buffer",
+    "hrsh7th/cmp-cmdline",
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-nvim-lsp-signature-help",
+    "hrsh7th/cmp-path",
+    "kdheepak/cmp-latex-symbols",
+    "lukas-reineke/cmp-under-comparator",
+  },
+  config = function()
+    local function has_words_before()
+      local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+      return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+    end
+
+    local function cmp_tab(fallback)
+      local cmp = require("cmp")
+      if cmp.visible() then
+        cmp.select_next_item()
+      elseif has_words_before() then
+        cmp.complete()
+      else
+        fallback()
+      end
+    end
+
+    local function cmp_s_tab(fallback)
+      local cmp = require("cmp")
+      if cmp.visible() then
+        cmp.select_prev_item()
+      else
+        fallback()
+      end
+    end
+
+    local cmp = require("cmp")
+
+    local map = cmp.mapping
+    vim.opt.completeopt = "menu,menuone,preview,noselect,noinsert"
+    cmp.setup({
+      -- formatting = { format = lspkind.cmp_format({ with_text = true, maxwidth = 50 }) },
+      mapping = {
+        ["<Up>"] = map(map.select_prev_item(), { "i", "c" }),
+        ["<Down>"] = map(map.select_next_item(), { "i", "c" }),
+        ["<S-Up>"] = map.scroll_docs(-4),
+        ["<S-Down>"] = map.scroll_docs(4),
+        ["<Tab>"] = map(cmp_tab, { "i", "s", "c" }),
+        ["<S-Tab>"] = map(cmp_s_tab, { "i", "s", "c" }),
+        ["<C-c>"] = map(map.abort(), {"i", "c"}),
+        ["<CR>"] = map.confirm({
+          behavior = cmp.ConfirmBehavior.Select,
+          select = true,
+        }),
+      },
+      preselect = cmp.PreselectMode.None,
+      sources = {
+        { name = "nvim_lsp" },
+        { name = "path" },
+        {
+          name = "buffer",
+          option = {
+            get_bufnrs = function()
+              local bufs = {}
+              for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local buf = vim.api.nvim_win_get_buf(win)
+                local byte_size = vim.api.nvim_buf_get_offset(buf, vim.api.nvim_buf_line_count(buf))
+                if byte_size < 1024 * 1024 then
+                  bufs[vim.api.nvim_win_get_buf(win)] = true
+                end
+              end
+              return vim.tbl_keys(bufs)
+            end,
+          },
+        },
+        { name = "latex_symbols" },
+      },
+      sorting = {
+        comparators = {
+          cmp.config.compare.offset,
+          cmp.config.compare.exact,
+          cmp.config.compare.score,
+          require "cmp-under-comparator".under,
+          cmp.config.compare.kind,
+          cmp.config.compare.sort_text,
+          cmp.config.compare.length,
+          cmp.config.compare.order,
+        },
+      },
+    })
+    cmp.setup.cmdline(":", {
+      sources = {
+        { name = "cmdline" },
+      },
+    })
+    cmp.setup.cmdline("/", {
+      sources = {
+        { name = "buffer" },
+      },
+    })
+  end},
   { "ellisonleao/gruvbox.nvim", config = function()
     local gruvbox = require("gruvbox")
     local palette = gruvbox.palette
@@ -129,10 +282,38 @@ require("lazy").setup({
 
 
 -- Configure LSPs
+vim.lsp.config('lua_ls', {
+  on_init = function(client)
+    if client.workspace_folders then
+      local path = client.workspace_folders[1].name
+      if
+        path ~= vim.fn.stdpath('config')
+        and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc'))
+        then
+          return
+        end
+      end
+
+      client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+        runtime = {
+          version = 'LuaJIT',
+          path = { 'lua/?.lua', 'lua/?/init.lua' },
+        },
+        workspace = {
+          checkThirdParty = false,
+          library = { vim.env.VIMRUNTIME }
+        }
+      })
+    end,
+    settings = { Lua = {} }
+  }
+)
 vim.lsp.enable('pylsp')
+vim.lsp.enable('lua_ls')
+vim.lsp.enable('sqruff')
+vim.lsp.enable('stylua')
 
 -- Configure treesitter
--- `brew install tree-sitter-cli`
 local treesitter = require("nvim-treesitter")
 treesitter.setup({
   install_dir = vim.fn.stdpath('data') .. '/treesitter'
@@ -146,8 +327,71 @@ vim.api.nvim_create_autocmd('FileType', {
 
 
 -- Options
-vim.opt.clipboard = "unnamedplus"
-vim.opt.foldmethod = "indent"
-vim.opt.mouse = ""
+local options = {
+    -- MAIN INPUT/OUTPUT
+    clipboard     = "unnamedplus",  -- Allows vim to use "+ for yanks, puts, and deletes
+    timeout       = false,          -- Allow timing out halfway into a mapping
+    timeoutlen    = 1000,           -- Time (ms) between key sequences
+    ttimeoutlen   = 10,             -- Time (ms) between key sequences in terminal
+    virtualedit   = "block",        -- Allow cursor to move anywhere ('all', 'block', 'insert')
+    hidden        = true,           -- Allow buffers to be hidden without saving
+    autoread      = true,
+    confirm       = true,
+    mouse         = "",
+    -- TABS AND INDENTS
+    smartindent = true,  -- Enable better indenting
+    tabstop     = 4,     -- Number of space chars for each tab char
+    softtabstop = 4,     -- Number of space chars to insert on pressing tab
+    shiftwidth  = 4,     -- Number of space chars used when auto-indenting
+    expandtab   = true,  -- Replace tabs with spaces when indenting with </>
+    -- SEARCHING
+    ignorecase = true,   -- Ignore cases in search patterns
+    smartcase  = true,   -- Use case-sensitve search when an uppercase letter is used
+    hlsearch   = true,   -- Highlight matches
+    incsearch  = true,   -- Highlight matches while typing
+    -- BACKUPS AND SPELLING
+    swapfile = false,  -- Allow swap files
+    backup   = false,  -- Allow creation of backup files
+    spell    = true,   -- Built-in spell-checker
+    undofile = true,   -- Create global undofile
+    undodir  = os.getenv("HOME") .. '/.vim/undodir',
+    -- WINDOW DISPLAY
+    splitbelow    = true,              -- Open splits below
+    splitright    = true,              -- Open vsplits on right
+    shortmess     = vim.o.shm .. "I",  -- Disable into message
+    termguicolors = true,              -- Wider colorscheme support
+    background    = 'dark',            -- Background mode
+    guicursor     = "",                -- Cursor
+    -- LINE DISPLAY
+    scrolloff      = 999,        -- N lines to keep visible above/below cursor
+    sidescrolloff  = 8,          -- N columns to keep visible left/right of cursor
+    textwidth      = 100,         -- Margin for text input
+    showmatch      = true,       -- Highlight matching brackets
+    wrap           = false,      -- Soft-wrap long lines and use breakindent opts
+    linebreak      = true,       -- Only split/wrap long lines after words
+    breakindent    = true,       -- Indent soft-wrapped lines
+    breakindentopt = {list=-1},  -- Options for breakindent
+    showbreak      = nil ,     -- Text to print at breakindent
+    -- FOLDS
+    foldmethod = 'indent',             -- Auto-create folds by indent levels
+    foldlevel  = 0,                    -- Close all folds when opening file
+    fillchars  = {fold=' ', eob=' '},  -- Replace dots with spaces in fold head
+    foldtext   = 'v:lua.require("BlakeJC94.functions").custom_fold_text()',
+    -- LEFT MARGIN
+    number         = true,      -- Show line numbers
+    relativenumber = true,      -- Show rel/abs line numbers
+    signcolumn     = 'number',  -- Set sign column
+    -- BOTTOM MARGIN
+    statusline = "%<%f %h%m%r%{FugitiveStatusline()}%=%{get(b:,'gitsigns_status','')} %-14.(%l,%c%V%) %P",
+    laststatus = 2,     -- Show status line mode
+    showcmd    = true,  -- Show command in bottom right
+    cmdheight  = 1,     -- Set height of command window
+    wildignore = {'*.pyc', '**/.git/*', '**/data/*'},
+    -- TOP MARGIN
+    showtabline = 1,  -- Display tab line (0, never, 1 auto, 2 always)
+}
+for k, v in pairs(options) do vim.opt[k] = v end
 
 
+-- mappings
+vim.g.mapleader = " "
