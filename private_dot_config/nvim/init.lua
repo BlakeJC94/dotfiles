@@ -16,83 +16,61 @@ vim.g.mapleader = " "
 
 -- Install plugins
 require("lazy").setup({
-	{ "tpope/vim-rsi" },
-	{ "tpope/vim-eunuch" },
-	{ "tpope/vim-repeat" },
-	{ "tpope/vim-surround" },
-	{ "tpope/vim-commentary" },
-	{ "tpope/vim-unimpaired" },
-	{ "tpope/vim-dispatch" },
-	{ "tpope/vim-sleuth" },
-	{ "tpope/vim-fugitive", lazy=false },
-	{ "tpope/vim-rhubarb" },
-	{ "tpope/vim-vinegar" },
-	{ "BlakeJC94/vim-convict" },  -- TODO fixme
-	{ "rhysd/conflict-marker.vim" }, -- Get the mappings from this and rm
-	{ "brenoprata10/nvim-highlight-colors" },
 	{
-		"ibhagwan/fzf-lua",
-		-- lazy = false,
-		opts = {
-			winopts = {
-				border = "none",
-			},
-			previewers = {
-				man = { cmd = "man %s | col -bx" },
-			},
-			grep = {
-				rg_opts = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 --hidden",
-			},
-			highlights = {
-				actions = {
-					["default"] = function(selected) -- TODO open PR for this action
-						local bufnr = vim.api.nvim_get_current_buf()
-						if not vim.api.nvim_buf_is_valid(bufnr) or vim.api.nvim_buf_get_option(bufnr, "readonly") then
+		"nvim-treesitter/nvim-treesitter",
+		lazy = false,
+		branch = "main",
+		build = ":TSUpdate",
+		config = function()
+			local treesitter = require("nvim-treesitter")
+			treesitter.setup({
+				install_dir = vim.fn.stdpath("data") .. "/treesitter",
+			})
+			treesitter.install({ "python", "lua", "markdown", "markdown_inline", "sql" })
+			vim.api.nvim_create_autocmd("FileType", {
+			   pattern = { "python,lua,markdown,sql" },
+			   callback = function()
+				vim.treesitter.start()
+			   end,
+			})
+		end,
+	},
+	{
+		"neovim/nvim-lspconfig",
+		config = function()
+			-- Configure LSPs
+			vim.lsp.config("lua_ls", {
+				on_init = function(client)
+					if client.workspace_folders then
+						local path = client.workspace_folders[1].name
+						if
+							path ~= vim.fn.stdpath("config")
+							and (vim.uv.fs_stat(path .. "/.luarc.json") or vim.uv.fs_stat(path .. "/.luarc.jsonc"))
+						then
 							return
 						end
-						local cursor = vim.api.nvim_win_get_cursor(0)
-						local row, col = cursor[1] - 1, cursor[2]
-						local results = {}
-						for i = 1, #selected do
-							results[i] = string.gsub(selected[i], "^@", "")
-						end
-						vim.api.nvim_buf_set_text(bufnr, row, col, row, col, results)
-					end,
-				},
-				fzf_opts = {
-					["--no-multi"] = nil,
-				},
-			},
-		},
-		keys = {
-			{ "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },
-			{ "<C-r><C-r>", "<cmd>FzfLua registers<CR>", mode = "i" },
-			{ "<Leader><BS>", "<cmd>FzfLua files<CR>", mode="n" },
-			{ "<Leader><CR>", "<cmd>FzfLua buffers<CR>", mode="n" },
-			{ "<Leader>ff", "<cmd>FzfLua resume<CR>", mode="n" },
-			{ "<Leader>fF", "<cmd>FzfLua<CR>", mode="n" },
-			{ "<Leader>fb", ":FzfLua buffers<CR>" },
-			{ "<Leader>fo", ":FzfLua oldfiles cwd_only=true<CR>" }, -- Recently changed files
-			{ "<Leader>fO", ":FzfLua oldfiles<CR>" }, -- Recently changed files
-			{ "<Leader>f/", ":FzfLua lgrep_curbuf<CR>" },
-			{ "<Leader>fg", ":FzfLua live_grep_native<CR>" }, -- Jumping with livegrep
-			{ "<Leader>fh", ":FzfLua help_tags<CR>" },
-			{ "<Leader>fH", ":FzfLua man_pages<CR>" },
-			{ "<Leader>fq", ":FzfLua quickfix<CR>" },
-			{ "<Leader>fl", ":FzfLua loclist<CR>" },
-			{ "<Leader>fv", ":FzfLua lsp_document_symbols<CR>" },
-		},
+					end
+
+					client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
+						runtime = {
+							version = "LuaJIT",
+							path = { "lua/?.lua", "lua/?/init.lua" },
+						},
+						workspace = {
+							checkThirdParty = false,
+							library = { vim.env.VIMRUNTIME },
+						},
+					})
+				end,
+				settings = { Lua = {} },
+			})
+
+			vim.lsp.enable("pylsp")
+			vim.lsp.enable("lua_ls")
+			vim.lsp.enable("sqruff")
+			vim.lsp.enable("stylua")
+		end,
 	},
-	{ "nvim-treesitter/nvim-treesitter", lazy = false, branch = "main", build = ":TSUpdate" },
-	{
-		"chrisgrieser/nvim-various-textobjs",
-		opts = { keymaps = { useDefaults = false } },
-		keys = {
-			{ "av", '<cmd>lua require("various-textobjs").subword("outer")<CR>', mode = { "o", "x" } },
-			{ "iv", '<cmd>lua require("various-textobjs").subword("inner")<CR>', mode = { "o", "x" } },
-		},
-	},
-	{ "neovim/nvim-lspconfig" },
 	{
 		"hrsh7th/nvim-cmp",
 		dependencies = {
@@ -198,6 +176,58 @@ require("lazy").setup({
 		end,
 	},
 	{
+		"ibhagwan/fzf-lua",
+		opts = {
+			winopts = {
+				border = "none",
+			},
+			previewers = {
+				man = { cmd = "man %s | col -bx" },
+			},
+			grep = {
+				rg_opts = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 --hidden",
+			},
+			highlights = {
+				actions = {
+					["default"] = function(selected) -- TODO open PR for this action
+						local bufnr = vim.api.nvim_get_current_buf()
+						if not vim.api.nvim_buf_is_valid(bufnr) or vim.api.nvim_buf_get_option(bufnr, "readonly") then
+							return
+						end
+						local cursor = vim.api.nvim_win_get_cursor(0)
+						local row, col = cursor[1] - 1, cursor[2]
+						local results = {}
+						for i = 1, #selected do
+							results[i] = string.gsub(selected[i], "^@", "")
+						end
+						vim.api.nvim_buf_set_text(bufnr, row, col, row, col, results)
+					end,
+				},
+				fzf_opts = {
+					["--no-multi"] = nil,
+				},
+			},
+		},
+		keys = {
+			{ "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },
+			{ "<C-r><C-r>", "<cmd>FzfLua registers<CR>", mode = "i" },
+			{ "<Leader><BS>", "<cmd>FzfLua files<CR>", mode = "n" },
+			{ "<Leader><CR>", "<cmd>FzfLua buffers<CR>", mode = "n" },
+			{ "<Leader>ff", "<cmd>FzfLua resume<CR>", mode = "n" },
+			{ "<Leader>fF", "<cmd>FzfLua<CR>", mode = "n" },
+			{ "<Leader>fb", ":FzfLua buffers<CR>" },
+			{ "<Leader>fo", ":FzfLua oldfiles cwd_only=true<CR>" }, -- Recently changed files
+			{ "<Leader>fO", ":FzfLua oldfiles<CR>" }, -- Recently changed files
+			{ "<Leader>f/", ":FzfLua lgrep_curbuf<CR>" },
+			{ "<Leader>fg", ":FzfLua live_grep_native<CR>" }, -- Jumping with livegrep
+			{ "<Leader>fh", ":FzfLua help_tags<CR>" },
+			{ "<Leader>fH", ":FzfLua man_pages<CR>" },
+			{ "<Leader>fq", ":FzfLua quickfix<CR>" },
+			{ "<Leader>fl", ":FzfLua loclist<CR>" },
+			{ "<Leader>fv", ":FzfLua lsp_document_symbols<CR>" },
+		},
+	},
+	{
 		"ellisonleao/gruvbox.nvim",
 		config = function()
 			local gruvbox = require("gruvbox")
@@ -290,51 +320,28 @@ require("lazy").setup({
 			vim.cmd("colorscheme gruvbox")
 		end,
 	},
-})
-
--- Configure LSPs
-vim.lsp.config("lua_ls", {
-	on_init = function(client)
-		if client.workspace_folders then
-			local path = client.workspace_folders[1].name
-			if
-				path ~= vim.fn.stdpath("config")
-				and (vim.uv.fs_stat(path .. "/.luarc.json") or vim.uv.fs_stat(path .. "/.luarc.jsonc"))
-			then
-				return
-			end
-		end
-
-		client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
-			runtime = {
-				version = "LuaJIT",
-				path = { "lua/?.lua", "lua/?/init.lua" },
-			},
-			workspace = {
-				checkThirdParty = false,
-				library = { vim.env.VIMRUNTIME },
-			},
-		})
-	end,
-	settings = { Lua = {} },
-})
-vim.lsp.enable("pylsp")
-vim.lsp.enable("lua_ls")
-vim.lsp.enable("sqruff")
-vim.lsp.enable("stylua")
-
--- Configure treesitter
-local treesitter = require("nvim-treesitter")
-treesitter.setup({
-	install_dir = vim.fn.stdpath("data") .. "/treesitter",
-})
-treesitter.install({ "python", "lua", "markdown", "markdown_inline", "sql" })
-
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "python,lua,markdown,sql" },
-	callback = function()
-		vim.treesitter.start()
-	end,
+	{
+		"chrisgrieser/nvim-various-textobjs",
+		opts = { keymaps = { useDefaults = false } },
+		keys = {
+			{ "av", '<cmd>lua require("various-textobjs").subword("outer")<CR>', mode = { "o", "x" } },
+			{ "iv", '<cmd>lua require("various-textobjs").subword("inner")<CR>', mode = { "o", "x" } },
+		},
+	},
+	{ "tpope/vim-rsi" },
+	{ "tpope/vim-eunuch" },
+	{ "tpope/vim-repeat" },
+	{ "tpope/vim-surround" },
+	{ "tpope/vim-commentary" },
+	{ "tpope/vim-unimpaired" },
+	{ "tpope/vim-dispatch" },
+	{ "tpope/vim-sleuth" },
+	{ "tpope/vim-fugitive" },
+	{ "tpope/vim-rhubarb" },
+	{ "tpope/vim-vinegar" },
+	{ "BlakeJC94/vim-convict" },
+	{ "rhysd/conflict-marker.vim" }, -- Get the mappings from this and rm
+	{ "brenoprata10/nvim-highlight-colors" },
 })
 
 -- functions
@@ -574,3 +581,4 @@ local disable_shift_alt_arrow_keys = function()
 	set_mappings(arrow_mappings)
 end
 disable_shift_alt_arrow_keys()
+
