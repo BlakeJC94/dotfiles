@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 
 # Enable 256 color support
-<<<<<<< Updated upstream
-# set -g default-terminal "tmux-256color"
-set -g default-terminal "xterm-256color"
-=======
 set -g default-terminal "tmux-256color"
 set -g allow-passthrough on
 #set -g default-terminal "xterm-256color"
->>>>>>> Stashed changes
 set -as terminal-features ",gnome*:RGB"
 #set -as terminal-overrides ",gnome*:Tc"
 set -ag terminal-overrides ",xterm-256color:Tc"
