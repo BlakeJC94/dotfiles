@@ -14,13 +14,13 @@
     lg = "!git log --oneline"
     lgs = "!git log --name-status --oneline"
     hub = "!gh"
-    co = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
+    checkout-fzf = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
     b = "!git checkout -"
     vim = "!vim $(git diff --name-only)"
     forget = "!git reset --hard HEAD"
-    primebranch = "!git symbolic-ref --short HEAD"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
+    genpr = "!git diff main | llm -f ./.github/PULL_REQUEST_TEMPLATE.md 'Can you draft a really short PR description using the template from this diff?'"
     clonetree = "!f() { \
         url=\"$1\"; \
         base=\"$(basename \"$url\")\"; \
