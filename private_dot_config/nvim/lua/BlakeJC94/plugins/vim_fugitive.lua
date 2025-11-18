@@ -22,7 +22,7 @@ return function()
     end
 
     -- Expose function globally if needed
-    _G.ToggleGstatus = toggle_gstatus
+    _G.toggle_gstatus = toggle_gstatus
 
     -- Autocommands
     local augroup = vim.api.nvim_create_augroup("config_vim_fugitive", { clear = true })

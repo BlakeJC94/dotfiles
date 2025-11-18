@@ -2,12 +2,6 @@ config = require("BlakeJC94")
 
 config.set_mappings(
     {
-        -- Make Y behave like D and C
-        { "Y", "y$" },
-        -- Highlight on yank
-        {"y", "<Plug>(highlightedyank)" , mode="n", noremap=false},
-        {"y", "<Plug>(highlightedyank)" , mode="x", noremap=false},
-        {"y", "<Plug>(highlightedyank)" , mode="o", noremap=false},
         -- Better jumplist for large line steps (and step through visual lines with j/k)
         { "j", [[(v:count > 5 ? 'm`' . v:count : 'g') . 'j']], expr = true },
         { "k", [[(v:count > 5 ? 'm`' . v:count : 'g') . 'k']], expr = true },
@@ -33,8 +27,8 @@ config.set_mappings(
         { ">", ">gv", mode = "v" },
         { "=", "=gv", mode = "v" },
         -- Swap p and P to stop losing register contents by pasting over
-        { "p", "P", mode = "v" },
-        { "P", "p", mode = "v" },
+        { "p", '"_dp', mode = "v" },
+        { "P", '"_dP', mode = "v" },
         -- C-s : Quickly guess correct spelling errors (undoable)
         { "<C-s>", "<C-g>u<Esc>[s1z=`]a<C-g>u", mode = "i", remap = false },
         { "<C-s>", "i<C-g>u<Esc>[s1z=`]", remap = false },
@@ -68,6 +62,9 @@ config.set_mappings(
         { "<Leader>q", config.functions.toggle_quickfix_list },
         { "<Leader>l", config.functions.toggle_local_list },
         { "<Leader>;", "<cmd>edit $MYVIMRC | lcd %:p:h<CR>" }, -- Edit settings
+        { "<Leader>.", "<cmd>lcd %:p:h \\| echo 'Changed local dir to ' . getcwd()<CR>" },
+        { "<Leader>,", "<cmd>cd %:p:h \\| echo 'Changed dir to ' . getcwd()<CR>" },
+        { "<Leader>/", "<cmd>cd `git rev-parse --show-toplevel` \\| echo 'Changed dir to project root: ' . getcwd()<CR>" },
     }
 )
 

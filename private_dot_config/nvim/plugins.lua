@@ -11,7 +11,11 @@ config.set_plugins(
         },
         {
             "neovim/nvim-lspconfig",
+            lazy = false,
             config = config.plugins.nvim_lspconfig,
+            keys = {
+                {"<Leader>=", function() vim.lsp.buf.format({timeout=1000}) end }
+            },
         },
         {
             "hrsh7th/nvim-cmp",
@@ -83,7 +87,16 @@ config.set_plugins(
             config = config.plugins.gruvbox_nvim,
         },
         {
+            "chrisgrieser/nvim-various-textobjs",
+            opts = { keymaps = { useDefaults = false } },
+            keys = {
+                { "av", '<cmd>lua require("various-textobjs").subword("outer")<CR>', mode = { "o", "x" } },
+                { "iv", '<cmd>lua require("various-textobjs").subword("inner")<CR>', mode = { "o", "x" } },
+            },
+        },
+        {
             "lewis6991/gitsigns.nvim",
+            lazy = false,
             opts = {
                 signcolumn = false,
                 numhl      = true,
@@ -96,33 +109,27 @@ config.set_plugins(
                 },
             },
             keys = {
-                {"]c", ":silent Gitsigns next_hunk<CR>"},
-                {"[c", ":silent Gitsigns prev_hunk<CR>"},
-                {'<Leader>cp',':Gitsigns preview_hunk<CR>'},
-                {'<Leader>ch',':Gitsigns toggle_deleted<CR>'},
-                {'<Leader>cb', function() require("gitsigns").blame_line({full=true}) end},
-                {'<Leader>cf',":diffget //2<CR>"},  -- select left changes
-                {'<Leader>cj',":diffget //3<CR>"},  -- select right changes
-            },
-        },
-        {
-            "chrisgrieser/nvim-various-textobjs",
-            opts = { keymaps = { useDefaults = false } },
-            keys = {
-                { "av", '<cmd>lua require("various-textobjs").subword("outer")<CR>', mode = { "o", "x" } },
-                { "iv", '<cmd>lua require("various-textobjs").subword("inner")<CR>', mode = { "o", "x" } },
+                {"]h", ":silent Gitsigns next_hunk<CR>"},
+                {"[h", ":silent Gitsigns prev_hunk<CR>"},
+                {'<Leader>hp',':Gitsigns preview_hunk<CR>'},
+                {'<Leader>hh',':Gitsigns toggle_deleted<CR>'},
+                {'<Leader>hb', function() require("gitsigns").blame_line({full=true}) end},
+                {'<Leader>hf',":diffget //2<CR>"},  -- select left changes
+                {'<Leader>hj',":diffget //3<CR>"},  -- select right changes
             },
         },
         {
             "tpope/vim-fugitive",
+            lazy=false,
             keys={
-                {"<Leader>c", "<cmd>call ToggleGstatus()<CR>"},
-                {"<Leader>b", ":GBrowse!<CR>", mode="v"},
+                {"<Leader>c", "<cmd>lua toggle_gstatus()<CR>"},
+                {"<Leader>b", "<cmd>GBrowse!<CR>", mode="v"},
             },
             config= config.plugins.vim_fugitive,
         },
         {
             "tpope/vim-unimpaired",
+            lazy=false,
             keys={
                 {"J", "<Plug>(unimpaired-move-selection-down)gv", mode="v", noremap=false},
                 {"K", "<Plug>(unimpaired-move-selection-up)gv", mode="v", noremap=false},
@@ -137,7 +144,6 @@ config.set_plugins(
         { "tpope/vim-repeat" },
         { "tpope/vim-surround" },
         { "tpope/vim-commentary" },
-        { "tpope/vim-dispatch" },
         { "tpope/vim-sleuth" },
         { "tpope/vim-rhubarb" },
         { "tpope/vim-vinegar" },

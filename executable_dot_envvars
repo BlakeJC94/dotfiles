@@ -7,7 +7,7 @@ export PATH_LOCAL_BIN="${HOME}/.local/bin"
 export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-export EDITOR='vim'
+export EDITOR='nvim'
 
 # Force python to import stuff in wd
 export PYTHONPATH=.

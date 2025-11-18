@@ -1,4 +1,17 @@
 return function()
+    vim.diagnostic.config({
+        virtual_text = false,
+        signs = false,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = false,
+    })
+    local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+    for sign_type, icon in pairs(signs) do
+        local hl = "DiagnosticSign" .. sign_type
+        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+    end
+
     -- Configure LSPs
     vim.lsp.config("lua_ls", {
         on_init = function(client)
@@ -25,9 +38,36 @@ return function()
         end,
         settings = { Lua = {} },
     })
-
-    vim.lsp.enable("pylsp")
     vim.lsp.enable("lua_ls")
-    vim.lsp.enable("sqruff")
+
     vim.lsp.enable("stylua")
+
+    vim.lsp.config('pylsp', {
+        settings = {
+            pylsp = {
+                plugins = {
+                    pyflakes = { enabled = false },    -- often loud and redundant
+                    pylint = { enabled = false },      -- extremely noisy; disable unless needed
+                    pycodestyle = { enabled = false }, -- style noise
+                    mccabe = { enabled = false },      -- complexity warnings
+                    yapf = { enabled = false },
+                    pylsp_mypy = { enabled = false },
+                }
+            }
+        }
+    })
+    vim.lsp.enable("pylsp")
+
+    vim.lsp.config('ruff', {
+        init_options = {
+            settings = {
+                showSyntaxErrors = false,
+                organizeImports = true,
+                fixAll = true,
+            }
+        }
+    })
+    vim.lsp.enable("ruff")
+
+    vim.lsp.enable("sqruff")
 end

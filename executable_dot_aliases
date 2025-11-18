@@ -18,6 +18,7 @@ alias wttr='curl https://wttr.in/'
 alias chz='chezmoi'
 alias dotsync='chezmoi managed | xargs chezmoi re-add && git -C $(chezmoi source-path) sync'
 alias l='eza'
+alias vi='command vim'
 alias vim='nvim'
 
 alias least='fmt -w 80 | bat --paging always --style plain'
@@ -55,3 +56,19 @@ alias Git="git"
 alias setclip="xclip -selection c"
 alias getclip="xclip -selection c -o"
 
+brew() {
+  case "$1" in
+    update)
+      command bundle install --file="${HOME}/Brewfile" || true
+      ;;
+  esac
+
+  command brew "$@"
+
+  case "$1" in
+    install|uninstall|remove)
+      # update Brewfile in current directory (or change path)
+      command brew bundle dump
+      ;;
+  esac
+}

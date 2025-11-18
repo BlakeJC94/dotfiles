@@ -3,7 +3,7 @@ return function()
     treesitter.setup({
         install_dir = vim.fn.stdpath("data") .. "/treesitter",
     })
-    treesitter.install({ "python", "lua", "markdown", "markdown_inline", "sql" })
+    treesitter.install({ "python", "lua", "markdown", "markdown_inline", "sql", "bash", "zsh" })
     vim.api.nvim_create_autocmd("FileType", {
        pattern = { "python,lua,markdown,sql" },
        callback = function()
