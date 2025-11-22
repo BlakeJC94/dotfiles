@@ -21,8 +21,12 @@ else:
 # aliases
 q = exit
 
-import os
-os.environ["PYTHONBREAKPOINT"] = "ipdb.set_trace"
+# try:
+#     import ipdb
+#     import os
+#     os.environ["PYTHONBREAKPOINT"] = "ipdb.set_trace"
+# except ImportError:
+#     pass
 
 # imports
 _imports = [

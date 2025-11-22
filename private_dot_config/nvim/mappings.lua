@@ -62,8 +62,8 @@ config.set_mappings(
         { "<Leader>q", config.functions.toggle_quickfix_list },
         { "<Leader>l", config.functions.toggle_local_list },
         { "<Leader>;", "<cmd>edit $MYVIMRC | lcd %:p:h<CR>" }, -- Edit settings
-        { "<Leader>.", "<cmd>lcd %:p:h \\| echo 'Changed local dir to ' . getcwd()<CR>" },
-        { "<Leader>,", "<cmd>cd %:p:h \\| echo 'Changed dir to ' . getcwd()<CR>" },
+        { "<Leader>.", "<cmd>lcd %:p:h | echo 'Changed local dir to ' . getcwd()<CR>" },
+        { "<Leader>,", "<cmd>cd %:p:h | echo 'Changed dir to ' . getcwd()<CR>" },
         { "<Leader>/", "<cmd>cd `git rev-parse --show-toplevel` \\| echo 'Changed dir to project root: ' . getcwd()<CR>" },
     }
 )
