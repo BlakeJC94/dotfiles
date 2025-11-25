@@ -1,6 +1,3 @@
-nnoremap <Leader>; :edit ~/.vim/vimrc <Bar> lcd %:p:h<CR>
-nnoremap <Leader>: :execute 'edit ' . trim(system("chezmoi source-path")) <Bar> lcd %:p:h<CR>
-
 command! DotPull !chezmoi update
 command! DotPush !chezmoi git sync
 

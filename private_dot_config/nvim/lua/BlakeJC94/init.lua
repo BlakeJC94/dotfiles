@@ -3,7 +3,13 @@ local M = {}
 M.plugins = require("BlakeJC94.plugins")
 M.functions = require("BlakeJC94.functions")
 
+local disable_netrw = function()
+    vim.g.loaded_netrwPlugin = 1
+    vim.g.loaded_netrw = 1
+end
+
 M.set_options = function(options)
+    disable_netrw()
     for k, v in pairs(options) do
         vim.opt[k] = v
     end
@@ -49,6 +55,9 @@ M.set_mappings = function(maps)
             opts.noremap = map.noremap
         end
 
+        if map.remap ~= nil then
+            opts.remap = map.remap
+        end
         if map.nowait ~= nil then
             opts.nowait = map.nowait
         end

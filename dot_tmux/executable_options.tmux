@@ -2,6 +2,7 @@
 
 # Enable 256 color support
 set -g default-terminal "tmux-256color"
+set -g xterm-keys off
 set -g allow-passthrough on
 #set -g default-terminal "xterm-256color"
 set -as terminal-features ",gnome*:RGB"

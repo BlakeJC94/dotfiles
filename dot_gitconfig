@@ -20,7 +20,15 @@
     forget = "!git reset --hard HEAD"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
-    genpr = "!git diff main | llm -f ./.github/PULL_REQUEST_TEMPLATE.md 'Can you draft a really short PR description using the template from this diff?'"
+    genpr = "!f() { \
+        target_branch=\"${1:-main}\"; \
+        template_file=\".github/PULL_REQUEST_TEMPLATE.md\"; \
+        template_arg=\"\"; \
+        if [ -f \"$template_file\" ]; then \
+            template_arg=\"-f $template_file\"; \
+        fi; \
+        git diff \"$target_branch\" | llm $template_arg 'Can you draft a really short PR description from this git diff? Return only the PR description'; \
+    }; f"
     clonetree = "!f() { \
         url=\"$1\"; \
         base=\"$(basename \"$url\")\"; \

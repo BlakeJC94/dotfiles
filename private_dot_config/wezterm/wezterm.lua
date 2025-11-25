@@ -17,6 +17,7 @@ local palette = {
 local is_mac = ((io.popen('uname -s','r'):read('*l')):lower()):match("darwin")
 
 config = {
+    enable_kitty_keyboard = false,
     font = wezterm.font("JetBrainsMono Nerd Font"),
     font_size = 18,
     -- colors = {
