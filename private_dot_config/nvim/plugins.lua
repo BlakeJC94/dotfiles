@@ -185,9 +185,9 @@ config.set_plugins({
             vim.api.nvim_create_user_command("Ls", function(opts)
                 -- 1. Build the shell command, same as before.
                 local shell_cmd = string.format(
-                  "(ls -p %s | grep '/$' || true; ls -p %s | grep -v '/$' || true)",
-                  opts.args,
-                  opts.args
+                    "(ls -p %s | grep '/$' || true; ls -p %s | grep -v '/$' || true)",
+                    opts.args,
+                    opts.args
                 )
 
                 -- 2. Execute the command and capture its output into a variable.
@@ -197,10 +197,10 @@ config.set_plugins({
                 -- 3. Print the captured output to the message area.
                 --    We use vim.trim() to remove any trailing newline from the shell
                 --    output, which prevents an extra blank line from appearing.
-                if output ~= nil and not output:match('^%s*$') then
-                  print(vim.trim(output))
+                if output ~= nil and not output:match("^%s*$") then
+                    print(vim.trim(output))
                 else
-                  print("[Empty directory]")
+                    print("[Empty directory]")
                 end
             end, {
                 nargs = "*", -- Corresponds to -nargs=*
