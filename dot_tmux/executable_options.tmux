@@ -1,21 +1,16 @@
 #!/usr/bin/env bash
 
-set -g default-terminal "xterm-256color"
-set -g terminal-features "*:RGB"
-
-
-
-## Enable 256 color support
-#set -g default-terminal "tmux-256color"
-#set -g xterm-keys off
-#set -g allow-passthrough on
-##set -g default-terminal "xterm-256color"
-#set -as terminal-features ",gnome*:RGB"
-##set -as terminal-overrides ",gnome*:Tc"
-#set -ag terminal-overrides ",xterm-256color:Tc"
-#set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'  # undercurl support
-#set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'  # underscore colors
-## tmux colors
+# Enable 256 color support
+set -g default-terminal "tmux-256color"
+set -g xterm-keys off
+set -g allow-passthrough on
+#set -g default-terminal "xterm-256color"
+set -as terminal-features ",gnome*:RGB"
+#set -as terminal-overrides ",gnome*:Tc"
+set -ag terminal-overrides ",xterm-256color:Tc"
+set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'  # undercurl support
+set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'  # underscore colors
+# tmux colors
 
 # Free up index 0 to move tabs to front
 set -g base-index 1
@@ -57,3 +52,4 @@ set-option -wg monitor-bell on
 
 # More characters for session name
 set -g status-left-length 64
+
