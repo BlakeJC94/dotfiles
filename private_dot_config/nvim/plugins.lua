@@ -91,6 +91,13 @@ config.set_plugins({
         config = config.plugins.gruvbox_nvim,
     },
     {
+        "bjarneo/pixel.nvim",
+        priority = 1000,
+        config = function()
+            vim.cmd.colorscheme("pixel")
+        end,
+    },
+    {
         "chrisgrieser/nvim-various-textobjs",
         opts = { keymaps = { useDefaults = false } },
         keys = {
@@ -218,5 +225,10 @@ config.set_plugins({
     { "tpope/vim-sleuth" },
     { "tpope/vim-rhubarb" },
     { "BlakeJC94/vim-convict" },
-    { "brenoprata10/nvim-highlight-colors" },
+    {
+        "brenoprata10/nvim-highlight-colors",
+        config = function()
+            require("nvim-highlight-colors").turnOn()
+        end,
+    },
 })

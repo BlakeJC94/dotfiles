@@ -94,5 +94,5 @@ return function()
 
     vim.opt.background = "dark"
     vim.highlight.on_yank({ timeout = 700 })
-    vim.cmd("colorscheme gruvbox")
+    -- vim.cmd.colorscheme("gruvbox")
 end
