@@ -3,34 +3,34 @@ run-shell -b 'touch ~/.palette && sed "s/^\(.*\)=\(.*\)$/set -g @\1 \2/" ~/.pale
 source-file ~/.tmux/colors.tmux
 
 # Window mode style (e.g. copy mode)
-set-option -wg mode-style bg="#{@base0B}",fg="#{@base01}"
+set-option -wg mode-style bg="#{@bright_green}",fg="#{@dark1}"
 
 # Statusbar colors
-set-option -g status-style bg="#{@base00}",fg="#{@base04}"
+set-option -g status-style bg="#{@dark0_hard}",fg="#{@light4}"
 
 # Window status styles
-set-option -wg window-status-style bg="#{@base01}",fg="#{@dark4}"
-set-option -wg window-status-activity-style bg="#{@base01}",fg="#{@base04}"
-set-option -wg window-status-bell-style bg="#{@base01}",fg="#{@base09}"
-set-option -wg window-status-current-style bg="#{@base09}",fg="#{@base01}"
+set-option -wg window-status-style bg="#{@dark1}",fg="#{@dark4}"
+set-option -wg window-status-activity-style bg="#{@dark1}",fg="#{@light4}"
+set-option -wg window-status-bell-style bg="#{@dark1}",fg="#{@bright_orange}"
+set-option -wg window-status-current-style bg="#{@bright_orange}",fg="#{@dark1}"
 
 # Window background styles
-set -g window-active-style bg="#{@base00}"
+set -g window-active-style bg="#{@dark0_hard}"
 set -g window-style bg="#202223"  # dark00: fallback inline color
 
 # Pane borders
 set-option -g pane-border-lines heavy
-set-option -g pane-active-border-style bg="#{@base00}",fg="#{@base00}"
-set-option -g pane-border-style bg="#{@base00}",fg="#{@base00}"
+set-option -g pane-active-border-style bg="#{@dark0_hard}",fg="#{@dark0_hard}"
+set-option -g pane-border-style bg="#{@dark0_hard}",fg="#{@dark0_hard}"
 
 # Message and command display styles
-set-option -g message-style bg="#{@base0B}",fg="#{@base01}"
-set-option -g message-command-style bg="#{@base04}",fg="#{@base01}"
+set-option -g message-style bg="#{@bright_green}",fg="#{@dark1}"
+set-option -g message-command-style bg="#{@light4}",fg="#{@dark1}"
 
 # Copy mode highlighting (tmux >= 3.2)
 %if #{>=:#{version},3.2}
-    set-option -wg copy-mode-match-style "bg=#{@base0A},fg=#{@base01}"
-    set-option -wg copy-mode-current-match-style "bg=#{@base04},fg=#{@base01}"
+    set-option -wg copy-mode-match-style "bg=#{@bright_yellow},fg=#{@dark1}"
+    set-option -wg copy-mode-current-match-style "bg=#{@light4},fg=#{@dark1}"
 %endif
 
 # Statusbar layout
@@ -39,35 +39,35 @@ set-option -g status-position bottom
 
 # Left status: session name with prefix indicator
 set-option -g status-left "\
-#[bg=#{@base04}, fg=#{@base01}]\
-#{?client_prefix,#[bg=#{@base0D}],#[bg=#{@base04}]}\
+#[bg=#{@light4}, fg=#{@dark1}]\
+#{?client_prefix,#[bg=#{@bright_blue}],#[bg=#{@light4}]}\
  #{session_name} \
-#[bg=#{@base00},fg=#{@base04},nobold,noitalics,nounderscore]\
-#{?client_prefix,#[fg=#{@base0D}],#[fg=#{@base04}]}\
-#[bg=#{@base00}, fg=#{@base00}]\
+#[bg=#{@dark0_hard},fg=#{@light4},nobold,noitalics,nounderscore]\
+#{?client_prefix,#[fg=#{@bright_blue}],#[fg=#{@light4}]}\
+#[bg=#{@dark0_hard}, fg=#{@dark0_hard}]\
  \
 "
 
 # Current window in status line
 set-option -wg window-status-current-format "\
-#[bg=#{@base01},fg=#{@base00},nobold,noitalics,nounderscore]\
-#[bg=#{@base0D}, fg=#{@base01}]\
-#{?window_zoomed_flag,#[fg=#{@base01}],#[fg=#{@base01}]}\
+#[bg=#{@dark1},fg=#{@dark0_hard},nobold,noitalics,nounderscore]\
+#[bg=#{@bright_blue}, fg=#{@dark1}]\
+#{?window_zoomed_flag,#[fg=#{@dark1}],#[fg=#{@dark1}]}\
  #{window_index} #{window_name} \
-#[bg=#{@base00}, fg=#{@base00}]\
+#[bg=#{@dark0_hard}, fg=#{@dark0_hard}]\
 "
 
 # Inactive windows
 set-option -wg window-status-format "\
-#[bg=#{@base02}, fg=#{@base04},noitalics]\
-#{?window_zoomed_flag,#[fg=#{@base04} bold],#[fg=#{@base04}]}\
+#[bg=#{@dark2}, fg=#{@light4},noitalics]\
+#{?window_zoomed_flag,#[fg=#{@light4} bold],#[fg=#{@light4}]}\
  #{window_index} #{window_name} \
-#[bg=#{@base00},fg=#{@base01},noitalics]\
+#[bg=#{@dark0_hard},fg=#{@dark1},noitalics]\
 "
 
 # Right status: date and time
 set-option -g status-right "\
-#[fg=#{@base01} nobold, nounderscore, noitalics]\
-#[bg=#{@base04}, fg=#{@base01}]\
+#[fg=#{@dark1} nobold, nounderscore, noitalics]\
+#[bg=#{@light4}, fg=#{@dark1}]\
  %Y-%m-%d │ %H:%M \
 "
