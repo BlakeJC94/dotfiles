@@ -1,82 +1,17 @@
 local wezterm = require("wezterm")
 
-local palette = {
-    base = '#191724',
-    overlay = '#26233a',
-    muted = '#6e6a86',
-    text = '#e0def4',
-    love = '#eb6f92',
-    gold = '#f6c177',
-    rose = '#ebbcba',
-    pine = '#31748f',
-    foam = '#9ccfd8',
-    iris = '#c4a7e7',
-    highlight_high = '#524f67',
-}
-
-local is_mac = ((io.popen('uname -s','r'):read('*l')):lower()):match("darwin")
-
 config = {
     enable_kitty_keyboard = false,
     font = wezterm.font("JetBrainsMono Nerd Font"),
     font_size = 18,
-    -- colors = {
-    --     foreground = palette.text,
-    --     background = palette.base,
-    --     cursor_bg = palette.highlight_high,
-    --     cursor_border = palette.highlight_high,
-    --     cursor_fg = palette.text,
-    --     selection_bg = '#2a283e',
-    --     selection_fg = palette.text,
-    --     ansi = {
-    --         palette.overlay,
-    --         palette.love,
-    --         palette.pine,
-    --         palette.gold,
-    --         palette.foam,
-    --         palette.iris,
-    --         palette.rose,
-    --         palette.text,
-    --     },
-    --     brights = {
-    --         palette.muted,
-    --         palette.love,
-    --         palette.pine,
-    --         palette.gold,
-    --         palette.foam,
-    --         palette.iris,
-    --         palette.rose,
-    --         palette.text,
-    --     },
-    --     tab_bar = {
-    --         background = palette.base,
-    --         active_tab = active_tab,
-    --         inactive_tab = inactive_tab,
-    --         inactive_tab_hover = active_tab,
-    --         new_tab = inactive_tab,
-    --         new_tab_hover = active_tab,
-    --         inactive_tab_edge = palette.muted, -- (Fancy tab bar only)
-    --     },
-    -- },
-    colors = {
-        foreground = "#ebdbb2",
-        background = "#1d2021",
-        cursor_bg = "#ebdbb2",
-        cursor_border = "#ebdbb2",
-        cursor_fg = "#1d2021",
-        selection_bg = "#ebdbb2",
-        selection_fg = "#504945",
-        ansi = { "#1d2021", "#cc241d", "#98971a", "#d79921", "#458588", "#b16286", "#689d6a", "#a89984" },
-        brights = { "#928374", "#fb4934", "#b8bb26", "#fabc2f", "#83a598", "#d3849b", "#8ec07c", "#ebdbb2" },
-    },
+    color_scheme = "Gruvbox dark, hard (base16)",
     enable_tab_bar = false,
-    -- window_decorations = "RESIZE",
     window_close_confirmation = "NeverPrompt",
     skip_close_confirmation_for_processes_named = { "bash", "zsh" },
     audible_bell = "Disabled",
     disable_default_key_bindings = true,
     keys = {
-        { key = "q", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentTab { confirm = false } },
+        { key = "q", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentTab({ confirm = false }) },
         { key = "n", mods = "CTRL|SHIFT", action = wezterm.action.SpawnWindow },
         { key = "c", mods = "CTRL|SHIFT", action = { CopyTo = "Clipboard" } },
         { key = "v", mods = "CTRL|SHIFT", action = { PasteFrom = "Clipboard" } },
@@ -85,14 +20,12 @@ config = {
         { key = "0", mods = "CTRL|SHIFT", action = wezterm.action.ResetFontSize },
         { key = "f", mods = "CTRL|SHIFT", action = wezterm.action.ToggleFullScreen },
     },
-    -- term = "wezterm",
     warn_about_missing_glyphs = false,
     hide_mouse_cursor_when_typing = false,
 }
 
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
-    config.default_domain = 'WSL:Ubuntu'
+    config.default_domain = "WSL:Ubuntu"
 end
 
 return config
-
