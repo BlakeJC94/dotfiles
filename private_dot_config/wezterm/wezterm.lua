@@ -1,53 +1,82 @@
 local wezterm = require("wezterm")
 
-local palette = {}
-for line in io.lines(os.getenv("HOME") .. "/.palette") do
-    local key, value = line:match('^(%w+)="(.-)"')
-    if key and value then
-        palette[key] = value
-    end
-end
+local palette = {
+    base = '#191724',
+    overlay = '#26233a',
+    muted = '#6e6a86',
+    text = '#e0def4',
+    love = '#eb6f92',
+    gold = '#f6c177',
+    rose = '#ebbcba',
+    pine = '#31748f',
+    foam = '#9ccfd8',
+    iris = '#c4a7e7',
+    highlight_high = '#524f67',
+}
+
+local is_mac = ((io.popen('uname -s','r'):read('*l')):lower()):match("darwin")
 
 config = {
     enable_kitty_keyboard = false,
     font = wezterm.font("JetBrainsMono Nerd Font"),
     font_size = 18,
+    -- colors = {
+    --     foreground = palette.text,
+    --     background = palette.base,
+    --     cursor_bg = palette.highlight_high,
+    --     cursor_border = palette.highlight_high,
+    --     cursor_fg = palette.text,
+    --     selection_bg = '#2a283e',
+    --     selection_fg = palette.text,
+    --     ansi = {
+    --         palette.overlay,
+    --         palette.love,
+    --         palette.pine,
+    --         palette.gold,
+    --         palette.foam,
+    --         palette.iris,
+    --         palette.rose,
+    --         palette.text,
+    --     },
+    --     brights = {
+    --         palette.muted,
+    --         palette.love,
+    --         palette.pine,
+    --         palette.gold,
+    --         palette.foam,
+    --         palette.iris,
+    --         palette.rose,
+    --         palette.text,
+    --     },
+    --     tab_bar = {
+    --         background = palette.base,
+    --         active_tab = active_tab,
+    --         inactive_tab = inactive_tab,
+    --         inactive_tab_hover = active_tab,
+    --         new_tab = inactive_tab,
+    --         new_tab_hover = active_tab,
+    --         inactive_tab_edge = palette.muted, -- (Fancy tab bar only)
+    --     },
+    -- },
     colors = {
-        foreground = palette.light1,
-        background = palette.dark0_hard,
-        cursor_bg = palette.light1,
-        cursor_border = palette.light1,
-        cursor_fg = palette.dark0_hard,
-        selection_bg = palette.light1,
-        selection_fg = palette.dark2,
-        ansi = {
-            palette.dark0_hard
-            palette.neutral_red
-            palette.neutral_green,
-            palette.neutral_yellow,
-            palette.neutral_blue,
-            palette.neutral_purple,
-            palette.neutral_orange,
-            palette.light4,
-        },
-        brights = {
-            palette.gray
-            palette.bright_red
-            palette.bright_green,
-            palette.bright_yellow,
-            palette.bright_blue,
-            palette.bright_purple,
-            palette.bright_orange,
-            palette.light1,
-        },
+        foreground = "#ebdbb2",
+        background = "#1d2021",
+        cursor_bg = "#ebdbb2",
+        cursor_border = "#ebdbb2",
+        cursor_fg = "#1d2021",
+        selection_bg = "#ebdbb2",
+        selection_fg = "#504945",
+        ansi = { "#1d2021", "#cc241d", "#98971a", "#d79921", "#458588", "#b16286", "#689d6a", "#a89984" },
+        brights = { "#928374", "#fb4934", "#b8bb26", "#fabc2f", "#83a598", "#d3849b", "#8ec07c", "#ebdbb2" },
     },
     enable_tab_bar = false,
+    -- window_decorations = "RESIZE",
     window_close_confirmation = "NeverPrompt",
     skip_close_confirmation_for_processes_named = { "bash", "zsh" },
     audible_bell = "Disabled",
     disable_default_key_bindings = true,
     keys = {
-        { key = "q", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentTab({ confirm = false }) },
+        { key = "q", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentTab { confirm = false } },
         { key = "n", mods = "CTRL|SHIFT", action = wezterm.action.SpawnWindow },
         { key = "c", mods = "CTRL|SHIFT", action = { CopyTo = "Clipboard" } },
         { key = "v", mods = "CTRL|SHIFT", action = { PasteFrom = "Clipboard" } },
@@ -56,12 +85,14 @@ config = {
         { key = "0", mods = "CTRL|SHIFT", action = wezterm.action.ResetFontSize },
         { key = "f", mods = "CTRL|SHIFT", action = wezterm.action.ToggleFullScreen },
     },
+    -- term = "wezterm",
     warn_about_missing_glyphs = false,
     hide_mouse_cursor_when_typing = false,
 }
 
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
-    config.default_domain = "WSL:Ubuntu"
+    config.default_domain = 'WSL:Ubuntu'
 end
 
 return config
+

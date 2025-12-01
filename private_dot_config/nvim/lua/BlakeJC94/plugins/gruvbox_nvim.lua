@@ -2,13 +2,6 @@ return function()
     local gruvbox = require("gruvbox")
     local palette = gruvbox.palette
 
-    for line in io.lines(os.getenv("HOME") .. "/.palette") do
-        local key, value = line:match("^(%w+)=\"(.-)\"")
-        if key and value then
-          palette[key] = value
-        end
-    end
-
     local color_midpoint = function(color1, color2, n_midpoints, point_idx)
         n_midpoints = n_midpoints or 1
         point_idx = point_idx or 1
@@ -96,3 +89,4 @@ return function()
     vim.highlight.on_yank({ timeout = 700 })
     vim.cmd("colorscheme gruvbox")
 end
+
