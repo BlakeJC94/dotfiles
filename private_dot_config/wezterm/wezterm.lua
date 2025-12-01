@@ -2,13 +2,11 @@ local wezterm = require("wezterm")
 
 local palette = {}
 for line in io.lines(os.getenv("HOME") .. "/.palette") do
-    local key, value = line:match('^([^=]+)="(.+)"$')
-    value = value:gsub("%s+$", "")
+    local key, value = line:match('^(%w+)="(.-)"')
     if key and value then
         palette[key] = value
     end
 end
-
 
 config = {
     enable_kitty_keyboard = false,
@@ -23,8 +21,8 @@ config = {
         selection_bg = palette.light1,
         selection_fg = palette.dark2,
         ansi = {
-            palette.dark0_hard,
-            palette.neutral_red,
+            palette.dark0_hard
+            palette.neutral_red
             palette.neutral_green,
             palette.neutral_yellow,
             palette.neutral_blue,
@@ -33,8 +31,8 @@ config = {
             palette.light4,
         },
         brights = {
-            palette.gray,
-            palette.bright_red,
+            palette.gray
+            palette.bright_red
             palette.bright_green,
             palette.bright_yellow,
             palette.bright_blue,
