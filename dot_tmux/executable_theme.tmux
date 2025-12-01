@@ -1,5 +1,5 @@
 # Source color palette (generated from key=value file)
-run-shell -b 'touch ~/.palette && sed "s/^\(.*\)=\(.*\)$/set -g @\1 \2/" ~/.palette > ~/.tmux/colors.tmux'
+run-shell -b 'touch ~/.palette && sed "s/^\([^#]*\)=\(.*\)$/set -g @\1 \2/" ~/.palette > ~/.tmux/colors.tmux'
 source-file ~/.tmux/colors.tmux
 
 # Window mode style (e.g. copy mode)

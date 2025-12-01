@@ -1,20 +1,47 @@
 local wezterm = require("wezterm")
 
-local palette = {}
+local p = {}
 for line in io.lines(os.getenv("HOME") .. "/.palette") do
-    local key, value = line:match('^([^=]+)="(.+)"$')
-    value = value:gsub("%s+$", "")
-    if key and value then
-        palette[key] = value
+    -- ignore empty lines and comment lines
+    if not line:match("^%s*#") and line:match("%S") then
+        -- match: key="value"
+        local key, value = line:match('^%s*([%w_]+)%s*=%s*"(#%x+)"')
+        if key and value then
+            p[key] = value
+        end
     end
 end
-
 
 config = {
     enable_kitty_keyboard = false,
     font = wezterm.font("JetBrainsMono Nerd Font"),
     font_size = 18,
-    color_scheme = 'Gruvbox dark, hard (base16)',
+    -- color_scheme = "Gruvbox dark, hard (base16)",
+    colors = {
+        foreground = p.base05,
+        background = p.base00,
+        cursor_bg = p.base05,
+        ansi = {
+            p.base00,
+            p.base08,
+            p.base0B,
+            p.base0A,
+            p.base0D,
+            p.base0E,
+            p.base0C,
+            p.base05,
+        },
+        brights = {
+            p.base03,
+            p.base08,
+            p.base0B,
+            p.base0A,
+            p.base0D,
+            p.base0E,
+            p.base0C,
+            p.base07,
+        },
+    },
     -- colors = {
     --     foreground = palette.light1,
     --     background = palette.dark0_hard,
