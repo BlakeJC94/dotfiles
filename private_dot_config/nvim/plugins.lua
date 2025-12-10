@@ -115,16 +115,17 @@ config.set_plugins({
         keys = {
             { "]h", ":silent Gitsigns next_hunk<CR>" },
             { "[h", ":silent Gitsigns prev_hunk<CR>" },
-            { "<Leader>hp", ":Gitsigns preview_hunk<CR>" },
-            { "<Leader>hh", ":Gitsigns toggle_deleted<CR>" },
+            { "<Leader>gp", ":Gitsigns preview_hunk<CR>" },
+            { "<Leader>gh", ":Gitsigns toggle_deleted<CR>" },
             {
-                "<Leader>hb",
+                "<Leader>gb",
                 function()
                     require("gitsigns").blame_line({ full = true })
                 end,
             },
-            { "<Leader>hf", ":diffget //2<CR>" }, -- select left changes
-            { "<Leader>hj", ":diffget //3<CR>" }, -- select right changes
+            { "<Leader>gB", ":Gitsigns blame<CR>" },
+            { "<Leader>gf", ":diffget //2<CR>" }, -- select left changes
+            { "<Leader>gj", ":diffget //3<CR>" }, -- select right changes
         },
     },
     {
@@ -217,6 +218,7 @@ config.set_plugins({
     { "tpope/vim-commentary" },
     { "tpope/vim-sleuth" },
     { "tpope/vim-rhubarb" },
+    { "tpope/vim-vinegar" },
     { "BlakeJC94/vim-convict" },
     { "brenoprata10/nvim-highlight-colors" },
 })

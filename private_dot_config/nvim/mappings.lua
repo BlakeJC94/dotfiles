@@ -1,5 +1,6 @@
 config = require("BlakeJC94")
 
+-- TODO Harpoon-lite (leaderkeys and global marks)
 config.set_mappings(
     {
         -- Better jumplist for large line steps (and step through visual lines with j/k)
@@ -34,6 +35,8 @@ config.set_mappings(
         { "<C-s>", "i<C-g>u<Esc>[s1z=`]", remap = false },
         -- Stop accidentally opening help in insert mode
         { "<F1>", "", mode = "i" },
+        -- Terminal mode
+        { "<C-q>", "<C-\\><C-n>", mode="t" },
         -- Use unused arrow keys
         { "<Left>", "[", remap = true },
         { "<Right>", "]", remap = true },

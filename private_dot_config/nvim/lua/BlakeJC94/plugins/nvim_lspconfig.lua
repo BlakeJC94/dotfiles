@@ -1,3 +1,5 @@
+-- TODO Use ruff check --fix in the format hook
+-- TODO Add wezterm namespace to luals
 return function()
     vim.diagnostic.config({
         virtual_text = false,
@@ -42,30 +44,30 @@ return function()
 
     vim.lsp.enable("stylua")
 
-    vim.lsp.config('pylsp', {
+    vim.lsp.config("pylsp", {
         settings = {
             pylsp = {
                 plugins = {
-                    pyflakes = { enabled = false },    -- often loud and redundant
-                    pylint = { enabled = false },      -- extremely noisy; disable unless needed
+                    pyflakes = { enabled = false }, -- often loud and redundant
+                    pylint = { enabled = false }, -- extremely noisy; disable unless needed
                     pycodestyle = { enabled = false }, -- style noise
-                    mccabe = { enabled = false },      -- complexity warnings
+                    mccabe = { enabled = false }, -- complexity warnings
                     yapf = { enabled = false },
                     pylsp_mypy = { enabled = false },
-                }
-            }
-        }
+                },
+            },
+        },
     })
     vim.lsp.enable("pylsp")
 
-    vim.lsp.config('ruff', {
+    vim.lsp.config("ruff", {
         init_options = {
             settings = {
                 showSyntaxErrors = false,
                 organizeImports = true,
                 fixAll = true,
-            }
-        }
+            },
+        },
     })
     vim.lsp.enable("ruff")
 

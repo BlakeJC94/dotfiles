@@ -8,8 +8,7 @@ function! AddChangesToDotfiles()
   let diff_result = systemlist('chezmoi diff ' . shellescape(current_file))
 
   if !empty(managed_result) && !empty(diff_result)
-    call system('chezmoi add ' . shellescape(current_file))
-    echo 'Added to dotfiles'
+    call system('chezmoi re-add')
   endif
 endfunction
 
