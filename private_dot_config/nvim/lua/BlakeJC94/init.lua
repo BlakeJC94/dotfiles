@@ -9,7 +9,7 @@ local disable_netrw = function()
 end
 
 M.set_options = function(options)
-    disable_netrw()
+    -- disable_netrw()
     for k, v in pairs(options) do
         vim.opt[k] = v
     end

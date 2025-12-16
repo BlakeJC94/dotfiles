@@ -59,7 +59,7 @@ alias getclip="xclip -selection c -o"
 brew() {
   case "$1" in
     update)
-      command bundle install --file="${HOME}/Brewfile" || true
+      command bundle install --file="${HOME}/.Brewfile" || true
       ;;
   esac
 
@@ -67,8 +67,7 @@ brew() {
 
   case "$1" in
     install|uninstall|remove)
-      # update Brewfile in current directory (or change path)
-      command brew bundle dump
+      command brew bundle dump --file="${HOME}/.Brewfile"
       ;;
   esac
 }

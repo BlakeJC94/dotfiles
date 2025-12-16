@@ -1,4 +1,3 @@
--- TODO Use ruff check --fix in the format hook
 -- TODO Add wezterm namespace to luals
 return function()
     vim.diagnostic.config({
@@ -72,4 +71,22 @@ return function()
     vim.lsp.enable("ruff")
 
     vim.lsp.enable("sqruff")
+
+    vim.lsp.enable('rumdl')
+
+    vim.lsp.enable('marksman')
+
+    vim.lsp.enable('harper_ls')
+
+    vim.lsp.enable('jqls')
+
+    vim.lsp.enable('air')
+
+    vim.lsp.enable('taplo')
+
+    vim.lsp.enable('terraformls')
+
+    vim.lsp.enable('yamlls')
+
+    vim.lsp.enable('bashls')
 end

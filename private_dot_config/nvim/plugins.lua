@@ -19,6 +19,18 @@ config.set_plugins({
                     vim.lsp.buf.format({ timeout = 1000 })
                 end,
             },
+            {
+                "<Leader>D",
+                function()
+                    vim.diagnostic.setloclist()
+                end,
+            },
+            {
+                "<Leader>d",
+                function()
+                    vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+                end,
+            },
         },
     },
     {
@@ -128,6 +140,7 @@ config.set_plugins({
             { "<Leader>gj", ":diffget //3<CR>" }, -- select right changes
         },
     },
+    { "akinsho/git-conflict.nvim", opts = {} },
     {
         "tpope/vim-fugitive",
         lazy = false,
@@ -186,9 +199,9 @@ config.set_plugins({
             vim.api.nvim_create_user_command("Ls", function(opts)
                 -- 1. Build the shell command, same as before.
                 local shell_cmd = string.format(
-                  "(ls -p %s | grep '/$' || true; ls -p %s | grep -v '/$' || true)",
-                  opts.args,
-                  opts.args
+                    "(ls -p %s | grep '/$' || true; ls -p %s | grep -v '/$' || true)",
+                    opts.args,
+                    opts.args
                 )
 
                 -- 2. Execute the command and capture its output into a variable.
@@ -198,10 +211,10 @@ config.set_plugins({
                 -- 3. Print the captured output to the message area.
                 --    We use vim.trim() to remove any trailing newline from the shell
                 --    output, which prevents an extra blank line from appearing.
-                if output ~= nil and not output:match('^%s*$') then
-                  print(vim.trim(output))
+                if output ~= nil and not output:match("^%s*$") then
+                    print(vim.trim(output))
                 else
-                  print("[Empty directory]")
+                    print("[Empty directory]")
                 end
             end, {
                 nargs = "*", -- Corresponds to -nargs=*
@@ -212,10 +225,11 @@ config.set_plugins({
             })
         end,
     },
+    { "stevearc/oil.nvim", opts = {}, lazy = false },
     { "tpope/vim-rsi" },
     { "tpope/vim-repeat" },
     { "tpope/vim-surround" },
-    { "tpope/vim-commentary" },
+    -- { "tpope/vim-commentary" },
     { "tpope/vim-sleuth" },
     { "tpope/vim-rhubarb" },
     { "tpope/vim-vinegar" },

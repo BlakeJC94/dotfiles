@@ -1,6 +1,5 @@
-config = require("BlakeJC94")
+local config = require("BlakeJC94")
 
--- TODO Harpoon-lite (leaderkeys and global marks)
 config.set_mappings(
     {
         -- Better jumplist for large line steps (and step through visual lines with j/k)
@@ -10,7 +9,7 @@ config.set_mappings(
         { "gV", "`[v`]" },
         -- gF: create new file at filename over cursor
         { "gF", "<cmd>e <c-r><c-f><CR>" },
-        -- Make {/} don't change the jumplist
+        -- Make {/} don't change the jump list
         { "{", ":<C-u>keepjumps norm! {<CR>" },
         { "}", ":<C-u>keepjumps norm! }<CR>" },
         -- Prevent x and s from overriding what's in the clipboard
@@ -31,12 +30,16 @@ config.set_mappings(
         { "p", '"_dp', mode = "v" },
         { "P", '"_dP', mode = "v" },
         -- C-s : Quickly guess correct spelling errors (undoable)
-        { "<C-s>", "<C-g>u<Esc>[s1z=`]a<C-g>u", mode = "i", remap = false },
+        { "<C-s>", "<C-g>u<Esc>[s1z=`]i<C-g>u", mode = "i", remap = false },
         { "<C-s>", "i<C-g>u<Esc>[s1z=`]", remap = false },
+        -- C-x : Execute
+        { "<C-x><C-x>", "<C-g>u<Esc>:.!sh<CR>`]<C-g>u", mode = "i", remap = false },
+        { "<C-x>", "<C-g>u:.!sh<CR>`]", remap = false },
+        { "<C-x>", "<C-g>u:.!sh<CR>`]", mode = "x", remap = false },
         -- Stop accidentally opening help in insert mode
         { "<F1>", "", mode = "i" },
         -- Terminal mode
-        { "<C-q>", "<C-\\><C-n>", mode="t" },
+        { "<C-z>", "<C-\\><C-n>", mode="t" },
         -- Use unused arrow keys
         { "<Left>", "[", remap = true },
         { "<Right>", "]", remap = true },
@@ -60,11 +63,20 @@ config.set_mappings(
         { "<Leader>p", ":tabnext<CR>" },
         { "<Leader>N", ":+tabmove<CR>" },
         { "<Leader>P", ":-tabmove<CR>" },
+        -- Align selection to table
+        { "<Leader>a", ":!column -to' '<CR>", mode="x" },
+        -- Select all
+        { "<Leader>e", "ggVG" },
+        -- Change kwarg to field
+        { '<Leader>i', ':s/^\\(\\s*\\)\\(\\S.\\+\\)\\s*=\\(.*\\)$/\\1"\\2": \\3<CR>' },
+        { '<Leader>o', ':s/^\\(\\s*\\)["\']\\(\\S.\\+\\)["\']\\s*:\\s*\\(.*\\)$/\\1\\2=\\3<CR>' },
         -- Leader maps
         { "<Leader><Tab>", "<C-^>" }, -- Last file
+        { "<Leader>O", ":%bd|e#|bd# <CR>" },  -- Clear buffers
         { "<Leader>q", config.functions.toggle_quickfix_list },
-        { "<Leader>l", config.functions.toggle_local_list },
+        { "<Leader>Q", config.functions.toggle_local_list },
         { "<Leader>;", "<cmd>edit $MYVIMRC | lcd %:p:h<CR>" },
+        { "<Leader>:", "<cmd>source $MYVIMRC<CR>" },
         { "<Leader>.", "<cmd>lcd %:p:h | echo 'Changed local dir to ' . getcwd()<CR>" },
         { "<Leader>,", "<cmd>cd %:p:h | echo 'Changed dir to ' . getcwd()<CR>" },
         { "<Leader>/", "<cmd>cd `git rev-parse --show-toplevel` \\| echo 'Changed dir to project root: ' . getcwd()<CR>" },

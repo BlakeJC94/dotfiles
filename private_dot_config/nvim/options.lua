@@ -38,7 +38,7 @@ local options = {
     guicursor = "", -- Cursor
     errorformat = vim.o.errorformat .. "%f", -- append %f
     -- LINE DISPLAY
-    scrolloff = 999, -- N lines to keep visible above/below cursor
+    scrolloff = 8, -- N lines to keep visible above/below cursor
     sidescrolloff = 8, -- N columns to keep visible left/right of cursor
     textwidth = 80, -- Margin for text input
     showmatch = true, -- Highlight matching brackets
@@ -53,7 +53,7 @@ local options = {
     fillchars = { fold = " ", eob = " " }, -- Replace dots with spaces in fold head
     -- LEFT MARGIN
     number = true, -- Show line numbers
-    relativenumber = true, -- Show rel/abs line numbers
+    relativenumber = false, -- Show rel/abs line numbers
     signcolumn = "number", -- Set sign column
     -- BOTTOM MARGIN
     laststatus = 2, -- Show status line mode
