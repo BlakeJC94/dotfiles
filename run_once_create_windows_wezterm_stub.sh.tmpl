@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only run inside WSL
+if [[ -z "${WSL_DISTRO_NAME:-}" ]]; then
+  exit 0
+fi
+
+WIN_HOME="/mnt/c/Users/{{ .chezmoi.username }}"
+TARGET="$WIN_HOME/.wezterm.lua"
+
+[[ -d "$WIN_HOME" ]] || exit 0
+[[ -f "$TARGET" ]] && exit 0
+
+cat > "$TARGET" <<'EOF'
+return dofile([[\\wsl$\Ubuntu\home\{{ .chezmoi.username }}\.config\wezterm\wezterm.lua]])
+EOF
+
