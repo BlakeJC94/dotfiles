@@ -64,7 +64,7 @@ config.set_mappings(
         { "<Leader>N", ":+tabmove<CR>" },
         { "<Leader>P", ":-tabmove<CR>" },
         -- Align selection to table
-        { "<Leader>a", ":!column -to' '<CR>", mode="x" },
+        { "<Leader>s", ":!column -to' '<CR>", mode="x" },
         -- Select all
         { "<Leader>e", "ggVG" },
         -- Change kwarg to field
