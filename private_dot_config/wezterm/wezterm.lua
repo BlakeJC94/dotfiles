@@ -1,16 +1,10 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 
-local appearance = require("appearance")
-
 local config = wezterm.config_builder()
 
 -- Color options
-if appearance.is_dark() then
-    config.color_scheme = "Gruvbox dark, hard (base16)"
-else
-    config.color_scheme = "Gruvbox light, hard (base16)"
-end
+config.color_scheme = "Gruvbox dark, hard (base16)"
 
 -- Font options
 config.font = wezterm.font("JetBrainsMono Nerd Font")

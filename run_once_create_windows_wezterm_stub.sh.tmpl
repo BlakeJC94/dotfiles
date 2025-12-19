@@ -7,12 +7,10 @@ if [[ -z "${WSL_DISTRO_NAME:-}" ]]; then
 fi
 
 WIN_HOME="/mnt/c/Users/{{ .chezmoi.username }}"
-TARGET="$WIN_HOME/.wezterm.lua"
+DIR="$WIN_HOME/.config/wezterm"
+TARGET="$DIR/wezterm.lua"
 
 [[ -d "$WIN_HOME" ]] || exit 0
-[[ -f "$TARGET" ]] && exit 0
 
-cat > "$TARGET" <<'EOF'
-return dofile([[\\wsl$\Ubuntu\home\{{ .chezmoi.username }}\.config\wezterm\wezterm.lua]])
-EOF
-
+mkdir -p $DIR
+cp $HOME/.config/wezterm/wezterm.lua $TARGET
