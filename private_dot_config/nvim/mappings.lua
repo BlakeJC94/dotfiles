@@ -33,9 +33,8 @@ config.set_mappings(
         { "<C-s>", "<C-g>u<Esc>[s1z=`]i<C-g>u", mode = "i", remap = false },
         { "<C-s>", "i<C-g>u<Esc>[s1z=`]", remap = false },
         -- C-x : Execute
-        { "<C-x><C-x>", "<C-g>u<Esc>:.!sh<CR>`]<C-g>u", mode = "i", remap = false },
-        { "<C-x>", "<C-g>u:.!sh<CR>`]", remap = false },
-        { "<C-x>", "<C-g>u:.!sh<CR>`]", mode = "x", remap = false },
+        { "<Leader>x", "<C-g>u:.!sh<CR>`]", remap = false },
+        { "<Leader>x", "<C-g>u:!sh<CR>`]", mode = "x", remap = false },
         -- Stop accidentally opening help in insert mode
         { "<F1>", "", mode = "i" },
         -- Terminal mode

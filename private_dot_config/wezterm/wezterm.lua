@@ -1,16 +1,22 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 
-local appearance = require("appearance")
-
 local config = wezterm.config_builder()
 
 -- Color options
-if appearance.is_dark() then
+local is_dark = function()
+    if wezterm.gui then
+        return wezterm.gui.get_appearance():find("Dark")
+    end
+    return true
+end
+
+if is_dark() then
     config.color_scheme = "Gruvbox dark, hard (base16)"
 else
     config.color_scheme = "Gruvbox light, hard (base16)"
 end
+-- local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
 
 -- Font options
 config.font = wezterm.font("JetBrainsMono Nerd Font")
@@ -23,7 +29,20 @@ config.window_frame = {
     -- serif font here instead of monospace for a nicer look?
     font = wezterm.font({ family = "JetBrainsMono Nerd Font", weight = "Medium" }),
     font_size = 16,
+    -- The overall background color of the tab bar when
+    -- the window is focused
+    active_titlebar_bg = "#333333",
+    -- The overall background color of the tab bar when
+    -- the window is not focused
+    inactive_titlebar_bg = "#333333",
 }
+config.colors = {
+    tab_bar = {
+        -- The color of the inactive tab bar edge/divider
+        inactive_tab_edge = "#333333",
+    },
+}
+
 config.window_close_confirmation = "NeverPrompt"
 config.hide_mouse_cursor_when_typing = false
 
@@ -33,7 +52,7 @@ config.enable_tab_bar = true
 wezterm.on("update-status", function(window)
     -- Grab the utf8 character for the "powerline" left facing
     -- solid arrow.
-    local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
+    local SOLID_LEFT_ARROW = wezterm.nerdfonts.pl_right_hard_divider
 
     -- Grab the current window's configuration, and from it the
     -- palette (this is the combination of your chosen colour scheme
@@ -54,7 +73,8 @@ wezterm.on("update-status", function(window)
     }))
 end)
 
-wezterm.on("format-tab-title", function(tab)
+-- This function returns the suggested title for a tab.
+local tab_title = function(tab)
     local cwd = tab.active_pane.current_working_dir
     if not cwd then
         return tab.tab_title
@@ -62,7 +82,6 @@ wezterm.on("format-tab-title", function(tab)
 
     local home = os.getenv("HOME") or ""
     local path = cwd.file_path or ""
-    local index = tab.tab_index + 1
 
     -- Replace home with ~
     if home ~= "" and path:sub(1, #home) == home then
@@ -80,7 +99,26 @@ wezterm.on("format-tab-title", function(tab)
     local start = math.max(1, count - 2)
     local short = table.concat({ table.unpack(parts, start, count) }, "/")
 
-    return index .. " " .. short
+    return short
+end
+
+wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+    local index = tab.tab_index + 1
+    local short = tab_title(tab)
+    local title = " " .. index .. ": " .. short .. " "
+
+    local color_scheme = config.resolved_palette
+    local bg = color_scheme.background
+    local fg = color_scheme.foreground
+
+    if tab.is_active then
+        return {
+            { Background = { Color = bg } },
+            { Foreground = { Color = fg } },
+            { Text = title },
+        }
+    end
+    return title
 end)
 
 -- Keybindings
@@ -154,6 +192,14 @@ config.keys = {
         key = "Q",
         mods = "LEADER",
         action = act.CloseCurrentTab({ confirm = true }),
+    },
+    {
+        key = "u",
+        mods = "SHIFT|CTRL",
+        action = wezterm.action.CharSelect({
+            copy_on_select = true,
+            copy_to = "ClipboardAndPrimarySelection",
+        }),
     },
     --
     {
@@ -250,6 +296,5 @@ config.audible_bell = "Disabled"
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
     config.default_domain = "WSL:Ubuntu"
 end
-
 
 return config
