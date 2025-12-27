@@ -1,0 +1,2 @@
+options(radian.color_scheme = "gruvbox-dark")
+options(radian.auto_match = FALSE)
