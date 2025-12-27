@@ -67,7 +67,7 @@ brew() {
 
   case "$1" in
     install|uninstall|remove)
-      command brew bundle dump --file="${HOME}/.Brewfile"
+      command brew bundle dump --force --file="${HOME}/.Brewfile"
       ;;
   esac
 }
