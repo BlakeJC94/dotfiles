@@ -7,3 +7,4 @@ if (!file.exists(user_lib_path)){
 
 .libPaths(user_lib_path)
 
+options(repos=c(CRAN="https://cran.r-project.org"))
