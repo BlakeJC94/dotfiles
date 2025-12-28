@@ -235,8 +235,4 @@ config.set_plugins({
     { "tpope/vim-vinegar" },
     { "BlakeJC94/vim-convict" },
     { "brenoprata10/nvim-highlight-colors" },
-    {
-        "mozanunal/sllm.nvim",
-        opts = {},
-    },
 })
