@@ -287,12 +287,31 @@ config.keys = {
         mods = "LEADER",
         action = act.Search({ CaseInSensitiveString = "" }),
     },
+    {
+        key = "0",
+        mods = "LEADER",
+        action = act.ActivateTab(0),
+    },
+    {
+        key = "Tab",
+        mods = "LEADER",
+        action = act.ActivateLastTab,
+    },
 }
+
+for i = 1, 9 do
+    table.insert(config.keys, {
+        key = tostring(i),
+        mods = "LEADER",
+        action = act.ActivateTab(i - 1),
+    })
+end
 
 -- Process options
 config.skip_close_confirmation_for_processes_named = { "bash", "zsh" }
 config.audible_bell = "Disabled"
--- Launch WSL by default when running Wezzterm on windows
+
+-- Launch WSL by default when running Wezterm on windows
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
     config.default_domain = "WSL:Ubuntu"
 end

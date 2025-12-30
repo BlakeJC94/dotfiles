@@ -1,4 +1,4 @@
-let g:field_notes_dir = '~/Dropbox/field-notes'
+let g:field_notes_dir = '~/Workspace/field-notes'
 let g:field_notes_vert = v:true
 let g:blog_content_dir = '~/Workspace/repos/blog/content/All posts'
 
@@ -31,16 +31,14 @@ function! s:OpenNotesDir(bang)
     execute 'silent lcd' expand("%:p:h")
 endfunction
 
-command! -nargs=1 -bang Journal exec '<mods> Note<bang> ' . strftime("%Y-%m-%d %a", localtime() + (<args> * 86400))
-command! -nargs=1 -bang Log exec '<mods> Note<bang> ' . strftime("%Y-%W: %b %d", localtime() + ((<args> * 7 + (strftime('%w') - 1 + 7) % 7) * 86400))
-
-command! -bang Today exec '<mods> Journal<bang> 0'
-command! -bang Tomorrow exec '<mods> Journal<bang> 1'
-command! -bang Yesterday exec '<mods> Journal<bang> -1'
-command! -bang NextMonday exec '<mods> Journal<bang> ' . ((8 - strftime('%w') + 0) % 7)
-command! -bang LastMonday exec '<mods> Journal<bang> ' . (- ((strftime('%w') - 1 + 7) % 7))
-command! -bang NextFriday exec '<mods> Journal<bang> ' . ((5 - strftime('%w') + 7) % 7)
-command! -bang LastFriday exec '<mods> Journal<bang> ' . (- ((strftime('%w') - 5 + 7) % 7))
+command! -nargs=1 -bang Log
+      \ exec '<mods> Note<bang> ' .
+      \ strftime(
+      \   "%Y-%W: %b %d",
+      \   localtime()
+      \   + (<args> * 7 * 86400)
+      \   - ((strftime("%u", localtime()) - 1) * 86400)
+      \ )
 
 command! -bang ThisWeek exec '<mods> Log<bang> 0'
 command! -bang NextWeek exec '<mods> Log<bang> 1'
@@ -57,8 +55,6 @@ command! -nargs=1 Link exec "let pos = getpos('.') | norm! :s/" . escape(expand(
 " Notes
 nnoremap <Leader>n :Note<CR>
 nnoremap <Leader>N :split \| edit ~/Workspace/repos/field-notes/notes \| lcd %:p:h<CR>
-
-command! -nargs=* -bang CatBetweenDates call field_notes#CatFilesBetweenDates(<bang>0, <f-args>)
 
 
 command! BlogHeader call field_notes#BlogHeader()
