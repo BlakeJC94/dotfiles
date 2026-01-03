@@ -77,6 +77,7 @@ vim.keymap.set("i", "<CR>", function()
     return "<CR>"
 end, { expr = true })
 
+
 function CsvToMarkdown()
     -- Get visual selection
     local start_pos = vim.fn.getpos("'<")
