@@ -2,8 +2,15 @@ let g:field_notes_dir = '~/Workspace/field-notes'
 let g:field_notes_vert = v:true
 let g:blog_content_dir = '~/Workspace/repos/blog/content/All posts'
 
-command! -nargs=* -bang Note call s:OpenNote(<bang>0, <q-args>)
+command! -nargs=* -bang -complete=customlist,s:CompleteNotes Note call s:OpenNote(<bang>0, <q-args>)
 command! -nargs=* -bang Notes call s:OpenNotesDir(<bang>0)
+
+function! s:CompleteNotes(ArgLead, CmdLine, CursorPos)
+    let l:notes_dir = expand(g:field_notes_dir)
+    let l:files = glob(l:notes_dir . '/*', 0, 1)
+    let l:basenames = map(l:files, 'fnamemodify(v:val, ":t:r")')
+    return filter(l:basenames, 'v:val =~ "^" . escape(a:ArgLead, ".*[]^$\\")')
+endfunction
 
 function! s:OpenNote(bang, args)
     let l:split_cmd = a:bang ? 'edit' : 'split'
@@ -28,17 +35,23 @@ function! s:OpenNotesDir(bang)
 
     let l:cmd = 'silent ' . l:vert_prefix . ' ' . l:split_cmd . ' ' . fnameescape(g:field_notes_dir)
     execute l:cmd
-    execute 'silent lcd' expand("%:p:h")
+    execute 'silent lcd ' . fnameescape(g:field_notes_dir)
 endfunction
 
 command! -nargs=1 -bang Log
-      \ exec '<mods> Note<bang> ' .
-      \ strftime(
-      \   "%Y-%W: %b %d",
-      \   localtime()
-      \   + (<args> * 7 * 86400)
-      \   - ((strftime("%u", localtime()) - 1) * 86400)
-      \ )
+      \ call s:OpenLogNote(<bang>0, <args>)
+
+function! s:OpenLogNote(bang, week_offset)
+    let l:now = localtime()
+    let l:day_of_week = str2nr(strftime("%u", l:now))
+    let l:days_to_monday = (l:day_of_week - 1) * 86400
+    let l:week_start = l:now - l:days_to_monday + (a:week_offset * 7 * 86400)
+    let l:log_name = strftime("%Y-%W: %b %d", l:week_start)
+
+    let l:mods = a:bang ? '' : '<mods>'
+    let l:bang_suffix = a:bang ? '!' : ''
+    execute l:mods . ' Note' . l:bang_suffix . ' ' . fnameescape(l:log_name)
+endfunction
 
 command! -bang ThisWeek exec '<mods> Log<bang> 0'
 command! -bang NextWeek exec '<mods> Log<bang> 1'
