@@ -2,14 +2,14 @@ config = require("BlakeJC94")
 
 config.set_plugins({
     {
-        "nvim-treesitter/nvim-treesitter",
+        "https://github.com/nvim-treesitter/nvim-treesitter",
         lazy = false,
         branch = "main",
         build = ":TSUpdate",
         config = config.plugins.nvim_treesitter,
     },
     {
-        "neovim/nvim-lspconfig",
+        "https://github.com/neovim/nvim-lspconfig",
         lazy = false,
         config = config.plugins.nvim_lspconfig,
         keys = {
@@ -34,7 +34,7 @@ config.set_plugins({
         },
     },
     {
-        "hrsh7th/nvim-cmp",
+        "https://github.com/hrsh7th/nvim-cmp",
         dependencies = {
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-cmdline",
@@ -47,7 +47,7 @@ config.set_plugins({
         config = config.plugins.nvim_cmp,
     },
     {
-        "ibhagwan/fzf-lua",
+        "https://github.com/ibhagwan/fzf-lua",
         opts = {
             winopts = {
                 border = "none",
@@ -99,11 +99,11 @@ config.set_plugins({
         },
     },
     {
-        "ellisonleao/gruvbox.nvim",
+        "https://github.com/ellisonleao/gruvbox.nvim",
         config = config.plugins.gruvbox_nvim,
     },
     {
-        "chrisgrieser/nvim-various-textobjs",
+        "https://github.com/chrisgrieser/nvim-various-textobjs",
         opts = { keymaps = { useDefaults = false } },
         keys = {
             { "av", '<cmd>lua require("various-textobjs").subword("outer")<CR>', mode = { "o", "x" } },
@@ -111,7 +111,7 @@ config.set_plugins({
         },
     },
     {
-        "lewis6991/gitsigns.nvim",
+        "https://github.com/lewis6991/gitsigns.nvim",
         lazy = false,
         opts = {
             signcolumn = false,
@@ -140,9 +140,9 @@ config.set_plugins({
             { "<Leader>gj", ":diffget //3<CR>" }, -- select right changes
         },
     },
-    { "akinsho/git-conflict.nvim", opts = {} },
+    { "https://github.com/akinsho/git-conflict.nvim", opts = {} },
     {
-        "tpope/vim-fugitive",
+        "https://github.com/tpope/vim-fugitive",
         lazy = false,
         keys = {
             { "<Leader>c", "<cmd>lua toggle_gstatus()<CR>" },
@@ -151,7 +151,7 @@ config.set_plugins({
         config = config.plugins.vim_fugitive,
     },
     {
-        "tpope/vim-unimpaired",
+        "https://github.com/tpope/vim-unimpaired",
         lazy = false,
         keys = {
             {
@@ -189,7 +189,7 @@ config.set_plugins({
         },
     },
     {
-        "tpope/vim-eunuch",
+        "https://github.com/tpope/vim-eunuch",
         lazy = false,
         config = function()
             vim.cmd([[cnoreabbrev ls Ls]])
@@ -225,18 +225,14 @@ config.set_plugins({
             })
         end,
     },
-    { "stevearc/oil.nvim", opts = {}, lazy = false },
-    { "tpope/vim-rsi" },
-    { "tpope/vim-repeat" },
-    { "tpope/vim-surround" },
-    -- { "tpope/vim-commentary" },
-    { "tpope/vim-sleuth" },
-    { "tpope/vim-rhubarb" },
-    { "tpope/vim-vinegar" },
-    { "BlakeJC94/vim-convict" },
-    { "brenoprata10/nvim-highlight-colors" },
-    -- {
-    --     "tadmccorkle/markdown.nvim",
-    --     opts = {},
-    -- },
+    { "https://github.com/stevearc/oil.nvim", opts = {}, lazy = false },
+    { "https://github.com/tpope/vim-rsi" },
+    { "https://github.com/tpope/vim-repeat" },
+    { "https://github.com/tpope/vim-surround" },
+    { "https://github.com/tpope/vim-sleuth" },
+    { "https://github.com/tpope/vim-rhubarb" },
+    { "https://github.com/tpope/vim-vinegar" },
+    { "https://github.com/BlakeJC94/vim-convict" },
+    { "https://github.com/brenoprata10/nvim-highlight-colors" },
+    { "https://github.com/Mofiqul/trld.nvim" },
 })
