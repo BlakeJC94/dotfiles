@@ -1,7 +1,14 @@
 local M = {}
 
+-- Store the marked terminal info
+local marked_terminal = {
+    buf = nil,
+    job_id = nil,
+    config = nil,
+}
+
 local defaults = {
-    file = nil, -- file to open
+    file = nil,       -- file to open
     cmd = vim.o.shell, -- terminal command to run
     cwd = vim.fn.getcwd, -- cwd of the command
     id = function()
@@ -9,12 +16,12 @@ local defaults = {
     end, -- float identifier
     start_in_insert = true,
     focus = true,
-    on_open = nil, -- callback(term, buf) when buffer is created
-    on_exit = nil, -- callback(term, buf) when buffer is destroyed
+    on_open = nil,    -- callback(term, buf) when buffer is created
+    on_exit = nil,    -- callback(term, buf) when buffer is destroyed
     window = {
-        row = nil, -- supports percentages (<=1) and absolute sizes (>1)
-        col = nil, -- supports percentages (<=1) and absolute sizes (>1)
-        width = 0.8, -- supports percentages (<=1) and absolute sizes (>1)
+        row = nil,    -- supports percentages (<=1) and absolute sizes (>1)
+        col = nil,    -- supports percentages (<=1) and absolute sizes (>1)
+        width = 0.8,  -- supports percentages (<=1) and absolute sizes (>1)
         height = 0.8, -- supports percentages (<=1) and absolute sizes (>1)
         h_align = "center", -- alignment helper if no col, "left", "center", "right"
         v_align = "center", -- alignment helper if no row, "top", "center", "bottom"
@@ -40,6 +47,16 @@ local defaults = {
         sidescrolloff = 0,
     },
 }
+
+local config = defaults
+
+M.set_config = function(opts)
+    config = vim.tbl_deep_extend("force", config, opts or {})
+end
+
+M.get_config = function()
+    return config
+end
 
 local function eval_opts(opts)
     if type(opts) == "function" then
@@ -126,6 +143,150 @@ local function create_win(config, buf)
     return win
 end
 
+-- Function to check if the terminal is running IPython
+local function is_ipython(buf)
+    if not buf or not vim.api.nvim_buf_is_valid(buf) then
+        return false
+    end
+
+    -- Get the terminal buffer content to check for IPython prompt
+    local lines = vim.api.nvim_buf_get_lines(buf, -10, -1, false)
+    for _, line in ipairs(lines) do
+        if string.match(line, "In %[%d+%]:") or string.match(line, "IPython") then
+            return true
+        end
+    end
+    return false
+end
+
+-- Function to send text to the marked terminal
+local function send_to_terminal(text, force_ipython_mode)
+    if not marked_terminal.buf or not vim.api.nvim_buf_is_valid(marked_terminal.buf) then
+        vim.notify("No marked terminal found. Toggle a terminal first.", vim.log.levels.WARN)
+        return
+    end
+
+    if not marked_terminal.job_id then
+        vim.notify("Terminal job ID not found.", vim.log.levels.ERROR)
+        return
+    end
+
+    -- Expand % symbols to current file path
+    local current_file = vim.api.nvim_buf_get_name(0)
+    if current_file and current_file ~= "" then
+        text = string.gsub(text, "%%", vim.fn.shellescape(current_file))
+    end
+
+    -- Auto-detect IPython mode or use forced mode
+    local use_ipython_mode = force_ipython_mode or is_ipython(marked_terminal.buf)
+
+    if use_ipython_mode then
+        -- Use IPython's %cpaste mode for multi-line code
+        vim.api.nvim_chan_send(marked_terminal.job_id, "%cpaste -q\n")
+        -- Wait a moment for cpaste to be ready
+        vim.defer_fn(function()
+            vim.api.nvim_chan_send(marked_terminal.job_id, text .. "\n")
+            vim.api.nvim_chan_send(marked_terminal.job_id, "\x04") -- Ctrl-D to end paste mode
+        end, 50)
+    else
+        -- Send the text to the terminal normally
+        vim.api.nvim_chan_send(marked_terminal.job_id, text .. "\n")
+    end
+end
+
+-- Function to send current line to terminal
+local function send_current_line(force_ipython_mode)
+    local line = vim.api.nvim_get_current_line()
+    send_to_terminal(line, force_ipython_mode)
+end
+
+-- Function to send visual selection to terminal
+local function send_visual_selection(force_ipython_mode)
+    -- Get the visual selection
+    local start_pos = vim.fn.getpos("'<")
+    local end_pos = vim.fn.getpos("'>")
+
+    local lines = vim.api.nvim_buf_get_lines(0, start_pos[2] - 1, end_pos[2], false)
+
+    if #lines == 0 then
+        return
+    end
+
+    -- If single line, handle column selection
+    if #lines == 1 then
+        local line = lines[1]
+        local start_col = start_pos[3] - 1
+        local end_col = end_pos[3]
+        lines[1] = string.sub(line, start_col + 1, end_col)
+    else
+        -- Multi-line selection: trim first and last lines
+        local first_line = lines[1]
+        local last_line = lines[#lines]
+        lines[1] = string.sub(first_line, start_pos[3])
+        lines[#lines] = string.sub(last_line, 1, end_pos[3])
+    end
+
+    local text = table.concat(lines, "\n")
+    send_to_terminal(text, force_ipython_mode)
+end
+
+-- Function to check if a line is a cell delimiter
+local function is_cell_delimiter(line)
+    -- Cell delimiter pattern: # %%, -- %%, In[n], or ```
+    return string.match(line, "^%s*[#%-%-]%s+%%%%") or string.match(line, "^%s*In%[%d+%]") or string.match(line, "^```")
+end
+
+-- Function to send current cell to terminal
+local function send_current_cell(force_ipython_mode)
+    local current_line = vim.api.nvim_win_get_cursor(0)[1]
+    local total_lines = vim.api.nvim_buf_line_count(0)
+    local all_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+    -- Find the start of the current cell
+    local cell_start = 1
+    for i = current_line, 1, -1 do
+        if is_cell_delimiter(all_lines[i]) then
+            cell_start = i + 1
+            break
+        end
+    end
+
+    -- Find the end of the current cell
+    local cell_end = total_lines
+    local next_cell_start = nil
+    for i = current_line + 1, total_lines do
+        if is_cell_delimiter(all_lines[i]) then
+            cell_end = i - 1
+            next_cell_start = i
+            break
+        end
+    end
+
+    -- Get the cell content
+    local cell_lines = vim.api.nvim_buf_get_lines(0, cell_start - 1, cell_end, false)
+
+    -- Remove empty lines at the beginning and end
+    while #cell_lines > 0 and string.match(cell_lines[1], "^%s*$") do
+        table.remove(cell_lines, 1)
+    end
+    while #cell_lines > 0 and string.match(cell_lines[#cell_lines], "^%s*$") do
+        table.remove(cell_lines, #cell_lines)
+    end
+
+    if #cell_lines == 0 then
+        vim.notify("No cell content found", vim.log.levels.WARN)
+        return
+    end
+
+    local text = table.concat(cell_lines, "\n")
+    send_to_terminal(text, force_ipython_mode)
+
+    -- Jump to the next cell if it exists
+    if next_cell_start then
+        vim.api.nvim_win_set_cursor(0, { next_cell_start, 0 })
+    end
+end
+
 local function toggle(config, opts)
     opts = opts or {}
     local id = opts.id or eval_opts(config.id)
@@ -155,6 +316,12 @@ local function toggle(config, opts)
                 once = true,
                 callback = function()
                     config.on_exit(config, term.buf)
+                    -- Clear marked terminal if this buffer is being deleted
+                    if marked_terminal.buf == term.buf then
+                        marked_terminal.buf = nil
+                        marked_terminal.job_id = nil
+                        marked_terminal.config = nil
+                    end
                 end,
             })
         end
@@ -184,6 +351,15 @@ local function toggle(config, opts)
                     vim.notify("floatty.nvim: Terminal command not executable: " .. cmd, vim.log.levels.ERROR)
                     return
                 end
+                -- Mark this terminal for sending commands
+                marked_terminal.buf = term.buf
+                marked_terminal.job_id = job_id
+                marked_terminal.config = config
+            else
+                -- For existing buffer, get the job_id from buffer variable
+                marked_terminal.buf = term.buf
+                marked_terminal.job_id = vim.b[term.buf].terminal_job_id
+                marked_terminal.config = config
             end
             if not eval_opts(config.focus) and valid_win(prev_win) then
                 vim.api.nvim_set_current_win(prev_win)
@@ -197,10 +373,12 @@ local function toggle(config, opts)
     config.terms[id] = term
 end
 
+M.toggle = function(opts)
+    local config = M.get_config()
+    toggle(config, opts)
+end
+
 local function setup(config)
-    config.toggle = function(opts)
-        toggle(config, opts)
-    end
     config.terms = {}
     config.prev_id = nil
 
@@ -216,32 +394,82 @@ local function setup(config)
         end,
     })
 
+    -- Create the SendToTerminal command
+    vim.api.nvim_create_user_command("SendToTerminal", function(opts)
+        local force_ipython = opts.bang
+        send_to_terminal(opts.args, force_ipython)
+    end, {
+        nargs = "+",
+        bang = true,
+        desc = "Send arbitrary text to the marked terminal (auto-detects IPython, use ! to force IPython mode)",
+    })
+
+    -- Create the SendLine command
+    vim.api.nvim_create_user_command("SendLine", function(opts)
+        local force_ipython = opts.bang
+        send_current_line(force_ipython)
+    end, {
+        bang = true,
+        desc = "Send current line to the marked terminal (auto-detects IPython, use ! to force IPython mode)",
+    })
+
+    -- Create the SendSelection command
+    vim.api.nvim_create_user_command("SendSelection", function(opts)
+        local force_ipython = opts.bang
+        send_visual_selection(force_ipython)
+    end, {
+        range = true,
+        bang = true,
+        desc = "Send visual selection to the marked terminal (auto-detects IPython, use ! to force IPython mode)",
+    })
+
+    -- Create the SendCell command
+    vim.api.nvim_create_user_command("SendCell", function(opts)
+        local force_ipython = opts.bang
+        send_current_cell(force_ipython)
+    end, {
+        bang = true,
+        desc = "Send current cell (between # %%, -- %%, In[n], or ``` markers) to the marked terminal",
+    })
+
+    -- Create the ToggleTerm command
+    vim.api.nvim_create_user_command("ToggleTerm", function(opts)
+    end, {
+        desc = "Toggle the terminal",
+    })
+
+    -- Set up key mappings
+    vim.keymap.set("v", "<C-c>", function()
+        send_visual_selection()
+    end, { desc = "Send selection to terminal", silent = true })
+
+    vim.keymap.set("n", "<C-c><C-c>", function()
+        send_current_cell()
+    end, { desc = "Send current cell to terminal", silent = true })
+
     return config
 end
 
+
 M.setup = function(opts)
-    local config = vim.tbl_deep_extend("force", defaults, opts or {})
+    M.set_config(opts)
+    local config = M.get_config()
     return setup(config)
 end
 
---------------------------------
---------------------------------
-
-local term = M.setup({
+M.setup({
     window = {
         row = function()
             return vim.o.lines - 11
         end,
         width = 1.0,
         height = 8,
+        border = "single",
     },
 })
-vim.keymap.set("n", "<C-t>", function()
-    term.toggle()
+vim.keymap.set("n", "<C-Space>", function()
+    M.toggle()
 end)
-vim.keymap.set("t", "<C-t>", function()
-    term.toggle()
+vim.keymap.set("t", "<C-Space>", function()
+    M.toggle()
 end)
-
---------------------------------
---------------------------------
