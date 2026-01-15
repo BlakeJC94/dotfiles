@@ -235,4 +235,24 @@ config.set_plugins({
     { "https://github.com/BlakeJC94/vim-convict" },
     { "https://github.com/brenoprata10/nvim-highlight-colors" },
     { "https://github.com/Mofiqul/trld.nvim" },
+    {
+        "https://github.com/ingur/floatty.nvim",
+        config = function()
+            local term = require("floatty").setup({
+                window = {
+                    row = function()
+                        return vim.o.lines - 11
+                    end,
+                    width = 1.0,
+                    height = 8,
+                },
+            })
+            vim.keymap.set("n", "<C-t>", function()
+                term.toggle()
+            end)
+            vim.keymap.set("t", "<C-t>", function()
+                term.toggle()
+            end)
+        end,
+    },
 })
