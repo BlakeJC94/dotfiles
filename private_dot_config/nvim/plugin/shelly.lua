@@ -13,22 +13,15 @@ local defaults = {
     cwd = vim.fn.getcwd, -- cwd of the command
     id = function()
         return vim.v.count
-    end, -- float identifier
+    end, -- split identifier
     start_in_insert = true,
     focus = true,
     on_open = nil,    -- callback(term, buf) when buffer is created
     on_exit = nil,    -- callback(term, buf) when buffer is destroyed
-    window = {
-        row = nil,    -- supports percentages (<=1) and absolute sizes (>1)
-        col = nil,    -- supports percentages (<=1) and absolute sizes (>1)
-        width = 0.8,  -- supports percentages (<=1) and absolute sizes (>1)
-        height = 0.8, -- supports percentages (<=1) and absolute sizes (>1)
-        h_align = "center", -- alignment helper if no col, "left", "center", "right"
-        v_align = "center", -- alignment helper if no row, "top", "center", "bottom"
-        border = "rounded",
-        zindex = 50,
-        title = "",
-        title_pos = "center",
+    split = {
+        direction = "horizontal", -- "horizontal" or "vertical"
+        size = 12,               -- size of the split (lines for horizontal, columns for vertical)
+        position = "bottom",     -- "top", "bottom", "left", "right"
     },
     wo = {
         cursorcolumn = false,
@@ -79,48 +72,27 @@ local function valid_win(win)
     return win and vim.api.nvim_win_is_valid(win)
 end
 
-local function get_win_opts(config)
-    local opts = eval_opts(config.window)
-    local width, height = opts.width, opts.height
-    local row, col = opts.row, opts.col
-
-    width = width <= 1 and math.floor(vim.o.columns * width) or width
-    height = height <= 1 and math.floor(vim.o.lines * height) or height
-
-    if row then
-        row = (row > 0 and row <= 1) and math.floor(vim.o.lines * row) or row
-    else
-        if opts.v_align == "top" then
-            row = 0
-        elseif opts.v_align == "bottom" then
-            row = vim.o.lines - height
-        else -- default to "center"
-            row = math.floor((vim.o.lines - height) / 2)
+local function get_split_cmd(config)
+    local opts = eval_opts(config.split)
+    local cmd = ""
+    
+    if opts.direction == "vertical" then
+        if opts.position == "left" then
+            cmd = "topleft vertical"
+        else -- right
+            cmd = "botright vertical"
         end
-    end
-
-    if col then
-        col = (col > 0 and col <= 1) and math.floor(vim.o.columns * col) or col
-    else
-        if opts.h_align == "left" then
-            col = 0
-        elseif opts.h_align == "right" then
-            col = vim.o.columns - width
-        else -- default to "center
-            col = math.floor((vim.o.columns - width) / 2)
+        cmd = cmd .. " " .. opts.size .. "split"
+    else -- horizontal
+        if opts.position == "top" then
+            cmd = "topleft"
+        else -- bottom
+            cmd = "botright"
         end
+        cmd = cmd .. " " .. opts.size .. "split"
     end
-
-    opts.relative = "editor"
-    opts.width = width
-    opts.height = height
-    opts.row = row
-    opts.col = col
-
-    opts.v_align = nil
-    opts.h_align = nil
-
-    return opts
+    
+    return cmd
 end
 
 local function create_buf(config)
@@ -135,8 +107,10 @@ local function create_buf(config)
 end
 
 local function create_win(config, buf)
-    local opts = get_win_opts(config)
-    local win = vim.api.nvim_open_win(buf, true, opts)
+    local split_cmd = get_split_cmd(config)
+    vim.cmd(split_cmd)
+    local win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(win, buf)
     for opt, val in pairs(config.wo) do
         vim.wo[win][opt] = val
     end
@@ -382,17 +356,7 @@ local function setup(config)
     config.terms = {}
     config.prev_id = nil
 
-    vim.api.nvim_create_autocmd("VimResized", {
-        callback = function()
-            if not config.prev_id then
-                return
-            end
-            local term = config.terms[config.prev_id]
-            if valid_win(term.win) then
-                vim.api.nvim_win_set_config(term.win, get_win_opts(config))
-            end
-        end,
-    })
+    -- Note: VimResized autocmd removed as splits handle resizing automatically
 
     -- Create the SendToTerminal command
     vim.api.nvim_create_user_command("SendToTerminal", function(opts)
@@ -458,13 +422,10 @@ M.setup = function(opts)
 end
 
 M.setup({
-    window = {
-        row = function()
-            return vim.o.lines - 11
-        end,
-        width = 1.0,
-        height = 8,
-        border = "single",
+    split = {
+        direction = "horizontal",
+        size = 12,
+        position = "bottom",
     },
 })
 vim.keymap.set("n", "<C-Space>", function()
