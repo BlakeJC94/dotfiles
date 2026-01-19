@@ -313,8 +313,7 @@ config.audible_bell = "Disabled"
 
 -- Launch WSL by default when running Wezterm on windows
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
-    -- config.default_domain = "WSL:Ubuntu"
-    config.default_prog = { "wsl.exe", "-d", "Ubuntu", "--cd", "~" }
+    config.default_domain = "WSL:Ubuntu"
 end
 
 return config

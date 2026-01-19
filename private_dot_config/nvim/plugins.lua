@@ -2,14 +2,14 @@ config = require("BlakeJC94")
 
 config.set_plugins({
     {
-        "https://github.com/nvim-treesitter/nvim-treesitter",
+        "nvim-treesitter/nvim-treesitter",
         lazy = false,
         branch = "main",
         build = ":TSUpdate",
         config = config.plugins.nvim_treesitter,
     },
     {
-        "https://github.com/neovim/nvim-lspconfig",
+        "neovim/nvim-lspconfig",
         lazy = false,
         config = config.plugins.nvim_lspconfig,
         keys = {
@@ -34,7 +34,7 @@ config.set_plugins({
         },
     },
     {
-        "https://github.com/hrsh7th/nvim-cmp",
+        "hrsh7th/nvim-cmp",
         dependencies = {
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-cmdline",
@@ -47,7 +47,7 @@ config.set_plugins({
         config = config.plugins.nvim_cmp,
     },
     {
-        "https://github.com/ibhagwan/fzf-lua",
+        "ibhagwan/fzf-lua",
         opts = {
             winopts = {
                 border = "none",
@@ -99,11 +99,11 @@ config.set_plugins({
         },
     },
     {
-        "https://github.com/ellisonleao/gruvbox.nvim",
+        "ellisonleao/gruvbox.nvim",
         config = config.plugins.gruvbox_nvim,
     },
     {
-        "https://github.com/chrisgrieser/nvim-various-textobjs",
+        "chrisgrieser/nvim-various-textobjs",
         opts = { keymaps = { useDefaults = false } },
         keys = {
             { "av", '<cmd>lua require("various-textobjs").subword("outer")<CR>', mode = { "o", "x" } },
@@ -111,7 +111,7 @@ config.set_plugins({
         },
     },
     {
-        "https://github.com/lewis6991/gitsigns.nvim",
+        "lewis6991/gitsigns.nvim",
         lazy = false,
         opts = {
             signcolumn = false,
@@ -140,9 +140,9 @@ config.set_plugins({
             { "<Leader>gj", ":diffget //3<CR>" }, -- select right changes
         },
     },
-    { "https://github.com/akinsho/git-conflict.nvim", opts = {} },
+    { "akinsho/git-conflict.nvim", opts = {} },
     {
-        "https://github.com/tpope/vim-fugitive",
+        "tpope/vim-fugitive",
         lazy = false,
         keys = {
             { "<Leader>c", "<cmd>lua toggle_gstatus()<CR>" },
@@ -151,7 +151,7 @@ config.set_plugins({
         config = config.plugins.vim_fugitive,
     },
     {
-        "https://github.com/tpope/vim-unimpaired",
+        "tpope/vim-unimpaired",
         lazy = false,
         keys = {
             {
@@ -189,41 +189,48 @@ config.set_plugins({
         },
     },
     {
-        "https://github.com/tpope/vim-eunuch",
+        "tpope/vim-eunuch",
         lazy = false,
         config = function()
+            vim.cmd([[cnoreabbrev ls Ls]])
             vim.cmd([[cnoreabbrev mkdir Mkdir]])
             vim.cmd([[cnoreabbrev rm Remove]])
+
+            vim.api.nvim_create_user_command("Ls", function(opts)
+                -- 1. Build the shell command, same as before.
+                local shell_cmd = string.format(
+                    "(ls -p %s | grep '/$' || true; ls -p %s | grep -v '/$' || true)",
+                    opts.args,
+                    opts.args
+                )
+
+                -- 2. Execute the command and capture its output into a variable.
+                --    vim.fn.system() is the Lua way to call Vim's system() function.
+                local output = vim.fn.system(shell_cmd)
+
+                -- 3. Print the captured output to the message area.
+                --    We use vim.trim() to remove any trailing newline from the shell
+                --    output, which prevents an extra blank line from appearing.
+                if output ~= nil and not output:match("^%s*$") then
+                    print(vim.trim(output))
+                else
+                    print("[Empty directory]")
+                end
+            end, {
+                nargs = "*", -- Corresponds to -nargs=*
+                -- Adding completion is a nice touch. This will complete file/directory names.
+                complete = "file",
+                -- Add a description for plugins like which-key or for :help
+                desc = "List files with directories at the top",
+            })
         end,
     },
-    { "https://github.com/stevearc/oil.nvim", opts = {}, lazy = false },
-    { "https://github.com/tpope/vim-rsi" },
-    { "https://github.com/tpope/vim-repeat" },
-    { "https://github.com/tpope/vim-surround" },
-    { "https://github.com/tpope/vim-sleuth" },
-    { "https://github.com/tpope/vim-rhubarb" },
-    { "https://github.com/tpope/vim-vinegar" },
-    { "https://github.com/BlakeJC94/vim-convict" },
-    { "https://github.com/brenoprata10/nvim-highlight-colors" },
-    { "https://github.com/Mofiqul/trld.nvim" },
-    -- {
-    --     "https://github.com/ingur/floatty.nvim",
-    --     config = function()
-    --         local term = require("floatty").setup({
-    --             window = {
-    --                 row = function()
-    --                     return vim.o.lines - 11
-    --                 end,
-    --                 width = 1.0,
-    --                 height = 8,
-    --             },
-    --         })
-    --         vim.keymap.set("n", "<C-t>", function()
-    --             term.toggle()
-    --         end)
-    --         vim.keymap.set("t", "<C-t>", function()
-    --             term.toggle()
-    --         end)
-    --     end,
-    -- },
+    { "stevearc/oil.nvim", opts = {}, lazy = false },
+    { "tpope/vim-rsi" },
+    { "tpope/vim-repeat" },
+    { "tpope/vim-surround" },
+    { "tpope/vim-rhubarb" },
+    { "tpope/vim-vinegar" },
+    { "BlakeJC94/vim-convict" },
+    { "brenoprata10/nvim-highlight-colors" },
 })
