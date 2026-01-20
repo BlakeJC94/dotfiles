@@ -8,7 +8,7 @@ local marked_terminal = {
 }
 
 local defaults = {
-    file = nil,       -- file to open
+    file = nil, -- file to open
     cmd = vim.o.shell, -- terminal command to run
     cwd = vim.fn.getcwd, -- cwd of the command
     id = function()
@@ -16,12 +16,12 @@ local defaults = {
     end, -- split identifier
     start_in_insert = true,
     focus = true,
-    on_open = nil,    -- callback(term, buf) when buffer is created
-    on_exit = nil,    -- callback(term, buf) when buffer is destroyed
+    on_open = nil, -- callback(term, buf) when buffer is created
+    on_exit = nil, -- callback(term, buf) when buffer is destroyed
     split = {
         direction = "horizontal", -- "horizontal" or "vertical"
-        size = 12,               -- size of the split (lines for horizontal, columns for vertical)
-        position = "bottom",     -- "top", "bottom", "left", "right"
+        size = 12, -- size of the split (lines for horizontal, columns for vertical)
+        position = "bottom", -- "top", "bottom", "left", "right"
     },
     wo = {
         cursorcolumn = false,
@@ -75,7 +75,7 @@ end
 local function get_split_cmd(config)
     local opts = eval_opts(config.split)
     local cmd = ""
-    
+
     if opts.direction == "vertical" then
         if opts.position == "left" then
             cmd = "topleft vertical"
@@ -91,7 +91,7 @@ local function get_split_cmd(config)
         end
         cmd = cmd .. " " .. opts.size .. "split"
     end
-    
+
     return cmd
 end
 
@@ -284,21 +284,25 @@ local function toggle(config, opts)
         if config.on_open then
             config.on_open(config, term.buf)
         end
-        if config.on_exit then
-            vim.api.nvim_create_autocmd("BufDelete", {
-                buffer = term.buf,
-                once = true,
-                callback = function()
+
+        vim.api.nvim_buf_set_option(term.buf, "buflisted", false)
+        vim.api.nvim_buf_set_name(term.buf, "Shelly")
+
+        vim.api.nvim_create_autocmd("BufDelete", {
+            buffer = term.buf,
+            once = true,
+            callback = function()
+                if config.on_exit then
                     config.on_exit(config, term.buf)
-                    -- Clear marked terminal if this buffer is being deleted
-                    if marked_terminal.buf == term.buf then
-                        marked_terminal.buf = nil
-                        marked_terminal.job_id = nil
-                        marked_terminal.config = nil
-                    end
-                end,
-            })
-        end
+                end
+                -- Clear marked terminal if this buffer is being deleted
+                if marked_terminal.buf == term.buf then
+                    marked_terminal.buf = nil
+                    marked_terminal.job_id = nil
+                    marked_terminal.config = nil
+                end
+            end,
+        })
     end
 
     if valid_win(term.win) then
@@ -397,8 +401,7 @@ local function setup(config)
     })
 
     -- Create the ToggleTerm command
-    vim.api.nvim_create_user_command("ToggleTerm", function(opts)
-    end, {
+    vim.api.nvim_create_user_command("ToggleTerm", function(opts) end, {
         desc = "Toggle the terminal",
     })
 
@@ -413,7 +416,6 @@ local function setup(config)
 
     return config
 end
-
 
 M.setup = function(opts)
     M.set_config(opts)
