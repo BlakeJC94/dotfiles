@@ -1,6 +1,6 @@
 augroup on_quit_kill_nvim_terminals
   autocmd!
-  autocmd QuitPre * call s:KillTerminals()
+  autocmd VimLeavePre * call s:KillTerminals()
 augroup END
 
 function! s:KillTerminals() abort
