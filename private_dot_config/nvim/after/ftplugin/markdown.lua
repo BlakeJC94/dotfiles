@@ -77,7 +77,6 @@ vim.keymap.set("i", "<CR>", function()
     return "<CR>"
 end, { expr = true })
 
-
 function CsvToMarkdown()
     -- Get visual selection
     local start_pos = vim.fn.getpos("'<")
@@ -187,3 +186,154 @@ end
 vim.api.nvim_create_user_command("ToggleTableFormat", function()
     ToggleTableFormat()
 end, { range = true, desc = "Toggle selected CSV <-> Markdown table" })
+
+vim.keymap.set("v", "<C-t>", ":ToggleTableFormat<CR>")
+
+vim.keymap.set("n", "<C-t>", function()
+    vim.o.operatorfunc = "v:lua.ToggleTableFormatOperator"
+    return "g@"
+end, { expr = true })
+
+function ToggleTableFormatOperator(type)
+    local start_pos, end_pos
+
+    if type == "line" then
+        start_pos = vim.fn.getpos("'[")
+        end_pos = vim.fn.getpos("']")
+    elseif type == "char" then
+        start_pos = vim.fn.getpos("'[")
+        end_pos = vim.fn.getpos("']")
+    else
+        return
+    end
+
+    local lines = vim.fn.getline(start_pos[2], end_pos[2])
+
+    -- Simple detection: if any line starts with '|' and contains '|', assume Markdown
+    local is_markdown = false
+    for _, line in ipairs(lines) do
+        if line:match("^|") and line:match("|") then
+            is_markdown = true
+            break
+        end
+    end
+
+    if is_markdown then
+        -- Convert markdown to CSV
+        local csv_lines = {}
+        for i, line in ipairs(lines) do
+            -- Skip separator row (---)
+            if not line:match("^|%s*-+") then
+                -- Remove leading/trailing |
+                line = line:gsub("^|", ""):gsub("|$", "")
+                -- Split by | and trim spaces
+                local cells = {}
+                for cell in line:gmatch("([^|]+)") do
+                    cell = vim.trim(cell)
+                    table.insert(cells, cell)
+                end
+                table.insert(csv_lines, table.concat(cells, ","))
+            end
+        end
+        vim.api.nvim_buf_set_lines(0, start_pos[2] - 1, end_pos[2], false, csv_lines)
+    else
+        -- Convert CSV to markdown
+        local table_rows = {}
+        local col_widths = {}
+
+        for i, line in ipairs(lines) do
+            local row = {}
+            for field in string.gmatch(line, "([^,]+)") do
+                field = vim.trim(field)
+                table.insert(row, field)
+            end
+            table.insert(table_rows, row)
+            -- Track max width for each column
+            for j, cell in ipairs(row) do
+                col_widths[j] = math.max(col_widths[j] or 0, #cell)
+            end
+        end
+
+        -- Build markdown table
+        local result = {}
+        for i, row in ipairs(table_rows) do
+            local row_str = "|"
+            for j, cell in ipairs(row) do
+                local padding = string.rep(" ", col_widths[j] - #cell)
+                row_str = row_str .. " " .. cell .. padding .. " |"
+            end
+            table.insert(result, row_str)
+
+            -- Add header separator after first row
+            if i == 1 then
+                local sep = "|"
+                for _, width in ipairs(col_widths) do
+                    sep = sep .. " " .. string.rep("-", width) .. " |"
+                end
+                table.insert(result, 2, sep)
+            end
+        end
+
+        vim.api.nvim_buf_set_lines(0, start_pos[2] - 1, end_pos[2], false, result)
+    end
+end
+
+vim.keymap.set({ "i", "n" }, "<C-.>", function()
+    local api = vim.api
+    local row, col = unpack(api.nvim_win_get_cursor(0))
+    local shiftwidth = vim.bo.shiftwidth
+
+    -- Perform the indent
+    vim.cmd("normal! >>")
+
+    -- Move cursor to maintain relative position
+    api.nvim_win_set_cursor(0, { row, col + shiftwidth })
+end)
+
+vim.keymap.set({ "i", "n" }, "<C-,>", function()
+    local api = vim.api
+    local row, col = unpack(api.nvim_win_get_cursor(0))
+    local shiftwidth = vim.bo.shiftwidth
+
+    -- Perform the unindent
+    vim.cmd("normal! <<")
+
+    -- Move cursor to maintain relative position, but don't go negative
+    local new_col = math.max(0, col - shiftwidth)
+    api.nvim_win_set_cursor(0, { row, new_col })
+end)
+
+vim.keymap.set({ "i", "n" }, "<C-;>", function()
+    local api = vim.api
+    local cur_line = api.nvim_get_current_line()
+    local row, col = unpack(api.nvim_win_get_cursor(0))
+
+    -- Check if line has a checkbox
+    local unchecked = cur_line:match("^(%s*[-*+] )%[ %](.*)$")
+    local checked = cur_line:match("^(%s*[-*+] )%[[xX]%](.*)$")
+
+    local new_line
+    if unchecked then
+        -- Toggle unchecked to checked
+        local prefix, suffix = unchecked, cur_line:match("^%s*[-*+] %[ %](.*)$")
+        new_line = prefix .. "[x]" .. suffix
+    elseif checked then
+        -- Toggle checked to unchecked
+        local prefix, suffix = checked, cur_line:match("^%s*[-*+] %[[xX]%](.*)$")
+        new_line = prefix .. "[ ]" .. suffix
+    else
+        -- No checkbox found, check if it's a list item and add checkbox
+        local list_prefix = cur_line:match("^(%s*[-*+] )(.*)$")
+        if list_prefix then
+            local prefix, content = list_prefix, cur_line:match("^%s*[-*+] (.*)$")
+            new_line = prefix .. "[ ] " .. content
+        else
+            -- Not a list item, make it one with checkbox
+            local indent = cur_line:match("^(%s*)")
+            local content = cur_line:match("^%s*(.*)$")
+            new_line = indent .. "- [ ] " .. content
+        end
+    end
+
+    api.nvim_set_current_line(new_line)
+end)

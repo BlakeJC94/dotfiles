@@ -430,9 +430,10 @@ M.setup({
         position = "bottom",
     },
 })
-vim.keymap.set("n", "<C-Space>", function()
+
+vim.keymap.set("n", "<C-q>", function()
     M.toggle()
 end)
-vim.keymap.set("t", "<C-Space>", function()
+vim.keymap.set("t", "<C-q>", function()
     M.toggle()
 end)

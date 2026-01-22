@@ -72,21 +72,21 @@ return function()
 
     vim.lsp.enable("sqruff")
 
-    vim.lsp.enable('rumdl')
+    vim.lsp.enable("rumdl")
 
-    vim.lsp.enable('marksman')
+    vim.lsp.enable("marksman")
 
-    vim.lsp.enable('harper_ls')
+    -- vim.lsp.enable("harper_ls")
 
-    vim.lsp.enable('jqls')
+    vim.lsp.enable("jqls")
 
-    vim.lsp.enable('air')
+    vim.lsp.enable("air")
 
-    vim.lsp.enable('taplo')
+    vim.lsp.enable("taplo")
 
-    vim.lsp.enable('terraformls')
+    vim.lsp.enable("terraformls")
 
-    vim.lsp.enable('yamlls')
+    vim.lsp.enable("yamlls")
 
-    vim.lsp.enable('bashls')
+    vim.lsp.enable("bashls")
 end
