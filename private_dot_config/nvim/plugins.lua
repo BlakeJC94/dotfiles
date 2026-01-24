@@ -2,14 +2,14 @@ config = require("BlakeJC94")
 
 config.set_plugins({
     {
-        "nvim-treesitter/nvim-treesitter",
+        "https://github.com/nvim-treesitter/nvim-treesitter",
         lazy = false,
         branch = "main",
         build = ":TSUpdate",
         config = config.plugins.nvim_treesitter,
     },
     {
-        "neovim/nvim-lspconfig",
+        "https://github.com/neovim/nvim-lspconfig",
         lazy = false,
         config = config.plugins.nvim_lspconfig,
         keys = {
@@ -34,7 +34,7 @@ config.set_plugins({
         },
     },
     {
-        "hrsh7th/nvim-cmp",
+        "https://github.com/hrsh7th/nvim-cmp",
         dependencies = {
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-cmdline",
@@ -47,7 +47,7 @@ config.set_plugins({
         config = config.plugins.nvim_cmp,
     },
     {
-        "ibhagwan/fzf-lua",
+        "https://github.com/ibhagwan/fzf-lua",
         opts = {
             winopts = {
                 border = "none",
@@ -99,11 +99,11 @@ config.set_plugins({
         },
     },
     {
-        "ellisonleao/gruvbox.nvim",
+        "https://github.com/ellisonleao/gruvbox.nvim",
         config = config.plugins.gruvbox_nvim,
     },
     {
-        "chrisgrieser/nvim-various-textobjs",
+        "https://github.com/chrisgrieser/nvim-various-textobjs",
         opts = { keymaps = { useDefaults = false } },
         keys = {
             { "av", '<cmd>lua require("various-textobjs").subword("outer")<CR>', mode = { "o", "x" } },
@@ -111,7 +111,7 @@ config.set_plugins({
         },
     },
     {
-        "lewis6991/gitsigns.nvim",
+        "https://github.com/lewis6991/gitsigns.nvim",
         lazy = false,
         opts = {
             signcolumn = false,
@@ -140,9 +140,9 @@ config.set_plugins({
             { "<Leader>gj", ":diffget //3<CR>" }, -- select right changes
         },
     },
-    { "akinsho/git-conflict.nvim", opts = {} },
+    { "https://github.com/akinsho/git-conflict.nvim", opts = {} },
     {
-        "tpope/vim-fugitive",
+        "https://github.com/tpope/vim-fugitive",
         lazy = false,
         keys = {
             { "<Leader>c", "<cmd>lua toggle_gstatus()<CR>" },
@@ -151,7 +151,7 @@ config.set_plugins({
         config = config.plugins.vim_fugitive,
     },
     {
-        "tpope/vim-unimpaired",
+        "https://github.com/tpope/vim-unimpaired",
         lazy = false,
         keys = {
             {
@@ -189,20 +189,99 @@ config.set_plugins({
         },
     },
     {
-        "tpope/vim-eunuch",
+        "https://github.com/tpope/vim-eunuch",
         lazy = false,
         config = function()
             vim.cmd([[cnoreabbrev mkdir Mkdir]])
             vim.cmd([[cnoreabbrev rm Remove]])
         end,
     },
-    { "stevearc/oil.nvim", opts = {}, lazy = false },
-    { "tpope/vim-rsi" },
-    { "tpope/vim-repeat" },
-    { "tpope/vim-surround" },
-    { "tpope/vim-rhubarb" },
-    { "tpope/vim-vinegar" },
-    { "BlakeJC94/vim-convict" },
-    { "brenoprata10/nvim-highlight-colors" },
-    { "https://github.com/Mofiqul/trld.nvim", lazy = false, opts = {} },
+    { "https://github.com/stevearc/oil.nvim", opts = {}, lazy = false },
+    { "https://github.com/tpope/vim-rsi" },
+    { "https://github.com/tpope/vim-repeat" },
+    { "https://github.com/tpope/vim-surround" },
+    { "https://github.com/tpope/vim-sleuth" },
+    { "https://github.com/tpope/vim-rhubarb" },
+    { "https://github.com/tpope/vim-vinegar" },
+    { "https://github.com/BlakeJC94/vim-convict" },
+    { "https://github.com/brenoprata10/nvim-highlight-colors" },
+    { "https://github.com/Mofiqul/trld.nvim" },
+    {
+        "mozanunal/sllm.nvim",
+        opts = {
+            default_model = "default",
+            keymaps = false,
+            -- {
+            --     ask = "<leader>ss", -- open prompt and ask LLM
+            --     select_model = "<leader>sm", -- pick a model
+            --     select_mode = "<leader>sM", -- pick a template/mode
+            --     add_context = "<leader>sa", -- add file or selection to context
+            --     commands = "<leader>sx", -- open slash command picker
+            --     new_chat = "<leader>sn", -- start new chat
+            --     cancel = "<leader>sc", -- cancel running request
+            --     toggle_buffer = "<leader>st", -- toggle LLM window
+            --     history = "<leader>sh", -- browse chat history
+            --     copy_code = "<leader>sy", -- copy last code block
+            --     complete = "<leader><Tab>", -- inline completion at cursor
+            -- },
+        },
+        keys = {
+            {
+                "<Leader>ss",
+                function()
+                    require("sllm").ask_llm()
+                end,
+                mode = { "n", "v" },
+            },
+            {
+                "<Leader>sa",
+                function()
+                    require("sllm").add_context()
+                end,
+                mode = { "n", "v" },
+            },
+            {
+                "<Leader>sx",
+                function()
+                    require("sllm").commands()
+                end,
+                mode = "n",
+            },
+            {
+                "<Leader>sh",
+                function()
+                    require("sllm").browse_history()
+                end,
+                mode = "n",
+            },
+            {
+                "<Leader>sn",
+                function()
+                    require("sllm").new_chat()
+                end,
+                mode = "n",
+            },
+            {
+                "<Leader>sc",
+                function()
+                    require("sllm").cancel()
+                end,
+                mode = "n",
+            },
+            {
+                "<Leader>st",
+                function()
+                    require("sllm").toggle_buffer()
+                end,
+                mode = "n",
+            },
+            {
+                "<Leader>sy",
+                function()
+                    require("sllm").copy_code()
+                end,
+                mode = "n",
+            },
+        },
+    },
 })

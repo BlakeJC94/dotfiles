@@ -7,11 +7,6 @@ return function()
         update_in_insert = false,
         severity_sort = false,
     })
-    -- local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
-    -- for sign_type, icon in pairs(signs) do
-    --     local hl = "DiagnosticSign" .. sign_type
-    --     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-    -- end
 
     -- Configure LSPs
     vim.lsp.config("lua_ls", {
@@ -72,21 +67,21 @@ return function()
 
     vim.lsp.enable("sqruff")
 
-    vim.lsp.enable("rumdl")
+    vim.lsp.enable('rumdl')
 
-    vim.lsp.enable("marksman")
+    vim.lsp.enable('marksman')
 
-    -- vim.lsp.enable("harper_ls")
+    vim.lsp.enable('harper_ls')
 
-    vim.lsp.enable("jqls")
+    vim.lsp.enable('jqls')
 
-    vim.lsp.enable("air")
+    vim.lsp.enable('air')
 
-    vim.lsp.enable("taplo")
+    vim.lsp.enable('taplo')
 
-    vim.lsp.enable("terraformls")
+    vim.lsp.enable('terraformls')
 
-    vim.lsp.enable("yamlls")
+    vim.lsp.enable('yamlls')
 
-    vim.lsp.enable("bashls")
+    vim.lsp.enable('bashls')
 end
