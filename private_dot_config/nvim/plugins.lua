@@ -1,4 +1,4 @@
-config = require("BlakeJC94")
+local config = require("BlakeJC94")
 
 config.set_plugins({
     {
@@ -211,19 +211,6 @@ config.set_plugins({
         opts = {
             default_model = "default",
             keymaps = false,
-            -- {
-            --     ask = "<leader>ss", -- open prompt and ask LLM
-            --     select_model = "<leader>sm", -- pick a model
-            --     select_mode = "<leader>sM", -- pick a template/mode
-            --     add_context = "<leader>sa", -- add file or selection to context
-            --     commands = "<leader>sx", -- open slash command picker
-            --     new_chat = "<leader>sn", -- start new chat
-            --     cancel = "<leader>sc", -- cancel running request
-            --     toggle_buffer = "<leader>st", -- toggle LLM window
-            --     history = "<leader>sh", -- browse chat history
-            --     copy_code = "<leader>sy", -- copy last code block
-            --     complete = "<leader><Tab>", -- inline completion at cursor
-            -- },
         },
         keys = {
             {
@@ -243,7 +230,7 @@ config.set_plugins({
             {
                 "<Leader>sx",
                 function()
-                    require("sllm").commands()
+                    require("sllm").run_command()
                 end,
                 mode = "n",
             },
@@ -271,17 +258,20 @@ config.set_plugins({
             {
                 "<Leader>st",
                 function()
-                    require("sllm").toggle_buffer()
+                    require("sllm").toggle_llm_buffer()
                 end,
                 mode = "n",
             },
             {
                 "<Leader>sy",
                 function()
-                    require("sllm").copy_code()
+                    require("sllm").copy_last_code_block()
                 end,
                 mode = "n",
             },
         },
     },
 })
+
+
+"foo": bar,

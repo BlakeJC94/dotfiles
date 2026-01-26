@@ -68,3 +68,13 @@ vnoremap <silent> <Plug>PyScrapOperator :<C-U>call PyScrapOperator(visualmode())
 " Default mappings
 nmap gS <Plug>PyScrapOperator
 vmap gS <Plug>PyScrapOperator
+
+command! -range DtoK call DtoKw(<line1>, <line2>)
+function! DtoKw(line1, line2)
+  execute a:line1.','.a:line2.'s/^\(\s*\)"\(.*\)"\s*:\s*\(.*\),\s*$/\1\2=\3,'
+endfunction
+
+command! -range KwtoD call DtoKw(<line1>, <line2>)
+function! DtoK(line1, line2)
+  execute a:line1.','.a:line2.'s/^\(\s*\)\(.*\)\s*=\s*\(.*\)\s*$/\1"\2": \3,'
+endfunction

@@ -20,9 +20,10 @@ local options = {
     expandtab = true, -- Replace tabs with spaces when indenting with </>
     -- SEARCHING
     ignorecase = true, -- Ignore cases in search patterns
-    smartcase = true, -- Use case-sensitve search when an uppercase letter is used
+    smartcase = true, -- Use case-sensitive search when an uppercase letter is used
     hlsearch = true, -- Highlight matches
     incsearch = true, -- Highlight matches while typing
+    inccommand = 'split',  -- Open temp split to preview replace output
     -- BACKUPS AND SPELLING
     swapfile = false, -- Allow swap files
     backup = false, -- Allow creation of backup files
