@@ -1,6 +1,6 @@
 let g:field_notes_dir = '~/Workspace/field-notes'
 let g:field_notes_vert = v:true
-let g:blog_content_dir = '~/Workspace/repos/blog/content/All posts'
+let g:blog_content_dir = '~/Workspace/repos/blog/content'
 
 command! -nargs=* -bang Note call s:OpenNote(<bang>0, <q-args>)
 command! -nargs=* -bang Notes call s:OpenNotesDir(<bang>0)
@@ -59,10 +59,11 @@ nnoremap <Leader>N :split \| edit ~/Workspace/repos/field-notes/notes \| lcd %:p
 
 
 command! BlogHeader call field_notes#BlogHeader()
-command! BlogWrite call s:BlogWrite()
+command! -nargs=1 BlogWrite call s:BlogWrite(<q-args>)
 
-function! s:BlogWrite()
-    let l:target = expand(g:blog_content_dir) . '/' . expand('%:t')
+function! s:BlogWrite(subdir)
+    let l:subdir = a:subdir
+    let l:target = expand(g:blog_content_dir) . '/' .  l:subdir . '/' . expand('%:t')
 
     if filereadable(l:target)
         let l:choice = confirm("File already exists:\n" . l:target . "\nOverwrite?", "&Yes\n&No", 2)

@@ -202,6 +202,14 @@ config.set_plugins({
             view_options = { show_hidden = true },
         },
         lazy = false,
+        keys = {
+            {
+                "-",
+                function()
+                    require("oil").open()
+                end,
+            },
+        },
     },
     { "https://github.com/tpope/vim-rsi" },
     { "https://github.com/tpope/vim-repeat" },
