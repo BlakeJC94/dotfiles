@@ -45,7 +45,7 @@
     sync = "!f() { \
         msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\"; \
         git add . && \
-        git commit -m \"$msg\" && \
+        git commit -m \"$msg\" ; \
         git push; \
     }; f"
     up ="!f() { \
