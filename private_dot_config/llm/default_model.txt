@@ -1,1 +1,1 @@
-openrouter/google/gemini-2.5-flash
+openrouter/moonshotai/kimi-k2.5
