@@ -221,67 +221,68 @@ config.set_plugins({
     { "https://github.com/Mofiqul/trld.nvim" },
     {
         "mozanunal/sllm.nvim",
+        lazy = false,
         opts = {
             default_model = "default",
             keymaps = false,
         },
         keys = {
             {
-                "<Leader>ss",
+                "<Leader>s",
                 function()
                     require("sllm").ask_llm()
                 end,
                 mode = { "n", "v" },
             },
             {
-                "<Leader>sa",
-                function()
-                    require("sllm").add_context()
-                end,
-                mode = { "n", "v" },
-            },
-            {
-                "<Leader>sx",
-                function()
-                    require("sllm").run_command()
-                end,
-                mode = "n",
-            },
-            {
-                "<Leader>sh",
-                function()
-                    require("sllm").browse_history()
-                end,
-                mode = "n",
-            },
-            {
-                "<Leader>sn",
-                function()
-                    require("sllm").new_chat()
-                end,
-                mode = "n",
-            },
-            {
-                "<Leader>sc",
-                function()
-                    require("sllm").cancel()
-                end,
-                mode = "n",
-            },
-            {
-                "<Leader>st",
+                "<Leader>S",
                 function()
                     require("sllm").toggle_llm_buffer()
                 end,
                 mode = "n",
             },
-            {
-                "<Leader>sy",
-                function()
-                    require("sllm").copy_last_code_block()
-                end,
-                mode = "n",
-            },
+            -- {
+            --     "<Leader>sa",
+            --     function()
+            --         require("sllm").add_context()
+            --     end,
+            --     mode = { "n", "v" },
+            -- },
+            -- {
+            --     "<Leader>sx",
+            --     function()
+            --         require("sllm").run_command()
+            --     end,
+            --     mode = "n",
+            -- },
+            -- {
+            --     "<Leader>sh",
+            --     function()
+            --         require("sllm").browse_history()
+            --     end,
+            --     mode = "n",
+            -- },
+            -- {
+            --     "<Leader>sn",
+            --     function()
+            --         require("sllm").new_chat()
+            --     end,
+            --     mode = "n",
+            -- },
+            -- {
+            --     "<Leader>sc",
+            --     function()
+            --         require("sllm").cancel()
+            --     end,
+            --     mode = "n",
+            -- },
+            -- {
+            --     "<Leader>sy",
+            --     function()
+            --         require("sllm").copy_last_code_block()
+            --     end,
+            --     mode = "n",
+            -- },
         },
     },
 })
