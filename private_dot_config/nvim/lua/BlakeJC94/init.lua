@@ -18,6 +18,7 @@ end
 local bootstrap_package_manager = function()
     local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
     if not vim.loop.fs_stat(lazypath) then
+        print("Cloning lazy.nvim..")
         vim.fn.system({
             "git",
             "clone",
