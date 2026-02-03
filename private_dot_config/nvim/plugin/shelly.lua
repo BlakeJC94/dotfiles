@@ -135,20 +135,29 @@ end
 
 -- Function to send text to the marked terminal
 local function send_to_terminal(text, force_ipython_mode)
+    -- Expand % symbols to current file path
+    local current_file = vim.api.nvim_buf_get_name(0)
+    if current_file and current_file ~= "" then
+        text = string.gsub(text, "%%", vim.fn.shellescape(current_file))
+    end
+
     if not marked_terminal.buf or not vim.api.nvim_buf_is_valid(marked_terminal.buf) then
-        vim.notify("No marked terminal found. Toggle a terminal first.", vim.log.levels.WARN)
+        -- Auto-toggle terminal if no marked terminal is found
+        M.toggle()
+        -- Wait a moment for the terminal to be created
+        vim.defer_fn(function()
+            if not marked_terminal.buf or not vim.api.nvim_buf_is_valid(marked_terminal.buf) then
+                vim.notify("Failed to create terminal.", vim.log.levels.ERROR)
+                return
+            end
+            send_to_terminal(text, force_ipython_mode)
+        end, 100)
         return
     end
 
     if not marked_terminal.job_id then
         vim.notify("Terminal job ID not found.", vim.log.levels.ERROR)
         return
-    end
-
-    -- Expand % symbols to current file path
-    local current_file = vim.api.nvim_buf_get_name(0)
-    if current_file and current_file ~= "" then
-        text = string.gsub(text, "%%", vim.fn.shellescape(current_file))
     end
 
     -- Auto-detect IPython mode or use forced mode
@@ -288,6 +297,26 @@ local function toggle(config, opts)
         vim.api.nvim_buf_set_option(term.buf, "buflisted", false)
         vim.api.nvim_buf_set_name(term.buf, "Shelly")
 
+        -- Set buffer-local mapping for <C-q> in normal mode
+        vim.keymap.set("n", "<C-q>", "<C-w>", { buffer = term.buf })
+
+        -- -- Set up autoscroll for terminal buffer
+        -- vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+        --     buffer = term.buf,
+        --     callback = function()
+        --         -- Get all windows showing this buffer
+        --         local wins = vim.fn.win_findbuf(term.buf)
+        --         for _, win in ipairs(wins) do
+        --             if vim.api.nvim_win_is_valid(win) then
+        --                 -- Execute scroll command in the context of the window
+        --                 vim.api.nvim_win_call(win, function()
+        --                     vim.cmd("normal! G")
+        --                 end)
+        --             end
+        --         end
+        --     end,
+        -- })
+
         vim.api.nvim_create_autocmd("BufDelete", {
             buffer = term.buf,
             once = true,
@@ -323,10 +352,10 @@ local function toggle(config, opts)
             if not buf_ready then
                 local job_id = vim.fn.jobstart(cmd, { cwd = cwd, term = true })
                 if job_id == 0 then
-                    vim.notify("floatty.nvim: Invalid arguments for terminal command", vim.log.levels.ERROR)
+                    vim.notify("shelly: Invalid arguments for terminal command", vim.log.levels.ERROR)
                     return
                 elseif job_id == -1 then
-                    vim.notify("floatty.nvim: Terminal command not executable: " .. cmd, vim.log.levels.ERROR)
+                    vim.notify("shelly: Terminal command not executable: " .. cmd, vim.log.levels.ERROR)
                     return
                 end
                 -- Mark this terminal for sending commands
@@ -339,6 +368,10 @@ local function toggle(config, opts)
                 marked_terminal.job_id = vim.b[term.buf].terminal_job_id
                 marked_terminal.config = config
             end
+
+            -- Enable auto-scroll
+            vim.cmd.norm("G")
+
             if not eval_opts(config.focus) and valid_win(prev_win) then
                 vim.api.nvim_set_current_win(prev_win)
             elseif eval_opts(config.start_in_insert) then
@@ -360,10 +393,8 @@ local function setup(config)
     config.terms = {}
     config.prev_id = nil
 
-    -- Note: VimResized autocmd removed as splits handle resizing automatically
-
     -- Create the SendToTerminal command
-    vim.api.nvim_create_user_command("SendToTerminal", function(opts)
+    vim.api.nvim_create_user_command("S", function(opts)
         local force_ipython = opts.bang
         send_to_terminal(opts.args, force_ipython)
     end, {
@@ -423,17 +454,20 @@ M.setup = function(opts)
     return setup(config)
 end
 
+---
+
 M.setup({
     split = {
         direction = "horizontal",
-        size = 12,
+        size = 14,
         position = "bottom",
     },
+    start_in_insert = false,
+    focus = false,
 })
 
-vim.keymap.set("n", "<C-q>", function()
+vim.keymap.set("n", "<Leader>a", function()
     M.toggle()
 end)
-vim.keymap.set("t", "<C-q>", function()
-    M.toggle()
-end)
+
+vim.keymap.set("t", "<C-q>", "<C-\\><C-n>")

@@ -37,8 +37,6 @@ config.set_mappings(
         { "<Leader>x", "<C-g>u:!sh<CR>`]", mode = "x", remap = false },
         -- Stop accidentally opening help in insert mode
         { "<F1>", "", mode = "i" },
-        -- Terminal mode
-        { "<C-z>", "<C-\\><C-n>", mode="t" },
         -- Use unused arrow keys
         { "<Left>", "[", remap = true },
         { "<Right>", "]", remap = true },
@@ -62,13 +60,8 @@ config.set_mappings(
         { "<Leader>p", ":tabnext<CR>" },
         { "<Leader>N", ":+tabmove<CR>" },
         { "<Leader>P", ":-tabmove<CR>" },
-        -- Align selection to table
-        { "<Leader>a", ":!column -to' '<CR>", mode="x" },
         -- Select all
         { "<Leader>e", "ggVG" },
-        -- Change kwarg to field
-        { '<Leader>i', ':s/^\\(\\s*\\)\\(\\S.\\+\\)\\s*=\\(.*\\)$/\\1"\\2": \\3<CR>' },
-        { '<Leader>o', ':s/^\\(\\s*\\)["\']\\(\\S.\\+\\)["\']\\s*:\\s*\\(.*\\)$/\\1\\2=\\3<CR>' },
         -- Leader maps
         { "<Leader><Tab>", "<C-^>" }, -- Last file
         { "<Leader>O", ":%bd|e#|bd# <CR>" },  -- Clear buffers
