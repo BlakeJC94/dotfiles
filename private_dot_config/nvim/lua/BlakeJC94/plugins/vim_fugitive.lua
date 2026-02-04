@@ -1,10 +1,4 @@
 return function()
-    -- Abbreviations
-    vim.cmd([[
-        cnoreabbrev <expr> git (getcmdtype() ==# ':' && getcmdline() ==# 'git') ? 'Git' : 'git'
-    ]])
-
-    -- Functions
     local function toggle_gstatus()
         local closed = false
         for winnr = 1, vim.fn.winnr('$') do
@@ -34,5 +28,6 @@ return function()
         end
     })
 
+    -- Statusline
     vim.opt.statusline = "%<%f %h%m%r%{FugitiveStatusline()}%=%{get(b:,'gitsigns_status','')} %-14.(%l,%c%V%) %P"
 end

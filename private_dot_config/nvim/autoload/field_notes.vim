@@ -1,9 +1,9 @@
 function! field_notes#Slugify(string)
   let output = a:string
   let output = tolower(output)
-  let output = substitute(output, '\W\+', '_', 'g')
-  let output = substitute(output, '^_\+', '', 'g')
-  let output = substitute(output, '_\+$', '', 'g')
+  let output = substitute(output, '\W\+', '-', 'g')
+  let output = substitute(output, '^-\+', '', 'g')
+  let output = substitute(output, '-\+$', '', 'g')
   return output
 endfunction
 

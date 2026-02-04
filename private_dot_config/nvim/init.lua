@@ -1,5 +1,5 @@
-vim.g.mapleader = " "
+config = require("BlakeJC94")
 
-dofile(vim.fn.stdpath("config") .. "/options.lua")
-dofile(vim.fn.stdpath("config") .. "/plugins.lua")
-dofile(vim.fn.stdpath("config") .. "/mappings.lua")
+config.set_options()
+config.set_plugins()
+config.set_mappings()
