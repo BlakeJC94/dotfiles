@@ -86,7 +86,10 @@ local set_options = function(options)
 end
 
 M.set = function()
+    vim.g.mapleader = " "
+
     disable_netrw()
+
     local options = get_options()
     set_options(options)
 end
