@@ -39,16 +39,18 @@ local defaults = {
         wrap = false,
         sidescrolloff = 0,
     },
+    terms = {},
+    prev_id = nil,
 }
 
-local config = defaults
+local CONFIG = defaults
 
 M.set_config = function(opts)
-    config = vim.tbl_deep_extend("force", config, opts or {})
+    CONFIG = vim.tbl_deep_extend("force", CONFIG, opts or {})
 end
 
 M.get_config = function()
-    return config
+    return CONFIG
 end
 
 local function eval_opts(opts)
@@ -281,6 +283,12 @@ local function toggle(config, opts)
     if id == 0 then
         id = config.prev_id or 1
     end
+
+    -- Ensure terms table exists
+    if not config.terms then
+        config.terms = {}
+    end
+
     local term = config.terms[id] or {}
 
     -- cmd and cwd need to be evaluated before window is created
@@ -390,8 +398,13 @@ M.toggle = function(opts)
 end
 
 local function setup(config)
-    config.terms = {}
-    config.prev_id = nil
+    -- Ensure terms and prev_id are initialized if not already present
+    if not config.terms then
+        config.terms = {}
+    end
+    if not config.prev_id then
+        config.prev_id = nil
+    end
 
     -- Create the SendToTerminal command
     vim.api.nvim_create_user_command("S", function(opts)
@@ -431,11 +444,6 @@ local function setup(config)
         desc = "Send current cell (between # %%, -- %%, In[n], or ``` markers) to the marked terminal",
     })
 
-    -- Create the ToggleTerm command
-    vim.api.nvim_create_user_command("ToggleTerm", function(opts) end, {
-        desc = "Toggle the terminal",
-    })
-
     -- Set up key mappings
     vim.keymap.set("v", "<C-c>", function()
         send_visual_selection()
@@ -454,20 +462,4 @@ M.setup = function(opts)
     return setup(config)
 end
 
----
-
-M.setup({
-    split = {
-        direction = "horizontal",
-        size = 14,
-        position = "bottom",
-    },
-    start_in_insert = false,
-    focus = false,
-})
-
-vim.keymap.set("n", "<Leader>a", function()
-    M.toggle()
-end)
-
-vim.keymap.set("t", "<C-q>", "<C-\\><C-n>")
+return M

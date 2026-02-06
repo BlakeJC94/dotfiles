@@ -1,7 +1,21 @@
 [tools]
+air = "latest"
 julia = "1.11"
+lua-language-server = "latest"
+marksman = "latest"
 node = "20.19.1"
+"pipx:files-to-prompt" = "latest"
+"pipx:python-lsp-server" = "latest"
+"pipx:sqlfluff" = "latest"
+"pipx:strip-tags" = "latest"
+"pipx:symbex" = "latest"
 python = "3.12"
+ruff = "latest"
+rumdl = "latest"
+stylua = "latest"
+taplo = "latest"
+terraform-ls = "latest"
+yamlfmt = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["python"]

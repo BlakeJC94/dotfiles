@@ -1,0 +1,78 @@
+return {
+    "mozanunal/sllm.nvim",
+    lazy = false,
+    opts = {
+        default_model = "default",
+        keymaps = false,
+    },
+    keys = {
+        {
+            "<Leader>s",
+            function()
+                require("sllm").ask_llm()
+            end,
+            mode = { "n", "v" },
+        },
+        {
+            "<Leader>S",
+            function()
+                require("sllm").toggle_llm_buffer()
+            end,
+            mode = "n",
+        },
+    },
+    config = function()
+        -- Chat functions
+        vim.api.nvim_create_user_command("LLM", function()
+            require("sllm").ask_llm()
+        end, { range = true })
+        vim.api.nvim_create_user_command("LLMNewChat", function()
+            require("sllm").new_chat()
+        end, {})
+        vim.api.nvim_create_user_command("LLMCancel", function()
+            require("sllm").cancel()
+        end, {})
+        vim.api.nvim_create_user_command("LLMHistory", function()
+            require("sllm").browse_history()
+        end, {})
+
+        -- Context functions
+        vim.api.nvim_create_user_command("LLMAddContext", function()
+            require("sllm").add_context()
+        end, { range = true })
+        vim.api.nvim_create_user_command("LLMAddUrl", function()
+            require("sllm").add_url_to_ctx()
+        end, {})
+        vim.api.nvim_create_user_command("LLMAddOutput", function()
+            require("sllm").add_cmd_out_to_ctx()
+        end, {})
+        vim.api.nvim_create_user_command("LLMAddTool", function()
+            require("sllm").add_tool_to_ctx()
+        end, {})
+        vim.api.nvim_create_user_command("LLMResetContext", function()
+            require("sllm").reset_context()
+        end, {})
+
+        -- UI functions
+        vim.api.nvim_create_user_command("LLMToggle", function()
+            require("sllm").toggle_llm_buffer()
+        end, {})
+        vim.api.nvim_create_user_command("LLMFocus", function()
+            require("sllm").focus_llm_buffer()
+        end, {})
+        vim.api.nvim_create_user_command("LLMCommand", function()
+            require("sllm").run_command()
+        end, {})
+
+        -- Copy functions
+        vim.api.nvim_create_user_command("LLMCopyResponse", function()
+            require("sllm").copy_last_response()
+        end, {})
+        vim.api.nvim_create_user_command("LLMCopyCodeLast", function()
+            require("sllm").copy_last_code_block()
+        end, {})
+        vim.api.nvim_create_user_command("LLMCopyCodeFirst", function()
+            require("sllm").copy_first_code_block()
+        end, {})
+    end,
+}
