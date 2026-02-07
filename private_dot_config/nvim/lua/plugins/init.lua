@@ -1,15 +1,9 @@
 return {
     {
-        name = "BlakeJC94",
         dir = vim.fn.stdpath("config"),
+        name = "BlakeJC94",
         lazy = false,
         opts = {},
-        config = function()
-            m = require("BlakeJC94")
-            m.set_custom_fold_text()
-            m.set_undo_maps()
-            m.set_arrow_maps()
-        end,
         keys = {
             -- Better jumplist for large line steps (and step through visual lines with j/k)
             {
@@ -173,7 +167,7 @@ return {
             {
                 "<Leader>Q",
                 function()
-                    require("foo").toggle_local_list()
+                    require("BlakeJC94").toggle_local_list()
                 end,
             },
             { "<Leader>;", "<cmd>edit $MYVIMRC | lcd %:p:h<CR>" },
@@ -183,23 +177,7 @@ return {
                 "<Leader>/",
                 "<cmd>cd `git rev-parse --show-toplevel` \\| echo 'Changed dir to project root: ' . getcwd()<CR>",
             },
-        },
-    },
-    {
-        name = "lsp",
-        dir = vim.fn.stdpath("config"),
-        lazy = false,
-        config = function()
-            vim.diagnostic.config({
-                virtual_text = false,
-                signs = false,
-                underline = true,
-                update_in_insert = false,
-                severity_sort = false,
-            })
-            require("lsp").set_lspconfigs()
-        end,
-        keys = {
+            -- LSP Maps
             {
                 "<Leader>=",
                 function()
@@ -223,8 +201,7 @@ return {
         },
     },
     {
-        name = "shelly",
-        dir = vim.fn.stdpath("config"),
+        dir = vim.fn.stdpath("config") .. '/plugin/shelly',
         lazy = false,
         opts = {
             split = {
