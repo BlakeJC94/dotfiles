@@ -21,18 +21,18 @@ return {
             -- gF: create new file at filename over cursor
             { "gF", "<cmd>e <c-r><c-f><CR>" },
             -- Make {/} don't change the jump list
-            { "{",  ":<C-u>keepjumps norm! {<CR>" },
-            { "}",  ":<C-u>keepjumps norm! }<CR>" },
+            { "{", ":<C-u>keepjumps norm! {<CR>" },
+            { "}", ":<C-u>keepjumps norm! }<CR>" },
             -- Prevent x and s from overriding what's in the clipboard
-            { "x",  '"_x' },
-            { "X",  '"_X' },
-            { "s",  '"_s' },
+            { "x", '"_x' },
+            { "X", '"_X' },
+            { "s", '"_s' },
             -- Open folds when flicking through search matches
-            { "n",  "nzv" },
-            { "N",  "Nzv" },
+            { "n", "nzv" },
+            { "N", "Nzv" },
             -- Remap q and Q to stop polluting registers accidentally!
-            { "q",  "gw" },
-            { "Q",  "q" },
+            { "q", "gw" },
+            { "Q", "q" },
             -- Maintain Visual Mode after >/</= actions
             {
                 "<",
@@ -143,21 +143,21 @@ return {
                 silent = false,
             },
             -- Resize split maps
-            { "<C-Left>",      ":wincmd 8<<CR>" },
-            { "<C-Up>",        ":wincmd 4+<CR>" },
-            { "<C-Down>",      ":wincmd 4-<CR>" },
-            { "<C-Right>",     ":wincmd 8><CR>" },
+            { "<C-Left>", ":wincmd 8<<CR>" },
+            { "<C-Up>", ":wincmd 4+<CR>" },
+            { "<C-Down>", ":wincmd 4-<CR>" },
+            { "<C-Right>", ":wincmd 8><CR>" },
             -- Vim Tab controls
-            { "<Leader>t",     ":tabedit %<CR>" },
-            { "<Leader>n",     ":tabnext<CR>" },
-            { "<Leader>p",     ":tabnext<CR>" },
-            { "<Leader>N",     ":+tabmove<CR>" },
-            { "<Leader>P",     ":-tabmove<CR>" },
+            { "<Leader>t", ":tabedit %<CR>" },
+            { "<Leader>n", ":tabnext<CR>" },
+            { "<Leader>p", ":tabnext<CR>" },
+            { "<Leader>N", ":+tabmove<CR>" },
+            { "<Leader>P", ":-tabmove<CR>" },
             -- Select all
-            { "<Leader>e",     "ggVG" },
+            { "<Leader>e", "ggVG" },
             -- Leader maps
-            { "<Leader><Tab>", "<C-^>" },        -- Last file
-            { "<Leader>O",     ":%bd|e#|bd# <CR>" }, -- Clear buffers
+            { "<Leader><Tab>", "<C-^>" }, -- Last file
+            { "<Leader>O", ":%bd|e#|bd# <CR>" }, -- Clear buffers
             {
                 "<Leader>q",
                 function()
@@ -201,7 +201,7 @@ return {
         },
     },
     {
-        dir = vim.fn.stdpath("config") .. '/plugin/shelly',
+        dir = vim.fn.stdpath("config") .. "/plugin/shelly",
         lazy = false,
         opts = {
             split = {
@@ -231,6 +231,22 @@ return {
                 mode = "t",
             },
         },
+    },
+    {
+        dir = vim.fn.stdpath("config") .. "/plugin/field-notes",
+        lazy = false,
+        opts = {
+            field_notes_vert = true,
+            field_notes_dir = vim.fn.expand("~/Workspace/field-notes"),
+            blog_content_dir = vim.fn.expand("~/Workspace/repos/blog/content"),
+        },
+        keys = {
+            { "<Leader>n", ":Note<CR>" },
+            { "<Leader>N", ":Notes<CR>" },
+        },
+    },
+    {
+        dir = vim.fn.stdpath("config") .. "/plugin/python-scrap",
     },
     {
         "https://github.com/chrisgrieser/nvim-various-textobjs",

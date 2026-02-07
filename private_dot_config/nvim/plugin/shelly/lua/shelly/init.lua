@@ -453,6 +453,18 @@ local function setup(config)
         send_current_cell()
     end, { desc = "Send current cell to terminal", silent = true })
 
+    local group = vim.api.nvim_create_augroup("on_quit_kill_nvim_terminals", { clear = true })
+    vim.api.nvim_create_autocmd("VimLeavePre", {
+        group = group,
+        callback = function()
+            for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].buftype == "terminal" then
+                    vim.api.nvim_buf_delete(bufnr, { force = true })
+                end
+            end
+        end,
+    })
+
     return config
 end
 

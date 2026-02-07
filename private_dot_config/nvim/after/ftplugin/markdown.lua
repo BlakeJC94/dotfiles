@@ -1,7 +1,7 @@
 vim.opt_local.formatoptions:remove("tc")
 vim.opt_local.wrap = true
 vim.opt_local.breakindentopt = "list:-1"
--- vim.opt_local.conceallevel = 1
+vim.opt_local.conceallevel = 1
 vim.opt_local.foldlevel = 1
 
 vim.opt_local.tabstop = 2
@@ -76,7 +76,6 @@ vim.keymap.set("i", "<CR>", function()
 
     return "<CR>"
 end, { expr = true })
-
 
 function CsvToMarkdown()
     -- Get visual selection
