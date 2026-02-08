@@ -135,8 +135,59 @@ local function is_ipython(buf)
     return false
 end
 
+-- Function to get the active process name in a terminal
+local function get_terminal_process(job_id)
+    if not job_id then
+        return nil
+    end
+
+    -- Get the terminal PID
+    local pid = vim.fn.jobpid(job_id)
+    if not pid or pid <= 0 then
+        return nil
+    end
+
+    -- Use ps to get the command of the foreground process
+    -- We check children of the terminal process to find what's actually running
+    local handle = io.popen(string.format("ps -o comm= -g $(ps -o pgid= -p %d | tr -d ' ')", pid))
+    if not handle then
+        return nil
+    end
+
+    local result = handle:read("*a")
+    handle:close()
+
+    if not result or result == "" then
+        return nil
+    end
+
+    -- Get the last (most recent) process in the group, which is typically the foreground process
+    local processes = {}
+    for line in result:gmatch("[^\r\n]+") do
+        table.insert(processes, line)
+    end
+
+    if #processes > 0 then
+        -- Return the last process (foreground)
+        return processes[#processes]
+    end
+
+    return nil
+end
+
+-- Function to check if the active process is a shell (sh, bash, zsh)
+local function is_shell_process(job_id)
+    local process = get_terminal_process(job_id)
+    if not process then
+        return false
+    end
+
+    -- Check if the process is sh, bash, or zsh
+    return process == "sh" or process == "bash" or process == "zsh"
+end
+
 -- Function to send text to the marked terminal
-local function send_to_terminal(text, force_ipython_mode)
+local function send_to_terminal(text)
     -- Expand % symbols to current file path
     local current_file = vim.api.nvim_buf_get_name(0)
     if current_file and current_file ~= "" then
@@ -152,7 +203,7 @@ local function send_to_terminal(text, force_ipython_mode)
                 vim.notify("Failed to create terminal.", vim.log.levels.ERROR)
                 return
             end
-            send_to_terminal(text, force_ipython_mode)
+            send_to_terminal(text)
         end, 100)
         return
     end
@@ -162,8 +213,14 @@ local function send_to_terminal(text, force_ipython_mode)
         return
     end
 
-    -- Auto-detect IPython mode or use forced mode
-    local use_ipython_mode = force_ipython_mode or is_ipython(marked_terminal.buf)
+    -- Safety check: prevent sending text to shell processes
+    if is_shell_process(marked_terminal.job_id) then
+        vim.notify("Cannot send text: active process is a shell (sh/bash/zsh). Start a REPL first.", vim.log.levels.ERROR)
+        return
+    end
+
+    -- Auto-detect IPython mode
+    local use_ipython_mode = is_ipython(marked_terminal.buf)
 
     if use_ipython_mode then
         -- Use IPython's %cpaste mode for multi-line code
@@ -180,13 +237,13 @@ local function send_to_terminal(text, force_ipython_mode)
 end
 
 -- Function to send current line to terminal
-local function send_current_line(force_ipython_mode)
+local function send_current_line()
     local line = vim.api.nvim_get_current_line()
-    send_to_terminal(line, force_ipython_mode)
+    send_to_terminal(line)
 end
 
 -- Function to send visual selection to terminal
-local function send_visual_selection(force_ipython_mode)
+local function send_visual_selection()
     -- Get the visual selection
     local start_pos = vim.fn.getpos("'<")
     local end_pos = vim.fn.getpos("'>")
@@ -212,7 +269,7 @@ local function send_visual_selection(force_ipython_mode)
     end
 
     local text = table.concat(lines, "\n")
-    send_to_terminal(text, force_ipython_mode)
+    send_to_terminal(text)
 end
 
 -- Function to check if a line is a cell delimiter
@@ -222,7 +279,7 @@ local function is_cell_delimiter(line)
 end
 
 -- Function to send current cell to terminal
-local function send_current_cell(force_ipython_mode)
+local function send_current_cell()
     local current_line = vim.api.nvim_win_get_cursor(0)[1]
     local total_lines = vim.api.nvim_buf_line_count(0)
     local all_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
@@ -264,7 +321,7 @@ local function send_current_cell(force_ipython_mode)
     end
 
     local text = table.concat(cell_lines, "\n")
-    send_to_terminal(text, force_ipython_mode)
+    send_to_terminal(text)
 
     -- Jump to the next cell if it exists
     if next_cell_start then
@@ -397,6 +454,53 @@ M.toggle = function(opts)
     toggle(config, opts)
 end
 
+-- Operator function for sending motions to terminal
+M.operator_send = function(motion_type)
+    local start_pos, end_pos
+
+    if motion_type == "char" then
+        start_pos = vim.api.nvim_buf_get_mark(0, "[")
+        end_pos = vim.api.nvim_buf_get_mark(0, "]")
+    elseif motion_type == "line" then
+        start_pos = vim.api.nvim_buf_get_mark(0, "[")
+        end_pos = vim.api.nvim_buf_get_mark(0, "]")
+    elseif motion_type == "block" then
+        -- Block selection not supported for now
+        vim.notify("Block selection not supported", vim.log.levels.WARN)
+        return
+    else
+        return
+    end
+
+    local lines = vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1], false)
+
+    if #lines == 0 then
+        return
+    end
+
+    -- For line motion, use full lines
+    if motion_type == "line" then
+        local text = table.concat(lines, "\n")
+        send_to_terminal(text)
+        return
+    end
+
+    -- For char motion, handle column positions
+    if #lines == 1 then
+        local line = lines[1]
+        lines[1] = string.sub(line, start_pos[2] + 1, end_pos[2] + 1)
+    else
+        -- Multi-line: trim first and last lines
+        local first_line = lines[1]
+        local last_line = lines[#lines]
+        lines[1] = string.sub(first_line, start_pos[2] + 1)
+        lines[#lines] = string.sub(last_line, 1, end_pos[2] + 1)
+    end
+
+    local text = table.concat(lines, "\n")
+    send_to_terminal(text)
+end
+
 local function setup(config)
     -- Ensure terms and prev_id are initialized if not already present
     if not config.terms then
@@ -408,39 +512,31 @@ local function setup(config)
 
     -- Create the SendToTerminal command
     vim.api.nvim_create_user_command("S", function(opts)
-        local force_ipython = opts.bang
-        send_to_terminal(opts.args, force_ipython)
+        send_to_terminal(opts.args)
     end, {
         nargs = "+",
-        bang = true,
-        desc = "Send arbitrary text to the marked terminal (auto-detects IPython, use ! to force IPython mode)",
+        desc = "Send arbitrary text to the marked terminal (auto-detects IPython)",
     })
 
     -- Create the SendLine command
-    vim.api.nvim_create_user_command("SendLine", function(opts)
-        local force_ipython = opts.bang
-        send_current_line(force_ipython)
+    vim.api.nvim_create_user_command("SendLine", function()
+        send_current_line()
     end, {
-        bang = true,
-        desc = "Send current line to the marked terminal (auto-detects IPython, use ! to force IPython mode)",
+        desc = "Send current line to the marked terminal (auto-detects IPython)",
     })
 
     -- Create the SendSelection command
-    vim.api.nvim_create_user_command("SendSelection", function(opts)
-        local force_ipython = opts.bang
-        send_visual_selection(force_ipython)
+    vim.api.nvim_create_user_command("SendSelection", function()
+        send_visual_selection()
     end, {
         range = true,
-        bang = true,
-        desc = "Send visual selection to the marked terminal (auto-detects IPython, use ! to force IPython mode)",
+        desc = "Send visual selection to the marked terminal (auto-detects IPython)",
     })
 
     -- Create the SendCell command
-    vim.api.nvim_create_user_command("SendCell", function(opts)
-        local force_ipython = opts.bang
-        send_current_cell(force_ipython)
+    vim.api.nvim_create_user_command("SendCell", function()
+        send_current_cell()
     end, {
-        bang = true,
         desc = "Send current cell (between # %%, -- %%, In[n], or ``` markers) to the marked terminal",
     })
 
@@ -452,6 +548,12 @@ local function setup(config)
     vim.keymap.set("n", "<C-c><C-c>", function()
         send_current_cell()
     end, { desc = "Send current cell to terminal", silent = true })
+
+    -- Operator-pending mapping for <C-c>
+    vim.keymap.set("n", "<C-c>", function()
+        vim.o.operatorfunc = "v:lua.require'shelly'.operator_send"
+        return "g@"
+    end, { expr = true, desc = "Send motion to terminal", silent = true })
 
     local group = vim.api.nvim_create_augroup("on_quit_kill_nvim_terminals", { clear = true })
     vim.api.nvim_create_autocmd("VimLeavePre", {
