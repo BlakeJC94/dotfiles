@@ -188,12 +188,6 @@ end
 
 -- Function to send text to the marked terminal
 local function send_to_terminal(text)
-    -- Expand % symbols to current file path
-    local current_file = vim.api.nvim_buf_get_name(0)
-    if current_file and current_file ~= "" then
-        text = string.gsub(text, "%%", vim.fn.shellescape(current_file))
-    end
-
     if not marked_terminal.buf or not vim.api.nvim_buf_is_valid(marked_terminal.buf) then
         -- Auto-toggle terminal if no marked terminal is found
         M.toggle()
@@ -511,8 +505,22 @@ local function setup(config)
     end
 
     -- Create the SendToTerminal command
-    vim.api.nvim_create_user_command("S", function(opts)
-        send_to_terminal(opts.args)
+    vim.api.nvim_create_user_command("Shell", function(opts)
+        local text = opts.args
+
+        -- Expand % symbols to current file path
+        local current_file = vim.api.nvim_buf_get_name(0)
+        if current_file and current_file ~= "" then
+            text = text:gsub("()%%%S*", function(pos)
+              -- Check if previous character is a backslash
+              if pos > 1 and text:sub(pos-1, pos-1) == "\\" then
+                return nil  -- return nil to make no replacement (skip match)
+              end
+              return vim.fn.expand(text:sub(pos))
+            end)
+        end
+
+        send_to_terminal(text)
     end, {
         nargs = "+",
         desc = "Send arbitrary text to the marked terminal (auto-detects IPython)",

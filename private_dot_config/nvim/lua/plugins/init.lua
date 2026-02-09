@@ -215,7 +215,7 @@ return {
         keys = {
             {
                 "<Leader>a",
-                ":S ",
+                ":Shell ",
                 mode = "n",
             },
             {
