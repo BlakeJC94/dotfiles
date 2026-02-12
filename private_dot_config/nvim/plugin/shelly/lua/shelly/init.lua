@@ -1,57 +1,28 @@
 local M = {}
 
 -- Store the marked terminal info
-local marked_terminal = {
-    buf = nil,
-    job_id = nil,
-    config = nil,
-}
+local marked_terminal = { buf = nil, job_id = nil, win = nil }
 
-local defaults = {
-    file = nil, -- file to open
-    cmd = vim.o.shell, -- terminal command to run
-    cwd = vim.fn.getcwd, -- cwd of the command
-    id = function()
-        return vim.v.count
-    end, -- split identifier
+local CONFIG = {
+    cmd = vim.o.shell,
+    cwd = vim.fn.getcwd,
     start_in_insert = true,
     focus = true,
-    on_open = nil, -- callback(term, buf) when buffer is created
-    on_exit = nil, -- callback(term, buf) when buffer is destroyed
     split = {
-        direction = "horizontal", -- "horizontal" or "vertical"
-        size = 12, -- size of the split (lines for horizontal, columns for vertical)
-        position = "bottom", -- "top", "bottom", "left", "right"
+        direction = "horizontal",
+        size = 16,
+        position = "bottom",
     },
     wo = {
         cursorcolumn = false,
         cursorline = false,
-        cursorlineopt = "both",
-        fillchars = "eob: ,lastline:…",
-        list = false,
-        listchars = "extends:…,tab:  ",
         number = false,
         relativenumber = false,
         signcolumn = "no",
         spell = false,
-        winbar = "",
-        statuscolumn = "",
         wrap = false,
-        sidescrolloff = 0,
     },
-    terms = {},
-    prev_id = nil,
 }
-
-local CONFIG = defaults
-
-M.set_config = function(opts)
-    CONFIG = vim.tbl_deep_extend("force", CONFIG, opts or {})
-end
-
-M.get_config = function()
-    return CONFIG
-end
 
 local function eval_opts(opts)
     if type(opts) == "function" then
@@ -67,50 +38,15 @@ local function eval_opts(opts)
     return opts
 end
 
-local function valid_buf(buf)
-    return buf and vim.api.nvim_buf_is_valid(buf)
-end
-local function valid_win(win)
-    return win and vim.api.nvim_win_is_valid(win)
-end
-
 local function get_split_cmd(config)
     local opts = eval_opts(config.split)
-    local cmd = ""
-
-    if opts.direction == "vertical" then
-        if opts.position == "left" then
-            cmd = "topleft vertical"
-        else -- right
-            cmd = "botright vertical"
-        end
-        cmd = cmd .. " " .. opts.size .. "split"
-    else -- horizontal
-        if opts.position == "top" then
-            cmd = "topleft"
-        else -- bottom
-            cmd = "botright"
-        end
-        cmd = cmd .. " " .. opts.size .. "split"
-    end
-
-    return cmd
-end
-
-local function create_buf(config)
-    local buf = nil
-    if config.file then
-        buf = vim.fn.bufadd(eval_opts(config.file))
-        vim.fn.bufload(buf)
-    else
-        buf = vim.api.nvim_create_buf(false, true)
-    end
-    return buf
+    local pos = (opts.position == "left" or opts.position == "top") and "topleft" or "botright"
+    local dir = opts.direction == "vertical" and " vertical" or ""
+    return pos .. dir .. " " .. opts.size .. "split"
 end
 
 local function create_win(config, buf)
-    local split_cmd = get_split_cmd(config)
-    vim.cmd(split_cmd)
+    vim.cmd(get_split_cmd(config))
     local win = vim.api.nvim_get_current_win()
     vim.api.nvim_win_set_buf(win, buf)
     for opt, val in pairs(config.wo) do
@@ -119,13 +55,11 @@ local function create_win(config, buf)
     return win
 end
 
--- Function to check if the terminal is running IPython
 local function is_ipython(buf)
-    if not buf or not vim.api.nvim_buf_is_valid(buf) then
+    if not vim.api.nvim_buf_is_valid(buf) then
         return false
     end
 
-    -- Get the terminal buffer content to check for IPython prompt
     local lines = vim.api.nvim_buf_get_lines(buf, -10, -1, false)
     for _, line in ipairs(lines) do
         if string.match(line, "In %[%d+%]:") or string.match(line, "IPython") then
@@ -135,21 +69,40 @@ local function is_ipython(buf)
     return false
 end
 
--- Function to get the active process name in a terminal
 local function get_terminal_process(job_id)
     if not job_id then
         return nil
     end
 
-    -- Get the terminal PID
     local pid = vim.fn.jobpid(job_id)
     if not pid or pid <= 0 then
         return nil
     end
 
-    -- Use ps to get the command of the foreground process
-    -- We check children of the terminal process to find what's actually running
-    local handle = io.popen(string.format("ps -o comm= -g $(ps -o pgid= -p %d | tr -d ' ')", pid))
+    -- First, try to get the foreground process using pgrep
+    -- This finds child processes of the terminal that are NOT the shell itself
+    local handle = io.popen(string.format("pgrep -P %d | head -n 1", pid))
+    if handle then
+        local child_pid = handle:read("*a")
+        handle:close()
+
+        if child_pid and child_pid ~= "" then
+            child_pid = child_pid:gsub("^%s*(.-)%s*$", "%1")
+            -- Get the command name of the child process
+            handle = io.popen(string.format("ps -o comm= -p %s", child_pid))
+            if handle then
+                local result = handle:read("*a")
+                handle:close()
+                if result and result ~= "" then
+                    result = result:gsub("^%s*(.-)%s*$", "%1")
+                    return result
+                end
+            end
+        end
+    end
+
+    -- Fallback: get the terminal's own process if no children found
+    handle = io.popen(string.format("ps -o comm= -p %d", pid))
     if not handle then
         return nil
     end
@@ -161,37 +114,46 @@ local function get_terminal_process(job_id)
         return nil
     end
 
-    -- Get the last (most recent) process in the group, which is typically the foreground process
-    local processes = {}
-    for line in result:gmatch("[^\r\n]+") do
-        table.insert(processes, line)
-    end
-
-    if #processes > 0 then
-        -- Return the last process (foreground)
-        return processes[#processes]
-    end
-
-    return nil
+    result = result:gsub("^%s*(.-)%s*$", "%1")
+    return result
 end
 
--- Function to check if the active process is a shell (sh, bash, zsh)
 local function is_shell_process(job_id)
     local process = get_terminal_process(job_id)
-    if not process then
-        return false
-    end
-
-    -- Check if the process is sh, bash, or zsh
-    return process == "sh" or process == "bash" or process == "zsh"
+    local process_parts = vim.fn.split(process, '/')
+    local process_head = process_parts[#process_parts]
+    return process_head == "sh" or process_head == "bash" or process_head == "zsh"
 end
 
--- Function to send text to the marked terminal
+-- Extract text from a range (used by both visual selection and operator motions)
+local function extract_text_range(start_pos, end_pos, motion_type)
+    local lines = vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1], false)
+
+    if #lines == 0 then
+        return nil
+    end
+
+    -- For line motion, use full lines
+    if motion_type == "line" then
+        return table.concat(lines, "\n")
+    end
+
+    -- For char motion, handle column positions
+    if #lines == 1 then
+        lines[1] = string.sub(lines[1], start_pos[2] + 1, end_pos[2] + 1)
+    else
+        -- Multi-line: trim first and last lines
+        lines[1] = string.sub(lines[1], start_pos[2] + 1)
+        lines[#lines] = string.sub(lines[#lines], 1, end_pos[2] + 1)
+    end
+
+    return table.concat(lines, "\n")
+end
+
 local function send_to_terminal(text)
     if not marked_terminal.buf or not vim.api.nvim_buf_is_valid(marked_terminal.buf) then
         -- Auto-toggle terminal if no marked terminal is found
         M.toggle()
-        -- Wait a moment for the terminal to be created
         vim.defer_fn(function()
             if not marked_terminal.buf or not vim.api.nvim_buf_is_valid(marked_terminal.buf) then
                 vim.notify("Failed to create terminal.", vim.log.levels.ERROR)
@@ -207,72 +169,58 @@ local function send_to_terminal(text)
         return
     end
 
-    -- Safety check: prevent sending text to shell processes
-    if is_shell_process(marked_terminal.job_id) then
-        vim.notify("Cannot send text: active process is a shell (sh/bash/zsh). Start a REPL first.", vim.log.levels.ERROR)
-        return
-    end
-
     -- Auto-detect IPython mode
-    local use_ipython_mode = is_ipython(marked_terminal.buf)
-
-    if use_ipython_mode then
+    if is_ipython(marked_terminal.buf) then
         -- Use IPython's %cpaste mode for multi-line code
         vim.api.nvim_chan_send(marked_terminal.job_id, "%cpaste -q\n")
-        -- Wait a moment for cpaste to be ready
         vim.defer_fn(function()
             vim.api.nvim_chan_send(marked_terminal.job_id, text .. "\n")
             vim.api.nvim_chan_send(marked_terminal.job_id, "\x04") -- Ctrl-D to end paste mode
         end, 50)
     else
-        -- Send the text to the terminal normally
         vim.api.nvim_chan_send(marked_terminal.job_id, text .. "\n")
     end
 end
 
--- Function to send current line to terminal
-local function send_current_line()
-    local line = vim.api.nvim_get_current_line()
-    send_to_terminal(line)
-end
-
--- Function to send visual selection to terminal
 local function send_visual_selection()
-    -- Get the visual selection
     local start_pos = vim.fn.getpos("'<")
     local end_pos = vim.fn.getpos("'>")
 
+    -- Adjust for visual selection (different indexing than marks)
     local lines = vim.api.nvim_buf_get_lines(0, start_pos[2] - 1, end_pos[2], false)
 
     if #lines == 0 then
         return
     end
 
-    -- If single line, handle column selection
     if #lines == 1 then
-        local line = lines[1]
-        local start_col = start_pos[3] - 1
-        local end_col = end_pos[3]
-        lines[1] = string.sub(line, start_col + 1, end_col)
+        lines[1] = string.sub(lines[1], start_pos[3], end_pos[3])
     else
-        -- Multi-line selection: trim first and last lines
-        local first_line = lines[1]
-        local last_line = lines[#lines]
-        lines[1] = string.sub(first_line, start_pos[3])
-        lines[#lines] = string.sub(last_line, 1, end_pos[3])
+        lines[1] = string.sub(lines[1], start_pos[3])
+        lines[#lines] = string.sub(lines[#lines], 1, end_pos[3])
     end
 
     local text = table.concat(lines, "\n")
+
+    -- Safety check: prevent sending text from terminal buffer to itself
+    if vim.bo.buftype == "terminal" then
+        vim.notify("Cannot send text from a terminal buffer to itself.", vim.log.levels.ERROR)
+        return
+    end
+
+    -- Safety check: prevent sending text to shell processes
+    if is_shell_process(marked_terminal.job_id) then
+        vim.notify("Cannot send text: active process is a shell (sh/bash/zsh). Start a REPL first.", vim.log.levels.ERROR)
+        return
+    end
+
     send_to_terminal(text)
 end
 
--- Function to check if a line is a cell delimiter
 local function is_cell_delimiter(line)
-    -- Cell delimiter pattern: # %%, -- %%, In[n], or ```
     return string.match(line, "^%s*[#%-%-]%s+%%%%") or string.match(line, "^%s*In%[%d+%]") or string.match(line, "^```")
 end
 
--- Function to send current cell to terminal
 local function send_current_cell()
     local current_line = vim.api.nvim_win_get_cursor(0)[1]
     local total_lines = vim.api.nvim_buf_line_count(0)
@@ -302,11 +250,11 @@ local function send_current_cell()
     local cell_lines = vim.api.nvim_buf_get_lines(0, cell_start - 1, cell_end, false)
 
     -- Remove empty lines at the beginning and end
-    while #cell_lines > 0 and string.match(cell_lines[1], "^%s*$") do
+    while #cell_lines > 0 and cell_lines[1]:match("^%s*$") do
         table.remove(cell_lines, 1)
     end
-    while #cell_lines > 0 and string.match(cell_lines[#cell_lines], "^%s*$") do
-        table.remove(cell_lines, #cell_lines)
+    while #cell_lines > 0 and cell_lines[#cell_lines]:match("^%s*$") do
+        table.remove(cell_lines)
     end
 
     if #cell_lines == 0 then
@@ -315,6 +263,19 @@ local function send_current_cell()
     end
 
     local text = table.concat(cell_lines, "\n")
+
+    -- Safety check: prevent sending text from terminal buffer to itself
+    if vim.bo.buftype == "terminal" then
+        vim.notify("Cannot send text from a terminal buffer to itself.", vim.log.levels.ERROR)
+        return
+    end
+
+    -- Safety check: prevent sending text to shell processes
+    if is_shell_process(marked_terminal.job_id) then
+        vim.notify("Cannot send text: active process is a shell (sh/bash/zsh). Start a REPL first.", vim.log.levels.ERROR)
+        return
+    end
+
     send_to_terminal(text)
 
     -- Jump to the next cell if it exists
@@ -323,249 +284,177 @@ local function send_current_cell()
     end
 end
 
-local function toggle(config, opts)
-    opts = opts or {}
-    local id = opts.id or eval_opts(config.id)
-    if type(id) ~= "string" and type(id) ~= "number" then
+M.operator_send = function(motion_type)
+    if motion_type == "block" then
+        vim.notify("Block selection not supported", vim.log.levels.WARN)
         return
     end
 
-    -- 0 is a special id to toggle previous float
-    if id == 0 then
-        id = config.prev_id or 1
+    if motion_type ~= "char" and motion_type ~= "line" then
+        return
     end
 
-    -- Ensure terms table exists
-    if not config.terms then
-        config.terms = {}
-    end
+    local start_pos = vim.api.nvim_buf_get_mark(0, "[")
+    local end_pos = vim.api.nvim_buf_get_mark(0, "]")
+    local text = extract_text_range(start_pos, end_pos, motion_type)
 
-    local term = config.terms[id] or {}
+    if text then
 
-    -- cmd and cwd need to be evaluated before window is created
-    local cmd = eval_opts(config.cmd) or vim.o.shell
-    local cwd = eval_opts(config.cwd) or vim.fn.getcwd()
-
-    local buf_ready = valid_buf(term.buf)
-    if not buf_ready then
-        term.buf = create_buf(config)
-        if config.on_open then
-            config.on_open(config, term.buf)
+        -- Safety check: prevent sending text from terminal buffer to itself
+        if vim.bo.buftype == "terminal" then
+            vim.notify("Cannot send text from a terminal buffer to itself.", vim.log.levels.ERROR)
+            return
         end
 
+        -- Safety check: prevent sending text to shell processes
+        if is_shell_process(marked_terminal.job_id) then
+            vim.notify("Cannot send text: active process is a shell (sh/bash/zsh). Start a REPL first.", vim.log.levels.ERROR)
+            return
+        end
+
+        send_to_terminal(text)
+    end
+end
+
+M.toggle = function()
+    local term = marked_terminal
+    local cmd = eval_opts(CONFIG.cmd) or vim.o.shell
+    local cwd = eval_opts(CONFIG.cwd) or vim.fn.getcwd()
+    local buf_ready = term.buf and vim.api.nvim_buf_is_valid(term.buf)
+
+    -- Create buffer if needed
+    if not buf_ready then
+        term.buf = vim.api.nvim_create_buf(false, true)
         vim.api.nvim_buf_set_option(term.buf, "buflisted", false)
         vim.api.nvim_buf_set_name(term.buf, "Shelly")
-
-        -- Set buffer-local mapping for <C-q> in normal mode
-        vim.keymap.set("n", "<C-q>", "<C-w>", { buffer = term.buf })
-
-        -- -- Set up autoscroll for terminal buffer
-        -- vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
-        --     buffer = term.buf,
-        --     callback = function()
-        --         -- Get all windows showing this buffer
-        --         local wins = vim.fn.win_findbuf(term.buf)
-        --         for _, win in ipairs(wins) do
-        --             if vim.api.nvim_win_is_valid(win) then
-        --                 -- Execute scroll command in the context of the window
-        --                 vim.api.nvim_win_call(win, function()
-        --                     vim.cmd("normal! G")
-        --                 end)
-        --             end
-        --         end
-        --     end,
-        -- })
+        vim.keymap.set("n", "<C-Space>", "<C-w><C-w>", { buffer = term.buf, desc = "Cycle to next window" })
+        vim.keymap.set("t", "<C-Space>", "<C-\\><C-n>G", { buffer = term.buf, desc = "Exit terminal mode, jump to bottom" })
 
         vim.api.nvim_create_autocmd("BufDelete", {
             buffer = term.buf,
             once = true,
             callback = function()
-                if config.on_exit then
-                    config.on_exit(config, term.buf)
-                end
-                -- Clear marked terminal if this buffer is being deleted
-                if marked_terminal.buf == term.buf then
-                    marked_terminal.buf = nil
-                    marked_terminal.job_id = nil
-                    marked_terminal.config = nil
-                end
+                marked_terminal.buf = nil
+                marked_terminal.job_id = nil
+                marked_terminal.win = nil
             end,
         })
     end
 
-    if valid_win(term.win) then
+    -- Toggle window
+    if term.win and vim.api.nvim_win_is_valid(term.win) then
         vim.api.nvim_win_close(term.win, true)
+        term.win = nil
     else
-        -- ensure unwanted float window is closed
-        if id ~= config.prev_id then
-            local prev_term = config.terms[config.prev_id] or {}
-            if valid_win(prev_term.win) then
-                vim.api.nvim_win_close(prev_term.win, true)
-            end
-        end
-        -- create new window
         local prev_win = vim.api.nvim_get_current_win()
-        term.win = create_win(config, term.buf)
-        if not config.file then
-            -- ensure terminal command is executed before first show
-            if not buf_ready then
-                local job_id = vim.fn.jobstart(cmd, { cwd = cwd, term = true })
-                if job_id == 0 then
-                    vim.notify("shelly: Invalid arguments for terminal command", vim.log.levels.ERROR)
-                    return
-                elseif job_id == -1 then
-                    vim.notify("shelly: Terminal command not executable: " .. cmd, vim.log.levels.ERROR)
+        term.win = create_win(CONFIG, term.buf)
+
+        -- Start terminal if buffer is new
+        if not buf_ready then
+            local job_id = vim.fn.jobstart(cmd, { cwd = cwd, term = true })
+            if job_id == 0 then
+                vim.notify("shelly: Invalid arguments for terminal command", vim.log.levels.ERROR)
+                return
+            elseif job_id == -1 then
+                vim.notify("shelly: Terminal command not executable: " .. cmd, vim.log.levels.ERROR)
+                return
+            end
+            term.job_id = job_id
+        else
+            term.job_id = vim.b[term.buf].terminal_job_id
+        end
+
+        vim.cmd.norm("G")
+
+        if not eval_opts(CONFIG.focus) and vim.api.nvim_win_is_valid(prev_win) then
+            vim.api.nvim_set_current_win(prev_win)
+        elseif eval_opts(CONFIG.start_in_insert) then
+            vim.cmd.startinsert()
+        end
+    end
+end
+
+M.setup = function(opts)
+    CONFIG = vim.tbl_deep_extend("force", CONFIG, opts or {})
+
+    -- Create user commands
+    local commands = {
+        {
+            name = "Shell",
+            fn = function(cmd_opts)
+                local text = cmd_opts.args
+                local current_file = vim.api.nvim_buf_get_name(0)
+                if current_file ~= "" then
+                    text = text:gsub("()%%%S*", function(pos)
+                        if pos > 1 and text:sub(pos - 1, pos - 1) == "\\" then
+                            return nil
+                        end
+                        return vim.fn.expand(text:sub(pos))
+                    end)
+                end
+                send_to_terminal(text)
+            end,
+            opts = { nargs = "+", desc = "Send arbitrary text to the marked terminal (auto-detects IPython)" },
+        },
+        {
+            name = "SendLine",
+            fn = function()
+                send_to_terminal(vim.api.nvim_get_current_line())
+            end,
+            opts = { desc = "Send current line to the marked terminal (auto-detects IPython)" },
+        },
+        {
+            name = "SendSelection",
+            fn = send_visual_selection,
+            opts = { range = true, desc = "Send visual selection to the marked terminal (auto-detects IPython)" },
+        },
+        {
+            name = "SendCell",
+            fn = send_current_cell,
+            opts = { desc = "Send current cell (between # %%, -- %%, In[n], or ``` markers) to the marked terminal" },
+        },
+        {
+            name = "ShellyDebug",
+            fn = function()
+                if not marked_terminal.job_id then
+                    vim.notify("No marked terminal found", vim.log.levels.WARN)
                     return
                 end
-                -- Mark this terminal for sending commands
-                marked_terminal.buf = term.buf
-                marked_terminal.job_id = job_id
-                marked_terminal.config = config
-            else
-                -- For existing buffer, get the job_id from buffer variable
-                marked_terminal.buf = term.buf
-                marked_terminal.job_id = vim.b[term.buf].terminal_job_id
-                marked_terminal.config = config
-            end
+                local process = get_terminal_process(marked_terminal.job_id)
+                local is_shell = is_shell_process(marked_terminal.job_id)
+                vim.notify(string.format("Process: %s | Is shell: %s", process or "nil", tostring(is_shell)), vim.log.levels.INFO)
+            end,
+            opts = { desc = "Debug: Show current terminal process" },
+        },
+    }
 
-            -- Enable auto-scroll
-            vim.cmd.norm("G")
-
-            if not eval_opts(config.focus) and valid_win(prev_win) then
-                vim.api.nvim_set_current_win(prev_win)
-            elseif eval_opts(config.start_in_insert) then
-                vim.cmd.startinsert()
-            end
-        end
+    for _, cmd in ipairs(commands) do
+        vim.api.nvim_create_user_command(cmd.name, cmd.fn, cmd.opts)
     end
-
-    config.prev_id = id
-    config.terms[id] = term
-end
-
-M.toggle = function(opts)
-    local config = M.get_config()
-    toggle(config, opts)
-end
-
--- Operator function for sending motions to terminal
-M.operator_send = function(motion_type)
-    local start_pos, end_pos
-
-    if motion_type == "char" then
-        start_pos = vim.api.nvim_buf_get_mark(0, "[")
-        end_pos = vim.api.nvim_buf_get_mark(0, "]")
-    elseif motion_type == "line" then
-        start_pos = vim.api.nvim_buf_get_mark(0, "[")
-        end_pos = vim.api.nvim_buf_get_mark(0, "]")
-    elseif motion_type == "block" then
-        -- Block selection not supported for now
-        vim.notify("Block selection not supported", vim.log.levels.WARN)
-        return
-    else
-        return
-    end
-
-    local lines = vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1], false)
-
-    if #lines == 0 then
-        return
-    end
-
-    -- For line motion, use full lines
-    if motion_type == "line" then
-        local text = table.concat(lines, "\n")
-        send_to_terminal(text)
-        return
-    end
-
-    -- For char motion, handle column positions
-    if #lines == 1 then
-        local line = lines[1]
-        lines[1] = string.sub(line, start_pos[2] + 1, end_pos[2] + 1)
-    else
-        -- Multi-line: trim first and last lines
-        local first_line = lines[1]
-        local last_line = lines[#lines]
-        lines[1] = string.sub(first_line, start_pos[2] + 1)
-        lines[#lines] = string.sub(last_line, 1, end_pos[2] + 1)
-    end
-
-    local text = table.concat(lines, "\n")
-    send_to_terminal(text)
-end
-
-local function setup(config)
-    -- Ensure terms and prev_id are initialized if not already present
-    if not config.terms then
-        config.terms = {}
-    end
-    if not config.prev_id then
-        config.prev_id = nil
-    end
-
-    -- Create the SendToTerminal command
-    vim.api.nvim_create_user_command("Shell", function(opts)
-        local text = opts.args
-
-        -- Expand % symbols to current file path
-        local current_file = vim.api.nvim_buf_get_name(0)
-        if current_file and current_file ~= "" then
-            text = text:gsub("()%%%S*", function(pos)
-              -- Check if previous character is a backslash
-              if pos > 1 and text:sub(pos-1, pos-1) == "\\" then
-                return nil  -- return nil to make no replacement (skip match)
-              end
-              return vim.fn.expand(text:sub(pos))
-            end)
-        end
-
-        send_to_terminal(text)
-    end, {
-        nargs = "+",
-        desc = "Send arbitrary text to the marked terminal (auto-detects IPython)",
-    })
-
-    -- Create the SendLine command
-    vim.api.nvim_create_user_command("SendLine", function()
-        send_current_line()
-    end, {
-        desc = "Send current line to the marked terminal (auto-detects IPython)",
-    })
-
-    -- Create the SendSelection command
-    vim.api.nvim_create_user_command("SendSelection", function()
-        send_visual_selection()
-    end, {
-        range = true,
-        desc = "Send visual selection to the marked terminal (auto-detects IPython)",
-    })
-
-    -- Create the SendCell command
-    vim.api.nvim_create_user_command("SendCell", function()
-        send_current_cell()
-    end, {
-        desc = "Send current cell (between # %%, -- %%, In[n], or ``` markers) to the marked terminal",
-    })
 
     -- Set up key mappings
-    vim.keymap.set("v", "<C-c>", function()
-        send_visual_selection()
-    end, { desc = "Send selection to terminal", silent = true })
-
-    vim.keymap.set("n", "<C-c><C-c>", function()
-        send_current_cell()
-    end, { desc = "Send current cell to terminal", silent = true })
-
-    -- Operator-pending mapping for <C-c>
+    vim.keymap.set("v", "<C-c>", send_visual_selection, { desc = "Send selection to terminal", silent = true })
+    vim.keymap.set("n", "<C-c><C-c>", send_current_cell, { desc = "Send current cell to terminal", silent = true })
     vim.keymap.set("n", "<C-c>", function()
         vim.o.operatorfunc = "v:lua.require'shelly'.operator_send"
         return "g@"
     end, { expr = true, desc = "Send motion to terminal", silent = true })
 
-    local group = vim.api.nvim_create_augroup("on_quit_kill_nvim_terminals", { clear = true })
+    -- Global mapping to jump to terminal and enter insert mode
+    vim.keymap.set("n", "<C-Space>", function()
+        local term = marked_terminal
+        -- If terminal window is not open, toggle it
+        if not term.win or not vim.api.nvim_win_is_valid(term.win) then
+            M.toggle()
+        end
+        vim.api.nvim_set_current_win(term.win)
+        -- Start insert mode
+        vim.cmd.startinsert()
+    end, { desc = "Jump to terminal and enter insert mode", silent = true })
+
+    -- Kill all terminal buffers on exit
     vim.api.nvim_create_autocmd("VimLeavePre", {
-        group = group,
+        group = vim.api.nvim_create_augroup("shelly_cleanup", { clear = true }),
         callback = function()
             for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
                 if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].buftype == "terminal" then
@@ -574,14 +463,6 @@ local function setup(config)
             end
         end,
     })
-
-    return config
-end
-
-M.setup = function(opts)
-    M.set_config(opts)
-    local config = M.get_config()
-    return setup(config)
 end
 
 return M

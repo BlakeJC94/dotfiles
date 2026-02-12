@@ -1,5 +1,4 @@
 [tools]
-air = "latest"
 julia = "1.11"
 lua-language-server = "latest"
 marksman = "latest"
