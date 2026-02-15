@@ -6,6 +6,15 @@ if [[ -z "${WSL_DISTRO_NAME:-}" ]]; then
   exit 0
 fi
 
+# Emit the correct sequences so that cd is rendeert in tab title
+if [[ "$TERM_PROGRAM" == "WezTerm" ]]; then
+    _wezterm_osc7() {
+        printf "\033]7;file://%s%s\033\\" "$HOSTNAME" "$PWD"
+    }
+    PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_wezterm_osc7"
+fi
+
+# Copy the config in WSL to the host windows system
 WIN_HOME="/mnt/c/Users/$USER"
 DIR="$WIN_HOME/.config/wezterm"
 TARGET="$DIR/wezterm.lua"
@@ -14,3 +23,4 @@ TARGET="$DIR/wezterm.lua"
 
 mkdir -p $DIR
 cp $HOME/.config/wezterm/wezterm.lua $TARGET
+

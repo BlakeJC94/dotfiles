@@ -80,8 +80,32 @@ local tab_title = function(tab)
         return tab.tab_title
     end
 
+    -- Try to get the path from the URL
+    local path = ""
+    if cwd.file_path then
+        path = cwd.file_path
+    elseif cwd.path then
+        path = cwd.path
+    end
+
+    -- Parse WSL path from file:// URL if needed
+    local url_str = tostring(cwd)
+    if url_str:match("^file://[^/]") then
+        -- Extract path from file://hostname/path format
+        path = url_str:match("file://[^/]+(/.*)") or path
+    end
+
+    -- Ensure path starts with /
+    if path:sub(1, 1) ~= "/" then
+        path = "/" .. path
+    end
+
+    -- Get HOME - for WSL, derive it from the path since os.getenv doesn't work
     local home = os.getenv("HOME") or ""
-    local path = cwd.file_path or ""
+    if home == "" and path:match("^/home/[^/]+") then
+        -- Extract WSL home from path like /home/blake
+        home = path:match("^(/home/[^/]+)")
+    end
 
     -- Replace home with ~
     if home ~= "" and path:sub(1, #home) == home then

@@ -10,6 +10,24 @@ esac
 ##
 # Settings
 
+if [[ "$TERM_PROGRAM" == "WezTerm" ]]; then
+    _wezterm_osc7() {
+        # Use HOST for zsh, HOSTNAME for bash
+        local hostname="${HOST:-$HOSTNAME}"
+        printf "\033]7;file://%s%s\033\\" "$hostname" "$PWD"
+    }
+
+    # Detect shell type and set up appropriately
+    if [[ -n "$BASH_VERSION" ]]; then
+        # Bash: use PROMPT_COMMAND
+        PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_wezterm_osc7"
+    elif [[ -n "$ZSH_VERSION" ]]; then
+        # Zsh: use precmd hook
+        autoload -Uz add-zsh-hook
+        add-zsh-hook precmd _wezterm_osc7
+    fi
+fi
+
 # Check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
