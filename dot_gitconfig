@@ -20,6 +20,22 @@
     forget = "!git reset --hard HEAD"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
+    ignore = "!f() { \
+        dir=\"${1:-.}\"; \
+        if [ ! -d $dir ]; then \
+            echo directory $dir not found ; \
+            exit 1; \
+        fi; \
+        gitignore=\"$dir/.gitignore\"; \
+        echo $gitignore; \
+        if [ ! -f $gitignore ]; then \
+            touch $gitignore; \
+            if [ $dir != '.' ]; then \
+                echo '*\n!.gitignore' >> $gitignore; \
+            fi; \
+        fi; \
+        $EDITOR $gitignore; \
+    }; f"
     genpr = "!f() { \
         target_branch=\"${1:-main}\"; \
         template_file=\".github/PULL_REQUEST_TEMPLATE.md\"; \

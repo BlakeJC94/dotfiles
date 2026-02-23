@@ -89,6 +89,9 @@ local main = function()
 
     bootstrap_package_manager()
     require("lazy").setup("plugins")
+
+    -- Call setup after plugins are loaded
+    require("BlakeJC94").setup({})
 end
 
 main()

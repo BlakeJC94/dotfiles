@@ -148,11 +148,11 @@ return {
             { "<C-Down>", ":wincmd 4-<CR>" },
             { "<C-Right>", ":wincmd 8><CR>" },
             -- Vim Tab controls
-            { "<Leader>t", ":tabedit %<CR>" },
-            { "<Leader>n", ":tabnext<CR>" },
-            { "<Leader>p", ":tabnext<CR>" },
-            { "<Leader>N", ":+tabmove<CR>" },
-            { "<Leader>P", ":-tabmove<CR>" },
+            { "<Leader>zc", ":tabedit %<CR>" },
+            { "<Leader>zn", ":tabnext<CR>" },
+            { "<Leader>zp", ":tabnext<CR>" },
+            { "<Leader>zN", ":+tabmove<CR>" },
+            { "<Leader>zP", ":-tabmove<CR>" },
             -- Select all
             { "<Leader>e", "ggVG" },
             -- Leader maps

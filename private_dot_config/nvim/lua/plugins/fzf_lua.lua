@@ -38,7 +38,11 @@ return {
         { "<Leader><CR>", "<cmd>FzfLua buffers<CR>", mode = "n" },
         { "<Leader>ff", "<cmd>FzfLua resume<CR>", mode = "n" },
         { "<Leader>fF", "<cmd>FzfLua<CR>", mode = "n" },
-        { "<Leader>fb", ":FzfLua buffers<CR>" },
+        { "<Leader>fd", ":FzfLua lsp_workspace_diagnostics<CR>" },
+        { "<Leader>fD", ":FzfLua lsp_document_diagnostics<CR>" },
+        { "<Leader>fr", ":FzfLua lsp_references<CR>" },
+        { "<Leader>fv", ":FzfLua lsp_document_symbols<CR>" },
+        { "<Leader>fa", ":FzfLua lsp_code_actions<CR>" },
         { "<Leader>fo", ":FzfLua oldfiles cwd_only=true<CR>" }, -- Recently changed files
         { "<Leader>fO", ":FzfLua oldfiles<CR>" }, -- Recently changed files
         { "<Leader>f/", ":FzfLua lgrep_curbuf<CR>" },
@@ -47,6 +51,5 @@ return {
         { "<Leader>fH", ":FzfLua man_pages<CR>" },
         { "<Leader>fq", ":FzfLua quickfix<CR>" },
         { "<Leader>fl", ":FzfLua loclist<CR>" },
-        { "<Leader>fv", ":FzfLua lsp_document_symbols<CR>" },
     },
 }

@@ -15,7 +15,8 @@ return {
     keys = {
         { "]c", ":silent Gitsigns next_hunk<CR>" },
         { "[c", ":silent Gitsigns prev_hunk<CR>" },
-        { "<Leader>cp", ":Gitsigns preview_hunk<CR>" },
+        { "<Leader>cp", ":Gitsigns preview_hunk_inline<CR>" },
+        { "<Leader>cP", ":Gitsigns preview_hunk<CR>" },
         { "<Leader>cd", ":Gitsigns toggle_deleted<CR>" },
         {
             "<Leader>cc",
@@ -28,5 +29,6 @@ return {
         { "<Leader>cr", ":Gitsigns refresh<CR>" },
         { "<Leader>cw", ":Gitsigns toggle_word_diff<CR>" },
         { "<Leader>cs", ":Gitsigns stage_hunk<CR>", mode = { "n", "v" } },
+        { "<Leader>cu", ":Gitsigns reset_hunk<CR>", mode = { "n", "v" } },
     },
 }
