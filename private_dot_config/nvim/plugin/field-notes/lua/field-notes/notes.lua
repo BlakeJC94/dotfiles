@@ -69,7 +69,10 @@ function M.open_notes_dir(bang)
 end
 
 function M.rename_note()
+    local pos = vim.fn.getpos('.')
+    vim.fn.cursor(1, 1)
     local line_num = vim.fn.search("^#\\s\\+\\(.*\\)", "n")
+    vim.fn.setpos('.', pos)
     if line_num == 0 then
         print("Error: No header found (no line matching '^# ...')")
         return

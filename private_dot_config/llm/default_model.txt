@@ -1,1 +1,1 @@
-openrouter/moonshotai/kimi-k2.5
+openrouter/minimax/minimax-m2.5
