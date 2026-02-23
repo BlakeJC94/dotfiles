@@ -1,206 +1,5 @@
 return {
     {
-        dir = vim.fn.stdpath("config"),
-        name = "BlakeJC94",
-        lazy = false,
-        opts = {},
-        keys = {
-            -- Better jumplist for large line steps (and step through visual lines with j/k)
-            {
-                "j",
-                [[(v:count > 5 ? 'm`' . v:count : 'g') . 'j']],
-                expr = true,
-            },
-            {
-                "k",
-                [[(v:count > 5 ? 'm`' . v:count : 'g') . 'k']],
-                expr = true,
-            },
-            -- gV: Visually select last pasted block (like gv)
-            { "gV", "`[v`]" },
-            -- gF: create new file at filename over cursor
-            { "gF", "<cmd>e <c-r><c-f><CR>" },
-            -- Make {/} don't change the jump list
-            { "{", ":<C-u>keepjumps norm! {<CR>" },
-            { "}", ":<C-u>keepjumps norm! }<CR>" },
-            -- Prevent x and s from overriding what's in the clipboard
-            { "x", '"_x' },
-            { "X", '"_X' },
-            { "s", '"_s' },
-            -- Open folds when flicking through search matches
-            { "n", "nzv" },
-            { "N", "Nzv" },
-            -- Remap q and Q to stop polluting registers accidentally!
-            { "q", "gw" },
-            { "Q", "q" },
-            -- Maintain Visual Mode after >/</= actions
-            {
-                "<",
-                "<gv",
-                mode = "v",
-            },
-            {
-                ">",
-                ">gv",
-                mode = "v",
-            },
-            {
-                "=",
-                "=gv",
-                mode = "v",
-            },
-            -- Swap p and P to stop losing register contents by pasting over
-            {
-                "p",
-                '"_dp',
-                mode = "v",
-            },
-            {
-                "P",
-                '"_dP',
-                mode = "v",
-            },
-            -- C-s : Quickly guess correct spelling errors (undoable)
-            {
-                "<C-s>",
-                "<C-g>u<Esc>[s1z=`]i<C-g>u",
-                mode = "i",
-                remap = false,
-            },
-            {
-                "<C-s>",
-                "i<C-g>u<Esc>[s1z=`]",
-                remap = false,
-            },
-            -- C-x : Execute
-            {
-                "<Leader>x",
-                "<C-g>u:.!sh<CR>`]",
-                remap = false,
-            },
-            {
-                "<Leader>x",
-                "<C-g>u:!sh<CR>`]",
-                mode = "x",
-                remap = false,
-            },
-            -- Stop accidentally opening help in insert mode
-            {
-                "<F1>",
-                "",
-                mode = "i",
-            },
-            -- Use unused arrow keys
-            {
-                "<Left>",
-                "[",
-                remap = true,
-            },
-            {
-                "<Right>",
-                "]",
-                remap = true,
-            },
-            {
-                "<Up>",
-                "[",
-                remap = true,
-            },
-            {
-                "<Down>",
-                "]",
-                remap = true,
-            },
-            -- Fkey maps
-            {
-                "<F1>",
-                ":setl relativenumber!<CR>:setl relativenumber?<CR>",
-                silent = false,
-            },
-            {
-                "<F2>",
-                ":setl number!<CR>:setl number?<CR>",
-                silent = false,
-            },
-            {
-                "<F3>",
-                ":setl wrap!<CR>:setl wrap?<CR>",
-                silent = false,
-            },
-            {
-                "<F4>",
-                ":setl spell!<CR>:setl spell?<CR>",
-                silent = false,
-            },
-            {
-                "<F5>",
-                ":checktime<CR>",
-                silent = false,
-            },
-            {
-                "<F6>",
-                ":wincmd =<CR>",
-                silent = false,
-            },
-            -- Resize split maps
-            { "<C-Left>", ":wincmd 8<<CR>" },
-            { "<C-Up>", ":wincmd 4+<CR>" },
-            { "<C-Down>", ":wincmd 4-<CR>" },
-            { "<C-Right>", ":wincmd 8><CR>" },
-            -- Vim Tab controls
-            { "<Leader>zc", ":tabedit %<CR>" },
-            { "<Leader>zn", ":tabnext<CR>" },
-            { "<Leader>zp", ":tabnext<CR>" },
-            { "<Leader>zN", ":+tabmove<CR>" },
-            { "<Leader>zP", ":-tabmove<CR>" },
-            -- Select all
-            { "<Leader>e", "ggVG" },
-            -- Leader maps
-            { "<Leader><Tab>", "<C-^>" }, -- Last file
-            { "<Leader>O", ":%bd|e#|bd# <CR>" }, -- Clear buffers
-            {
-                "<Leader>q",
-                function()
-                    require("BlakeJC94").toggle_quickfix_list()
-                end,
-            },
-            {
-                "<Leader>Q",
-                function()
-                    require("BlakeJC94").toggle_local_list()
-                end,
-            },
-            { "<Leader>;", "<cmd>edit $MYVIMRC | lcd %:p:h<CR>" },
-            { "<Leader>.", "<cmd>lcd %:p:h | echo 'Changed local dir to ' . getcwd()<CR>" },
-            { "<Leader>,", "<cmd>cd %:p:h | echo 'Changed dir to ' . getcwd()<CR>" },
-            {
-                "<Leader>/",
-                "<cmd>cd `git rev-parse --show-toplevel` \\| echo 'Changed dir to project root: ' . getcwd()<CR>",
-            },
-            -- LSP Maps
-            {
-                "<Leader>=",
-                function()
-                    vim.lsp.buf.format({ timeout = 1000 })
-                end,
-            },
-            {
-                "<Leader>dq",
-                function()
-                    vim.diagnostic.setqflist()
-                    vim.cmd.copen()
-                end,
-            },
-            {
-                "<Leader>dQ",
-                function()
-                    vim.diagnostic.setloclist()
-                    vim.cmd.lopen()
-                end,
-            },
-        },
-    },
-    {
         dir = vim.fn.stdpath("config") .. "/plugin/field-notes",
         lazy = false,
         opts = {
@@ -215,6 +14,16 @@ return {
     },
     {
         dir = vim.fn.stdpath("config") .. "/plugin/python-scrap",
+    },
+    {
+        dir = vim.fn.stdpath("config") .. "/plugin/llm",
+        opts = {
+            split = {
+                direction = "horizontal",
+                size = 14,
+                position = "bottom",
+            },
+        },
     },
     {
         "https://github.com/chrisgrieser/nvim-various-textobjs",
