@@ -8,7 +8,7 @@ end
 -- Set ripgrep as grep backend if available
 M.set_grep_rg_backend = function()
     if vim.fn.executable("rg") == 1 then
-        vim.opt.grepprg = "rg --vimgrep --smart-case"
+        vim.opt.grepprg = "rg --hidden --vimgrep --smart-case"
         vim.opt.grepformat = "%f:%l:%c:%m"
     end
 end
