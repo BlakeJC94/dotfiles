@@ -6,5 +6,8 @@ return {
     { "https://github.com/tpope/vim-rhubarb" },
     { "https://github.com/BlakeJC94/vim-convict" },
     { "https://github.com/brenoprata10/nvim-highlight-colors" },
-    { "https://github.com/Mofiqul/trld.nvim" },
+    {
+        "https://github.com/Mofiqul/trld.nvim",
+        opts = {},
+    },
 }

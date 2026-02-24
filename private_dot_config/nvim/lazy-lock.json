@@ -16,6 +16,7 @@
   "nvim-treesitter": { "branch": "main", "commit": "70a9fecaf5aeae70c765d4c51a8038165a91aa06" },
   "nvim-various-textobjs": { "branch": "main", "commit": "222869e08cb7224fc1f09e071b70f2e1b20f2d28" },
   "oil.nvim": { "branch": "master", "commit": "f55b25e493a7df76371cfadd0ded5004cb9cd48a" },
+  "scrap.nvim": { "branch": "main", "commit": "b5d08b5bfd57adc02da2d92885375a13a1977208" },
   "shelly.nvim": { "branch": "main", "commit": "9baf9aab2432bb89f62b1121b3f7570bb04d2ca3" },
   "trld.nvim": { "branch": "main", "commit": "f9955514afd0af8cbbf81506265adbcb56b953fa" },
   "vim-convict": { "branch": "main", "commit": "a00e26448be741dd9400777db4cdbd3d88a412f3" },
