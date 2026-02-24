@@ -134,7 +134,7 @@ function M.setup(opts)
     })
 
     -- Rename command
-    vim.api.nvim_create_user_command('RenameNote', function()
+    vim.api.nvim_create_user_command('NoteRename', function()
       M.rename_note()
     end, {
       desc = 'Rename note based on heading',

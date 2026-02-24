@@ -1,1 +1,1 @@
-set ft=terraform
+vim.opt_local.filetype = terraform
