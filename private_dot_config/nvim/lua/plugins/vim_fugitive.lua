@@ -1,5 +1,9 @@
 return {
     "https://github.com/tpope/vim-fugitive",
+    dependencies = {
+        "https://github.com/tpope/vim-rhubarb",
+        "https://github.com/BlakeJC94/vim-convict",
+    },
     lazy = false,
     keys = {
         { "<Leader>b", "<cmd>GBrowse!<CR>", mode = "v" },
@@ -38,7 +42,6 @@ return {
                 vim.fn["fugitive#ReloadStatus"]()
             end,
         })
-
 
         local function get_conflict()
             local pos = vim.fn.getcurpos()

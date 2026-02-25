@@ -71,7 +71,7 @@ return {
             "i<C-g>u<Esc>[s1z=`]",
             remap = false,
         },
-        -- C-x : Execute
+        -- <Leader>-x : Execute
         {
             "<Leader>x",
             "<C-g>u:.!sh<CR>`]",
@@ -159,43 +159,33 @@ return {
         { "<Leader>O", ":%bd|e#|bd# <CR>" }, -- Clear buffers
         {
             "<Leader>q",
-            function()
-                require("BlakeJC94").toggle_quickfix_list()
-            end,
+            ":ToggleQuickfixList<CR>",
+            silent = true,
         },
         {
             "<Leader>Q",
-            function()
-                require("BlakeJC94").toggle_local_list()
-            end,
+            ":ToggleLocalList<CR>",
+            silent = true,
         },
-        { "<Leader>;", "<cmd>edit $MYVIMRC | lcd %:p:h<CR>" },
+        { "<Leader>;", "<cmd>edit ~/.config/nvim/init.lua | lcd ~/.config/nvim/ <CR>" },
         { "<Leader>.", "<cmd>lcd %:p:h | echo 'Changed local dir to ' . getcwd()<CR>" },
         { "<Leader>,", "<cmd>cd %:p:h | echo 'Changed dir to ' . getcwd()<CR>" },
-        {
-            "<Leader>/",
-            "<cmd>cd `git rev-parse --show-toplevel` \\| echo 'Changed dir to project root: ' . getcwd()<CR>",
-        },
+        { "<Leader>/", "<cmd>cd `git rev-parse --show-toplevel` | echo 'Changed dir to ' . getcwd()<CR>" },
         -- LSP Maps
         {
             "<Leader>=",
-            function()
-                vim.lsp.buf.format({ timeout = 1000 })
-            end,
+            ":LspFormat<CR>",
+            silent = true,
         },
         {
             "<Leader>dq",
-            function()
-                vim.diagnostic.setqflist()
-                vim.cmd.copen()
-            end,
+            ":LspDiagnosticQuickfixList<CR>",
+            silent = true,
         },
         {
             "<Leader>dQ",
-            function()
-                vim.diagnostic.setloclist()
-                vim.cmd.lopen()
-            end,
+            ":LspDiagnosticLocalList<CR>",
+            silent = true,
         },
     },
 }

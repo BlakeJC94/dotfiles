@@ -1,6 +1,73 @@
 M = {}
 
--- === Global Namespace Functions ===
+-- Main Setup Function
+
+M.setup = function(opts)
+    local m = require("BlakeJC94")
+    _G.BlakeJC94 = m
+
+    -- Configure diagnostics
+    vim.diagnostic.config({
+        virtual_text = false,
+        signs = false,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = false,
+    })
+
+    -- Setup commands
+    vim.api.nvim_create_user_command('ToggleQuickfixList', function()
+        m.toggle_quickfix_list()
+    end, {})
+    vim.api.nvim_create_user_command('ToggleLocalList', function()
+        m.toggle_local_list()
+    end, {})
+    vim.api.nvim_create_user_command('LspFormat', function()
+        vim.lsp.buf.format({ timeout = 1000 })
+    end, {})
+    vim.api.nvim_create_user_command('LspDiagnosticQuickfixList', function()
+        vim.diagnostic.setqflist()
+        vim.cmd.copen()
+    end, {})
+    vim.api.nvim_create_user_command('LspDiagnosticLocalList', function()
+        vim.diagnostic.setloclist()
+        vim.cmd.lopen()
+    end, {})
+
+    -- Setup UI/editor utilities
+    local utils = require("BlakeJC94.utils")
+    utils.set_custom_fold_text()
+    utils.set_grep_rg_backend()
+    utils.set_undo_maps()
+    utils.set_arrow_maps()
+
+    -- Load motions module and add functions to global namespace
+    local motions = require("BlakeJC94.motions")
+    m._reverse_lines = motions._reverse_lines
+    m.reverse_op = motions.reverse_op
+    m.reverse_vis = motions.reverse_vis
+    m.sort_lines = motions.sort_lines
+    motions.setup_reverse()
+    motions.setup_sort()
+
+    -- Setup autocommands
+    local autocmds = require("BlakeJC94.autocmds")
+    autocmds.setup_create_parent_dirs()
+    autocmds.setup_trim_spaces()
+    autocmds.setup_info_buffer_opts()
+    autocmds.setup_jump_to_last_edit()
+
+    -- Setup abbreviations
+    local abbrevs = require("BlakeJC94.abbrevs")
+    abbrevs.setup_snippets()
+    abbrevs.setup_command_typos()
+
+    -- Setup LSP
+    local lsp = require("BlakeJC94.lsp")
+    lsp.set_lspconfigs()
+end
+
+-- Global Namespace Functions
 
 M.custom_fold_text = function()
     local line = vim.fn.getline(vim.v.foldstart)
@@ -38,55 +105,6 @@ M.toggle_local_list = function()
             vim.notify("No location list available", vim.log.levels.WARN)
         end
     end
-end
-
--- === Main Setup Function ===
-
-M.setup = function(opts)
-    local m = require("BlakeJC94")
-    _G.BlakeJC94 = m
-
-    -- Configure diagnostics
-    vim.diagnostic.config({
-        virtual_text = false,
-        signs = false,
-        underline = true,
-        update_in_insert = false,
-        severity_sort = false,
-    })
-
-    -- Setup UI/editor utilities
-    local utils = require("BlakeJC94.utils")
-    utils.set_custom_fold_text()
-    utils.set_grep_rg_backend()
-    utils.set_undo_maps()
-    utils.set_arrow_maps()
-
-    -- Load motions module and add functions to global namespace
-    local motions = require("BlakeJC94.motions")
-    m._reverse_lines = motions._reverse_lines
-    m.reverse_op = motions.reverse_op
-    m.reverse_vis = motions.reverse_vis
-    m.sort_lines = motions.sort_lines
-    motions.setup_reverse()
-    motions.setup_sort()
-
-    -- Setup autocommands
-    local autocmds = require("BlakeJC94.autocmds")
-    autocmds.setup_create_parent_dirs()
-    autocmds.setup_trim_spaces()
-    autocmds.setup_info_buffer_opts()
-    autocmds.setup_jump_to_last_edit()
-
-    -- Setup abbreviations
-    local abbrevs = require("BlakeJC94.abbrevs")
-    abbrevs.setup_snippets()
-    abbrevs.setup_command_typos()
-
-    -- Setup LSP
-    local lsp = require("BlakeJC94.lsp")
-    lsp.set_lspconfigs()
-
 end
 
 return M

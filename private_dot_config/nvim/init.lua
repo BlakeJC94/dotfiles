@@ -85,13 +85,16 @@ end
 
 local main = function()
     vim.g.mapleader = " "
+    vim.g.maplocalleader = " "
     set_options()
 
     bootstrap_package_manager()
-    require("lazy").setup("plugins")
-
-    -- Call setup after plugins are loaded
-    require("BlakeJC94").setup({})
+    require("lazy").setup({
+        spec = { { import = "plugins" } },
+        change_detection = { enabled = false },
+        colorscheme = { "retrobox", "habamax" },
+        dev = { path = "~/Workspace/repos" },
+    })
 end
 
 main()
