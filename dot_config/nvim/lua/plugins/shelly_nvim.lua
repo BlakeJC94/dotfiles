@@ -1,6 +1,6 @@
 return {
     "https://github.com/BlakeJC94/shelly.nvim",
-    commands = {
+    cmd = {
         "Shelly",
         "ShellyCycle",
         "ShellySendCell",
