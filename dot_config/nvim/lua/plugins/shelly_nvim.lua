@@ -1,6 +1,5 @@
 return {
     "https://github.com/BlakeJC94/shelly.nvim",
-    dev = true,
     cmd = {
         "Shelly",
         "ShellyCycle",
@@ -13,6 +12,18 @@ return {
             direction = "horizontal",
             size = 14,
             position = "bottom",
+        },
+        capture_register = "+",     -- Register to store output after each send; set to nil to disable
+        capture_delay = 500,        -- ms to wait after sending before reading terminal output
+        prompt_patterns = {         -- Lua patterns for lines to strip from captured output
+            "^In %[%d+%]:%s*$",     -- IPython prompt
+            "^%.%.%.:%s*$",         -- IPython continuation
+            "^>>>%s*$",             -- Python / MicroPython prompt
+            "^%.%.%.%s*$",          -- Python continuation
+            "^>%s*$",               -- Node, R, Lua prompt
+            "^:%s*$",               -- Julia prompt
+            "^%%cpaste",            -- IPython %cpaste command
+            "^<EOF>$",              -- IPython %cpaste EOF marker
         },
     },
     keys = {

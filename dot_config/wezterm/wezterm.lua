@@ -153,9 +153,12 @@ config.leader = { key = "z", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
     {
         key = "z",
-        -- When we're in leader mode _and_ CTRL + A is pressed...
         mods = "LEADER|CTRL",
-        -- Actually send CTRL + A key to the terminal
+        action = act.PaneSelect,
+    },
+    {
+        key = "z",
+        mods = "LEADER",
         action = act.SendKey({ key = "z", mods = "CTRL" }),
     },
     { key = "q", mods = "CTRL|SHIFT", action = act.CloseCurrentTab({ confirm = false }) },
