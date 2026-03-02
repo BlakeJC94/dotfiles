@@ -6,9 +6,10 @@ return {
     },
     lazy = false,
     keys = {
-        { "<Leader>b", "<cmd>GBrowse!<CR>", mode = "v" },
+        { "<Leader>/", "<cmd>Gcd | echo 'Changed dir to ' . getcwd()<CR>" },
+        { "<Leader>cb", ":GBrowse!<CR>", mode = "v" },
         {
-            "<Leader>C",
+            "<Leader>cc",
             function()
                 local closed = false
                 for winnr = 1, vim.fn.winnr("$") do

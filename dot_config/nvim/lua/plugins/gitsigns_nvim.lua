@@ -19,7 +19,7 @@ return {
         { "<Leader>cP", ":Gitsigns preview_hunk<CR>" },
         { "<Leader>cd", ":Gitsigns toggle_deleted<CR>" },
         {
-            "<Leader>cc",
+            "<Leader>cl",
             function()
                 require("gitsigns").blame_line({ full = true })
             end,

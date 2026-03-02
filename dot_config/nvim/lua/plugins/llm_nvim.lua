@@ -8,6 +8,8 @@ return {
         "LLMStop",
     },
     opts = {
+        autoscroll = true,
+        llm_path = "~/.local/bin/lm",
         split = {
             direction = "horizontal",
             size = 14,
@@ -16,12 +18,12 @@ return {
     },
     keys = {
         {
-            "<Leader>s",
+            "<Leader>S",
             ":LLM ",
             mode = { "n", "v" },
         },
         {
-            "<Leader>S",
+            "<Leader>s",
             ":LLMToggle<CR>",
             mode = "n",
         },

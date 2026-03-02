@@ -1,5 +1,6 @@
 return {
     "https://github.com/BlakeJC94/shelly.nvim",
+    dev = true,
     cmd = {
         "Shelly",
         "ShellyCycle",
@@ -50,12 +51,12 @@ return {
             desc = "Send motion to terminal",
         },
         {
-            "<Leader>a",
+            "<Leader>A",
             ":Shelly ",
             mode = "n",
         },
         {
-            "<Leader>A",
+            "<Leader>a",
             function()
                 require("shelly").toggle()
             end,

@@ -56,6 +56,22 @@ alias Git="git"
 alias setclip="xclip -selection c"
 alias getclip="xclip -selection c -o"
 
+pbaste() {
+    if command -v pbpaste &> /dev/null; then
+        pbpaste
+    else
+        xclip -selection c -o
+    fi
+}
+
+pbaste() {
+    if command -v pbcopy &> /dev/null; then
+        pbcopy
+    else
+        xclip -selection c
+    fi
+}
+
 brew() {
   case "$1" in
     update)
