@@ -19,6 +19,9 @@ return {
         { "gV", "`[v`]" },
         -- gF: create new file at filename over cursor
         { "gF", "<cmd>e <c-r><c-f><CR>" },
+        -- gcp/gcP: paste register and comment oout
+        { "gcp", "p`[v`]gc", remap=true },
+        { "gcP", "p`[v`]gc", remap=true },
         -- Make {/} don't change the jump list
         { "{", ":<C-u>keepjumps norm! {<CR>" },
         { "}", ":<C-u>keepjumps norm! }<CR>" },

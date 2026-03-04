@@ -8,7 +8,7 @@ return {
         "LLMStop",
     },
     opts = {
-        autoscroll = true,
+        autoscroll = false,
         llm_path = "~/.local/bin/lm",
         split = {
             direction = "horizontal",
