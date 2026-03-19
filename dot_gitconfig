@@ -40,10 +40,13 @@
         target_branch=\"${1:-main}\"; \
         template_file=\".github/PULL_REQUEST_TEMPLATE.md\"; \
         template_arg=\"\"; \
+        prompt='Generate a concise PR description from this diff.'; \
         if [ -f \"$template_file\" ]; then \
             template_arg=\"-f $template_file\"; \
+            prompt=\"Fill in the PR template using this diff. Keep descriptions concise. \
+            If template sections aren't applicable, leave blank\"; \
         fi; \
-        git diff \"$target_branch\" | llm $template_arg 'Can you draft a really short PR description from this git diff? Return only the PR description'; \
+        git diff \"$target_branch\" | llm $template_arg \"$prompt\"; \
     }; f"
     clonetree = "!f() { \
         url=\"$1\"; \
