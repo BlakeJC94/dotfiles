@@ -56,19 +56,27 @@ alias Git="git"
 alias setclip="xclip -selection c"
 alias getclip="xclip -selection c -o"
 
-pbaste() {
-    if command -v pbpaste &> /dev/null; then
-        pbpaste
-    else
+pbpaste() {
+    if which xclip &> /dev/null; then
         xclip -selection c -o
+    elif which wl-paste &> /dev/null; then
+        wl-paste
+    elif which pbpaste &> /dev/null; then
+        command pbpaste
+    else
+        echo "Can't paste from clipboard"
     fi
 }
 
-pbaste() {
-    if command -v pbcopy &> /dev/null; then
-        pbcopy
-    else
+pbcopy() {
+    if which xclip &> /dev/null; then
         xclip -selection c
+    elif which wl-copy &> /dev/null; then
+        wl-copy
+    elif which pbcopy &> /dev/null; then
+        command pbcopy
+    else
+        echo "Can't copy to clipboard"
     fi
 }
 
