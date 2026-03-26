@@ -31,7 +31,7 @@ end, {
 })
 
 vim.api.nvim_create_user_command('ThisWeek', function(opts)
-  vim.cmd((opts.bang and 'Note!' or 'Note') .. ' 0')
+  vim.cmd((opts.bang and 'Log!' or 'Log') .. ' 0')
 end, {
   bang = true,
   desc = 'Open this week log',
