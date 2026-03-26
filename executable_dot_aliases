@@ -92,9 +92,6 @@ brew() {
   case "$1" in
     install|uninstall|remove)
       command brew bundle dump --force --file="${HOME}/.Brewfile"
-      if command -v chezmoi &> /dev/null; then
-        chezmoi re-add "${HOME}/.Brewfile"
-      fi
       ;;
   esac
 }
