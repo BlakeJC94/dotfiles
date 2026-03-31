@@ -8,7 +8,7 @@ alias egrep='egrep --color=auto'
 
 alias duh='du -d 1 -h'
 
-alias today='vim -c "Today!"'
+alias today='vim -c "ThisWeek!"'
 alias notes='vim -c "Notes!"'
 alias vimpy='vim -c "S uv run ipython"'
 
@@ -30,8 +30,6 @@ alias pscpu='ps auxf | sort -nr -k 3'
 
 alias todo='rg -o --hidden --iglob "!.git" --iglob "!TODO.md" "TODO.*"'
 
-alias genoverlaps="touch OVERLAPS.md && aider OVERLAPS.md --message-file ~/.aider/message_files/overlaps.md"
-
 # mcdir () { mkdir "$1" && cd "$_" }
 # joke () { curl https://icanhazdadjoke.com/; echo "" }
 # shitcommit () { curl https:///whatthecommit.com/index.txt; echo "" }
@@ -42,9 +40,6 @@ alias c='cd "$(find . -maxdepth 1 -type d | fzf)"'
 alias C='cd "$(find . -type d | fzf)"'
 # Quick project navigation command
 alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | fzf)'
-alias t='tmux'
-alias a='tmux a'
-alias d='tmux detach'
 # Quick arglist filler for vim
 alias vimm='vim $(find -type f -not -path '\''*/\.git/*'\'' -printf '\''%P\n'\'' | fzf -m | tr '\'' '\'' _)'
 # Muscle memory
@@ -80,18 +75,18 @@ pbcopy() {
     fi
 }
 
-brew() {
-  case "$1" in
-    update)
-      command bundle install --file="${HOME}/.Brewfile" || true
-      ;;
-  esac
-
-  command brew "$@"
-
-  case "$1" in
-    install|uninstall|remove)
-      command brew bundle dump --force --file="${HOME}/.Brewfile"
-      ;;
-  esac
-}
+# brew() {
+#   case "$1" in
+#     update)
+#       command bundle install --file="${HOME}/.Brewfile" || true
+#       ;;
+#   esac
+#
+#   command brew "$@"
+#
+#   case "$1" in
+#     install|uninstall|remove)
+#       command brew bundle dump --force --file="${HOME}/.Brewfile"
+#       ;;
+#   esac
+# }

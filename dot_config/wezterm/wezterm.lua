@@ -19,7 +19,7 @@ end
 -- local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
 
 -- Font options
-config.font = wezterm.font("JetBrainsMono Nerd Font")
+config.font = wezterm.font("JetBrains Mono")
 config.font_size = 18
 
 -- Window options
@@ -27,7 +27,7 @@ config.window_decorations = "RESIZE"
 config.window_frame = {
     -- Berkeley Mono for me again, though an idea could be to try a
     -- serif font here instead of monospace for a nicer look?
-    font = wezterm.font({ family = "JetBrainsMono Nerd Font", weight = "Medium" }),
+    font = wezterm.font({ family = "JetBrains Mono", weight = "Medium" }),
     font_size = 16,
     -- The overall background color of the tab bar when
     -- the window is focused

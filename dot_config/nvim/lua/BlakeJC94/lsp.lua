@@ -48,14 +48,6 @@ local function get_lspconfigs()
             },
         },
         {
-            "stylua",
-            opts = {
-                cmd = { "stylua", "--lsp" },
-                filetypes = { "lua" },
-                root_markers = { ".stylua.toml", "stylua.toml", ".editorconfig" },
-            },
-        },
-        {
             "pylsp",
             opts = {
                 cmd = { "pylsp" },
@@ -84,27 +76,6 @@ local function get_lspconfigs()
             },
         },
         {
-            "ruff", -- A Language Server Protocol implementation for Ruff, an extremely fast Python linter and code formatter, written in Rust.
-            opts = {
-                cmd = { "ruff", "server" },
-                filetypes = { "python" },
-                root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml", ".git" },
-                settings = {
-                    showSyntaxErrors = false,
-                    organizeImports = true,
-                    fixAll = true,
-                },
-            },
-        },
-        {
-            "rumdl",
-            opts = {
-                cmd = { "rumdl", "server" },
-                filetypes = { "markdown" },
-                root_markers = { ".git" },
-            },
-        },
-        {
             "air", -- Air is an R formatter and language server, written in Rust.
             opts = {
                 cmd = { "air", "language-server" },
@@ -129,14 +100,6 @@ local function get_lspconfigs()
             },
         },
         {
-            "sqruff",
-            opts = {
-                cmd = { "sqruff", "lsp" },
-                filetypes = { "sql" },
-                root_markers = { ".sqruff", ".git" },
-            },
-        },
-        {
             "marksman", -- Marksman is a Markdown LSP server providing completion, cross-references, diagnostics, and more.
             opts = {
                 cmd = { "marksman", "server" },
@@ -150,11 +113,7 @@ end
 M.set_lspconfigs = function()
     local lspconfigs = get_lspconfigs()
     for _, config in pairs(lspconfigs) do
-        lsp_name = unpack(config)
-
-        -- if vim.fn.executable(lsp_name) == 0 then
-        --     vim.notify(lsp_name .. " not found", vim.log.levels.WARN)
-        -- end
+        local lsp_name = unpack(config)
 
         if config.opts then
             vim.lsp.config(lsp_name, config.opts)

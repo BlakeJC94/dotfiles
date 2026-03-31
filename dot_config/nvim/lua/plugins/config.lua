@@ -177,7 +177,9 @@ return {
         -- LSP Maps
         {
             "<Leader>=",
-            ":LspFormat<CR>",
+            function()
+                require("conform").format()
+            end,
             silent = true,
         },
         {

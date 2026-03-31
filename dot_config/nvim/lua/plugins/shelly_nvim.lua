@@ -1,6 +1,5 @@
 return {
     "https://github.com/BlakeJC94/shelly.nvim",
-    dev=true,
     cmd = {
         "Shelly",
         "ShellyCycle",
