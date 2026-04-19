@@ -1,4 +1,0 @@
-Bootstrap:
-```
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply BlakeJC94
-```

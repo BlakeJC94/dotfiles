@@ -2,6 +2,7 @@
 !.gitignore
 !.AGENTS.md
 !.Rprofile
+!.gitsetup.sh
 !.aider
 !.aider.conf.yml
 !.aider/message_files
