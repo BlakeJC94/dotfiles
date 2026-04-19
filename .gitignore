@@ -1,4 +1,5 @@
 *
+.env*
 !.gitignore
 !.AGENTS.md
 !.Rprofile
@@ -15,7 +16,7 @@
 !.bash/modules/tab_cycle.sh
 !.bash/modules/window_title.sh
 !.bashrc
-!.brew
+!.brewsetup
 !.config
 !.config/aichat/config.yaml
 !.config/aichat/dark.tmTheme
@@ -209,5 +210,6 @@
 !.vim/vimrc
 !.vimrc.basic
 !.zshrc
-!README
-!bootstrap.sh
+!README.md
+!.brewtools.sh
+!.brewsetup.sh
