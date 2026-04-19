@@ -1,0 +1,93 @@
+# ~/.zshrc: executed by zsh(1) for non-login shells.
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+
+##
+# Settings
+
+
+# Ensure the emacs bindings are working
+bindkey -e
+
+# Bind delete key properly in TMUX
+if [[ -n $TMUX ]]; then
+    bindkey '^[[3~' delete-char
+fi
+
+
+##
+# Env vars
+
+# Setup common env vars
+[ -f ~/.envvars ] && source ~/.envvars
+
+# Replace MacOS standard tools with Unix standard tools
+export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
+export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
+export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+
+# Setup LS colors
+eval $(dircolors)
+
+# Enable using numpy for ips-tunnelling
+export CLOUDSDK_PYTHON_SITEPACKAGES=1
+
+
+##
+# Aliases
+
+# Setup common alias definitions
+[ -f ~/.aliases ] && source ~/.aliases
+
+
+##
+# Initialisers
+
+# Intiliase Brew package manager
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Initialise Mise
+eval "$(mise activate zsh)"
+
+# Initialise Starship prompt
+eval "$(starship init zsh)"
+
+# Initialise FZF
+source <(fzf --zsh)
+
+
+##
+# Extras
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/blake/.google-cloud-sdk/path.zsh.inc' ]; then . '/Users/blake/.google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/blake/.google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/blake/.google-cloud-sdk/completion.zsh.inc'; fi
+
+
+# Shell completions for uv
+command -v uv > /dev/null && source <(uv --generate-shell-completion zsh)
+_uv_run_mod() {
+    if [[ "$words[2]" == "run" && "$words[CURRENT]" != -* ]]; then
+        _arguments '*:filename:_files'
+    else
+        _uv "$@"
+    fi
+}
+compdef _uv_run_mod uv
+
+# Shell completions for montuflow
+command -v montuflow > /dev/null && source <(montuflow -- --completion)
+
+# Netskope CLI Certificate Fix
+netskope_fp=/opt/montu-kandji/netskope-cli-certificate-fix.sh
+if [ -f "${netskope_fp}" ]; then
+    source "${netskope_fp}"
+fi

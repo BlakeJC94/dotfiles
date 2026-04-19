@@ -1,7 +1,6 @@
 *
 !.gitignore
 !.AGENTS.md
-!.Brewfile
 !.Rprofile
 !.aider
 !.aider.conf.yml

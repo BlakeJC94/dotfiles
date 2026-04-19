@@ -1,0 +1,92 @@
+let g:lsp_inlay_hints_enabled = 1
+" let g:lsp_inlay_hints_delay = 900000000
+let g:lsp_inlay_hints_mode = {
+\  'normal': ['curline'],
+\}
+let g:lsp_diagnostics_enabled = 0
+
+highlight lspInlayHintsType guifg=#1d2021 guibg=#282828
+highlight lspInlayHintsParameter guifg=#1d2021 guibg=#282828
+
+if executable('pylsp')
+  augroup LspPython
+    autocmd!
+    " brew install python-lsp-server
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pylsp',
+        \ 'cmd': {server_info->['pylsp']},
+        \ 'allowlist': ['python'],
+        \ })
+  augroup END
+endif
+
+" if executable('bash-language-server')
+"   augroup LspBash
+"     autocmd!
+"     autocmd User lsp_setup call lsp#register_server({
+"           \ 'name': 'bash-language-server',
+"           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'bash-language-server start']},
+"           \ 'allowlist': ['sh'],
+"           \ })
+"   augroup END
+" endif
+
+" if executable('docker-langserver')
+"   augroup LspDocker
+"     autocmd!
+"     au User lsp_setup call lsp#register_server({
+"         \ 'name': 'docker-langserver',
+"         \ 'cmd': {server_info->[&shell, &shellcmdflag, 'docker-langserver --stdio']},
+"         \ 'whitelist': ['dockerfile'],
+"         \ })
+"   augroup END
+" endif
+
+" if executable('vim-language-server')
+"   augroup LspVim
+"     autocmd!
+"     autocmd User lsp_setup call lsp#register_server({
+"         \ 'name': 'vim-language-server',
+"         \ 'cmd': {server_info->['vim-language-server', '--stdio']},
+"         \ 'whitelist': ['vim'],
+"         \ 'initialization_options': {
+"         \   'vimruntime': $VIMRUNTIME,
+"         \   'runtimepath': &rtp,
+"         \ }})
+"   augroup END
+" endif
+
+
+function! s:on_lsp_buffer_enabled() abort
+    setlocal omnifunc=lsp#complete
+    " setlocal signcolumn=yes
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+    nmap <buffer> gd <plug>(lsp-definition)
+    " nmap <buffer> gs <plug>(lsp-document-symbol-search)
+    " nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
+    nmap <buffer> gR <plug>(lsp-references)
+    " nmap <buffer> gi <plug>(lsp-implementation)
+    " nmap <buffer> gy <plug>(lsp-type-definition)
+    nmap <buffer> <leader>r <plug>(lsp-rename)
+    nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+    nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+    nmap <buffer> <Leader>d <plug>(lsp-document-diagnostics)
+    nmap <buffer> <C-k> <plug>(lsp-hover)
+    inoremap <buffer> <C-k> <C-o><plug>(lsp-hover)
+    inoremap <buffer> <expr><C-u> lsp#scroll(-4)
+    inoremap <buffer> <expr><C-d> lsp#scroll(+4)
+
+    let g:lsp_format_sync_timeout = 1000
+    autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
+
+    " refer to doc to add more commands
+endfunction
+
+augroup lsp_install
+    au!
+    " call s:on_lsp_buffer_enabled only for languages that has the server registered.
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+    " autocmd FileType julia call lsp_julia#update()
+augroup END
+
+

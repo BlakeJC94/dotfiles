@@ -1,0 +1,63 @@
+#!usr/bin/env sh
+alias ls='ls --color=auto'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+alias duh='du -d 1 -h'
+
+alias today='vim -c "ThisWeek!"'
+alias notes='vim -c "Notes!"'
+alias vimpy='vim -c "S uv run ipython"'
+
+alias myip='curl http://ifconfig.me/ip'
+alias wttr='curl https://wttr.in/'
+
+alias dot='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+alias l='eza'
+alias vi='command vim'
+alias vim='nvim'
+alias brewdump='command brew bundle dump --force --file="${HOME}/.Brewfile"'
+
+alias least='fmt -w 80 | bat --paging always --style plain'
+alias leastmd='least -l markdown'
+
+alias meminfo='free -m -l -t'
+alias psmem='ps auxf | sort -nr -k 4'
+alias pscpu='ps auxf | sort -nr -k 3'
+
+alias todo='rg -o --hidden --iglob "!.git" --iglob "!TODO.md" "TODO.*"'
+
+alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | fzf || echo .)'
+alias c='cd "$(find . -maxdepth 1 -type d | fzf || echo .)"'
+alias C='cd "$(find . -type d | fzf || echo .)"'
+
+alias q="exit"
+alias G="git"
+alias Git="git"
+
+pbpaste() {
+    if which xclip &>/dev/null; then
+        xclip -selection c -o
+    elif which wl-paste &>/dev/null; then
+        wl-paste
+    elif which pbpaste &>/dev/null; then
+        command pbpaste
+    else
+        echo "Can't paste from clipboard"
+    fi
+}
+
+pbcopy() {
+    if which xclip &>/dev/null; then
+        xclip -selection c
+    elif which wl-copy &>/dev/null; then
+        wl-copy
+    elif which pbcopy &>/dev/null; then
+        command pbcopy
+    else
+        echo "Can't copy to clipboard"
+    fi
+}

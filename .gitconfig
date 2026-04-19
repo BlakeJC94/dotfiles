@@ -1,0 +1,129 @@
+[user]
+    name = BlakeJC94
+    email = blake.c@montu.com.au
+    username = BlakeJC94
+
+[includeIf "gitdir:~/Workspace/repos/work/"]
+    path = ~/.gitconfig-montu
+
+[alias]
+    st = "!git status -sb"
+    cm = "!git commit -m"
+    cma = "!git add . && git commit -m"
+    dif = "!git diff --stat"
+    lg = "!git log --oneline"
+    lgs = "!git log --name-status --oneline"
+    hub = "!gh"
+    checkout-fzf = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
+    b = "!git checkout -"
+    vim = "!vim $(git diff --name-only)"
+    forget = "!git reset --hard HEAD"
+    last = log -1 HEAD --stat
+    hist = log --graph --color=auto --abbrev-commit --pretty=concise
+    ignore = "!f() { \
+        dir=\"${1:-.}\"; \
+        if [ ! -d $dir ]; then \
+            echo directory $dir not found ; \
+            exit 1; \
+        fi; \
+        gitignore=\"$dir/.gitignore\"; \
+        echo $gitignore; \
+        if [ ! -f $gitignore ]; then \
+            touch $gitignore; \
+            if [ $dir != '.' ]; then \
+                echo '*\n!.gitignore' >> $gitignore; \
+            fi; \
+        fi; \
+        $EDITOR $gitignore; \
+    }; f"
+    genpr = "!f() { \
+        target_branch=\"${1:-main}\"; \
+        template_file=\".github/PULL_REQUEST_TEMPLATE.md\"; \
+        template_arg=\"\"; \
+        prompt='Generate a concise PR description from this diff.'; \
+        if [ -f \"$template_file\" ]; then \
+            template_arg=\"-f $template_file\"; \
+            prompt=\"Fill in the PR template using this diff. Keep descriptions concise. \
+            If template sections aren't applicable, leave blank\"; \
+        fi; \
+        git diff \"$target_branch\" | llm $template_arg \"$prompt\"; \
+    }; f"
+    clonetree = "!f() { \
+        url=\"$1\"; \
+        base=\"$(basename \"$url\")\"; \
+        dir=\"${2:-${base%.*}}\"; \
+        mkdir -p \"$dir\" && \
+        cd \"$dir\" && \
+        git clone --bare \"$url\" .git && \
+        git config remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\" && \
+        git fetch origin && \
+        git worktree add \"$(git primebranch)\" && \
+        cd \"$(git primebranch)\" && \
+        git pullup; \
+    }; f"
+    sync = "!f() { \
+        msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\"; \
+        git add . && \
+        git commit -m \"$msg\" ; \
+        git push; \
+    }; f"
+    up ="!f() { \
+        branch=\"$(git rev-parse --abbrev-ref HEAD)\" ; \
+        git branch --set-upstream-to=origin/$branch $branch ; \
+    }; f"
+
+[color]
+    ui = auto
+
+[pretty]
+    concise = "%C(red)%h%C(reset) -%C(yellow)%d%C(reset) %s %C(green)(%cr)%C(bold blue) <%an>%C(reset)"
+
+[core]
+    editor = "nvim"
+
+[credential]
+    helper = cache --timeout=3600
+
+[diff]
+    colorMoved = plain
+    algorithm = histogram
+    mnemonicPrefix = true
+    renames = true
+
+[mergetool]
+    prompt = true
+
+[pull]
+    rebase = false
+
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+[commit]
+    verbose = true
+
+[help]
+    autocorrect = prompt
+[init]
+    defaultBranch = main
+[branch]
+    sort = -committerdate
+[column]
+    ui = auto
+[tag]
+    sort = version:refname
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+[rebase]
+    autoSquash = true
+    autoStash = true
+    updateRefs = true
