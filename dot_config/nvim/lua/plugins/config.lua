@@ -20,8 +20,8 @@ return {
         -- gF: create new file at filename over cursor
         { "gF", "<cmd>e <c-r><c-f><CR>" },
         -- gcp/gcP: paste register and comment oout
-        { "gcp", "p`[v`]gc", remap=true },
-        { "gcP", "p`[v`]gc", remap=true },
+        { "gcp", "p`[v`]gc", remap = true },
+        { "gcP", "p`[v`]gc", remap = true },
         -- Make {/} don't change the jump list
         { "{", ":<C-u>keepjumps norm! {<CR>" },
         { "}", ":<C-u>keepjumps norm! }<CR>" },
@@ -73,6 +73,12 @@ return {
             "<C-s>",
             "i<C-g>u<Esc>[s1z=`]",
             remap = false,
+        },
+        -- <C->: Also recompute folds and refresh
+        {
+            "<C-l>",
+            "zx<C-l>",
+            silent = true,
         },
         -- <Leader>-x : Execute
         {
@@ -152,9 +158,10 @@ return {
         -- Vim Tab controls
         { "<Leader>zc", ":tabedit %<CR>" },
         { "<Leader>zn", ":tabnext<CR>" },
-        { "<Leader>zp", ":tabnext<CR>" },
+        { "<Leader>zp", ":tabprev<CR>" },
         { "<Leader>zN", ":+tabmove<CR>" },
         { "<Leader>zP", ":-tabmove<CR>" },
+        { "<Leader>zq", ":tabclose<CR>" },
         -- Select all
         { "<Leader>e", "ggVG" },
         -- Leader maps

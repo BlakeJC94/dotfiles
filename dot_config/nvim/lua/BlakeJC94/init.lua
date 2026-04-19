@@ -16,20 +16,20 @@ M.setup = function(opts)
     })
 
     -- Setup commands
-    vim.api.nvim_create_user_command('ToggleQuickfixList', function()
+    vim.api.nvim_create_user_command("ToggleQuickfixList", function()
         m.toggle_quickfix_list()
     end, {})
-    vim.api.nvim_create_user_command('ToggleLocalList', function()
+    vim.api.nvim_create_user_command("ToggleLocalList", function()
         m.toggle_local_list()
     end, {})
-    vim.api.nvim_create_user_command('LspFormat', function()
+    vim.api.nvim_create_user_command("LspFormat", function()
         vim.lsp.buf.format({ timeout = 1000 })
     end, {})
-    vim.api.nvim_create_user_command('LspDiagnosticQuickfixList', function()
+    vim.api.nvim_create_user_command("LspDiagnosticQuickfixList", function()
         vim.diagnostic.setqflist()
         vim.cmd.copen()
     end, {})
-    vim.api.nvim_create_user_command('LspDiagnosticLocalList', function()
+    vim.api.nvim_create_user_command("LspDiagnosticLocalList", function()
         vim.diagnostic.setloclist()
         vim.cmd.lopen()
     end, {})
@@ -37,6 +37,7 @@ M.setup = function(opts)
     -- Setup UI/editor utilities
     local utils = require("BlakeJC94.utils")
     utils.set_custom_fold_text()
+    utils.set_custom_tabline_text()
     utils.set_grep_rg_backend()
     utils.set_undo_maps()
     utils.set_arrow_maps()
@@ -79,6 +80,37 @@ M.custom_fold_text = function()
     local fold_size_str = " (" .. fold_size .. ") "
 
     return string.sub(fold_str, 0, vim.bo.textwidth - #fold_size_str) .. fold_size_str
+end
+
+M.custom_tabline_text = function()
+    local s = ""
+
+    for i = 1, vim.fn.tabpagenr("$") do
+        local winnr = vim.fn.tabpagewinnr(i)
+        local buflist = vim.fn.tabpagebuflist(i)
+        local bufnr = buflist[winnr]
+        local name = vim.fn.bufname(bufnr)
+        name = vim.fn.fnamemodify(name, ":.")
+
+        if name == "" then
+            name = "[No Name]"
+        else
+            name = vim.fn.fnamemodify(name, ":t") -- filename only
+        end
+
+        local modified = vim.bo[bufnr].modified and "+" or ""
+
+        if i == vim.fn.tabpagenr() then
+            s = s .. "%#TabLineSel#"
+        else
+            s = s .. "%#TabLine#"
+        end
+
+        s = s .. " " .. i .. ":" .. name .. modified .. " "
+    end
+
+    s = s .. "%#TabLineFill#"
+    return s
 end
 
 M.toggle_quickfix_list = function()
