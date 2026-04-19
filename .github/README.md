@@ -83,7 +83,4 @@ dot add /path/to/file
 dot commit -m "feat: Add file"
 ```
 
-Remove a file from the dotfile repo
-
-```bash
-```
+Remove a file from the dotfile repo by removing it from the gitignore file
