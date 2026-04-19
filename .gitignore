@@ -1,4 +1,4 @@
-*
+**/*
 .env*
 !./.gitignore
 !./.AGENTS.md
@@ -18,6 +18,7 @@
 !./.bashrc
 !./.brewsetup
 !./.config
+!./.config/aichat
 !./.config/aichat/config.yaml
 !./.config/aichat/dark.tmTheme
 !./.config/aichat/light.tmTheme
