@@ -1,5 +1,7 @@
 *
 .env*
+!.github
+!.github/README.md
 !.gitignore
 !.AGENTS.md
 !.Rprofile
@@ -217,7 +219,6 @@
 !.vim/vimrc
 !.vimrc.basic
 !.zshrc
-!README.md
 !.brewtools.sh
 !.brewsetup.sh
 !.config/mise
