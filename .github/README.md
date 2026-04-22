@@ -44,13 +44,23 @@ git clone --bare git@github.com:BlakeJC94/dotfiles.git $HOME/.dotfiles
 dot checkout
 ```
 
-If there are conflicts:
+If there are conflicts, destroy current state with `dot checkout --force`.
+Otherwise, here's a non-destructive command to use:
 
 ```bash
 mkdir -p .config-backup
-dot checkout 2>&1 | grep -E "\s+\." | awk '{print $1}' | \
-  xargs -I{} mv {} .config-backup/{}
+dot checkout 2>&1 | grep -E "^\s+\." | awk '{print $1}' | while read -r file; do
+  mkdir -p ".config-backup/$(dirname "$file")"
+  mv "$file" ".config-backup/$file"
+done
 dot checkout
+```
+
+Add a pointer to the bare repo so that git tools (such as the `git` plugin for
+`starship`, or `vim-fugitive` for `vim`/`nvim`):
+
+```bash
+echo "gitdir: $HOME/.dotfiles" > $HOME/.git
 ```
 
 Install brew
