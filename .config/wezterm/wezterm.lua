@@ -4,19 +4,7 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- Color options
-local is_dark = function()
-    if wezterm.gui then
-        return wezterm.gui.get_appearance():find("Dark")
-    end
-    return true
-end
-
-if is_dark() then
-    config.color_scheme = "Gruvbox dark, hard (base16)"
-else
-    config.color_scheme = "Gruvbox light, hard (base16)"
-end
--- local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
+config.color_scheme = "Gruvbox dark, hard (base16)"
 
 -- Font options
 config.font = wezterm.font("JetBrains Mono")
@@ -342,6 +330,9 @@ config.audible_bell = "Disabled"
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
     -- config.default_domain = "WSL:Ubuntu"
     config.default_prog = { "wsl.exe", "-d", "Ubuntu", "--cd", "~" }
+else
+    config.default_prog = { "/bin/bash" }
 end
+
 
 return config
