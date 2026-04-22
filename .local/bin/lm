@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+subcommands="prompt aliases chat collections embed embed-models embed-multi \
+fragments install keys logs models openai openrouter plugins \
+schemas similar templates tools uninstall"
+
+if [[ "$1" == -* ]] || [[ " $subcommands " == *" $1 "* ]]; then
+    command llm "$@"
+else
+    command llm -t default "$@"
+fi

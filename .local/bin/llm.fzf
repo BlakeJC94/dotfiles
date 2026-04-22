@@ -1,0 +1,70 @@
+#!/bin/bash
+
+last-chat(){
+    _chat="$(sqlite3 "$(llm logs path)" 'select id from conversations order by id desc limit 1')"
+    if [ -n "$_chat" ]; then
+        llm logs --cid ${_chat} | bat -p --color=always --wrap=auto -l markdown
+    fi
+}
+
+view-chat(){
+    _chat="$(sqlite3 "$(llm logs path)" 'select id from conversations order by id desc' | fzf --preview 'llm logs --cid {} | bat --color=always --style=numbers --wrap=auto -l markdown')"
+    if [ -n "$_chat" ]; then
+        llm logs --cid ${_chat} | bat -p --color=always --wrap=auto -l markdown
+    fi
+}
+
+
+continue-chat(){
+    _chat="$(sqlite3 "$(llm logs path)" 'select id from conversations order by id desc' | fzf --preview 'llm logs --cid {} | bat --color=always --style=numbers --wrap=auto -l markdown')"
+    if [ -n "$_chat" ]; then
+        if [ "$_chat" == "Begin New Chat" ]; then
+            llm chat
+        else
+            llm chat --cid "${_chat}"
+        fi
+    fi
+}
+
+usage() {
+    cat 1>&2 <<EOF
+llm.fzf
+Fzf integration for llm
+
+USAGE:
+    llm.fzf <COMMAND>
+
+COMMANDS:
+    last
+    view
+    continue
+    search
+
+OPTIONS:
+    -h, --help                                     Show documentation
+EOF
+}
+
+if ! command -v fzf &> /dev/null; then
+    echo "Required dependency fzf not installed.";
+elif ! command -v llm &> /dev/null; then
+    echo "Required dependency llm not installed.";
+elif [ -z "$1" ] || [ "$1" == "-h" ]; then
+    usage
+else
+    case "$1" in
+        last)
+            last-chat
+            ;;
+        view)
+            view-chat
+            ;;
+        continue)
+            continue-chat
+            ;;
+        search)
+            search-chats
+            ;;
+    esac
+fi
+

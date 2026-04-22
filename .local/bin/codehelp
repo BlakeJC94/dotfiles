@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash
+
+# Print a formatted quote with programming advice and cache it to system for a user-deined amount
+# of time.
+
+# TODO add option to skip caching
+
+CACHE_DIR="/tmp/codehelp"
+CACHE_MAX=30
+CACHE_TIMEOUT=28800  # 28800 seconds = 8 hours
+
+FORTUNES_FILE="${HOME}/.fortune/programming-tips"
+
+usage() {
+    cat 1>&2 <<EOF
+codehelp
+Advice for coding
+
+[TODO] write a bit more documentation here
+
+Calling this without arguments will print a quote and cache it.
+Calling it again without arguments within 8 hours will print the same
+cached quote. After 8 hours, calling it again will print and cache a
+new quote.
+
+USAGE:
+    codehelp [OPTIONS]
+
+OPTIONS:
+    -h, --help                                     Show documentation
+    -r, --random                 Print a random quote without caching
+EOF
+}
+
+
+get_random_msg() {
+    fortune "${FORTUNES_FILE}"
+}
+
+get_last_msg() {
+    cat "$(get_latest_cache)"
+}
+
+get_latest_cache() {
+    find "${CACHE_DIR}" -type f -name '*.txt' -printf "%T@\t%p\n" | sort -nr | head -1 | cut -f 2
+}
+
+
+colorize() {
+    case $1 in
+        black)  color='\e[30m' ;;
+        red)    color='\e[31m' ;;
+        green)  color='\e[32m' ;;
+        yellow) color='\e[33m' ;;
+        blue)   color='\e[34m' ;;
+        purple) color='\e[35m' ;;
+        cyan)   color='\e[36m' ;;
+        white)  color='\e[36m' ;;
+        *) color='' ;;
+    esac
+
+    IFS=
+    while read -r line; do
+        echo -e $color$line'\e[0m'
+    done
+}
+
+print_msg() {
+    echo "$@" | colorize purple
+    # if [[ "$(command -v colorize)" ]]; then
+    #     echo "$@" | colorize magenta
+    # else
+    #     echo "$@"
+    # fi
+}
+
+random() {
+    local msg
+    msg="$(get_random_msg)"
+    print_msg "$msg"
+}
+
+# # TODO
+# flush_cache() {
+#     # check cache
+#     #    sort files by creation time
+#     #    delete excess files (max 29)
+# }
+
+current_timestamp(){
+    # printf "%.3f\n" "$(date +%s%3N)e-3"
+    date +%s
+}
+
+check_cache() {
+    # Make sure dir exists
+    mkdir -p "${CACHE_DIR}"
+
+    # if empty, return 1
+    if [ -d "${CACHE_DIR}" ] && [ ! $(ls -A "${CACHE_DIR}") ]; then
+        return 1
+    fi
+
+    # clear off excess cache
+    # flush_cache
+
+    local lastest_timestamp
+    local seconds_passed
+
+    lastest_timestamp="$(get_latest_cache | sed 's/.*\///' | cut -d '.' -f 2)"
+    seconds_passed="$(( ${lastest_timestamp} - $(current_timestamp)))"
+
+    if [ "${seconds_passed}" -lt "${CACHE_TIMEOUT}" ]; then
+        return 0
+    fi
+    return 1
+}
+
+cache_msg() {
+    # write contents to timestamped cache
+    echo "$@" > "${CACHE_DIR}/msg.$(current_timestamp).txt"
+}
+
+main() {
+    for arg in "$@"; do
+        case "$arg" in
+            --help)
+                usage
+                exit 0
+                ;;
+            --random)
+                random
+                exit 0
+                ;;
+            *)
+                while getopts :hr sub_arg "$arg"; do
+                    case "$sub_arg" in
+                        h)
+                            usage
+                            exit 0
+                            ;;
+                        r)
+                            random
+                            exit 0
+                            ;;
+                        *)
+                            ;;
+                        esac
+                done
+                ;;
+        esac
+    done
+
+
+    local msg
+
+    if check_cache; then
+        msg="$(get_last_msg)"
+    else
+        msg="$(get_random_msg)"
+        cache_msg "${msg}"
+    fi
+
+    print_msg "${msg}"
+}
+
+main "$@" || exit 1
