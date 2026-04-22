@@ -98,6 +98,17 @@
 !.local
 !.local/bin
 !.local/bin/*
+!.local/bin/brew-up
+!.local/bin/codehelp
+!.local/bin/dropbox
+!.local/bin/envy
+!.local/bin/focus
+!.local/bin/git-up
+!.local/bin/llm.fzf
+!.local/bin/lm
+!.local/bin/newkey
+!.local/bin/slugify
+!.local/bin/wezterm-wsl
 
 # streamlit
 !.streamlit
