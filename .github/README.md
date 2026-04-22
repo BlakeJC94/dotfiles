@@ -25,10 +25,10 @@ TODO
 
 ## Setup
 
-First authenticate new machine with github:
+First authenticate new machine with Github:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/BlakeJC94/dotfiles/refs/heads/main/.gitsetup.sh | bash
+curl -sSL https://raw.githubusercontent.com/BlakeJC94/dotfiles/refs/heads/main/.local/bin/git-up | bash
 ```
 
 Setup the `dot` alias:
