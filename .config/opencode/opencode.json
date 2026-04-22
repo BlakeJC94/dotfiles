@@ -3,6 +3,6 @@
     "theme": "gruvbox",
     "model": "openrouter/anthropic/claude-sonnet-4-6",
     "small_model": "openrouter/anthropic/claude-haiku-4-5",
-    "instructions": ["~/.AGENTS.md"],
+    "instructions": ["~/.config/opencode/AGENTS.md"],
     "disabled_providers": ["xai"]
 }
