@@ -2,12 +2,13 @@
 
 # Install brew
 command -v brew > /dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Activate brew shell stuff
 [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# Brew Formulas
+
+[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 list=(
     "aider"
     "awk"
@@ -54,7 +55,7 @@ for item in "${list[@]}"; do
     fi
 done
 
-# MacOS-specific casks
+# macOS-specific casks
 casks=(
     "caffeine"
     "docker"

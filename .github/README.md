@@ -63,24 +63,25 @@ Add a pointer to the bare repo so that git tools (such as the `git` plugin for
 echo "gitdir: $HOME/.dotfiles" > $HOME/.git
 ```
 
+Source the shell RC to get all the settings and whatnot (or start a new shell)
+
+```bash
+source .bashrc  # If on bash
+source .zshrc   # If on zsh
+```
+
+
 Install brew
 
 ```bash
-bash .brewsetup.sh
-bash .brewtools.sh
+brew-up
+
 ```
 
 Install tools from `mise`
 
 ```bash
 mise up
-```
-
-Source the shell RC to get all the settings and whatnot (or start a new shell)
-
-```bash
-source .bashrc  # If on bash
-source .zshrc   # If on zsh
 ```
 
 ## Usage
