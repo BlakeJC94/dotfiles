@@ -9,7 +9,6 @@
 [alias]
     st = "!git status -sb"
     cm = "!git commit -m"
-    cma = "!git add . && git commit -m"
     dif = "!git diff --stat"
     lg = "!git log --oneline"
     lgs = "!git log --name-status --oneline"
@@ -20,6 +19,15 @@
     forget = "!git reset --hard HEAD"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
+    cma = "!f() { \
+        message=\"${1:-.}\"; \
+        if [ -e \"$message\" ]; then \
+            echo message \"$message\" cannot be a path ; \
+            exit 1; \
+        fi; \
+        shift; \
+        git add \"$@\" && git commit -m \"$message\" ; \
+    }; f"
     ignore = "!f() { \
         dir=\"${1:-.}\"; \
         if [ ! -d $dir ]; then \

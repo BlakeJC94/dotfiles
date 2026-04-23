@@ -97,7 +97,6 @@
 # bin
 !.local
 !.local/bin
-!.local/bin/*
 !.local/bin/brew-up
 !.local/bin/codehelp
 !.local/bin/dropbox
