@@ -33,6 +33,17 @@ M.setup = function(opts)
         vim.diagnostic.setloclist()
         vim.cmd.lopen()
     end, {})
+    vim.api.nvim_create_user_command("FixTypography", function()
+        -- quotes
+        vim.cmd([[%s/[“”]/"/ge]])
+        vim.cmd([[%s/[‘’]/'/ge]])
+        vim.cmd([[%s/[«»]/"/ge]])
+        -- dashes
+        vim.cmd([[%s/‐/-/ge]]) -- hyphen (U+2010)
+        vim.cmd([[%s/-/-/ge]]) -- non-breaking hyphen (U+2011)
+        vim.cmd([[%s/–/--/ge]]) -- en dash (U+2013)
+        vim.cmd([[%s/—/---/ge]]) -- em dash (U+2014)
+    end, {})
 
     -- Setup UI/editor utilities
     local utils = require("BlakeJC94.utils")
