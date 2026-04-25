@@ -92,6 +92,9 @@
 [credential]
     helper = cache --timeout=3600
 
+[add]
+	verbose = true
+
 [diff]
     colorMoved = plain
     algorithm = histogram

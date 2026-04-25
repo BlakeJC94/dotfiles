@@ -80,6 +80,12 @@ mise up
 
 ## Usage
 
+Make sure pre-commit is installed and install the git hooks
+
+```bash
+pre-commit install
+```
+
 Add a file to the dotfile repo:
 
 ```bash
