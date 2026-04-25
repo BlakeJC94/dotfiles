@@ -15,7 +15,7 @@ alias vimpy='vim -c "S uv run ipython"'
 alias myip='curl http://ifconfig.me/ip'
 alias wttr='curl https://wttr.in/'
 
-alias dot='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+alias dit='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 alias l='eza'
 alias vi='command vim'
 alias vim='nvim'
