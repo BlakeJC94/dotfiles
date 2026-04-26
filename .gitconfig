@@ -8,6 +8,7 @@
 
 [alias]
     st = "!git status -sb"
+    ad = "!git add --renormalize -v"
     cm = "!git commit -m"
     dif = "!git diff --stat"
     lg = "!git log --oneline"
@@ -91,9 +92,6 @@
 
 [credential]
     helper = cache --timeout=3600
-
-[add]
-	verbose = true
 
 [diff]
     colorMoved = plain
