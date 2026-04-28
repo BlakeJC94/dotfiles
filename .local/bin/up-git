@@ -39,5 +39,5 @@ echo "===================="
 echo
 echo "Add this key to https://github.com/settings/ssh/new"
 echo
-read -pr "Press any key to continue: " _foo
+read -p "Press any key to continue" _foo
 
