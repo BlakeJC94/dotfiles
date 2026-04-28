@@ -8,6 +8,7 @@ list=(
     "net-tools"
     "curl"
     "wget"
+    "xclip"
 )
 for item in "${list[@]}"; do
     echo "Installing $item..."
