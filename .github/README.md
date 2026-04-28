@@ -28,7 +28,7 @@ TODO
 First authenticate new machine with Github:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/BlakeJC94/dotfiles/refs/heads/main/.local/bin/git-up | bash
+curl -sSL https://raw.githubusercontent.com/BlakeJC94/dotfiles/refs/heads/main/.local/bin/up-git | bash
 ```
 
 Clone dotfiles to new machine and setup the `dit` alias:
