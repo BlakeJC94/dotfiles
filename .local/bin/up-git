@@ -1,6 +1,23 @@
 #!/usr/bin/env bash
 echo "Setting up SSH authentication for Git..."
 
+# Install git if needed
+if ! command -v git &> /dev/null; then
+    echo "git is not installed."
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        if command -v brew &> /dev/null; then
+            brew install git
+        else
+            echo "brew not found, install git manually"
+            exit 1
+        fi
+    else
+        sudo apt update
+        sudo apt install -y git
+    fi
+fi
+
 # Check if SSH key already exists
 if [[ -f "${HOME}/.ssh/id_ed25519" ]]; then
     echo "SSH key already exists at ~/.ssh/id_ed25519"
