@@ -5,7 +5,9 @@ sudo apt update
 list=(
     "build-essential"
     "git"
+    "net-tools"
     "curl"
+    "wget"
 )
 for item in "${list[@]}"; do
     echo "Installing $item..."

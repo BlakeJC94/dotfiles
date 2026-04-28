@@ -12,7 +12,8 @@ alias today='vim -c "ThisWeek!"'
 alias notes='vim -c "Notes!"'
 alias vimpy='vim -c "S uv run ipython"'
 
-alias myip='curl http://ifconfig.me/ip'
+alias ip-global='echo "IPv4: $(curl -4 -s https://api.ipify.org)"; echo "IPv6: $(curl -6 -s https://api64.ipify.org)"'
+alias ip-local="ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if(\$i==\"src\") print \$(i+1)}'"
 alias wttr='curl https://wttr.in/'
 
 alias dit='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
