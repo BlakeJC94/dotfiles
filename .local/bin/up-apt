@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+sudo apt update
+
+# TODO
+# list=(
+#     ""
+# )
+# for item in "${list[@]}"; do
+#     echo "Installing $item..."
+#     apt install $item
+# done
+
+sudo apt upgrade
