@@ -7,7 +7,9 @@ export PATH_LOCAL_BIN="${HOME}/.local/bin"
 export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-export EDITOR='nvim'
+if command -v nvim &> /dev/null; then
+    export EDITOR='nvim'
+fi
 
 # Force python to import stuff in wd
 export PYTHONPATH=.
@@ -16,23 +18,35 @@ export PYTHONPATH=.
 export ARCHFLAGS="-arch $(uname -m)"
 
 # LLM config location
-export LLM_USER_PATH=$HOME/.config/llm
+if command -v llm &> /dev/null; then
+    export LLM_USER_PATH=$HOME/.config/llm
+fi
 
 # FZF options
-export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
-  --color fg:#ebdbb2,bg:#1d2021,hl:#fabd2f,fg+:#ebdbb2,bg+:#3c3836,hl+:#fabd2f
-  --color info:#83a598,prompt:#bdae93,spinner:#fabd2f,pointer:#83a598,marker:#fe8019,header:#665c54'
-export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git/**'"
+if command -v fzf &> /dev/null; then
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
+      --color fg:#ebdbb2,bg:#1d2021,hl:#fabd2f,fg+:#ebdbb2,bg+:#3c3836,hl+:#fabd2f
+      --color info:#83a598,prompt:#bdae93,spinner:#fabd2f,pointer:#83a598,marker:#fe8019,header:#665c54'
+    export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git/**'"
+fi
 
 # TeXmgr added config
 # https://tex.stackexchange.com/questions/467824/is-it-possible-to-relocate-my-texmf-directory
 export TEXMFHOME='~/.texmf'
 
 # Use bat as manpager
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+if command -v bat &> /dev/null; then
+    export GROFF_NO_SGR=1
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
 
 
-export AICHAT_CONFIG_DIR=~/.config/aichat
-export AICHAT_ENV_FILE=~/.env
+if command -v aichat &> /dev/null; then
+    export AICHAT_CONFIG_DIR=~/.config/aichat
+    export AICHAT_ENV_FILE=~/.env
+fi
 
-export GLOW_STYLE="$HOME/.config/glow/styles/gruvbox-dark.json"
+
+if command -v glow &> /dev/null; then
+    export GLOW_STYLE="$HOME/.config/glow/styles/gruvbox-dark.json"
+fi

@@ -3,10 +3,8 @@
     email = blake.c@montu.com.au
     username = BlakeJC94
 
-[includeIf "gitdir:~/Workspace/repos/work/"]
-    path = ~/.gitconfig-montu
-
 [alias]
+    dotfiles = "!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME \"$@\"; }; f"
     st = "!git status -sb"
     ad = "!git add --renormalize -v"
     cm = "!git commit -m"
