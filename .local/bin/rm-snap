@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if command -v snap > /dev/null; then
+    echo "Removing 'snap'"
+    for i in $(seq 10); do echo attmept $i && for j in $(snap list | awk '{print $1}' | tail -n +2); do sudo snap remove --purge $j; done; done
+    sudo apt remove -y --purge snapd
+    sudo add-apt-repository -y ppa:mozillateam/ppa
+    sudo apt update && sudo apt install -y firefox-esr
+fi
