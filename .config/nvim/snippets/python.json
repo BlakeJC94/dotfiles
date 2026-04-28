@@ -1,0 +1,10 @@
+{
+  "marimo_app_cell": {
+    "prefix": "@app",
+    "body": [
+      "@app.cell",
+      "def _():",
+      "    "
+    ]
+  }
+}

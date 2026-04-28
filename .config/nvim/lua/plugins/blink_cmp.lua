@@ -1,6 +1,7 @@
 return {
     "https://github.com/saghen/blink.cmp",
-    dependencies = { "rafamadriz/friendly-snippets" },
+    dependencies = { "https://github.com/rafamadriz/friendly-snippets" },
+    version = "1.*",
     opts = {
         keymap = {
             ["<C-x>"] = { "show", "show_documentation", "hide_documentation" },
