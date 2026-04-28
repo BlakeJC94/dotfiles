@@ -74,7 +74,7 @@ source .zshrc   # If on zsh
 Install brew
 
 ```bash
-brew-up
+up-brew
 
 ```
 
