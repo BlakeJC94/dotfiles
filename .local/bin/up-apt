@@ -2,13 +2,14 @@
 
 sudo apt update
 
-# TODO
-# list=(
-#     ""
-# )
-# for item in "${list[@]}"; do
-#     echo "Installing $item..."
-#     apt install $item
-# done
+list=(
+    "build-essential"
+    "git"
+    "curl"
+)
+for item in "${list[@]}"; do
+    echo "Installing $item..."
+    sudo apt install $item
+done
 
 sudo apt upgrade
