@@ -3,7 +3,7 @@ return {
     lazy = false,
     opts = {
         field_notes_vert = true,
-        field_notes_dir = vim.fn.expand("~/Workspace/field-notes"),
+        field_notes_dir = vim.fn.expand("~/Sync/field-notes"),
         blog_content_dir = vim.fn.expand("~/Workspace/repos/blog/content"),
     },
     keys = {
