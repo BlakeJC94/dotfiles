@@ -29,7 +29,7 @@ return {
         { "<Leader>co", "<cmd>lua resolve_conflict('ours')<CR>" },
         { "<Leader>ct", "<cmd>lua resolve_conflict('theirs')<CR>" },
         { "<Leader>cb", "<cmd>lua resolve_conflict('both')<CR>" },
-        { "<Leader>cC", "<cmd>Git commit"}
+        { "<Leader>cC", "<cmd>Git commit<CR>"}
     },
     config = function()
         -- Statusline
