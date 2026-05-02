@@ -7,12 +7,12 @@ output=$(echo "$input" | tr '[:upper:]' '[:lower:]')
 
 # 2. Replace one or more non-word characters with a single underscore
 #    \W matches any non-word character (equivalent to [^a-zA-Z0-9_])
-output=$(echo "$output" | sed -E 's/[^a-zA-Z0-9_]+/_/g')
+output=$(echo "$output" | sed -E 's/[^a-zA-Z0-9-]+/-/g')
 
 # 3. Remove leading underscores
-output=$(echo "$output" | sed -E 's/^_+//g')
+output=$(echo "$output" | sed -E 's/^-+//g')
 
 # 4. Remove trailing underscores
-output=$(echo "$output" | sed -E 's/_+$//g')
+output=$(echo "$output" | sed -E 's/-+$//g')
 
 echo "$output"
