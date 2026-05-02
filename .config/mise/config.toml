@@ -19,6 +19,7 @@ stylua = "latest"
 taplo = "latest"
 terraform-ls = "latest"
 yamlfmt = "latest"
+gh = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["python"]
