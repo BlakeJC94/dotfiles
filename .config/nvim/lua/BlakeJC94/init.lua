@@ -33,7 +33,7 @@ M.setup = function(opts)
         vim.diagnostic.setloclist()
         vim.cmd.lopen()
     end, {})
-    vim.api.nvim_create_user_command("FixTypography", function()
+    vim.api.nvim_create_user_command("UnicodeClean", function()
         -- quotes
         vim.cmd([[%s/[“”]/"/ge]])
         vim.cmd([[%s/[‘’]/'/ge]])
