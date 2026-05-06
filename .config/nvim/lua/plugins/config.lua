@@ -74,23 +74,22 @@ return {
             "i<C-g>u<Esc>[s1z=`]",
             remap = false,
         },
-        -- <C->: Also recompute folds and refresh
+        -- <C-l>: Also recompute folds and refresh
         {
             "<C-l>",
-            "zx<C-l>",
+            "<cmd>noh<CR>zx<C-l>",
             silent = true,
         },
-        -- <Leader>-x : Execute
+        -- correct the commmandline wildmenu arrows
         {
-            "<Leader>x",
-            "<C-g>u:.!sh<CR>`]",
-            remap = false,
+            "<Down>",
+            "<C-n>",
+            mode = "c",
         },
         {
-            "<Leader>x",
-            "<C-g>u:!sh<CR>`]",
-            mode = "x",
-            remap = false,
+            "<Up>",
+            "<C-p>",
+            mode = "c",
         },
         -- Stop accidentally opening help in insert mode
         {
@@ -122,12 +121,12 @@ return {
         -- Fkey maps
         {
             "<F1>",
-            ":setl relativenumber!<CR>:setl relativenumber?<CR>",
+            ":setl number!<CR>:setl number?<CR>",
             silent = false,
         },
         {
             "<F2>",
-            ":setl number!<CR>:setl number?<CR>",
+            ":setl relativenumber!<CR>:setl relativenumber?<CR>",
             silent = false,
         },
         {

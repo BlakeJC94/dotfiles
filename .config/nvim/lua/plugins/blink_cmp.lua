@@ -35,14 +35,11 @@ return {
             ["<C-k>"] = { "show_signature", "hide_signature", "fallback" },
         },
         completion = { documentation = { auto_show = true } },
+        cmdline = { enabled = false },
         sources = {
             default = { "lsp", "path", "snippets", "buffer" },
         },
         fuzzy = { implementation = "lua" },
-        cmdline = {
-            keymap = { preset = "inherit" },
-            completion = { menu = { auto_show = true } },
-        },
     },
     opts_extend = { "sources.default" },
 }

@@ -63,7 +63,14 @@ end)
 
 -- This function returns the suggested title for a tab.
 local tab_title = function(tab)
-    local cwd = tab.active_pane.current_working_dir
+    local pane = tab.active_pane
+
+    local proc = pane.foreground_process_name or ""
+    if proc:match("[/\\]ssh$") or proc == "ssh" then
+        return "[ssh]"
+    end
+
+    local cwd = pane.current_working_dir
     if not cwd then
         return tab.tab_title
     end
