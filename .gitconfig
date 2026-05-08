@@ -27,6 +27,16 @@
         shift; \
         git add \"$@\" && git commit -m \"$message\" ; \
     }; f"
+    cmap = "!f() { \
+        message=\"${1:-.}\"; \
+        if [ -e \"$message\" ]; then \
+            echo message \"$message\" cannot be a path ; \
+            exit 1; \
+        fi; \
+        shift; \
+        git add \"$@\" && git commit -m \"$message\" ; \
+        git push ; \
+    }; f"
     ignore = "!f() { \
         dir=\"${1:-.}\"; \
         if [ ! -d $dir ]; then \
