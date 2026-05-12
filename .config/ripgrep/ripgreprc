@@ -1,0 +1,5 @@
+--no-ignore-parent
+--smart-case
+--hidden
+--glob
+!.git

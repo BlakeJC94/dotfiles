@@ -19,7 +19,8 @@
 !.mdformat.toml
 
 # ripgrep
-!.ripgreprc
+!.config/ripgrep
+!.config/ripgrep/ripgreprc
 
 # ruff
 !.ruff.toml
