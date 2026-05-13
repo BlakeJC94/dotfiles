@@ -77,7 +77,7 @@ return {
         -- <C-l>: Also recompute folds and refresh
         {
             "<C-l>",
-            "<cmd>noh<CR>zx<C-l>",
+            ":noh<CR>zx<C-l>",
             silent = true,
         },
         -- correct the commmandline wildmenu arrows
