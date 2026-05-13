@@ -5,7 +5,7 @@ return {
             lua = { "stylua" },
             python = { "ruff_fix", "ruff_format" },
             sh = { "shfmt" },
-            markdown = { "rumdl" },
+            markdown = { "mdformat" },
             sql = { "sqlfluff" },
         },
     },

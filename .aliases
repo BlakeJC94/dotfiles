@@ -39,6 +39,8 @@ alias q="exit"
 alias G="git"
 alias Git="git"
 
+alias teety="tee /dev/tty"
+
 pbpaste() {
     if which xclip &>/dev/null; then
         xclip -selection c -o
