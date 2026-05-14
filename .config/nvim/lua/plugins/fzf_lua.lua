@@ -4,7 +4,7 @@ return {
     opts = {
         winopts = { border = "none" },
         grep = { hidden = true },
-        files = { raw_cmd = "fd --no-ignore-parent" },
+        files = { raw_cmd = "fd --no-ignore-parent --hidden --exclude '.git'" },
     },
     keys = {
         { "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },

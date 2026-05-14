@@ -37,6 +37,13 @@
         git add \"$@\" && git commit -m \"$message\" ; \
         git push ; \
     }; f"
+    ignore-template = "!f() { \
+        lang=${1} ; \
+        if [ -z ${lang} ]; then \
+            lang=$(curl -s https://api.github.com/repos/github/gitignore/contents | jq -r '.[].name' | grep 'gitignore$' | sed 's/.gitignore$//' | fzf) ; \
+        fi ; \
+        curl -s https://raw.githubusercontent.com/github/gitignore/refs/heads/main/${lang}.gitignore ; \
+    }; f"
     ignore = "!f() { \
         dir=\"${1:-.}\"; \
         if [ ! -d $dir ]; then \
