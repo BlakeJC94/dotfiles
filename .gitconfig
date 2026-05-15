@@ -7,12 +7,13 @@
     dotfiles = "!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME \"$@\"; }; f"
     st = "!git status -sb"
     ad = "!git add --renormalize -v"
+    a = "!git add ."
     cm = "!git commit -m"
     dif = "!git diff --stat"
     lg = "!git log --oneline"
     lgs = "!git log --name-status --oneline"
     hub = "!gh"
-    checkout-fzf = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
+    co = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
     b = "!git checkout -"
     vim = "!vim $(git diff --name-only)"
     forget = "!git reset --hard HEAD"
@@ -25,7 +26,7 @@
             exit 1; \
         fi; \
         shift; \
-        git add \"$@\" && git commit -m \"$message\" ; \
+        git add \"${@:-.}\" && git commit -m \"$message\" ; \
     }; f"
     cmap = "!f() { \
         message=\"${1:-.}\"; \
