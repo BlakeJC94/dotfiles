@@ -62,6 +62,7 @@
 !.config/opencode
 !.config/opencode/opencode.json
 !.config/opencode/AGENTS.md
+!.config/opencode/skills/**/*
 
 # starship
 !.config/starship.toml
