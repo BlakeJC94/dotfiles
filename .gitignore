@@ -64,6 +64,10 @@
 !.config/opencode/AGENTS.md
 !.config/opencode/skills/**/*
 
+# nerd-dictation
+!.config/nerd-dictation
+!.config/nerd-dictation/nerd-dictation.py
+
 # starship
 !.config/starship.toml
 
