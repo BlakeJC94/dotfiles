@@ -10,7 +10,7 @@ uv = "latest"
 "pipx:sqlfluff" = "latest"
 "pipx:strip-tags" = "latest"
 "pipx:symbex" = "latest"
-"pipx:mdformat" = "latest"
+"pipx:mdformat" = { version = "latest", uvx_args = "--with mdformat-gfm" }
 "npm:write-good" = "latest"
 shellcheck = "latest"
 python = "3.12"
@@ -25,3 +25,6 @@ pre-commit = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["python"]
+
+[settings.pipx]
+uvx = true
