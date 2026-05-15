@@ -17,6 +17,7 @@
     b = "!git checkout -"
     vim = "!vim $(git diff --name-only)"
     forget = "!git reset --hard HEAD"
+    diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
     cma = "!f() { \
