@@ -136,23 +136,33 @@
 
 [help]
     autocorrect = prompt
+
 [init]
     defaultBranch = main
+
 [branch]
     sort = -committerdate
+
 [column]
     ui = auto
+
 [tag]
     sort = version:refname
+
 [push]
     default = simple
     autoSetupRemote = true
     followTags = true
+
 [fetch]
     prune = true
     pruneTags = true
     all = true
+
 [rebase]
     autoSquash = true
     autoStash = true
     updateRefs = true
+
+[merge]
+    squash = true
