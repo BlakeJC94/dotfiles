@@ -1,5 +1,29 @@
 local M = {}
 
+-- AIDEV-NOTE: resolves maven jar paths from Bazel's external cache for jdtls classpath
+local function bazel_maven_jar_glob(root_dir)
+    if not vim.uv.fs_stat(root_dir .. "/MODULE.bazel") then
+        return nil
+    end
+
+    if vim.fn.executable("bazel") ~= 1 then
+        return nil
+    end
+
+    local handle = io.popen("bazel info output_base 2>/dev/null", "r")
+    if not handle then
+        return nil
+    end
+    local output_base = handle:read("*l")
+    handle:close()
+
+    if not output_base or output_base == "" then
+        return nil
+    end
+
+    return output_base .. "/external/rules_jvm_external*/v1/**/*.jar"
+end
+
 local function get_lspconfigs()
     return {
         {
@@ -81,6 +105,84 @@ local function get_lspconfigs()
                 cmd = { "air", "language-server" },
                 filetypes = { "r" },
                 root_markers = { "air.toml", ".air.toml", ".git" },
+            },
+        },
+        {
+            "jdtls",
+            opts = { -- https://github.com/neovim/nvim-lspconfig/blob/master/lsp/jdtls.lua#L74
+                cmd = function(dispatchers, config)
+                    local data_dir = vim.fn.stdpath("cache") .. "/jdtls/workspace"
+
+                    if config.root_dir then
+                        data_dir = data_dir .. "/" .. vim.fn.fnamemodify(config.root_dir, ":p:h:t")
+                    end
+
+                    local get_jdtls_jvm_args = function()
+                        local env = os.getenv("JDTLS_JVM_ARGS")
+                        local args = {}
+                        for a in string.gmatch((env or ""), "%S+") do
+                            local arg = string.format("--jvm-arg=%s", a)
+                            table.insert(args, arg)
+                        end
+                        return unpack(args)
+                    end
+
+                    local config_cmd = {
+                        "jdtls",
+                        "-data",
+                        data_dir,
+                        get_jdtls_jvm_args(),
+                    }
+
+                    return vim.lsp.rpc.start(config_cmd, dispatchers, {
+                        cwd = config.cmd_cwd,
+                        env = config.cmd_env,
+                        detached = config.detached,
+                    })
+                end,
+                filetypes = { "java" },
+                root_markers = {
+                    {
+                        -- Multi-module projects
+                        "mvnw", -- Maven
+                        "gradlew", -- Gradle
+                        "settings.gradle", -- Gradle
+                        "settings.gradle.kts", -- Gradle
+                        -- Use git directory as last resort for multi-module maven projects
+                        -- In multi-module maven projects it is not really possible to determine what is the parent directory
+                        -- and what is submodule directory. And jdtls does not break if the parent directory is at higher level than
+                        -- actual parent pom.xml so propagating all the way to root git directory is fine
+                        ".git",
+                    },
+                    {
+                        -- Single-module projects
+                        "build.xml", -- Ant
+                        "pom.xml", -- Maven
+                        "build.gradle", -- Gradle
+                        "build.gradle.kts", -- Gradle
+                    },
+                },
+                init_options = {},
+                on_init = function(client)
+                    local root_dir = client.config.root_dir
+                    if not root_dir then
+                        return
+                    end
+
+                    local jar_glob = bazel_maven_jar_glob(root_dir)
+                    if not jar_glob then
+                        return
+                    end
+
+                    client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, {
+                        java = {
+                            project = {
+                                referencedLibraries = { include = { jar_glob } },
+                            },
+                        },
+                    })
+                    client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+                end,
             },
         },
         {

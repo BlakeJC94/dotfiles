@@ -11,6 +11,7 @@ command -v brew > /dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubuser
 
 list=(
     "aider"
+    "jdtls"
     "awk"
     "bat"
     "bat-extras"
