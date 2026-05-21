@@ -5,10 +5,11 @@ command -v brew > /dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubuser
 [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
-
+# Ensure Brew is on PATH
 [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# Install programs from Brew
 list=(
     "aider"
     "jdtls"
@@ -45,8 +46,10 @@ list=(
 )
 for item in "${list[@]}"; do
     if brew list --formula | grep -q "^${item}$"; then
-        echo "Upgrading $item..."
-        brew upgrade $item
+        if [[ "$1" == "-u" ]] || [[ "$1" == "--update" ]]; then
+            echo "Upgrading $item..."
+            brew upgrade $item
+        fi
     else
         echo "Installing $item..."
         brew install $item

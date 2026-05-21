@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+if ! [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Only available on MacOS"
+    exit 1
+fi
+
+# Install brew
+command -v brew > /dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Ensure Brew is on PATH
+[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Install apps from Brew
+casks=(
+    "caffeine"
+    "docker"
+    "firefox"
+    "font-jetbrains-mono-nerd-font"
+    "iterm2"
+    "macmediakeyforwarder"
+    "protonvpn"
+    "rectangle"
+    "slack"
+    "spotify"
+    "todoist"
+    "wezterm"
+    "write"
+)
+for cask in "${casks[@]}"; do
+    if brew list --cask | grep -q "^${cask}$"; then
+        if [[ "$1" == "-u" ]] || [[ "$1" == "--update" ]]; then
+            echo "Upgrading cask $cask..."
+            brew upgrade --cask $cask
+        fi
+    else
+        echo "Installing cask $cask..."
+        brew install --cask $cask
+    fi
+done
