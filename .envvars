@@ -41,3 +41,8 @@ export GLOW_STYLE="$HOME/.config/glow/styles/gruvbox-dark.json"
 
 
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/ripgreprc"
+
+if [ -d /usr/local/cuda-13.2 ]; then
+    export PATH=/usr/local/cuda-13.2/bin${PATH:+:${PATH}}
+    export LD_LIBRARY_PATH=/usr/local/cuda-13.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+fi

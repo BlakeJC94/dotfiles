@@ -77,6 +77,7 @@ M.setup = function(opts)
     -- Setup LSP
     local lsp = require("BlakeJC94.lsp")
     lsp.set_lspconfigs()
+
 end
 
 -- Global Namespace Functions
