@@ -1,5 +1,6 @@
 return {
     "https://github.com/ibhagwan/fzf-lua",
+    lazy = false,
     cmd = "FzfLua",
     opts = {
         winopts = { border = "none" },
@@ -27,4 +28,13 @@ return {
         { "<Leader>fq", ":FzfLua quickfix<CR>" },
         { "<Leader>fl", ":FzfLua loclist<CR>" },
     },
+    config = function()
+        vim.api.nvim_create_autocmd("VimEnter", {
+            callback = function()
+                if vim.fn.argc() == 0 then
+                    vim.cmd("Fzf files")
+                end
+            end,
+        })
+    end,
 }

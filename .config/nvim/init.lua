@@ -100,5 +100,3 @@ end
 
 main()
 
-vim.api.nvim_set_keymap('c', '<Down>', '<C-n>', { noremap = true })
-vim.api.nvim_set_keymap('c', '<Up>', '<C-p>', { noremap = true })

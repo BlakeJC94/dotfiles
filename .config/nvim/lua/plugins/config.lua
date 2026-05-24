@@ -4,6 +4,8 @@ return {
     lazy = false,
     opts = {},
     keys = {
+        { "<Down>", "<C-n>", mode = "c" },
+        { "<Up>", "<C-p>", mode = "c" },
         -- Better jumplist for large line steps (and step through visual lines with j/k)
         {
             "j",
