@@ -1,5 +1,6 @@
 {
     "$schema": "https://opencode.ai/config.json",
+    "autoupdate": false,
     "model": "openrouter/z-ai/glm-5.1",
     "small_model": "openrouter/moonshotai/kimi-k2.6",
     "instructions": ["~/.config/opencode/AGENTS.md"],
