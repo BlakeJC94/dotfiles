@@ -68,6 +68,7 @@ M.setup = function(opts)
     autocmds.setup_trim_spaces()
     autocmds.setup_info_buffer_opts()
     autocmds.setup_jump_to_last_edit()
+    autocmds.setup_makeprg_just()
 
     -- Setup abbreviations
     local abbrevs = require("BlakeJC94.abbrevs")

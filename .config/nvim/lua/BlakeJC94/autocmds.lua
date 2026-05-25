@@ -77,4 +77,22 @@ M.setup_jump_to_last_edit = function()
     })
 end
 
+M.setup_makeprg_just = function()
+    vim.api.nvim_create_augroup("makeprg_just", { clear = true })
+    vim.api.nvim_create_autocmd("BufReadPost", {
+        group = "makeprg_just",
+        callback = function()
+            local dir = vim.fn.getcwd()
+            if dir == "" or dir:match("^/tmp") then
+                return
+            end
+
+            if vim.fn.filereadable(dir .. "/justfile") == 1 or vim.fn.filereadable(dir .. "/Justfile") == 1 then
+                vim.bo.makeprg = "just"
+                vim.bo.errorformat = "%f:%l:%c:%m,%f:%l:%m"
+            end
+        end,
+    })
+end
+
 return M
