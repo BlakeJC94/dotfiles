@@ -1,4 +1,5 @@
 {
+  "arborist.nvim": { "branch": "main", "commit": "fdeef56c2840c6772b9f68c5774ed87e9340ec7d" },
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },
   "conform.nvim": { "branch": "master", "commit": "24c70347f6b2128679f47d2eb765156ef34bf9e0" },
   "friendly-snippets": { "branch": "main", "commit": "6cd7280adead7f586db6fccbd15d2cac7e2188b9" },
@@ -9,10 +10,10 @@
   "llm.nvim": { "branch": "main", "commit": "947b869b15bf73c9ea39a14ac47ac79787170365" },
   "nvim-highlight-colors": { "branch": "main", "commit": "e4c7af0211866162d999ce0bdd6a029302e19139" },
   "nvim-lint": { "branch": "master", "commit": "d48f3a76189d03b2239f6df1b2f7e3fa8353743b" },
-  "nvim-treesitter": { "branch": "main", "commit": "4916d6592ede8c07973490d9322f187e07dfefac" },
   "nvim-various-textobjs": { "branch": "main", "commit": "ad78e9d925c95d675b32dd7ba6d253f96ce063fe" },
   "oil.nvim": { "branch": "master", "commit": "21c669e7bfeb1546ae988b52813138e4d674bbf5" },
   "scrap.nvim": { "branch": "main", "commit": "b84e0aed0ea8399b503288eb9d292ba88cdbb143" },
+  "shelly.nvim": { "branch": "main", "commit": "734b64767883e22678c9604a25c5f69667f67f7b" },
   "trld.nvim": { "branch": "main", "commit": "f9955514afd0af8cbbf81506265adbcb56b953fa" },
   "vim-convict": { "branch": "main", "commit": "a00e26448be741dd9400777db4cdbd3d88a412f3" },
   "vim-eunuch": { "branch": "master", "commit": "e86bb794a1c10a2edac130feb0ea590a00d03f1e" },
