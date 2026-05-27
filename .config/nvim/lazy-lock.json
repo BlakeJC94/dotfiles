@@ -13,7 +13,6 @@
   "nvim-various-textobjs": { "branch": "main", "commit": "ad78e9d925c95d675b32dd7ba6d253f96ce063fe" },
   "oil.nvim": { "branch": "master", "commit": "21c669e7bfeb1546ae988b52813138e4d674bbf5" },
   "scrap.nvim": { "branch": "main", "commit": "b84e0aed0ea8399b503288eb9d292ba88cdbb143" },
-  "shelly.nvim": { "branch": "main", "commit": "734b64767883e22678c9604a25c5f69667f67f7b" },
   "trld.nvim": { "branch": "main", "commit": "f9955514afd0af8cbbf81506265adbcb56b953fa" },
   "vim-convict": { "branch": "main", "commit": "a00e26448be741dd9400777db4cdbd3d88a412f3" },
   "vim-eunuch": { "branch": "master", "commit": "e86bb794a1c10a2edac130feb0ea590a00d03f1e" },

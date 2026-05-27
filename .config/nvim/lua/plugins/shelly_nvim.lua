@@ -52,16 +52,16 @@ return {
             desc = "Send motion to terminal",
         },
         {
-            "<Leader>A",
+            "<Leader>a",
             ":Shelly ",
             mode = "n",
         },
         {
-            "<Leader>a",
+            "<C-Tab>",
             function()
                 require("shelly").toggle()
             end,
-            mode = "n",
+            mode = {"n", "t"},
         },
     },
 }

@@ -181,7 +181,6 @@ local function get_lspconfigs()
                             },
                         },
                     })
-                    client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
                 end,
             },
         },

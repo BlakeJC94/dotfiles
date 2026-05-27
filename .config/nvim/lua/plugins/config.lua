@@ -179,6 +179,7 @@ return {
             silent = true,
         },
         { "<Leader>;", "<cmd>edit ~/.config/nvim/init.lua | lcd ~/.config/nvim/ <CR>" },
+        { "<Leader>:", "<cmd>Lazy<CR>" },
         { "<Leader>.", "<cmd>lcd %:p:h | echo 'Changed local dir to ' . getcwd()<CR>" },
         { "<Leader>,", "<cmd>cd %:p:h | echo 'Changed dir to ' . getcwd()<CR>" },
         { "<Leader>/", "<cmd>cd `git rev-parse --show-toplevel` | echo 'Changed dir to ' . getcwd()<CR>" },
