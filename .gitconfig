@@ -29,7 +29,7 @@
             exit 1; \
         fi; \
         shift; \
-        git add \"${@:-.}\" && git commit -m \"$message\" ; \
+        git add -v \"${@:-.}\" && git commit -m \"$message\" ; \
     }; f"
     cmap = "!f() { \
         message=\"${1:-.}\"; \
