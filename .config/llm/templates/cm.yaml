@@ -1,0 +1,8 @@
+name: cm
+
+system: |
+
+  You've been given a git diff. Summarise this change in a one-line conventional
+  commit:
+
+    <convenional-commit-tag>(<scope>): <short-description>

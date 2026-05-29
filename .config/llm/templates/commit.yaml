@@ -1,0 +1,13 @@
+name: cm
+
+system: |
+
+  You've been given a git diff. Summarise this change in a one-line conventional
+  commit:
+
+    <convenional-commit-tag>(<scope>): <short-description>
+
+  Also, provide a short summary of the change in concise dot-point form,
+  highlighting peculiarities and specific mechanisms used in the commit and what
+  they address. If appropriate, highlight why the method used in the diff
+  provides an advantage

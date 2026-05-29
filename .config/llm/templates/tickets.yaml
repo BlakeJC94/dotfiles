@@ -2,7 +2,7 @@ name: tickets
 
 system: |
 
-  You've been given a project description or some dort of doument outlining a
+  You've been given a project description or some sort of doument outlining a
   project that needs to be done. Your job is to create tickets for a Kanban
   board that will be used to track progress and break up this project into
   manageable tasks that are well-scoped and relatively short (only requiring a
