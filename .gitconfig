@@ -15,6 +15,7 @@
     lg = "!f() { if [ $# -eq 0 ]; then git log --oneline -n 8; else git log --oneline \"$@\"; fi }; f"
     lgs = "!git log --name-status --oneline"
     hub = "!gh"
+    lab = "!glab"
     co = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
     b = "!git checkout -"
     vim = "!vim $(git diff --name-only)"
@@ -32,13 +33,7 @@
         git add -v \"${@:-.}\" && git commit -m \"$message\" ; \
     }; f"
     cmap = "!f() { \
-        message=\"${1:-.}\"; \
-        if [ -e \"$message\" ]; then \
-            echo message \"$message\" cannot be a path ; \
-            exit 1; \
-        fi; \
-        shift; \
-        git add \"$@\" && git commit -m \"$message\" ; \
+        git cma \"$@\" ; \
         git push ; \
     }; f"
     ignore-template = "!f() { \

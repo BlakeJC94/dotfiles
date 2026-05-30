@@ -54,7 +54,9 @@ echo "===================="
 cat "${HOME}/.ssh/id_ed25519.pub"
 echo "===================="
 echo
-echo "Add this key to https://github.com/settings/ssh/new"
+echo "Add this key to"
+echo "  - https://gitlab.com/-/user_settings/ssh_keys"
+echo "  - https://github.com/settings/ssh/new"
 echo
 read -p "Press any key to continue" _foo
 

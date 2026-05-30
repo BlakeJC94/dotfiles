@@ -21,6 +21,7 @@ taplo = "latest"
 terraform-ls = "latest"
 yamlfmt = "latest"
 gh = "latest"
+glab = "latest"
 pre-commit = "latest"
 
 [settings]
