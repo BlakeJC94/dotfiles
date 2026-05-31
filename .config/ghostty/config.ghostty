@@ -9,6 +9,7 @@ window-height = 40
 window-width = 100
 custom-shader = shaders/cursor_warp.glsl
 window-decoration = none
+keybind = clear
 
 keybind = performable:ctrl+shift+q=close_tab
 keybind = performable:ctrl+shift+n=new_window
@@ -25,6 +26,7 @@ keybind = performable:ctrl+shift+b=scroll_page_up
 keybind = performable:ctrl+shift+f=scroll_page_down
 keybind = performable:ctrl+shift+/=start_search
 
+keybind = performable:ctrl+z>ctrl+z=goto_split:previous
 keybind = performable:ctrl+z>s=new_split:down
 keybind = performable:ctrl+z>v=new_split:right
 keybind = performable:ctrl+z>x=write_screen_file:copy
@@ -37,22 +39,22 @@ keybind = performable:ctrl+z>n=next_tab
 keybind = performable:ctrl+z>shift+n=move_tab:1
 keybind = performable:ctrl+z>shift+q=close_tab
 
-keybind = performable:ctrl+z>h=goto_split:left
-keybind = performable:ctrl+z>j=goto_split:down
-keybind = performable:ctrl+z>k=goto_split:up
-keybind = performable:ctrl+z>l=goto_split:right
+keybind = ctrl+z>h=goto_split:left
+keybind = ctrl+z>j=goto_split:down
+keybind = ctrl+z>k=goto_split:up
+keybind = ctrl+z>l=goto_split:right
 
-keybind = performable:ctrl+z>left=goto_split:left
-keybind = performable:ctrl+z>down=goto_split:down
-keybind = performable:ctrl+z>up=goto_split:up
-keybind = performable:ctrl+z>right=goto_split:right
+keybind = ctrl+z>left=goto_split:left
+keybind = ctrl+z>down=goto_split:down
+keybind = ctrl+z>up=goto_split:up
+keybind = ctrl+z>right=goto_split:right
 
-keybind = performable:alt+h=resize_split:left,10
-keybind = performable:alt+j=resize_split:down,10
-keybind = performable:alt+k=resize_split:up,10
-keybind = performable:alt+l=resize_split:right,10
+keybind = alt+h=resize_split:left,10
+keybind = alt+j=resize_split:down,10
+keybind = alt+k=resize_split:up,10
+keybind = alt+l=resize_split:right,10
 
-keybind = performable:alt+left=resize_split:left,10
-keybind = performable:alt+down=resize_split:down,10
-keybind = performable:alt+up=resize_split:up,10
-keybind = performable:alt+right=resize_split:right,10
+keybind = alt+left=resize_split:left,10
+keybind = alt+down=resize_split:down,10
+keybind = alt+up=resize_split:up,10
+keybind = alt+right=resize_split:right,10

@@ -23,7 +23,7 @@ return {
             mode = { "n", "v" },
         },
         {
-            "<C-Space>",
+            "<C-Tab>",
             ":LLMToggle<CR>",
             mode = "n",
         },
