@@ -86,6 +86,8 @@
 # ghostty
 !.config/ghostty
 !.config/ghostty/config.ghostty
+!.config/ghostty/shaders
+!.config/ghostty/shaders/cursor_warp.glsl
 
 # zathura
 !.config/zathura
@@ -112,7 +114,7 @@
 # bin
 !.local
 !.local/bin
-!.local/bin/font-install
+!.local/bin/install-font
 !.local/bin/up-apt
 !.local/bin/up-soar
 !.local/bin/up-brew

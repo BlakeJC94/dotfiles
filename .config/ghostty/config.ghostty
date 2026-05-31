@@ -5,6 +5,10 @@ shell-integration-features = no-cursor
 cursor-style = block
 cursor-style-blink = false
 mouse-hide-while-typing = true
+window-height = 40
+window-width = 100
+custom-shader = shaders/cursor_warp.glsl
+window-decoration = none
 
 keybind = performable:ctrl+shift+q=close_tab
 keybind = performable:ctrl+shift+n=new_window
