@@ -101,16 +101,6 @@ return {
         },
         -- Use unused arrow keys
         {
-            "<Left>",
-            "[",
-            remap = true,
-        },
-        {
-            "<Right>",
-            "]",
-            remap = true,
-        },
-        {
             "<Up>",
             "[",
             remap = true,
@@ -118,6 +108,16 @@ return {
         {
             "<Down>",
             "]",
+            remap = true,
+        },
+        {
+            "<Left>",
+            "20zh",
+            remap = true,
+        },
+        {
+            "<Right>",
+            "20zl",
             remap = true,
         },
         -- Fkey maps

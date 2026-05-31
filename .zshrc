@@ -24,7 +24,7 @@ fi
 # Env vars
 
 # Setup common env vars
-[ -f ~/.envvars ] && source ~/.envvars
+[ -f ~/.vars ] && source ~/.vars
 
 # Replace MacOS standard tools with Unix standard tools
 export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"

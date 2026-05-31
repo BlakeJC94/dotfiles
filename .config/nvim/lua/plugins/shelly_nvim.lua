@@ -19,7 +19,7 @@ return {
     keys = {
         {
 
-            "<C-Space>",
+            "<C-Tab>",
             function()
                 require("shelly").cycle()
             end,
@@ -57,7 +57,7 @@ return {
             mode = "n",
         },
         {
-            "<C-Tab>",
+            "<C-Esc>",
             function()
                 require("shelly").toggle()
             end,

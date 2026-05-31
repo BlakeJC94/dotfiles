@@ -11,7 +11,7 @@ config.font = wezterm.font("JetBrains Mono")
 config.font_size = 18
 
 -- Window options
-config.window_decorations = "RESIZE"
+config.window_decorations = "TITLE|RESIZE"
 config.window_frame = {
     -- Berkeley Mono for me again, though an idea could be to try a
     -- serif font here instead of monospace for a nicer look?
@@ -197,11 +197,6 @@ config.keys = {
         action = wezterm.action.TogglePaneZoomState,
     },
     {
-        key = "/",
-        mods = "LEADER",
-        action = wezterm.action.QuickSelect,
-    },
-    {
         key = "c",
         mods = "LEADER",
         action = act.SpawnTab("CurrentPaneDomain"),
@@ -303,11 +298,6 @@ config.keys = {
         key = "RightArrow",
         mods = "ALT",
         action = act.AdjustPaneSize({ "Right", 5 }),
-    },
-    {
-        key = "/",
-        mods = "LEADER",
-        action = act.Search({ CaseInSensitiveString = "" }),
     },
     {
         key = "0",

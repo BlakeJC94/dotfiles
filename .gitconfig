@@ -4,7 +4,7 @@
     username = BlakeJC94
 
 [alias]
-    dotfiles = "!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME \"$@\"; }; f"
+    dotfiles = "!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME \"${@:-st}\"; }; f"
     st = "!git status -sb"
     ad = "!git add --renormalize -v"
     a = "!git add ."
@@ -23,6 +23,18 @@
     diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
+    lab-remote = "!f() { \
+        repo_guess=$(git remote get-url origin | sed 's/.*://'); \
+        if git lab repo view $repo_guess; then \
+            git remote set-url origin git@gitlab.com:${repo_guess}; \
+            git remote -v; \
+        fi; \
+    }; f"
+    lab-mirror = "!f() { \
+        repo=$(git remote get-url origin | sed 's/.*://') ; \
+        key=$(grep "^GITLAB_MIRROR" ~/.env | sed 's/.*=//') ; \
+        git lab repo mirror --direction push --url https://BlakeJC94:${key}@github.com/$repo; \
+    }; f"
     cma = "!f() { \
         message=\"${1:-.}\"; \
         if [ -e \"$message\" ]; then \

@@ -45,7 +45,7 @@ source $HOME/.bash/modules/tab_cycle.sh
 # Env vars
 
 # Setup common env vars
-[ -f ~/.envvars ] && source ~/.envvars
+[ -f ~/.vars ] && source ~/.vars
 
 
 ##

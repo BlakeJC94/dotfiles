@@ -62,6 +62,7 @@ casks=(
     "docker"
     "firefox"
     "font-jetbrains-mono-nerd-font"
+    "ghostty"
     "iterm2"
     "macmediakeyforwarder"
     "protonvpn"

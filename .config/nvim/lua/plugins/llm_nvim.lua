@@ -23,7 +23,7 @@ return {
             mode = { "n", "v" },
         },
         {
-            "<C-Esc>",
+            "<C-Space>",
             ":LLMToggle<CR>",
             mode = "n",
         },

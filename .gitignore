@@ -4,7 +4,7 @@
 !.pre-commit-config.yaml
 !.config
 !.hushlogin
-!.envvars
+!.vars
 !.aliases
 
 # git
@@ -79,6 +79,14 @@
 !.config/wezterm
 !.config/wezterm/**/*
 
+# soar
+!.config/soar
+!.config/soar/config.toml
+
+# ghostty
+!.config/ghostty
+!.config/ghostty/config.ghostty
+
 # zathura
 !.config/zathura
 !.config/zathura/**/*
@@ -104,7 +112,9 @@
 # bin
 !.local
 !.local/bin
+!.local/bin/font-install
 !.local/bin/up-apt
+!.local/bin/up-soar
 !.local/bin/up-brew
 !.local/bin/up-cask
 !.local/bin/up-git

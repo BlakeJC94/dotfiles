@@ -43,6 +43,11 @@ alias teety="tee /dev/tty"
 
 alias opencode-resume='opencode --session $(opencode session list --format json | jq -r ".[] | [.title, .id] | @tsv" | fzf --delimiter=$"\t" --with-nth=1 | cut -f2)'
 
+secret() {
+    name=${1:-}
+    rg "${name}" ~/.env | sed 's/.*=//'
+}
+
 pbpaste() {
     if [ -n "${DISPLAY}" ] && which xclip &>/dev/null; then
         xclip -selection c -o

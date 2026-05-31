@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Source
+# https://dev.to/pulkitsingh/install-nerd-fonts-or-any-fonts-easily-in-linux-2e3l
+#
+# Added my own tweaks:
+# * Safe exit if the download fails
+# * Specialise to getting releases from https://github.com/ryanoasis/nerd-fonts/releases
+# * Remove sudo, install to local fonts dir instead
+
+# Check if the Name is provided
+if [ -z "$1" ]; then
+  echo "Please provide a URL to a font zip file."
+  exit 1
+fi
+
+VERSION=$(git hub release view --json tagName --repo ryanoasis/nerd-fonts --jq .tagName)
+
+# Create a temporary directory
+TEMP_DIR=$(mktemp -d)
+
+# Download the font zip file
+if ! wget -O "$TEMP_DIR/font.zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/$VERSION/$1.zip"; then
+    echo "Failed download"
+    rm -rf "$TEMP_DIR"
+    exit 1
+fi
+
+# Unzip the font file
+unzip "$TEMP_DIR/font.zip" -d "$TEMP_DIR" 2>&1 > /dev/null
+
+# Move the font files to the system fonts directory
+FONTS_DIR="${HOME}/.local/share/fonts"
+mkdir -p "${FONTS_DIR}"
+mv "$TEMP_DIR"/*.{ttf,otf} "${FONTS_DIR}"
+
+# Update the font cache
+fc-cache -f -v 2>&1 > /dev/null
+
+# Clean up
+rm -rf "$TEMP_DIR"
+
+echo "Fonts installed successfully!"
+
