@@ -1,5 +1,5 @@
 return {
-    "https://github.com/BlakeJC94/shelly.nvim",
+    "https://gitlab.com/blakejc/shelly.nvim",
     cmd = {
         "Shelly",
         "ShellyCycle",

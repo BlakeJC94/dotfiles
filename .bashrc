@@ -35,11 +35,27 @@ shopt -s globstar
 # Disable <C-s>/<C-q> from pausing/resuming input to terminal
 stty -ixon
 
-source $HOME/.bash/modules/history.sh
-source $HOME/.bash/modules/color_prompt.sh
-source $HOME/.bash/modules/window_title.sh
+# Zsh-like Ctrl-W: delete to previous whitespace
+# bind '"\C-w": unix-word-rubout'
+
+# Zsh-like menu completion: Tab shows list then cycles
+bind 'set show-all-if-ambiguous on'
+bind 'TAB: menu-complete'
+bind '"\e[Z": menu-complete-backward'   # Shift-Tab
+
+# Case-insensitive completion
+bind 'set completion-ignore-case on'
+
+# Colored completions
+bind 'set colored-stats on'
+bind 'set visible-stats on'
+
+# History search
+# bind '"\C-r": reverse-search-history'
+# bind '"\C-s": forward-search-history'
+
 source $HOME/.bash/modules/completion.sh
-source $HOME/.bash/modules/tab_cycle.sh
+# source $HOME/.bash/modules/tab_cycle.sh
 
 ##
 # Env vars

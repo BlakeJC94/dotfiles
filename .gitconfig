@@ -14,8 +14,8 @@
     dif = "!git diff --stat"
     lg = "!f() { if [ $# -eq 0 ]; then git log --oneline -n 8; else git log --oneline \"$@\"; fi }; f"
     lgs = "!git log --name-status --oneline"
-    hub = "!gh"
-    lab = "!glab"
+    hub = "!NO_COLOR=true gh"
+    lab = "!NO_COLOR=true glab"
     co = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
     b = "!git checkout -"
     vim = "!vim $(git diff --name-only)"
@@ -56,27 +56,6 @@
         echo \"  - https://github.com/settings/ssh/new\" ; \
         echo ; \
     }; f"
-    ;     fi ; \
-    ;     read -p \"Enter your email address: \" email ; \
-    ;     if [[ -z \"${email}\" ]]; then \
-    ;         echo \"ERROR: Email address is required\" ; \
-    ;         exit 1 ; \
-    ;     fi ; \
-    ;     mkdir -p \"${HOME}/.ssh\" ; \
-    ;     chmod 700 \"${HOME}/.ssh\" ; \
-    ;     echo \"Generating SSH key...\" ; \
-    ;     ssh-keygen -t ed25519 -C \"${email}\" -f \"${HOME}/.ssh/id_ed25519\" ; \
-    ;     echo ; \
-    ;     echo \"Your public SSH key:\" ; \
-    ;     echo \"====================\" ; \
-    ;     cat \"${HOME}/.ssh/id_ed25519.pub\" ; \
-    ;     echo \"====================\" ; \
-    ;     echo ; \
-    ;     echo \"Add this key to\" ; \
-    ;     echo \"  - https://gitlab.com/-/user_settings/ssh_keys\" ; \
-    ;     echo \"  - https://github.com/settings/ssh/new\" ; \
-    ;     echo ; \
-    ; }; f"
     diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
@@ -90,9 +69,9 @@
         fi; \
     }; f"
     lab-mirror = "!f() { \
-        repo=$(git remote get-url origin | sed 's/.*://') ; \
+        repo=$(git remote get-url origin | sed 's/.*://' | sed \"s/$GITLAB_USER/$GITHUB_USER/\") ; \
         key=$(grep "^GITLAB_MIRROR" ~/.env | sed 's/.*=//') ; \
-        git lab repo mirror --direction push --url https://BlakeJC94:${key}@github.com/$repo; \
+        git lab repo mirror --direction push --url https://${GITHUB_USER}:${key}@github.com/$repo; \
     }; f"
     cma = "!f() { \
         message=\"${1:-.}\"; \

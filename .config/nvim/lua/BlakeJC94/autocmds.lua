@@ -9,6 +9,9 @@ M.setup_create_parent_dirs = function()
             local dir = vim.fn.expand("<afile>:p:h")
             if vim.fn.isdirectory(dir) == 0 and not dir:match(":") then
                 local choice = vim.fn.confirm('Create directory "' .. dir .. '"?', "&Yes\n&No", 1)
+                if choice == 0 then
+                    choice = vim.fn.confirm('Are you sure?', "&Yes\n&No", 1)
+                end
                 if choice == 1 then
                     vim.fn.mkdir(dir, "p")
                 end

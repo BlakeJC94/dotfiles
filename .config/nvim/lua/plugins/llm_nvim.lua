@@ -1,5 +1,5 @@
 return {
-    "https://github.com/BlakeJC94/llm.nvim",
+    "https://gitlab.com/BlakeJC/llm.nvim",
     cmd = {
         "LLM",
         "LLMToggle",

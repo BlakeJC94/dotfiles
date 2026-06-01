@@ -1,14 +1,30 @@
-theme = Gruvbox Dark Hard
-font-family = "JetBrainsMono Nerd Font"
-font-size = 16
-shell-integration-features = no-cursor
 cursor-style = block
 cursor-style-blink = false
-mouse-hide-while-typing = true
-window-height = 40
-window-width = 100
+
 custom-shader = shaders/cursor_warp.glsl
-window-decoration = none
+
+font-family = "JetBrainsMono Nerd Font"
+font-size = 16
+
+mouse-hide-while-typing = true
+
+shell-integration-features = no-cursor
+
+split-inherit-working-directory = true
+
+tab-inherit-working-directory = false
+
+theme = Gruvbox Dark Hard
+
+window-decoration = server
+window-height = 40
+window-inherit-working-directory = false
+window-padding-color = "extend"
+window-padding-x = 10
+window-padding-y = 10
+window-width = 100
+
+
 keybind = clear
 
 keybind = performable:ctrl+shift+q=close_tab
@@ -25,8 +41,11 @@ keybind = performable:ctrl+shift+d=scroll_page_fractional:0.5
 keybind = performable:ctrl+shift+b=scroll_page_up
 keybind = performable:ctrl+shift+f=scroll_page_down
 keybind = performable:ctrl+shift+/=start_search
+keybind = performable:ctrl+shift+l=reset
+keybind = performable:ctrl+shift+y=copy_to_clipboard
 
-keybind = performable:ctrl+z>ctrl+z=goto_split:previous
+
+keybind = ctrl+z>ctrl+z=goto_split:previous
 keybind = performable:ctrl+z>s=new_split:down
 keybind = performable:ctrl+z>v=new_split:right
 keybind = performable:ctrl+z>x=write_screen_file:copy
@@ -38,6 +57,7 @@ keybind = performable:ctrl+z>shift+p=move_tab:-1
 keybind = performable:ctrl+z>n=next_tab
 keybind = performable:ctrl+z>shift+n=move_tab:1
 keybind = performable:ctrl+z>shift+q=close_tab
+# keybind = performable:ctrl+z>z=
 
 keybind = ctrl+z>h=goto_split:left
 keybind = ctrl+z>j=goto_split:down
@@ -58,3 +78,46 @@ keybind = alt+left=resize_split:left,10
 keybind = alt+down=resize_split:down,10
 keybind = alt+up=resize_split:up,10
 keybind = alt+right=resize_split:right,10
+
+
+# Entry point
+keybind = ctrl+shift+z=activate_key_table:vim
+
+# Key table definition
+keybind = vim/
+
+# Line movement
+keybind = vim/j=scroll_page_lines:1
+keybind = vim/k=scroll_page_lines:-1
+
+# Page movement
+keybind = vim/ctrl+d=scroll_page_down
+keybind = vim/ctrl+u=scroll_page_up
+keybind = vim/ctrl+f=scroll_page_down
+keybind = vim/ctrl+b=scroll_page_up
+keybind = vim/shift+j=scroll_page_down
+keybind = vim/shift+k=scroll_page_up
+
+# Jump to top/bottom
+keybind = vim/g>g=scroll_to_top
+keybind = vim/shift+g=scroll_to_bottom
+
+# Search (if you want vim-style search entry)
+keybind = vim/slash=start_search
+keybind = vim/n=navigate_search:next
+
+# Copy mode / selection
+# Note we're missing a lot of actions here to make this more full featured.
+keybind = vim/v=copy_to_clipboard
+keybind = vim/y=copy_to_clipboard
+
+# Command Palette
+keybind = vim/shift+semicolon=toggle_command_palette
+
+# Exit
+keybind = vim/escape=deactivate_key_table
+keybind = vim/q=deactivate_key_table
+keybind = vim/i=deactivate_key_table
+
+# Catch unbound keys
+keybind = vim/catch_all=ignore

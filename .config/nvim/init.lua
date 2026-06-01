@@ -90,10 +90,11 @@ local main = function()
     set_options()
 
     bootstrap_package_manager()
+    vim.cmd.colorscheme("retrobox")
     require("lazy").setup({
         spec = { { import = "plugins" } },
         change_detection = { enabled = false },
-        colorscheme = { "retrobox", "habamax" },
+        colorscheme = { "retrobox" },
         dev = { path = "~/Workspace/repos" },
     })
 end

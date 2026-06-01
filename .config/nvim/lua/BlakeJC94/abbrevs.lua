@@ -20,7 +20,9 @@ M.setup_snippets = function()
 
     -- Expand `%%` as current filename in command mode
     vim.keymap.set("c", "%%", function()
-        return vim.fn.getcmdtype() == ":" and vim.fn.expand("%:h") .. "/" or "%%"
+        local output = vim.fn.getcmdtype() == ":" and vim.fn.expand("%:h") .. "/" or "%%"
+        output = output:gsub("^oil://", "")
+        return output
     end, { expr = true })
 end
 
