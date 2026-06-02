@@ -52,7 +52,24 @@ export CLOUDSDK_PYTHON_SITEPACKAGES=1
 # Intiliase Brew package manager
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# Initialise Mise
+# Initialise Mise NOTE: If you run into this issue:
+#
+#     The application panicked (crashed). Message: remote was just created and
+#     must be visible in config: Find(RefSpec { kind: "fetch", remote_name:
+#     "origin", source: Error { key: "remote.<name>.fetch", value:
+#     Some("^refs/heads/mergeQueue-*"), environment_override: None, source:
+#     Some(NegativeGlobPattern) } }) Location:
+#     /Users/brew/Library/Caches/Homebrew/cargo_cache/registry/src/index.crates.io-1949cf8c6b5b557f/gix-0.83.0/src/clone/fetch/util.rs:252
+#
+# Diagnose which config is causing the issue with
+#
+#    git config --show-origin --get-all remote.origin.fetch
+#
+# And remove the entry
+#
+#     [remote "origin"]
+#         fetch = ^refs/heads/mergeQueue-*
+#
 eval "$(mise activate zsh)"
 
 # Initialise Starship prompt
@@ -65,29 +82,5 @@ source <(fzf --zsh)
 ##
 # Extras
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/blake/.google-cloud-sdk/path.zsh.inc' ]; then . '/Users/blake/.google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/blake/.google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/blake/.google-cloud-sdk/completion.zsh.inc'; fi
-
-
-# Shell completions for uv
-command -v uv > /dev/null && source <(uv --generate-shell-completion zsh)
-_uv_run_mod() {
-    if [[ "$words[2]" == "run" && "$words[CURRENT]" != -* ]]; then
-        _arguments '*:filename:_files'
-    else
-        _uv "$@"
-    fi
-}
-compdef _uv_run_mod uv
-
-# Shell completions for montuflow
-command -v montuflow > /dev/null && source <(montuflow -- --completion)
-
-# Netskope CLI Certificate Fix
-netskope_fp=/opt/montu-kandji/netskope-cli-certificate-fix.sh
-if [ -f "${netskope_fp}" ]; then
-    source "${netskope_fp}"
-fi
+# License Vault URL for activation of Jetbrains products at Canva
+export JETBRAINS_LICENSE_SERVER=https://canva.fls.jetbrains.com/
