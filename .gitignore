@@ -115,6 +115,7 @@
 # bin
 !.local
 !.local/bin
+!.local/bin/llm-up
 !.local/bin/install-font
 !.local/bin/up-apt
 !.local/bin/up-soar

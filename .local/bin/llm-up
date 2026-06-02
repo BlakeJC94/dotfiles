@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+llm install llm-openrouter
+echo "Setting openrouter key"
+llm keys set openrouter
+
+llm install llm-tools-searxng
+llm keys set searxng_url --value https://searxng.probableodyssey.net
