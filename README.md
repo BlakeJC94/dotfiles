@@ -5,17 +5,18 @@ use them at your own risk though)
 
 ## Setup
 
-First authenticate new machine with Github (will install git if not found):
+First install `git` and `curl`, then authenticate new machine with the remote:
 
-```bash
-curl -sSL https://raw.githubusercontent.com/BlakeJC94/dotfiles/refs/heads/main/.local/bin/up-git | bash
+```
+curl "https://gitlab.com/blakejc/dotfiles/-/raw/main/.gitconfig?ref_type=heads" > .gitconfig
+git key
+rm .gitconfig
+git clone --bare git@gitlab.com:blakejc/dotfiles.git $HOME/.dotfiles
 ```
 
-Clone dotfiles to new machine and setup the `dit` alias:
+Clone dotfiles to new machine:
 
 ```bash
-git clone --bare git@github.com:BlakeJC94/dotfiles.git $HOME/.dotfiles
-git config --global alias.dotfiles '!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME "$@"; }; f'
 git dotfiles checkout
 ```
 
