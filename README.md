@@ -32,6 +32,13 @@ done
 git dotfiles checkout
 ```
 
+Activate the auto tool installation scripts by creating a `.dotfiles-activate`
+file in `$HOME`:
+
+```bash
+touch ~/.dotfiles-activate
+```
+
 Make sure pre-commit is installed and install the git hooks
 
 ```bash
