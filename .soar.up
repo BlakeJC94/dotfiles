@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-[ ! -z ${DOTFILES_DEBUG} ] && echo "Starting soar.up"
-
-if ! command -v soar > /dev/null; then
-    curl -fsSL "https://raw.githubusercontent.com/pkgforge/soar/main/install.sh" | sh
-    source ~/.soar.tools
-fi
-

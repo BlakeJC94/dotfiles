@@ -9,11 +9,8 @@
 !.aliases
 !.bashrc.activate
 !.zshrc.activate
-!.brew.up
-!.brew.tools
-!.soar.up
-!.soar.tools
-!.apt.tools
+!.brewtstrap
+!.justfile
 !README.md
 
 # git

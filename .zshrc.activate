@@ -1,19 +1,17 @@
 #!/usr/bin/env zsh
 
-source ~/.brew.up
-
-
-# Replace MacOS standard tools with Unix standard tools
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+if [ -f /opt/homebrew/bin/brew ] ; then
+    # Replace MacOS standard tools with Unix standard tools
+    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+    export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
+    export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
+    export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+fi
 
 # Set dircolors (ls colors)
 if command -v dircolors >/dev/null; then
     eval $(dircolors)
 fi
-
 
 # Initialise Mise
 #
