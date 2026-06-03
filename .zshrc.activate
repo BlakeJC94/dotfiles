@@ -1,0 +1,55 @@
+#!/usr/bin/env zsh
+
+source ~/.brew.up
+
+
+# Replace MacOS standard tools with Unix standard tools
+export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
+export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
+export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+
+# Set dircolors (ls colors)
+if command -v dircolors >/dev/null; then
+    eval $(dircolors)
+fi
+
+
+# Initialise Mise
+#
+# NOTE: If you run into this issue:
+#
+#     The application panicked (crashed). Message: remote was just created and
+#     must be visible in config: Find(RefSpec { kind: "fetch", remote_name:
+#     "origin", source: Error { key: "remote.<name>.fetch", value:
+#     Some("^refs/heads/mergeQueue-*"), environment_override: None, source:
+#     Some(NegativeGlobPattern) } }) Location:
+#     /Users/brew/Library/Caches/Homebrew/cargo_cache/registry/src/index.crates.io-1949cf8c6b5b557f/gix-0.83.0/src/clone/fetch/util.rs:252
+#
+# Diagnose which config is causing the issue with
+#
+#    git config --show-origin --get-all remote.origin.fetch
+#
+# And remove the entry
+#
+#     [remote "origin"]
+#         fetch = ^refs/heads/mergeQueue-*
+#
+if command -v mise >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating mise"
+    eval "$(mise activate zsh)"
+fi
+
+# Initialise Starship prompt
+if command -v starship >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating starship"
+    eval "$(starship init zsh)"
+fi
+
+# Initialise FZF
+if command -v fzf >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating fzf"
+    eval "$(fzf --zsh)"
+fi
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Finished activations"

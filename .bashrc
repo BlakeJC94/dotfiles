@@ -1,4 +1,7 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
+#
+# My Bash configuration is tailored to Linux, but it should work on MacOS
+#
 
 # If not running interactively, don't do anything
 case $- in
@@ -10,20 +13,6 @@ esac
 ##
 # Settings
 
-if [[ "$TERM_PROGRAM" == "WezTerm" ]]; then
-    _wezterm_osc7() {
-        # Use HOST for zsh, HOSTNAME for bash
-        local hostname="${HOST:-$HOSTNAME}"
-        printf "\033]7;file://%s%s\033\\" "$hostname" "$PWD"
-    }
-
-    # Detect shell type and set up appropriately
-    if [[ -n "$BASH_VERSION" ]]; then
-        # Bash: use PROMPT_COMMAND
-        PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_wezterm_osc7"
-    fi
-fi
-
 # Check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -34,9 +23,6 @@ shopt -s globstar
 
 # Disable <C-s>/<C-q> from pausing/resuming input to terminal
 stty -ixon
-
-# Zsh-like Ctrl-W: delete to previous whitespace
-# bind '"\C-w": unix-word-rubout'
 
 # Zsh-like menu completion: Tab shows list then cycles
 bind 'set show-all-if-ambiguous on'
@@ -50,12 +36,6 @@ bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
 bind 'set visible-stats on'
 
-# History search
-# bind '"\C-r": reverse-search-history'
-# bind '"\C-s": forward-search-history'
-
-source $HOME/.bash/modules/completion.sh
-# source $HOME/.bash/modules/tab_cycle.sh
 
 ##
 # Env vars
@@ -74,24 +54,8 @@ source $HOME/.bash/modules/completion.sh
 ##
 # Initialisers
 
-# Linuxbrew
-[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Initialise tools if requested
+if [ -f ~/.dotfiles-activate ]; then
+    source ~/.bashrc.activate
+fi
 
-# Mise
-eval "$(mise activate bash)"
-# source <(mise completion bash --include-bash-completion-lib)
-
-# Initialise Starship prompt
-eval "$(starship init bash)"
-
-# Initialise FZF
-source <(fzf --bash)
-
-# Initialise WSL
-[ -f $HOME/.local/bin/wezterm-wsl ] && $HOME/.local/bin/wezterm-wsl
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/blake/google-cloud-sdk/path.bash.inc' ]; then . '/home/blake/google-cloud-sdk/path.bash.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/home/blake/google-cloud-sdk/completion.bash.inc' ]; then . '/home/blake/google-cloud-sdk/completion.bash.inc'; fi

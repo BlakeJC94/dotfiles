@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-curl -fsSL "https://raw.githubusercontent.com/pkgforge/soar/main/install.sh" | sh

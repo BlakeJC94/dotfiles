@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Starting soar.tools"
+
+if ! command -v soar > /dev/null; then
+    return
+fi
+
+list=(
+    "ghostty"
+)
+for item in "${list[@]}"; do
+    echo "Installing ${item}..."
+    soar install "${item}"
+done

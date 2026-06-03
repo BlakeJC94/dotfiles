@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Starting brew.tools"
+
+if ! command -v brew > /dev/null; then
+    echo "Brew not installed"
+    return
+fi
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Checking brew packages"
+
+# Install programs from Brew
+list=(
+    "awk"
+    "bat"
+    "coreutils"
+    "curl"
+    "diffutils"
+    "eza"
+    "fd"
+    "findutils"
+    "fzf"
+    "git"
+    "glow"
+    "gnu-sed"
+    "grep"
+    "jdtls"
+    "jq"
+    "less"
+    "llm"
+    "mise"
+    "nano"
+    "neovim"
+    "opencode"
+    "pandoc"
+    "ripgrep"
+    "starship"
+    "tealdeer"
+    "tree"
+    "tree-sitter-cli"
+    "wget"
+)
+for item in "${list[@]}"; do
+    if ! brew list --formula | grep -q "^${item}$"; then
+        echo "Installing $item..."
+        brew install $item
+    fi
+done
+
+# MacOS-specific casks
+if ! [[ "$OSTYPE" == "darwin"* ]]; then
+    return
+fi
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Checking brew apps"
+
+casks=(
+    "caffeine"
+    "docker"
+    "firefox"
+    "font-jetbrains-mono-nerd-font"
+    "ghostty"
+    "macmediakeyforwarder"
+    "protonvpn"
+    "rectangle"
+    "slack"
+    "spotify"
+    "write"
+)
+
+for cask in "${casks[@]}"; do
+    if ! brew list --cask | grep -q "^${cask}$" && ! ls /Applications | grep -iq "${cask}"; then
+        brew install --cask "${cask}"
+    fi
+done
+

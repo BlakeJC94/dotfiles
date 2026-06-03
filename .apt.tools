@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Starting apt.tools"
+
+if ! command -v apt > /dev/null; then
+    echo "Not a system with 'apt'"
+    return
+fi
+
+
+sudo apt update
+
+list=(
+    "build-essential"
+    "net-tools"
+    "wget"
+    "xclip"
+)
+for item in "${list[@]}"; do
+    echo "Installing ${item}..."
+    sudo apt install -y "${item}"
+done
+
+
+sudo apt upgrade
+
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Checking spotify-client"
+if ! command -v spotify-client > /dev/null; then
+    printf "Install spotify? (y/N): "
+    read -r REPLY
+    if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+        curl -sS https://download.spotify.com/debian/pubkey_5384CE82BA52C83A.asc | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+        echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+        sudo apt-get update && sudo apt-get install spotify-client
+    fi
+fi
+
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Checking write"
+if [ ! -f $HOME/.local/opt/Write ]; then
+    wget https://www.styluslabs.com/download/write-tgz
+    mkdir -p $HOME/.local/opt
+    mv write-latest.tar.gz $HOME/.local/opt
+    pushd $HOME/.local/opt
+    tar xzfv write-latest.tar.gz
+    cd Write
+    sudo ./setup.sh
+    xdg-mime default Write.desktop image/svg+xml
+    popd
+fi

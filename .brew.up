@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Starting brew.up"
+
+# Ask to install brew if not found
+if ! command -v brew > /dev/null; then
+    echo "Brew not installed"
+
+    printf "Install brew? (y/N): "
+    read -r REPLY
+    if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+    else
+        return
+    fi
+
+    printf "Install brew packages? (y/N): "
+    read -r REPLY
+    if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+        source ~/.brew.tools
+    fi
+
+    printf "Install mise tools? (y/N): "
+    read -r REPLY
+    if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+        if ! command -v mise > /dev/null; then
+            brew install mise
+        fi
+        mise up
+    fi
+
+
+else
+    # Add brew to environment
+    [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+

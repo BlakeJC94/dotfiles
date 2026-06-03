@@ -1,4 +1,7 @@
 # ~/.zshrc: executed by zsh(1) for non-login shells.
+#
+# My Zsh configuration is tailored to MacOS, but it should work on Linux
+#
 
 # If not running interactively, don't do anything
 case $- in
@@ -30,9 +33,8 @@ bindkey -e
 
 ##
 # Initialisers
-#
 
-# Early exit if not requested
+# Initialise tools if requested
 if [ -f ~/.dotfiles-activate ]; then
     source ~/.zshrc.activate
 fi

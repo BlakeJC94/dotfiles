@@ -7,6 +7,13 @@
 !.hushlogin
 !.vars
 !.aliases
+!.bashrc.activate
+!.zshrc.activate
+!.brew.up
+!.brew.tools
+!.soar.up
+!.soar.tools
+!.apt.tools
 !README.md
 
 # git

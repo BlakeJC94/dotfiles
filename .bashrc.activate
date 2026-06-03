@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+source ~/.brew.up
+
+source ~/.soar.up
+
+# Set dircolors (ls colors)
+if command -v dircolors >/dev/null; then
+    eval "$(dircolors)"
+fi
+
+# Initialise mise
+if command -v mise >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating mise"
+    eval "$(mise activate bash)"
+fi
+
+# Initialise Starship prompt
+if command -v starship >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating starship"
+    eval "$(starship init bash)"
+fi
+
+# Initialise FZF
+if command -v fzf >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating fzf"
+    eval "$(fzf --bash)"
+fi
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Finished activations"
+
