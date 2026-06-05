@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-source ~/.brewtstrap
-
 # Set dircolors (ls colors)
 if command -v dircolors >/dev/null; then
     eval "$(dircolors)"
@@ -11,18 +9,24 @@ fi
 if command -v mise >/dev/null; then
     [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating mise"
     eval "$(mise activate bash)"
+else
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "No mise"
 fi
 
 # Initialise Starship prompt
 if command -v starship >/dev/null; then
     [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating starship"
     eval "$(starship init bash)"
+else
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "No starship"
 fi
 
 # Initialise FZF
 if command -v fzf >/dev/null; then
     [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating fzf"
     eval "$(fzf --bash)"
+else
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "No fzf"
 fi
 
 [ ! -z ${DOTFILES_DEBUG} ] && echo "Finished activations"

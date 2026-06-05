@@ -9,7 +9,7 @@ return {
     },
     opts = {
         autoscroll = false,
-        llm_path = "~/.local/bin/lm",
+        template = "default",
         split = {
             direction = "horizontal",
             size = 14,

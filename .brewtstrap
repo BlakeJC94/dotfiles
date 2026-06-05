@@ -2,8 +2,11 @@
 
 [ ! -z ${DOTFILES_DEBUG} ] && echo "Starting brewtstrap"
 
+[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Ask to install brew if not found
-if ! command -v brew > /dev/null; then
+if ! command -v brew >/dev/null; then
     echo "Brew not installed"
 
     printf "Install brew? (y/N): "
@@ -21,7 +24,7 @@ if ! command -v brew > /dev/null; then
     read -r REPLY
     if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
         just brew-up
-        if  [[ "$OSTYPE" == "darwin"* ]]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
             just cask-up
         fi
     fi
@@ -31,10 +34,4 @@ if ! command -v brew > /dev/null; then
     if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
         mise up
     fi
-
-else
-    # Add brew to environment
-    [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
-
