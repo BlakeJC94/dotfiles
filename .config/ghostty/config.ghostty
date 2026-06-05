@@ -44,6 +44,7 @@ keybind = performable:ctrl+shift+/=start_search
 keybind = performable:ctrl+shift+l=reset
 keybind = performable:ctrl+shift+y=copy_to_clipboard
 
+keybind = global:ctrl+shift+x=toggle_quick_terminal
 
 keybind = ctrl+z>ctrl+z=goto_split:previous
 keybind = performable:ctrl+z>s=new_split:down

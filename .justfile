@@ -1,5 +1,6 @@
 brew-list := "" + \
     "awk " + \
+    "git-lfs" + " " + \
     "bat " + \
     "coreutils " + \
     "curl " + \
@@ -234,3 +235,9 @@ focus:
 
 sync:
     git dotfiles sync
+
+push:
+    git dotfiles push
+
+pull:
+    git dotfiles pull

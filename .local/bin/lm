@@ -7,5 +7,5 @@ schemas similar templates tools uninstall"
 if [[ "$1" == -* ]] || [[ " $subcommands " == *" $1 "* ]]; then
     command llm "$@"
 else
-    command llm -t default "$@"
+    command llm -t "${LLM_DEFAULT_TEMPLATE:-default}" "$@"
 fi
