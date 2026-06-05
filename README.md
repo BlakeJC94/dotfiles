@@ -20,8 +20,9 @@ Clone dotfiles to new machine:
 git dotfiles checkout
 ```
 
-If there are conflicts, destroy current state with `git dotfiles checkout --force`.
-Otherwise, here's a non-destructive command to use:
+If there are conflicts, destroy current state with
+`git dotfiles checkout --force`. Otherwise, here's a non-destructive command to
+use:
 
 ```bash
 mkdir -p .config-backup
@@ -39,19 +40,6 @@ file in `$HOME`:
 touch ~/.dotfiles-activate
 ```
 
-Make sure pre-commit is installed and install the git hooks
-
-```bash
-pre-commit install
-```
-
-Add a pointer to the bare repo so that git tools (such as the `git` plugin for
-`starship`, or `vim-fugitive` for `vim`/`nvim`):
-
-```bash
-echo "gitdir: $HOME/.dotfiles" > $HOME/.git
-```
-
 Source the shell RC to get all the settings and whatnot (or start a new shell)
 
 ```bash
@@ -59,20 +47,28 @@ source .bashrc  # If on bash
 source .zshrc   # If on zsh
 ```
 
-Install brew
+A prompt will ask to install Brew on your system. This will also install
+`mise`, `just`, and `pre-commit`, and will install the necessary git hooks.
+
+After Brew is installed, it'll ask to install the set of tools. If you'd like
+to do this later:
 
 ```bash
-up-brew
-
+just brew-up
+just cask-up  # MacOS only
+just mise-up
 ```
 
-Install tools from `mise`
+On Linux, these must be manually run:
 
 ```bash
-mise up
+just soar-up
+just apt-up
 ```
 
 ## Usage
+
+### Adding files
 
 Add a file to the dotfile repo:
 
@@ -82,4 +78,33 @@ git dotfiles add /path/to/file
 git dotfiles commit -m "feat: Add file"
 ```
 
-Remove a file from the dotfile repo by removing it from the gitignore file
+Remember that the directory must be exempted from the ignore as well. For
+example:
+
+```
+!.config/path/to
+!.config/path/to/file.ext
+```
+
+Remove a file from the dotfile repo by removing the entries from the
+`.gitignore` file
+
+### Updates
+
+Get the latest changes:
+
+```bash
+just pull
+```
+
+Push your latest changes
+
+```bash
+git dotfiles add ...
+git dotfiles commit -m "..."
+git dotfiles push
+
+
+# Or, if you're lazy:
+just sync
+```

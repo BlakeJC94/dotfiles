@@ -62,3 +62,10 @@ if [ -f ~/.dotfiles-activate ]; then
     source ~/.bashrc.activate
 fi
 
+##
+# Extras
+
+# Local overrides
+if [ -f ~/.bashrc.local ]; then
+    source ~/.bashrc.local
+fi

@@ -8,6 +8,7 @@
 !.vars
 !.aliases
 !.bashrc.activate
+.bashrc.local
 !.zshrc.activate
 !.brewtstrap
 !.justfile
@@ -40,8 +41,6 @@
 
 # bash
 !.bashrc
-!.bash
-!.bash/**/*
 
 # bat
 !.config/bat
@@ -158,3 +157,4 @@
 
 # zsh
 !.zshrc
+.zshrc.local

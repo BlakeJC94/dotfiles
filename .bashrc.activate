@@ -29,5 +29,13 @@ else
     [ ! -z ${DOTFILES_DEBUG} ] && echo "No fzf"
 fi
 
+# Initialise direnv
+if command -v direnv >/dev/null; then
+    eval "$(direnv hook bash)"
+else
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "No direnv"
+fi
+
+
 [ ! -z ${DOTFILES_DEBUG} ] && echo "Finished activations"
 

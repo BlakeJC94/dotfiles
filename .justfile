@@ -1,7 +1,16 @@
+hooks:
+    echo "gitdir: $HOME/.dotfiles" > $HOME/.git
+    pre-commit install
+
+mise-up:
+    mise up
+
 brew-list := "" + \
-    "awk " + \
+    "awk" + " " + \
+    "direnv" + " " + \
     "git-lfs" + " " + \
     "bat " + \
+    "pre-commit" + " " + \
     "coreutils " + \
     "curl " + \
     "just " + \
@@ -125,7 +134,7 @@ write-up:
     xdg-mime default Write.desktop image/svg+xml
 
 [linux]
-install-font font:
+install-font font=JetBrainsMono:
     #!/usr/bin/env bash
     # Source
     # https://dev.to/pulkitsingh/install-nerd-fonts-or-any-fonts-easily-in-linux-2e3l

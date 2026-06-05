@@ -20,7 +20,7 @@ return {
         -- gV: Visually select last pasted block (like gv)
         { "gV", "`[v`]" },
         -- gF: create new file at filename over cursor
-        { "gF", "<cmd>e <c-r><c-f><CR>" },
+        { "gF", ":e <c-r><c-f><CR>" },
         -- gcp/gcP: paste register and comment oout
         { "gcp", "p`[v`]gc", remap = true },
         { "gcP", "p`[v`]gc", remap = true },
