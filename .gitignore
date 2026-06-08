@@ -1,5 +1,6 @@
 *
 .env*
+.secrets.enc
 .dotfiles-activate
 !.gitignore
 !.pre-commit-config.yaml

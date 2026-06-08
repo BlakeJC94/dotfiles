@@ -1,7 +1,7 @@
 [tools]
 "npm:write-good" = "1.0.8"
 "pipx:files-to-prompt" = "0.6"
-"pipx:mdformat" = { version = "1.0.0", uvx_args = "--with mdformat-gfm" }
+"pipx:mdformat" = { version = "latest", uvx_args = "--with mdformat-gfm --with mdformat-front-matters" }
 "pipx:python-lsp-server" = "1.14.0"
 "pipx:radian" = "0.6.16"
 "pipx:sqlfluff" = "4.2.1"
@@ -21,6 +21,7 @@ taplo = "0.10.0"
 terraform-ls = "0.38.6"
 uv = "0.11.18"
 yamlfmt = "0.21.0"
+pre-commit = "4.6.0"
 
 [settings]
 idiomatic_version_file_enable_tools = ["python"]

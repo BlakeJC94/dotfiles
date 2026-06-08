@@ -1,5 +1,6 @@
 return {
     "https://gitlab.com/BlakeJC/llm.nvim",
+    dev=true,
     cmd = {
         "LLM",
         "LLMToggle",

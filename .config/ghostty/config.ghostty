@@ -33,7 +33,7 @@ keybind = performable:ctrl+shift+c=copy_to_clipboard
 keybind = performable:ctrl+shift+v=paste_from_clipboard
 keybind = performable:ctrl+shift+up=increase_font_size:1
 keybind = performable:ctrl+shift+down=decrease_font_size:1
-keybind = performable:ctrl+shift+return=reset_font_size
+keybind = performable:ctrl+shift+enter=reset_font_size
 keybind = performable:ctrl+shift+m=toggle_fullscreen
 keybind = performable:ctrl+shift+r=reload_config
 keybind = performable:ctrl+shift+u=scroll_page_fractional:-0.5
@@ -42,7 +42,6 @@ keybind = performable:ctrl+shift+b=scroll_page_up
 keybind = performable:ctrl+shift+f=scroll_page_down
 keybind = performable:ctrl+shift+/=start_search
 keybind = performable:ctrl+shift+l=reset
-keybind = performable:ctrl+shift+y=copy_to_clipboard
 
 keybind = global:ctrl+escape=toggle_quick_terminal
 

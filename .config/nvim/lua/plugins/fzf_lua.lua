@@ -31,7 +31,7 @@ return {
     config = function()
         vim.api.nvim_create_autocmd("VimEnter", {
             callback = function()
-                if vim.fn.argc() == 0 then
+                if vim.fn.line('$') == 1 and vim.fn.getline(1) == '' then
                     vim.cmd("Fzf files")
                 end
             end,

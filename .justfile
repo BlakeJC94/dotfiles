@@ -134,7 +134,7 @@ write-up:
     xdg-mime default Write.desktop image/svg+xml
 
 [linux]
-install-font font=JetBrainsMono:
+install-font font="JetBrainsMono":
     #!/usr/bin/env bash
     # Source
     # https://dev.to/pulkitsingh/install-nerd-fonts-or-any-fonts-easily-in-linux-2e3l
