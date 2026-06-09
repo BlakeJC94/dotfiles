@@ -9,6 +9,7 @@
     ad = "!git add --renormalize -v"
     a = "!git add ."
     cm = "!git commit -m"
+    cms = "!f() { git-scoped-commit; }; f"
     commit-a = "!git commit --amend"
     commit-e = "!git commit --amend --no-edit"
     dif = "!git diff --stat"

@@ -122,6 +122,7 @@
 !.local
 !.local/bin
 !.local/bin/llm-up
+!.local/bin/git-scoped-commit
 !.local/bin/up-write
 !.local/bin/codehelp
 !.local/bin/dropbox

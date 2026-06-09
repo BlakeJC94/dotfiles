@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# https://scopedcommits.com/
+
+scoped() {
+  unset GIT_DIR GIT_PREFIX
+
+  local numstat
+  numstat=$(git diff --staged --numstat 2>/dev/null)
+  if [[ -z "$numstat" ]]; then
+    echo 'scoped: nothing staged - stage changes first' >&2
+    return 1
+  fi
+
+  local combined=()
+  while IFS= read -r line; do
+    local added deleted filepath
+    read -r added deleted filepath <<< "$line"
+    filepath="${filepath##* => }"
+    combined+=("$((added + deleted)):$filepath")
+  done <<< "$numstat"
+
+  local sorted
+  sorted=$(printf '%s\n' "${combined[@]}" | sort -t: -k1 -rn)
+
+  local scope_options=()
+  local counter=1
+  while IFS=: read -r changes name; do
+    [[ -z "$name" ]] && continue
+    local display="${name##*/}"
+    display="${display#\.}"
+    display="${display%%.*}"
+    [[ -z "$display" ]] && continue
+    scope_options+=("$counter. $display")
+    ((counter++))
+    ((counter > 9)) && break
+  done <<< "$sorted"
+
+  local scope
+  echo 'Select scope'
+  for opt in "${scope_options[@]}"; do echo "$opt"; done
+  read -rp 'Type number or custom value and <Enter> (empty cancels): ' scope
+  if [[ -z "$scope" ]]; then
+    return 1
+  fi
+  if [[ "$scope" =~ ^[1-9]$ ]] && (( scope <= ${#scope_options[@]} )); then
+    scope="${scope_options[scope-1]#*. }"
+  fi
+
+  local msg="$scope:  "
+  git commit -e -m "$msg"
+}
+
+scoped
