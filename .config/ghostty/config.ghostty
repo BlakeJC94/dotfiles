@@ -24,6 +24,9 @@ window-padding-x = 10
 window-padding-y = 10
 window-width = 100
 
+quick-terminal-position = right
+quick-terminal-size = 40%
+
 
 keybind = clear
 
@@ -43,7 +46,7 @@ keybind = performable:ctrl+shift+f=scroll_page_down
 keybind = performable:ctrl+shift+/=start_search
 keybind = performable:ctrl+shift+l=reset
 
-keybind = global:ctrl+escape=toggle_quick_terminal
+keybind = global:super+escape=toggle_quick_terminal
 
 keybind = ctrl+z>ctrl+z=goto_split:previous
 keybind = performable:ctrl+z>s=new_split:down

@@ -7,7 +7,7 @@ end
 
 -- Configure custom tabline text
 M.set_custom_tabline_text = function()
-    vim.opt.tabline = "v:lua.BlakeJC94.custom_tabline_text()"
+    vim.opt.tabline = "%!v:lua.BlakeJC94.custom_tabline_text()"
 end
 
 -- Set ripgrep as grep backend if available

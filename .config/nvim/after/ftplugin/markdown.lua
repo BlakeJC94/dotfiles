@@ -337,3 +337,7 @@ vim.keymap.set({ "i", "n" }, "<C-;>", function()
 
     api.nvim_set_current_line(new_line)
 end)
+
+-- Treesitter folds
+vim.wo.foldmethod = "expr"
+vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"

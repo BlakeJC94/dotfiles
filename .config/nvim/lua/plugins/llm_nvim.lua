@@ -1,6 +1,5 @@
 return {
     "https://gitlab.com/BlakeJC/llm.nvim",
-    dev=true,
     cmd = {
         "LLM",
         "LLMToggle",
@@ -10,7 +9,6 @@ return {
     },
     opts = {
         autoscroll = false,
-        template = "default",
         split = {
             direction = "horizontal",
             size = 14,
@@ -24,7 +22,7 @@ return {
             mode = { "n", "v" },
         },
         {
-            "<C-Tab>",
+            "<Leader>s",
             ":LLMToggle<CR>",
             mode = "n",
         },
