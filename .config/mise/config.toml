@@ -1,7 +1,7 @@
 [tools]
 "npm:write-good" = "1.0.8"
 "pipx:files-to-prompt" = "0.6"
-"pipx:mdformat" = { version = "latest", uvx_args = "--with mdformat-gfm --with mdformat-front-matters" }
+"pipx:mdformat" = { version = "latest", uvx_args = "--with mdformat-front-matters --with mdformat-gfm --with mdformat-lists" }
 "pipx:python-lsp-server" = "1.14.0"
 "pipx:radian" = "0.6.16"
 "pipx:sqlfluff" = "4.2.1"

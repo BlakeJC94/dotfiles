@@ -8,14 +8,17 @@ wrap = 79             # options: {"keep", "no", INTEGER}
 number = true         # options: {false, true}
 end_of_line = "lf"    # options: {"lf", "crlf", "keep"}
 validate = true       # options: {false, true}
-extensions = [      # options: a list of enabled extensions (default: all installed are enabled)
-    "gfm",
-    # "toc",
-]
+# extensions = [      # options: a list of enabled extensions (default: all installed are enabled)
+#     # "gfm",
+#     # "toc",
+# ]
 # codeformatters = [  # options: a list of enabled code formatter languages (default: all installed are enabled)
 #     "python",
 #     "json",
 # ]
+
+[plugin.lists]
+bullet = "*"
 
 # Python 3.13+ only:
 # exclude = []          # options: a list of file path pattern strings
