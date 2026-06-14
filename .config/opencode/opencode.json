@@ -7,7 +7,6 @@
     "disabled_providers": ["xai"],
     "plugin": [
         "@tarquinen/opencode-smart-title",
-        "@kdcokenny/opencode-notify",
         "opencode-mem",
         "opencode-history-search"
     ]
