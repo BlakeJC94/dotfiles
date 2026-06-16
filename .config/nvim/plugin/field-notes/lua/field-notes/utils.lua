@@ -31,12 +31,12 @@ function M.get_note_title(...)
 
   if #title == 0 then
     local git_dir = M.get_git_dir()
-    local project_name, branch_name
+    local project_name = ""
+    local branch_name = ""
 
     if #git_dir > 0 then
       local project_path = vim.fn.finddir('.git/..', vim.fn.expand('%:p:h') .. ';')
-      local path_parts = vim.split(project_path, '/')
-      project_name = path_parts[#path_parts]
+      project_name = project_path:gsub("^.*/","")
 
       local branch_cmd = string.format('git -C %s branch --show-current --quiet', vim.fn.expand('%:p:h'))
       branch_name = vim.fn.system(branch_cmd):gsub('\n', '')

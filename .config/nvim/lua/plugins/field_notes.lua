@@ -7,7 +7,7 @@ return {
         blog_content_dir = vim.fn.expand("~/Workspace/repos/blog/content"),
     },
     keys = {
-        { "<Leader>n", ":Note<CR>" },
-        { "<Leader>N", ":Notes<CR>" },
+        { "<Leader>v", ":Note<CR>" },
+        { "<Leader>V", ":Notes<CR>" },
     },
 }

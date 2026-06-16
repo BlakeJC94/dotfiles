@@ -7,37 +7,38 @@ mise-up:
 
 brew-list := "" + \
     "awk" + " " + \
+    "sk" + " " + \
     "direnv" + " " + \
     "git-lfs" + " " + \
-    "bat " + \
+    "bat" +" " + \
     "pre-commit" + " " + \
-    "coreutils " + \
-    "curl " + \
-    "just " + \
-    "diffutils "+ \
-    "eza "+ \
-    "fd "+ \
-    "findutils "+ \
-    "fzf "+ \
-    "git "+ \
-    "glow "+ \
-    "gnu-sed "+ \
-    "grep "+ \
-    "jdtls "+ \
-    "jq "+ \
-    "less "+ \
-    "llm "+ \
-    "mise "+ \
-    "nano "+ \
-    "neovim "+ \
-    "opencode "+ \
-    "pandoc "+ \
-    "ripgrep "+ \
-    "starship "+ \
-    "tealdeer "+ \
-    "tree "+ \
-    "tree-sitter-cli "+ \
-    "wget "
+    "coreutils" + " " + \
+    "curl" + " " + \
+    "just" + " " + \
+    "diffutils" + " "+ \
+    "eza" + " "+ \
+    "fd" + " "+ \
+    "findutils" + " "+ \
+    "fzf" + " "+ \
+    "git" + " "+ \
+    "glow" + " "+ \
+    "gnu-sed" + " "+ \
+    "grep" + " "+ \
+    "jdtls" + " "+ \
+    "jq" + " "+ \
+    "less" + " "+ \
+    "llm" + " "+ \
+    "mise" + " "+ \
+    "nano" + " "+ \
+    "neovim" + " "+ \
+    "opencode" + " "+ \
+    "pandoc" + " "+ \
+    "ripgrep" + " "+ \
+    "starship" + " "+ \
+    "tealdeer" + " "+ \
+    "tree" + " "+ \
+    "tree-sitter-cli" + " "+ \
+    "wget"
 
 brew-up:
     #!/usr/bin/env bash

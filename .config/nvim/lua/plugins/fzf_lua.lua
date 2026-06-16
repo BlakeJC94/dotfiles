@@ -3,6 +3,7 @@ return {
     lazy = false,
     cmd = "FzfLua",
     opts = {
+        fzf_bin = "sk",
         winopts = { border = "none" },
         grep = { hidden = true },
         files = { raw_cmd = "fd --no-ignore-parent --hidden --exclude '.git'" },
@@ -28,13 +29,13 @@ return {
         { "<Leader>fq", ":FzfLua quickfix<CR>" },
         { "<Leader>fl", ":FzfLua loclist<CR>" },
     },
-    config = function()
-        vim.api.nvim_create_autocmd("VimEnter", {
-            callback = function()
-                if vim.fn.line('$') == 1 and vim.fn.getline(1) == '' then
-                    vim.cmd("Fzf files")
-                end
-            end,
-        })
-    end,
+    -- config = function()
+    --     vim.api.nvim_create_autocmd("VimEnter", {
+    --         callback = function()
+    --             if vim.fn.line("$") == 1 and vim.fn.getline(1) == "" then
+    --                 vim.cmd("Fzf files")
+    --             end
+    --         end,
+    --     })
+    -- end,
 }
