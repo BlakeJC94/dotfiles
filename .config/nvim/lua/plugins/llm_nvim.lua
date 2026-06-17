@@ -8,7 +8,7 @@ return {
         "LLMStop",
     },
     opts = {
-        autoscroll = false,
+        autoscroll = true,
         split = {
             direction = "horizontal",
             size = 14,
