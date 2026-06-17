@@ -6,7 +6,7 @@ return {
         fzf_bin = "sk",
         winopts = { border = "none" },
         grep = { hidden = true },
-        files = { raw_cmd = "fd --no-ignore-parent --hidden --exclude '.git'" },
+        files = { raw_cmd = vim.env.SKIM_DEFAULT_COMMAND },
     },
     keys = {
         { "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },

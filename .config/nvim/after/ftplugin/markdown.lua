@@ -341,3 +341,39 @@ end)
 -- Treesitter folds
 vim.wo.foldmethod = "expr"
 vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+
+-- Bakcground for code
+local ns = vim.api.nvim_create_namespace("md_code_fence_bg")
+
+vim.api.nvim_set_hl(0, "MdCodeFenceBg", { bg = "#282828" })
+
+local function apply(bufnr)
+  local parser = vim.treesitter.get_parser(bufnr, "markdown")
+  local tree = parser:parse()[1]
+  local root = tree:root()
+
+  local query = vim.treesitter.query.parse("markdown", [[
+    (fenced_code_block
+      (info_string)?
+      (code_fence_content) @content)
+  ]])
+
+  vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+
+  for _, node in query:iter_captures(root, bufnr, 0, -1) do
+    local sr, _, er, _ = node:range()
+    vim.api.nvim_buf_set_extmark(bufnr, ns, sr, 0, {
+      end_line = er,
+      hl_group = "MdCodeFenceBg",
+      hl_eol = true,
+      priority = 100,
+    })
+  end
+end
+
+vim.api.nvim_create_autocmd({ "BufEnter", "TextChanged", "TextChangedI" }, {
+  pattern = "*.md",
+  callback = function(args)
+    pcall(apply, args.buf)
+  end,
+})

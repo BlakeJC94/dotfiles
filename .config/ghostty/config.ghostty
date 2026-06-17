@@ -60,7 +60,7 @@ keybind = performable:ctrl+z>shift+p=move_tab:-1
 keybind = performable:ctrl+z>n=next_tab
 keybind = performable:ctrl+z>shift+n=move_tab:1
 keybind = performable:ctrl+z>shift+q=close_tab
-# keybind = performable:ctrl+z>z=
+keybind = ctrl+z>escape=ignore
 
 keybind = ctrl+z>h=goto_split:left
 keybind = ctrl+z>j=goto_split:down
@@ -124,3 +124,4 @@ keybind = vim/i=deactivate_key_table
 
 # Catch unbound keys
 keybind = vim/catch_all=ignore
+
