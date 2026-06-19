@@ -5,76 +5,33 @@ hooks:
 mise-up:
     mise up
 
-brew-list := "" + \
-    "awk" + " " + \
-    "watch" + " " + \
-    "sk" + " " + \
-    "direnv" + " " + \
-    "git-lfs" + " " + \
-    "bat" +" " + \
-    "pre-commit" + " " + \
-    "coreutils" + " " + \
-    "curl" + " " + \
-    "just" + " " + \
-    "diffutils" + " "+ \
-    "eza" + " "+ \
-    "fd" + " "+ \
-    "findutils" + " "+ \
-    "fzf" + " "+ \
-    "git" + " "+ \
-    "glow" + " "+ \
-    "gnu-sed" + " "+ \
-    "grep" + " "+ \
-    "jdtls" + " "+ \
-    "jq" + " "+ \
-    "less" + " "+ \
-    "llm" + " "+ \
-    "mise" + " "+ \
-    "nano" + " "+ \
-    "neovim" + " "+ \
-    "opencode" + " "+ \
-    "pandoc" + " "+ \
-    "ripgrep" + " "+ \
-    "starship" + " "+ \
-    "tealdeer" + " "+ \
-    "tree" + " "+ \
-    "tree-sitter-cli" + " "+ \
-    "wget"
+brew-list := "" + "awk" + " " + "watch" + " " + "sk" + " " + "direnv" + " " + "git-lfs" + " " + "bat" + " " + "pre-commit" + " " + "coreutils" + " " + "curl" + " " + "just" + " " + "diffutils" + " " + "eza" + " " + "fd" + " " + "findutils" + " " + "fzf" + " " + "git" + " " + "glow" + " " + "gnu-sed" + " " + "grep" + " " + "jdtls" + " " + "jq" + " " + "less" + " " + "llm" + " " + "mise" + " " + "nano" + " " + "neovim" + " " + "opencode" + " " + "pandoc" + " " + "ripgrep" + " " + "starship" + " " + "tealdeer" + " " + "tree" + " " + "tree-sitter-cli" + " " + "wget"
 
 brew-up:
     #!/usr/bin/env bash
-    for item in {{ brew-list }}; do
+    while IFS= read -r item; do
+        [ -z "$item" ] && continue
         if ! brew list --formula | grep -q "^${item}$"; then
             echo "Installing $item..."
-            brew install $item
+            brew install "$item"
         else
-            brew upgrade $item
+            brew upgrade "$item"
         fi
-    done
+    done < ~/.listbrew
 
-cask-list := "caffeine " + \
-    "docker " + \
-    "firefox " + \
-    "font-jetbrains-mono-nerd-font " + \
-    "ghostty " + \
-    "macmediakeyforwarder " + \
-    "protonvpn " + \
-    "rectangle " + \
-    "slack " + \
-    "spotify " + \
-    "write "
 
 [macos]
 cask-up:
     #!/usr/bin/env bash
-    for item in {{ brew-list }}; do
-        if ! brew list --cask | grep -q "^${cask}$" && ! ls /Applications | grep -iq "${cask}"; then
+    while IFS= read -r item; do
+        [ -z "$item" ] && continue
+        if ! brew list --cask | grep -q "^${item}$" && ! ls /Applications | grep -iq "${item}"; then
             echo "Installing $item..."
-            brew install --cask "${cask}"
+            brew install --cask "${item}"
         else
-            brew upgrade --cask "${cask}"
+            brew upgrade --cask "${item}"
         fi
-    done
+    done < ~/.listcask
 
 llm-up:
     #!/usr/bin/env bash
@@ -85,8 +42,6 @@ llm-up:
     llm keys set searxng_url --value https://searxng.probableodyssey.net
 
 
-soar-list := "ghostty"
-
 [linux]
 soar-init:
     #!/usr/bin/env bash
@@ -95,28 +50,25 @@ soar-init:
     fi
     curl -fsSL "https://raw.githubusercontent.com/pkgforge/soar/main/install.sh" | sh
 
-
 [linux]
 soar-up: soar-init
     #!/usr/bin/env bash
-    for item in {{ soar-list }}; do
+    while IFS= read -r item; do
+        [ -z "$item" ] && continue
         echo "Installing ${item}..."
         soar install "${item}"
-    done
+    done < ~/.listsoar
 
-apt-list := "build-essential "  + \
-    "net-tools " + \
-    "wget " + \
-    "xclip "
 
 [linux]
 apt-up:
     #!/usr/bin/env bash
     sudo apt update
-    for item in {{ apt-list }}; do
+    while IFS= read -r item; do
+        [ -z "$item" ] && continue
         echo "Installing ${item}..."
         sudo apt install -y "${item}"
-    done
+    done < ~/.listapt
 
 [linux]
 spotify-up:
@@ -173,7 +125,6 @@ install-font font="JetBrainsMono":
     rm -rf "$TEMP_DIR"
 
     echo "Fonts installed successfully!"
-
 
 [linux]
 purge-snap:
@@ -260,7 +211,6 @@ docker-up:
     sudo usermod -aG docker ${USER}
     echo "sudo requirement for docker will be dropped on the next reboot"
 
-
 sync:
     git dotfiles sync
 
@@ -269,3 +219,6 @@ push:
 
 pull:
     git dotfiles pull
+
+st:
+    git dotfiles st

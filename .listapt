@@ -1,0 +1,4 @@
+build-essential
+net-tools
+wget
+xclip

@@ -10,6 +10,10 @@
 !.aliases
 !.bashrc.activate
 .bashrc.local
+!.listbrew
+!.listcask
+!.listsoar
+!.listapt
 !.zshrc.activate
 !.brewtstrap
 !.justfile
