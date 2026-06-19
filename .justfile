@@ -7,6 +7,7 @@ mise-up:
 
 brew-list := "" + \
     "awk" + " " + \
+    "watch" + " " + \
     "sk" + " " + \
     "direnv" + " " + \
     "git-lfs" + " " + \
