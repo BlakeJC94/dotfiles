@@ -4,7 +4,7 @@ cursor-style-blink = false
 custom-shader = shaders/cursor_warp.glsl
 
 font-family = "JetBrainsMono Nerd Font"
-font-size = 22
+font-size = 18
 
 mouse-hide-while-typing = true
 
