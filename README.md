@@ -33,11 +33,11 @@ done
 git dotfiles checkout
 ```
 
-Activate the auto tool installation scripts by creating a `.dotfiles-activate`
+Activate the auto tool installation scripts by creating a `.dotfiles.activate`
 file in `$HOME`:
 
 ```bash
-touch ~/.dotfiles-activate
+touch ~/.dotfiles.activate
 ```
 
 Source the shell RC to get all the settings and whatnot (or start a new shell)
@@ -48,7 +48,7 @@ source .zshrc   # If on zsh
 ```
 
 A prompt will ask to install Brew on your system. This will also install
-`mise`, `just`, and `pre-commit`, and will install the necessary git hooks.
+`mise` and `just`.
 
 After Brew is installed, it'll ask to install the set of tools. If you'd like
 to do this later:
