@@ -54,11 +54,12 @@ bind 'set visible-stats on'
 ##
 # Initialisers
 
-# Initialise brew and tools
-source ~/.brewtstrap
 
-# Initialise tools if requested
-if [ -f ~/.dotfiles-activate ]; then
+if [ -f ~/.dotfiles.activate ]; then
+    # Initialise brew and tools
+    source ~/.brewtstrap
+
+    # Initialise tools if requested
     source ~/.bashrc.activate
 fi
 

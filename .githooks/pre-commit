@@ -1,2 +1,10 @@
 #!/bin/sh
-gitleaks git
+if [ ! -f ~/.dotfiles.activate ]; then
+    exit
+fi
+
+if ! command -v gitleaks; then
+    echo "ERROR: gitleaks not found"
+else
+    gitleaks git
+fi
