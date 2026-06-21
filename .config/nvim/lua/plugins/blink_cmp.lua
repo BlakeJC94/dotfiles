@@ -7,11 +7,7 @@ return {
             ["<C-x>"] = { "show", "show_documentation", "hide_documentation" },
             ["<C-u>"] = { "scroll_documentation_up", "fallback" },
             ["<C-d>"] = { "scroll_documentation_down", "fallback" },
-            ["<CR>"] = { "accept", "fallback" },
-
-            ["<C-e>"] = { "hide", "fallback" },
-
-            ["<Tab>"] = {
+            ["<CR>"] = {
                 function(cmp)
                     if cmp.snippet_active() then
                         return cmp.accept()
@@ -22,7 +18,12 @@ return {
                 "snippet_forward",
                 "fallback",
             },
-            ["<S-Tab>"] = { "snippet_backward", "fallback" },
+            ["<S-CR>"] = { "snippet_backward", "fallback" },
+
+            ["<C-e>"] = { "hide", "fallback" },
+
+            ["<Tab>"] = { "select_next", "fallback" },
+            ["<S-Tab>"] = { "select_prev", "fallback" },
 
             ["<Up>"] = { "select_prev", "fallback" },
             ["<Down>"] = { "select_next", "fallback" },
