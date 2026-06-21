@@ -23,6 +23,10 @@
 !.gitconfig
 !.gitignore
 
+# pre-commit
+!.githooks
+!.githooks/*
+
 # R
 !.Rprofile
 !.radian_profile
