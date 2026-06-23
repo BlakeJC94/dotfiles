@@ -3,9 +3,7 @@ local utils = require("field-notes.utils")
 local M = {}
 
 function M.start_note(...)
-    local title = utils.get_note_title(...)
-    local filename = utils.slugify(title) .. ".md"
-    local filepath = config.get("field_notes_dir") .. "/" .. filename
+
     return filepath
 end
 
@@ -23,13 +21,6 @@ function M.link_note(...)
 end
 
 function M.initialize_note_if_needed(...)
-    if vim.fn.filereadable(vim.fn.expand("%")) == 0 then
-        local heading = utils.get_note_heading(...)
-        local lines = vim.split(heading, "\n", { plain = true })
-        vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
-        vim.bo.buftype = ""
-        vim.bo.modified = false
-    end
 end
 
 function M.open_note(bang, args)
@@ -40,11 +31,23 @@ function M.open_note(bang, args)
         M.link_note(args)
     end
 
-    local note_path = M.start_note(args)
-    local cmd = "silent " .. vert_prefix .. " " .. split_cmd .. " " .. vim.fn.fnameescape(note_path)
+    local title = utils.get_note_title(args)
+    local filename = utils.slugify(title) .. ".md"
+    local filepath = config.get("field_notes_dir") .. "/" .. filename
+
+
+    local cmd = "silent " .. vert_prefix .. " " .. split_cmd .. " " .. vim.fn.fnameescape(filepath)
     vim.cmd(cmd)
 
-    M.initialize_note_if_needed(args)
+    -- Initialize_note_if_needed
+    if vim.fn.filereadable(filepath) == 0 then
+        local heading = "# " .. title .. "\n\n"
+        local lines = vim.split(heading, "\n", { plain = true })
+        vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+        vim.bo.buftype = ""
+        vim.bo.modified = false
+    end
+
     vim.cmd("lcd " .. vim.fn.expand("%:p:h"))
     print(vim.fn.expand("%:p"))
 end

@@ -34,11 +34,11 @@ bindkey -e
 ##
 # Initialisers
 
-# Initialise brew and tools
-source ~/.brewtstrap
+if [ -f ~/.dotfiles.activate ]; then
+    # Initialise brew and tools
+    source ~/.brewtstrap
 
-# Initialise tools if requested
-if [ -f ~/.dotfiles-activate ]; then
+    # Initialise tools if requested
     source ~/.zshrc.activate
 fi
 

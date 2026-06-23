@@ -1,11 +1,5 @@
-hooks:
-    echo "gitdir: $HOME/.dotfiles" > $HOME/.git
-    pre-commit install
-
 mise-up:
     mise up
-
-brew-list := "" + "awk" + " " + "watch" + " " + "sk" + " " + "direnv" + " " + "git-lfs" + " " + "bat" + " " + "pre-commit" + " " + "coreutils" + " " + "curl" + " " + "just" + " " + "diffutils" + " " + "eza" + " " + "fd" + " " + "findutils" + " " + "fzf" + " " + "git" + " " + "glow" + " " + "gnu-sed" + " " + "grep" + " " + "jdtls" + " " + "jq" + " " + "less" + " " + "llm" + " " + "mise" + " " + "nano" + " " + "neovim" + " " + "opencode" + " " + "pandoc" + " " + "ripgrep" + " " + "starship" + " " + "tealdeer" + " " + "tree" + " " + "tree-sitter-cli" + " " + "wget"
 
 brew-up:
     #!/usr/bin/env bash

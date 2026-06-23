@@ -9,6 +9,17 @@ return {
         files = { raw_cmd = vim.env.SKIM_DEFAULT_COMMAND },
     },
     keys = {
+        {
+            "<C-S-s>",
+            "i<C-g>u<Esc>[s:FzfLua spell_suggest<CR>",
+            remap = false,
+        },
+        {
+            "<C-S-s>",
+            "<C-g>u<Esc>[s:FzfLua spell_suggest<CR>",
+            mode="i",
+            remap = false,
+        },
         { "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },
         { "<C-r><C-r>", "<cmd>FzfLua registers<CR>", mode = "i" },
         { "<Leader><BS>", "<cmd>FzfLua files<CR>", mode = "n" },
