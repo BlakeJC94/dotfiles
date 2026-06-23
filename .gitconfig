@@ -79,6 +79,7 @@
         git lab repo mirror --direction push --url https://${GITHUB_USER}:${key}@github.com/$repo; \
     }; f"
     cma = "!f() { \
+        git diff --cached --exit-code --quiet && echo "Nothing to commit" && exit 1 ; \
         message=\"${1:-.}\"; \
         if [ -e \"$message\" ]; then \
             echo message \"$message\" cannot be a path ; \
