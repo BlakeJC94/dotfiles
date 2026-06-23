@@ -8,6 +8,8 @@ font-size = 18
 
 mouse-hide-while-typing = true
 
+confirm-close-surface = false
+
 shell-integration-features = no-cursor
 
 split-inherit-working-directory = true
