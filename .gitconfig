@@ -85,6 +85,9 @@
             exit 1; \
         fi; \
         shift; \
+        if [ -z \"${@}\" ]; then \
+            read -p \"Add all unstaged files? (y/N): \" yn; [ \"$yn\" != y ] && exit 1 ;\
+        fi; \
         git add -v \"${@:-.}\" && git commit -m \"$message\" ; \
     }; f"
     cmap = "!f() { \
