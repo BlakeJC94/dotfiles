@@ -104,6 +104,10 @@
         git cma \"$@\" ; \
         git push ; \
     }; f"
+    sync = "!f() { \
+        msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\"; \
+        git cmap \"$msg\" ; \
+    }; f"
     ignore-template = "!f() { \
         lang=${1} ; \
         if [ -z ${lang} ]; then \
@@ -167,12 +171,6 @@
         git worktree add \"$(git primebranch)\" && \
         cd \"$(git primebranch)\" && \
         git pullup; \
-    }; f"
-    sync = "!f() { \
-        msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\"; \
-        git add . && \
-        git commit -m \"$msg\" ; \
-        git push; \
     }; f"
     up ="!f() { \
         branch=\"$(git rev-parse --abbrev-ref HEAD)\" ; \
