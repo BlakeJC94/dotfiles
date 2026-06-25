@@ -308,27 +308,32 @@ vim.keymap.set({ "i", "n" }, "<C-;>", function()
     local cur_line = api.nvim_get_current_line()
     local row, col = unpack(api.nvim_win_get_cursor(0))
 
-    -- Check if line has a checkbox
     local unchecked = cur_line:match("^(%s*[-*+] )%[ %](.*)$")
     local checked = cur_line:match("^(%s*[-*+] )%[[xX]%](.*)$")
 
+    local num_unchecked = cur_line:match("^(%s*%d+%. )%[ %](.*)$")
+    local num_checked = cur_line:match("^(%s*%d+%. )%[[xX]%](.*)$")
+
     local new_line
+
     if unchecked then
-        -- Toggle unchecked to checked
-        local prefix, suffix = unchecked, cur_line:match("^%s*[-*+] %[ %](.*)$")
+        local prefix, suffix = cur_line:match("^(%s*[-*+] )%[ %](.*)$")
         new_line = prefix .. "[x]" .. suffix
     elseif checked then
-        -- Toggle checked to unchecked
-        local prefix, suffix = checked, cur_line:match("^%s*[-*+] %[[xX]%](.*)$")
+        local prefix, suffix = cur_line:match("^(%s*[-*+] )%[[xX]%](.*)$")
+        new_line = prefix .. "[ ]" .. suffix
+    elseif num_unchecked then
+        local prefix, suffix = cur_line:match("^(%s*%d+%. )%[ %](.*)$")
+        new_line = prefix .. "[x]" .. suffix
+    elseif num_checked then
+        local prefix, suffix = cur_line:match("^(%s*%d+%. )%[[xX]%](.*)$")
         new_line = prefix .. "[ ]" .. suffix
     else
-        -- No checkbox found, check if it's a list item and add checkbox
-        local list_prefix = cur_line:match("^(%s*[-*+] )(.*)$")
+        local list_prefix = cur_line:match("^(%s*[-*+] )(.*)$") or cur_line:match("^(%s*%d+%. )(.*)$")
         if list_prefix then
-            local prefix, content = list_prefix, cur_line:match("^%s*[-*+] (.*)$")
-            new_line = prefix .. "[ ] " .. content
+            local prefix, content = cur_line:match("^(%s*[-*+]?%s*%d*%.?%s*)(.*)$")
+            new_line = (cur_line:match("^(%s*[-*+] )") or cur_line:match("^(%s*%d+%. )")) .. "[ ] " .. (content or "")
         else
-            -- Not a list item, make it one with checkbox
             local indent = cur_line:match("^(%s*)")
             local content = cur_line:match("^%s*(.*)$")
             new_line = indent .. "- [ ] " .. content
@@ -348,32 +353,35 @@ local ns = vim.api.nvim_create_namespace("md_code_fence_bg")
 vim.api.nvim_set_hl(0, "MdCodeFenceBg", { bg = "#282828" })
 
 local function apply(bufnr)
-  local parser = vim.treesitter.get_parser(bufnr, "markdown")
-  local tree = parser:parse()[1]
-  local root = tree:root()
+    local parser = vim.treesitter.get_parser(bufnr, "markdown")
+    local tree = parser:parse()[1]
+    local root = tree:root()
 
-  local query = vim.treesitter.query.parse("markdown", [[
+    local query = vim.treesitter.query.parse(
+        "markdown",
+        [[
     (fenced_code_block
       (info_string)?
       (code_fence_content) @content)
-  ]])
+  ]]
+    )
 
-  vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+    vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 
-  for _, node in query:iter_captures(root, bufnr, 0, -1) do
-    local sr, _, er, _ = node:range()
-    vim.api.nvim_buf_set_extmark(bufnr, ns, sr, 0, {
-      end_line = er,
-      hl_group = "MdCodeFenceBg",
-      hl_eol = true,
-      priority = 100,
-    })
-  end
+    for _, node in query:iter_captures(root, bufnr, 0, -1) do
+        local sr, _, er, _ = node:range()
+        vim.api.nvim_buf_set_extmark(bufnr, ns, sr, 0, {
+            end_line = er,
+            hl_group = "MdCodeFenceBg",
+            hl_eol = true,
+            priority = 100,
+        })
+    end
 end
 
 vim.api.nvim_create_autocmd({ "BufEnter", "TextChanged", "TextChangedI" }, {
-  pattern = "*.md",
-  callback = function(args)
-    pcall(apply, args.buf)
-  end,
+    pattern = "*.md",
+    callback = function(args)
+        pcall(apply, args.buf)
+    end,
 })

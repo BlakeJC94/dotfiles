@@ -1,4 +1,4 @@
-name: default
+name: default.canva
 model: gpt-5.4-mini
 
 system: |

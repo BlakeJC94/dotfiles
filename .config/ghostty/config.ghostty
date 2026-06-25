@@ -32,37 +32,39 @@ quick-terminal-size = 40%
 
 keybind = clear
 
-keybind = performable:ctrl+shift+q=close_tab
-keybind = performable:ctrl+shift+n=new_window
-keybind = performable:ctrl+shift+c=copy_to_clipboard
-keybind = performable:ctrl+shift+v=paste_from_clipboard
-keybind = performable:ctrl+shift+up=increase_font_size:1
-keybind = performable:ctrl+shift+down=decrease_font_size:1
-keybind = performable:ctrl+shift+enter=reset_font_size
-keybind = performable:ctrl+shift+m=toggle_fullscreen
-keybind = performable:ctrl+shift+r=reload_config
-keybind = performable:ctrl+shift+u=scroll_page_fractional:-0.5
-keybind = performable:ctrl+shift+d=scroll_page_fractional:0.5
-keybind = performable:ctrl+shift+b=scroll_page_up
-keybind = performable:ctrl+shift+f=scroll_page_down
-keybind = performable:ctrl+shift+/=start_search
-keybind = performable:ctrl+shift+l=reset
+keybind = ctrl+shift+q=close_tab
+keybind = ctrl+shift+n=new_window
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
+keybind = ctrl+shift+==increase_font_size:1
+keybind = ctrl+shift+-=decrease_font_size:1
+keybind = ctrl+shift+enter=reset_font_size
+keybind = ctrl+shift+m=toggle_fullscreen
+keybind = ctrl+shift+r=reload_config
+keybind = ctrl+shift+u=scroll_page_fractional:-0.5
+keybind = ctrl+shift+d=scroll_page_fractional:0.5
+keybind = ctrl+shift+b=scroll_page_up
+keybind = ctrl+shift+f=scroll_page_down
+keybind = ctrl+shift+/=start_search
+keybind = ctrl+shift+l=reset
 
 keybind = global:super+escape=toggle_quick_terminal
 
 keybind = ctrl+z>ctrl+z=goto_split:previous
-keybind = performable:ctrl+z>s=new_split:down
-keybind = performable:ctrl+z>v=new_split:right
-keybind = performable:ctrl+z>x=write_screen_file:copy
-keybind = performable:ctrl+z>q=close_surface
-keybind = performable:ctrl+z>o=toggle_split_zoom
-keybind = performable:ctrl+z>c=new_tab
-keybind = performable:ctrl+z>p=previous_tab
-keybind = performable:ctrl+z>shift+p=move_tab:-1
-keybind = performable:ctrl+z>n=next_tab
-keybind = performable:ctrl+z>shift+n=move_tab:1
-keybind = performable:ctrl+z>shift+q=close_tab
+keybind = ctrl+z>s=new_split:down
+keybind = ctrl+z>v=new_split:right
+keybind = ctrl+z>x=write_screen_file:copy
+keybind = ctrl+z>q=close_surface
+keybind = ctrl+z>o=toggle_split_zoom
+keybind = ctrl+z>c=new_tab
+keybind = ctrl+z>p=previous_tab
+keybind = ctrl+z>shift+p=move_tab:-1
+keybind = ctrl+z>n=next_tab
+keybind = ctrl+z>shift+n=move_tab:1
+keybind = ctrl+z>shift+q=close_tab
 keybind = ctrl+z>escape=ignore
+keybind = ctrl+z>z=text:\x1a
+keybind = ctrl+z>catch_all=ignore
 
 keybind = ctrl+z>h=goto_split:left
 keybind = ctrl+z>j=goto_split:down
