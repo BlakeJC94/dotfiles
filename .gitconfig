@@ -101,8 +101,7 @@
         git add -v \"${@:-.}\" && git commit -m \"$message\" ; \
     }; f"
     cmap = "!f() { \
-        git cma \"$@\" ; \
-        git push ; \
+        git cma \"$@\" && git push ; \
     }; f"
     sync = "!f() { \
         msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\"; \
