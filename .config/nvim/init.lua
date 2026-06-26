@@ -60,7 +60,7 @@ local set_options = function()
         showcmd = true, -- Show command in bottom right
         cmdheight = 1, -- Set height of command window
         wildignore = { "*.pyc", "**/.git/*", "**/data/*" },
-        wildmode = { 'longest:full', 'full' },
+        wildmode = { "longest:full", "full" },
         -- TOP MARGIN
         showtabline = 1, -- Display tab line (0, never, 1 auto, 2 always)
     }) do
@@ -100,4 +100,3 @@ local main = function()
 end
 
 main()
-
