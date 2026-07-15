@@ -1,0 +1,12 @@
+#!/bin/sh
+url="$1"
+base="$(basename "$url")"
+dir="${2:-${base%.*}}"
+mkdir -p "$dir" && \
+cd "$dir" && \
+git clone --bare "$url" .git && \
+git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && \
+git fetch origin && \
+git worktree add "$(git primebranch)" && \
+cd "$(git primebranch)" && \
+git pullup

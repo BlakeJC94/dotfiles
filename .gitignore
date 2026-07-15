@@ -22,6 +22,8 @@
 # git
 !.gitconfig
 !.gitignore
+!.gitalias
+!.gitalias/*
 
 # pre-commit
 !.githooks

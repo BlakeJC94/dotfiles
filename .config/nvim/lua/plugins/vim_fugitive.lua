@@ -36,6 +36,9 @@ return {
         -- Statusline
         vim.opt.statusline = "%<%f %h%m%r%{FugitiveStatusline()}%=%{get(b:,'gitsigns_status','')} %-14.(%l,%c%V%) %P"
 
+        -- Configure vim-convict
+        vim.g.convict_mode = "scoped"
+
         -- Autocommands
         local augroup = vim.api.nvim_create_augroup("config_vim_fugitive", { clear = true })
         vim.api.nvim_create_autocmd({ "WinEnter", "BufWritePre", "FileWritePre" }, {

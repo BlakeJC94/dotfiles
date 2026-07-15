@@ -1,190 +1,52 @@
 [user]
     name = BlakeJC94
-    email = blake.c@montu.com.au
+    email = blakejamescook@pm.me
     username = BlakeJC94
 
 [alias]
+    conf = "!f() { $EDITOR ~/.gitconfig ;  }; f"
     dotfiles = "!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME \"${@:-st}\"; }; f"
+    ; Shorthand for common ops
     st = "!git status -sb"
+    dif = "!git diff --stat"
+    b = "!git checkout -"
     ad = "!git add --renormalize -v"
     cm = "!git commit -m"
-    cms = "!f() { git-scoped-commit; }; f"
-    commit-a = "!git commit --amend"
-    commit-e = "!git commit --amend --no-edit"
-    dif = "!git diff --stat"
+    a = "!~/.gitalias/a"
+    cma = "!~/.gitalias/cma"
+    cma-a = "!~/.gitalias/cma --amend"
+    cma-e = "!~/.gitalias/cma --no-edit"
+    cmap = "!git cma \"$@\" && git push"
+    sync = "!git cmap \"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\""
     lg = "!f() { if [ $# -eq 0 ]; then git log --oneline -n 8; else git log --oneline \"$@\"; fi }; f"
-    lgs = "!git log --name-status --oneline"
-    hub = "!NO_COLOR=true gh"
-    lab = "!NO_COLOR=true glab"
-    co = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
-    b = "!git checkout -"
-    edit = "!cd \"$(dirname \"$(git rev-parse --absolute-git-dir)\")\" && $EDITOR $(git status --porcelain | awk '{print $2}')"
-	forget = restore --staged --worktree
-    key = "!f() { \
-        echo \"Setting up SSH authentication for Git...\" ; \
-        write=true ; \
-        if [ -f \"${HOME}/.ssh/id_ed25519\" ]; then \
-            printf \"Do you want to overwrite it? (y/N): \" ; \
-            read -r REPLY ; \
-            if [ \"$REPLY\" = \"y\" ] || [ \"$REPLY\" = \"Y\" ]; then \
-                write=true ; \
-            else \
-                write=false ; \
-            fi ; \
-        fi ; \
-        echo $write ; \
-        if [ \"$write\" = \"true\" ]; then \
-            printf \"Enter your email address: \" ; \
-            read -r email ; \
-            if [ -z \"$email\" ]; then \
-                echo \"ERROR: Email address is required\" ; \
-                exit 1 ; \
-            fi ; \
-            mkdir -p \"${HOME}/.ssh\" ; \
-            chmod 700 \"${HOME}/.ssh\" ; \
-            echo \"Generating SSH key...\" ; \
-            ssh-keygen -t ed25519 -C \"$email\" -f \"${HOME}/.ssh/id_ed25519\" ; \
-        fi ; \
-        echo ; \
-        echo \"Your public SSH key:\" ; \
-        echo \"====================\" ; \
-        cat \"${HOME}/.ssh/id_ed25519.pub\" ; \
-        echo \"====================\" ; \
-        echo ; \
-        echo \"Add this key to\" ; \
-        echo \"  - https://gitlab.com/-/user_settings/ssh_keys\" ; \
-        echo \"  - https://github.com/settings/ssh/new\" ; \
-        echo ; \
-    }; f"
-    diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
+    lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
-    conf = "!f() { $EDITOR ~/.gitconfig ;  }; f"
-    lab-remote = "!f() { \
-        repo_guess=$(git remote get-url origin | sed 's/.*://' | sed \"s|.*/|$GITLAB_USER/|\" | sed 's/.git$//'); \
-        echo "try switching to ${repo_guess}" ; \
-        if git lab repo view $repo_guess; then \
-            git remote set-url origin git@gitlab.com:${repo_guess}; \
-            git remote -v; \
-        fi; \
-    }; f"
-    lab-mirror = "!f() { \
-        repo=$(git remote get-url origin | sed 's/.*://' | sed \"s/$GITLAB_USER/$GITHUB_USER/\") ; \
-        key=${GITLAB_MIRROR} ; \
-        if [ -z ${key} ]; then \
-            echo No key found ; \
-            exit 1; \
-        fi; \
-        git lab repo mirror --direction push --url https://${GITHUB_USER}:${key}@github.com/$repo; \
-    }; f"
-    a = "!f() { \
-        git diff --cached --exit-code --quiet || ( echo "Nothing to commit" && exit 1 ) ; \
-        if [ -z \"${@}\" ]; then \
-            git status --porcelain ; \
-            read -p \"Add all unstaged files? (y/N): \" yn; [ \"$yn\" != y ] && exit 1 ;\
-        fi; \
-        git add -v \"${@:-.}\" ; \
-    }; f"
-    cma = "!f() { \
-        message=\"${1:-.}\"; \
-        if [ -e \"$message\" ]; then \
-            echo message \"$message\" cannot be a path ; \
-            exit 1; \
-        fi; \
-        shift; \
-        git a \"${@}\" ; \
-        git commit -m \"$message\" ; \
-    }; f"
-    cma-a = "!f() { \
-        message=\"${1:-.}\"; \
-        if [ -e \"$message\" ]; then \
-            echo message \"$message\" cannot be a path ; \
-            exit 1; \
-        fi; \
-        shift; \
-        git a \"${@}\" ; \
-        git commit --amend -m \"$message\" ; \
-    }; f"
-    cma-e = "!f() { \
-        git a \"${@}\" ; \
-        git commit --amend --no-edit ; \
-    }; f"
-    cmap = "!f() { \
-        git cma \"$@\" && git push ; \
-    }; f"
-    sync = "!f() { \
-        msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\"; \
-        git cmap \"$msg\" ; \
-    }; f"
-    ignore-template = "!f() { \
-        lang=${1} ; \
-        if [ -z ${lang} ]; then \
-            lang=$(curl -s https://api.github.com/repos/github/gitignore/contents | jq -r '.[].name' | grep 'gitignore$' | sed 's/.gitignore$//' | fzf) ; \
-        fi ; \
-        if [ -z ${lang} ]; then \
-            return ; \
-        fi ; \
-        curl -s https://raw.githubusercontent.com/github/gitignore/refs/heads/main/${lang}.gitignore ; \
-    }; f"
-    ignore = "!f() { \
-        toplevel=$(git rev-parse --show-toplevel); \
-        if [ -n \"$GIT_PREFIX\" ]; then \
-            curdir=\"$toplevel/$GIT_PREFIX\"; \
-        else \
-            curdir=\"$toplevel\"; \
-        fi; \
-        curdir=\"${curdir%/}\"; \
-        dir=\"${1:-.}\"; \
-        case \"$dir\" in \
-            /*) target=\"$dir\" ;; \
-            .)  target=\"$curdir\" ;; \
-            *)  target=\"$curdir/$dir\" ;; \
-        esac; \
-        target=\"${target%/}\"; \
-        if [ ! -d \"$target\" ]; then \
-            echo \"directory $target not found\"; \
-            exit 1; \
-        fi; \
-        gitignore=\"$target/.gitignore\"; \
-        if [ ! -f \"$gitignore\" ]; then \
-            echo \"creating new gitignore in $target\"; \
-            touch \"$gitignore\"; \
-            if [ \"$target\" != \"$toplevel\" ]; then \
-                printf '*\\n!.gitignore\\n' >> \"$gitignore\"; \
-            fi; \
-        fi; \
-        $EDITOR \"$gitignore\"; \
-        }; f"
-    genpr = "!f() { \
-        target_branch=\"${1:-main}\"; \
-        template_file=\".github/PULL_REQUEST_TEMPLATE.md\"; \
-        template_arg=\"\"; \
-        prompt='Generate a concise PR description from this diff.'; \
-        if [ -f \"$template_file\" ]; then \
-            template_arg=\"-f $template_file\"; \
-            prompt=\"Fill in the PR template using this diff. Keep descriptions concise. \
-            If template sections aren't applicable, leave blank\"; \
-        fi; \
-        git diff \"$target_branch\" | llm $template_arg \"$prompt\"; \
-    }; f"
-    clonetree = "!f() { \
-        url=\"$1\"; \
-        base=\"$(basename \"$url\")\"; \
-        dir=\"${2:-${base%.*}}\"; \
-        mkdir -p \"$dir\" && \
-        cd \"$dir\" && \
-        git clone --bare \"$url\" .git && \
-        git config remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\" && \
-        git fetch origin && \
-        git worktree add \"$(git primebranch)\" && \
-        cd \"$(git primebranch)\" && \
-        git pullup; \
-    }; f"
-    up ="!f() { \
-        branch=\"$(git rev-parse --abbrev-ref HEAD)\" ; \
-        git branch --set-upstream-to=origin/$branch $branch ; \
-    }; f"
+    ; Update staged changes
     unstage = reset HEAD --
+    forget = restore --staged --worktree
+    ; Amend/Edits commits
+    commit-a = "!git commit --amend"
+    commit-e = "!git commit --amend --no-edit"
+    ; Remote integrations
+    hub = "!NO_COLOR=true gh"
+    lab = "!NO_COLOR=true glab"
+    lab-remote = "!~/.gitalias/lab-remote"
+    lab-mirror = "!~/.gitalias/lab-mirror"
+    ; Ignore file actions
+    ignore-template = "!~/.gitalias/ignore-template"
+    ignore = "!~/.gitalias/ignore"
+    ; Select branch
+    co = "!git checkout $(git branch --format '%(refname:short)' | sk)"
+    ; Generate keys
+    key = "!~/.gitalias/key"
+    ; TODO Turn this into an llm-cli template
+    ; diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
+    ; TODO maintain
+    ; genpr = "!~/.gitalias/genpr"
+    ; clonetree = "!~/.gitalias/clonetree"
+    ; up = "!~/.gitalias/up"
+
 
 [color]
     ui = auto

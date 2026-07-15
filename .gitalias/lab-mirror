@@ -1,0 +1,8 @@
+#!/bin/sh
+repo=$(git remote get-url origin | sed 's/.*://' | sed "s/$GITLAB_USER/$GITHUB_USER/")
+key=${GITLAB_MIRROR}
+if [ -z ${key} ]; then
+    echo No key found
+    exit 1
+fi
+git lab repo mirror --direction push --url https://${GITHUB_USER}:${key}@github.com/$repo

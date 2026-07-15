@@ -1,0 +1,23 @@
+#!/bin/sh
+mode="normal"
+case "$1" in
+    --amend)   mode="amend"; shift ;;
+    --no-edit) mode="no-edit"; shift ;;
+esac
+
+if [ "$mode" != "no-edit" ]; then
+    message="${1:-.}"
+    if [ -e "$message" ]; then
+        echo message "$message" cannot be a path
+        exit 1
+    fi
+    shift
+fi
+
+git a "${@}"
+
+case "$mode" in
+    normal)   git commit -m "$message" ;;
+    amend)    git commit --amend -m "$message" ;;
+    no-edit)  git commit --amend --no-edit ;;
+esac

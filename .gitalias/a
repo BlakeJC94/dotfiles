@@ -1,0 +1,7 @@
+#!/bin/sh
+git diff --cached --exit-code --quiet || ( echo "Nothing to commit" && exit 1 )
+if [ -z "${@}" ]; then
+    git status --porcelain
+    read -p "Add all unstaged files? (y/N): " yn; [ "$yn" != y ] && exit 1
+fi
+git add -v "${@:-.}"

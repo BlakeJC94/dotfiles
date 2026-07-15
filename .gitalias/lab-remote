@@ -1,0 +1,7 @@
+#!/bin/sh
+repo_guess=$(git remote get-url origin | sed 's/.*://' | sed "s|.*/|$GITLAB_USER/|" | sed 's/.git$//')
+echo "try switching to ${repo_guess}"
+if git lab repo view $repo_guess; then
+    git remote set-url origin git@gitlab.com:${repo_guess}
+    git remote -v
+fi

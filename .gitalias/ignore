@@ -1,0 +1,28 @@
+#!/bin/sh
+toplevel=$(git rev-parse --show-toplevel)
+if [ -n "$GIT_PREFIX" ]; then
+    curdir="$toplevel/$GIT_PREFIX"
+else
+    curdir="$toplevel"
+fi
+curdir="${curdir%/}"
+dir="${1:-.}"
+case "$dir" in
+    /*) target="$dir" ;;
+    .)  target="$curdir" ;;
+    *)  target="$curdir/$dir" ;;
+esac
+target="${target%/}"
+if [ ! -d "$target" ]; then
+    echo "directory $target not found"
+    exit 1
+fi
+gitignore="$target/.gitignore"
+if [ ! -f "$gitignore" ]; then
+    echo "creating new gitignore in $target"
+    touch "$gitignore"
+    if [ "$target" != "$toplevel" ]; then
+        printf '*\n!.gitignore\n' >> "$gitignore"
+    fi
+fi
+$EDITOR "$gitignore"
