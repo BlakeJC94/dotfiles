@@ -7,7 +7,6 @@
     dotfiles = "!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME \"${@:-st}\"; }; f"
     st = "!git status -sb"
     ad = "!git add --renormalize -v"
-    a = "!git add ."
     cm = "!git commit -m"
     cms = "!f() { git-scoped-commit; }; f"
     commit-a = "!git commit --amend"
@@ -20,15 +19,7 @@
     co = "!git checkout $(git branch --format '%(refname:short)' | fzf)"
     b = "!git checkout -"
     edit = "!cd \"$(dirname \"$(git rev-parse --absolute-git-dir)\")\" && $EDITOR $(git status --porcelain | awk '{print $2}')"
-    forget = "!f() { \
-        git reset --hard HEAD; \
-        unstaged=$(git status --porcelain); \
-        echo $unstaged ; \
-        if [ -n \"$unstaged\" ] ; then \
-            read -p \"Remove untracked files? (y/N): \" yn; [ \"$yn\" != y ] && exit 1 ; \
-            git clean -f ; \
-        fi ; \
-    }; f"
+	forget = restore --staged --worktree
     key = "!f() { \
         echo \"Setting up SSH authentication for Git...\" ; \
         write=true ; \
@@ -86,19 +77,37 @@
         fi; \
         git lab repo mirror --direction push --url https://${GITHUB_USER}:${key}@github.com/$repo; \
     }; f"
-    cma = "!f() { \
+    a = "!f() { \
         git diff --cached --exit-code --quiet || ( echo "Nothing to commit" && exit 1 ) ; \
+        if [ -z \"${@}\" ]; then \
+            git status --porcelain ; \
+            read -p \"Add all unstaged files? (y/N): \" yn; [ \"$yn\" != y ] && exit 1 ;\
+        fi; \
+        git add -v \"${@:-.}\" ; \
+    }; f"
+    cma = "!f() { \
         message=\"${1:-.}\"; \
         if [ -e \"$message\" ]; then \
             echo message \"$message\" cannot be a path ; \
             exit 1; \
         fi; \
         shift; \
-        if [ -z \"${@}\" ]; then \
-            git status --porcelain ; \
-            read -p \"Add all unstaged files? (y/N): \" yn; [ \"$yn\" != y ] && exit 1 ;\
+        git a \"${@}\" ; \
+        git commit -m \"$message\" ; \
+    }; f"
+    cma-a = "!f() { \
+        message=\"${1:-.}\"; \
+        if [ -e \"$message\" ]; then \
+            echo message \"$message\" cannot be a path ; \
+            exit 1; \
         fi; \
-        git add -v \"${@:-.}\" && git commit -m \"$message\" ; \
+        shift; \
+        git a \"${@}\" ; \
+        git commit --amend -m \"$message\" ; \
+    }; f"
+    cma-e = "!f() { \
+        git a \"${@}\" ; \
+        git commit --amend --no-edit ; \
     }; f"
     cmap = "!f() { \
         git cma \"$@\" && git push ; \
@@ -175,6 +184,7 @@
         branch=\"$(git rev-parse --abbrev-ref HEAD)\" ; \
         git branch --set-upstream-to=origin/$branch $branch ; \
     }; f"
+    unstage = reset HEAD --
 
 [color]
     ui = auto
@@ -193,6 +203,7 @@
     algorithm = histogram
     mnemonicPrefix = true
     renames = true
+    tool = fugitive
 
 [mergetool]
     prompt = true
@@ -244,3 +255,12 @@
 [trace2]
     eventtarget = af_unix:dgram:/tmp/olly-git-trace2.sock
     configparams = remote.origin.url
+
+[difftool]
+    prompt = false
+
+[difftool "fugitive"]
+    cmd = nvim -f -c \"Gdiffsplit!\" \"$LOCAL\" \"$REMOTE\"
+
+[difftool "vimdiff"]
+    cmd = nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\"

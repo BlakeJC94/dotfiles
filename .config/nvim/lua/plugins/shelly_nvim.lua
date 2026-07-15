@@ -59,11 +59,11 @@ return {
             mode = "n",
         },
         {
-            "<Leader><Esc>",
+            "<C-Esc>",
             function()
                 require("shelly").toggle()
             end,
-            mode = { "n", "t" },
+            modes = { "n", "t" },
         },
     },
 }
