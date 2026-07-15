@@ -40,6 +40,8 @@
     co = "!git checkout $(git branch --format '%(refname:short)' | sk)"
     ; Generate keys
     key = "!~/.gitalias/key"
+    ; Run branch justfile
+    just = "!just -f $(git rev-parse --abbrev-ref HEAD | slugify).just"
     ; TODO Turn this into an llm-cli template
     ; diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
     ; TODO maintain
