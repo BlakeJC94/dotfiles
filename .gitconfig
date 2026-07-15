@@ -16,7 +16,7 @@
     cma = "!~/.gitalias/cma"
     cma-a = "!~/.gitalias/cma --amend"
     cma-e = "!~/.gitalias/cma --no-edit"
-    cmap = "!git cma \"$@\" && git push"
+    cmap = "!f() { git cma \"$@\" && git push; }; f"
     sync = "!git cmap \"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\""
     lg = "!f() { if [ $# -eq 0 ]; then git log --oneline -n 8; else git log --oneline \"$@\"; fi }; f"
     lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
