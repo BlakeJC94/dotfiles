@@ -1,5 +1,6 @@
-local config = require("field-notes.config")
 local M = {}
+
+local config = require("blog.config")
 
 function M.blog_header()
     local title = ""
@@ -56,7 +57,8 @@ function M.blog_write(subdir)
     M.blog_header()
 end
 
-M.paste_hugo_image = function(opts)
+function M.blog_image(opts)
+    -- Paste hugo image
     -- Get source image path from command arguments
     local src = opts.args
     if src == "" then
@@ -114,5 +116,28 @@ M.paste_hugo_image = function(opts)
     end
 end
 
+function M.setup(opts)
+    config.setup(opts)
+
+    vim.api.nvim_create_user_command("BlogHeader", function()
+        M.blog_header()
+    end, {
+        desc = "Add Hugo front matter to blog post",
+    })
+
+    vim.api.nvim_create_user_command("BlogWrite", function(opts)
+        M.blog_write(opts.args)
+    end, {
+        nargs = 1,
+        desc = "Write blog post to content directory",
+    })
+
+    vim.api.nvim_create_user_command("BlogImage", function(opts)
+        M.blog_image(opts)
+    end, {
+        nargs = 1,
+        desc = "Copy image into subdirecotry for use display in Hugo page",
+    })
+end
 
 return M

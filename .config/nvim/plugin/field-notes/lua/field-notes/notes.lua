@@ -2,14 +2,27 @@ local config = require("field-notes.config")
 local utils = require("field-notes.utils")
 local M = {}
 
+-- AIDEV-NOTE: :Note accepts exactly one quoted title argument.
+local function parse_quoted_note_arg(args)
+    local trimmed = vim.trim(args or "")
+
+    if trimmed:match('^"[^"]+"$') then
+        return trimmed:sub(2, -2)
+    end
+
+    if trimmed:match("^'[^']+'$") then
+        return trimmed:sub(2, -2)
+    end
+
+    return nil, "Error: :Note expects exactly one quoted title, e.g. :Note \"My title\""
+end
+
 function M.start_note(...)
 
     return filepath
 end
 
-function M.link_note(...)
-    local args = { ... }
-    local title = utils.get_note_title(...)
+function M.link_note(title)
     local filename = utils.slugify(title) .. ".md"
     local filepath = "./" .. filename
 
@@ -23,15 +36,26 @@ end
 function M.initialize_note_if_needed(...)
 end
 
-function M.open_note(bang, args)
+function M.open_note(bang, args, opts)
     local split_cmd = bang and "edit" or "split"
     local vert_prefix = config.get("field_notes_vert") and "vert" or ""
+    local title
+    local parse_error
 
-    if bang then
-        M.link_note(args)
+    if opts and opts.require_quoted_arg then
+        title, parse_error = parse_quoted_note_arg(args)
+        if parse_error then
+            print(parse_error)
+            return
+        end
+    else
+        title = utils.get_note_title(args)
     end
 
-    local title = utils.get_note_title(args)
+    if bang then
+        M.link_note(title)
+    end
+
     local filename = utils.slugify(title) .. ".md"
     local filepath = config.get("field_notes_dir") .. "/" .. filename
 

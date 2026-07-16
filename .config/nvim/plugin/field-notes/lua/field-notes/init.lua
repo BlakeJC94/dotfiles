@@ -5,7 +5,6 @@ local utils = require("field-notes.utils")
 local notes = require("field-notes.notes")
 local images = require("field-notes.images")
 local diagrams = require("field-notes.diagrams")
-local blog = require("field-notes.blog")
 
 -- Expose all functions through the main module
 M.slugify = utils.slugify
@@ -18,17 +17,13 @@ M.initialize_note_if_needed = notes.initialize_note_if_needed
 M.open_note = notes.open_note
 M.open_notes_dir = notes.open_notes_dir
 M.rename_note = notes.rename_note
-M.move_image = images.move_image
 M.new_diagram = diagrams.new_diagram
-M.blog_header = blog.blog_header
-M.blog_write = blog.blog_write
-M.paste_hugo_image = blog.paste_hugo_image
 
 function M.setup(opts)
     config.setup(opts)
 
     vim.api.nvim_create_user_command("Note", function(opts)
-        M.open_note(opts.bang, opts.args)
+        M.open_note(opts.bang, opts.args, { require_quoted_arg = true })
     end, {
         nargs = "*",
         bang = true,
@@ -46,7 +41,7 @@ function M.setup(opts)
     vim.api.nvim_create_user_command("Log", function(opts)
         local offset = tonumber(opts.args) or 0
         local timestamp = os.time() + (offset * 7 * 86400) - ((os.date("%u", os.time()) - 1) * 86400)
-        local title = os.date("%Y-%W: %b %d", timestamp)
+        local title = os.date("%Y-W%W: %b %d", timestamp)
         M.open_note(opts.bang, title)
     end, {
         nargs = "?",
@@ -90,47 +85,12 @@ function M.setup(opts)
         desc = "Create a new diagram",
     })
 
-    vim.api.nvim_create_user_command("Image", function(opts)
-        M.move_image(opts.args)
-    end, {
-        nargs = 1,
-        complete = "file_in_path",
-        desc = "Move image to structured directory",
-    })
-
     vim.api.nvim_create_user_command("Slugify", function(opts)
         print(M.slugify(opts.args))
     end, {
         nargs = "*",
         desc = "Convert text to slug format",
     })
-
-    vim.api.nvim_create_user_command("Link", function(opts)
-        local pos = vim.fn.getpos(".")
-        local cword = vim.fn.expand("<cWORD>")
-        local escaped_cword = cword:gsub("([/\\])", "\\%1")
-        local escaped_args = opts.args:gsub("([/\\])", "\\%1")
-        vim.cmd("s/" .. escaped_cword .. "/[" .. escaped_cword .. "](" .. escaped_args .. ")/")
-        vim.fn.setpos(".", pos)
-    end, {
-        nargs = 1,
-        desc = "Link word under cursor",
-    })
-
-    -- Blog commands
-    vim.api.nvim_create_user_command("BlogHeader", function()
-        M.blog_header()
-    end, {
-        desc = "Add Hugo front matter to blog post",
-    })
-
-    vim.api.nvim_create_user_command("BlogWrite", function(opts)
-        M.blog_write(opts.args)
-    end, {
-        nargs = 1,
-        desc = "Write blog post to content directory",
-    })
-    vim.api.nvim_create_user_command("BlogImage", M.paste_hugo_image, { nargs = 1 })
 
     -- Rename command
     vim.api.nvim_create_user_command("NoteRename", function()

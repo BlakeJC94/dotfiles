@@ -1,0 +1,17 @@
+#!/bin/sh
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+branch=$(echo "$branch" | tr '[:upper:]' '[:lower:]')
+branch=$(echo "$branch" | sed -E 's/[^a-zA-Z0-9-]+/-/g')
+branch=$(echo "$branch" | sed -E 's/^-+//g')
+branch=$(echo "$branch" | sed -E 's/-+$//g')
+
+justfile=.$branch.just
+
+if [ ! -f "$justfile" ]; then
+    $EDITOR "$justfile"
+elif [ "$#" -eq 0 ]; then
+    $EDITOR "$justfile"
+else
+    just -f "$justfile" "${@}"
+fi

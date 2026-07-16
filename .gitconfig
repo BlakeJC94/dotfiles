@@ -10,6 +10,9 @@
     st = "!git status -sb"
     dif = "!git diff --stat"
     b = "!git checkout -"
+    bls = "!git branch -l"
+    bmv = "!git branch -M"
+    brm = "!git branch -D"
     ad = "!git add --renormalize -v"
     cm = "!git commit -m"
     a = "!~/.gitalias/a"
@@ -36,18 +39,20 @@
     ; Ignore file actions
     ignore-template = "!~/.gitalias/ignore-template"
     ignore = "!~/.gitalias/ignore"
+    exclude = "!~/.gitalias/exclude"
     ; Select branch
-    co = "!git checkout $(git branch --format '%(refname:short)' | sk)"
+    fz = "!git checkout $(git branch --format '%(refname:short)' | sk)"
     ; Generate keys
     key = "!~/.gitalias/key"
     ; Run branch justfile
-    just = "!just -f $(git rev-parse --abbrev-ref HEAD | slugify).just"
+    just = "!~/.gitalias/just"
+    ; Set upstream branch
+    up = "!~/.gitalias/up"
+    ; Clone and setup worktrees
+    clonetree = "!~/.gitalias/clonetree"
     ; TODO Turn this into an llm-cli template
     ; diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
     ; TODO maintain
-    ; genpr = "!~/.gitalias/genpr"
-    ; clonetree = "!~/.gitalias/clonetree"
-    ; up = "!~/.gitalias/up"
 
 
 [color]

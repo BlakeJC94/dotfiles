@@ -21,7 +21,7 @@ return {
     },
     keys = {
         {
-            "<C-Space>",
+            "<C-Esc>",
             function()
                 require("shelly").cycle()
             end,
@@ -54,16 +54,16 @@ return {
             desc = "Send motion to terminal",
         },
         {
-            "<Leader>a",
+            "<Leader><Esc>",
             ":Shelly ",
             mode = "n",
         },
         {
-            "<C-Esc>",
+            "<C-BS>",
             function()
                 require("shelly").toggle()
             end,
-            modes = { "n", "t" },
+            mode = { "n", "t" },
         },
     },
 }

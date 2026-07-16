@@ -14,7 +14,6 @@ function M.move_image(target_image_path)
     return
   end
 
-  local target_parent = vim.fn.fnamemodify(target_path, ':h')
   local target_stem = vim.fn.fnamemodify(target_path, ':t:r')
   local target_ext = vim.fn.fnamemodify(target_path, ':e')
 

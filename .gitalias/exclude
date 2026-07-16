@@ -1,0 +1,4 @@
+#!/bin/sh
+toplevel=$(git rev-parse --show-toplevel)
+gitignore="$toplevel/.git/info/exclude"
+$EDITOR "$gitignore"

@@ -3,7 +3,6 @@ local M = {}
 M.defaults = {
   field_notes_dir = vim.fn.expand('~/Workspace/field-notes'),
   field_notes_vert = true,
-  blog_content_dir = vim.fn.expand('~/Workspace/repos/blog/content'),
 }
 
 M.options = {}
