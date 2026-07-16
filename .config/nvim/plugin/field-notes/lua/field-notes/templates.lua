@@ -19,7 +19,7 @@ local function format_strftime(fmt, base, offset)
 end
 
 function M.template_dir()
-    return config.get("field_notes_dir") .. "/_templates"
+    return config.get("field_notes_templates_dir") or (config.get("field_notes_dir") .. "/_templates")
 end
 
 function M.list_templates()

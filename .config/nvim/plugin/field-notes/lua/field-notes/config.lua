@@ -4,6 +4,7 @@ M.defaults = {
     field_notes_dir = vim.fn.expand("~/Workspace/field-notes"),
     field_notes_vert = true,
     field_notes_default_template = nil,
+    field_notes_templates_dir = nil,
 }
 
 M.options = {}

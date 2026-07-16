@@ -24,6 +24,10 @@ end
 
 local function resolve_note_title(args, opts)
     if opts and opts.require_quoted_arg then
+        local trimmed = vim.trim(args or "")
+        if trimmed == "" then
+            return utils.get_note_title(), nil, nil
+        end
         return parse_quoted_note_arg(args)
     end
 

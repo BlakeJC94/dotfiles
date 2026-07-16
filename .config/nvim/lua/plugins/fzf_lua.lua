@@ -20,6 +20,7 @@ return {
             mode="i",
             remap = false,
         },
+        { "<Leader>N", ":FzfLua notes<CR>" },
         { "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },
         { "<C-r><C-r>", "<cmd>FzfLua registers<CR>", mode = "i" },
         { "<Leader><BS>", "<cmd>FzfLua files<CR>", mode = "n" },
@@ -41,27 +42,29 @@ return {
         { "<Leader>fl", ":FzfLua loclist<CR>" },
     },
     config = function(_, opts)
-        require("fzf-lua").setup(opts)
+        local fzf = require("fzf-lua")
+        fzf.setup(opts)
 
-        vim.api.nvim_create_user_command("Notes", function(opts)
+        fzf.register_extension("notes", function(o)
+            o = fzf.config.normalize_opts(o, "notes")
+            if not o then return end
             local notes = require("field-notes")
             local dir = require("field-notes.config").get("field_notes_dir")
-            require("fzf-lua").files({
+            fzf.files(vim.tbl_extend("force", {
                 cwd = dir,
-                cmd = "ls -1t",
+                cmd = "find . -maxdepth 1 -type f -printf '%T@ %f\n' | sort -rn | sed 's/^[^ ]* //'",
                 actions = {
                     ["default"] = function(selected)
                         if not selected or #selected == 0 then
                             return
                         end
                         local stem = selected[1]:gsub("%.md$", "")
-                        notes.open_note(opts.bang, stem)
+                        notes.open_note(false, stem)
                     end,
                 },
-            })
+            }, o))
         end, {
-            bang = true,
-            desc = "Browse field notes",
+            prompt = "Notes> ",
         })
     end,
 }

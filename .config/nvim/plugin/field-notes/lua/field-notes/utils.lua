@@ -91,14 +91,14 @@ function M.get_note_title(...)
 
             branch_name = get_git_output(vim.fn.expand("%:p:h"), { "branch", "--show-current", "--quiet" })
         else
-            local cwd_parts = vim.split(vim.fn.getcwd(), "/", { trimempty = true })
-            project_name = cwd_parts[#cwd_parts - 1] or cwd_parts[#cwd_parts] or "notes"
-            branch_name = cwd_parts[#cwd_parts] or "scratch"
+            title = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
         end
 
-        project_name = project_name:gsub("^%+", "")
-        branch_name = branch_name:gsub("^%+", "")
-        title = project_name .. ": " .. branch_name
+        if #git_dir > 0 then
+            project_name = project_name:gsub("^%+", "")
+            branch_name = branch_name:gsub("^%+", "")
+            title = project_name .. ": " .. branch_name
+        end
     end
 
     return title

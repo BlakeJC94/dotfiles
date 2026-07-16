@@ -4,10 +4,9 @@ return {
     opts = {
         field_notes_vert = true,
         field_notes_dir = vim.fn.expand("~/Workspace/field-notes"),
-        blog_content_dir = vim.fn.expand("~/Workspace/repos/blog/content"),
+        field_notes_templates_dir = vim.fn.stdpath("config") .. "/plugin/field-notes/_templates",
     },
     keys = {
-        { "<Leader>v", ":Note<CR>" },
-        { "<Leader>V", ":Notes<CR>" },
+        { "<Leader>n", ":Note<CR>" },
     },
 }
