@@ -9,11 +9,7 @@ function M.new_diagram(...)
     title = os.date('%Y_%m_%d_%H%M')
   end
 
-  local dest_parent = vim.fn.expand('%:p:h')
-  local dest_stem = vim.fn.expand('%:t:r')
-
-  local img_subdir = utils.slugify(dest_stem)
-  local dest_dir = dest_parent .. '/img/' .. img_subdir
+  local dest_dir, img_subdir, dest_parent = utils.get_note_image_dir()
   local dest_filename = utils.slugify(title) .. '.svg'
   local dest_path = dest_dir .. '/' .. dest_filename
 
@@ -23,15 +19,14 @@ function M.new_diagram(...)
 
   local template_path = dest_parent .. '/templates/template.svg'
 
-  local copy_cmd = string.format('cp "%s" "%s"', template_path, dest_path)
-  local result = vim.fn.system(copy_cmd)
-  if vim.v.shell_error ~= 0 then
-    print('Error copying file: ' .. result)
+  local ok, copy_error = utils.copy_file(template_path, dest_path)
+  if not ok then
+    print('Error copying file: ' .. copy_error)
     return
   end
 
   local relative_path = './img/' .. img_subdir .. '/' .. dest_filename
-  local markdown_text = '![' .. title .. '](' .. relative_path .. ')'
+  local markdown_text = utils.markdown_image_link(title, relative_path)
   vim.fn.append(vim.fn.line('.'), markdown_text)
 
   print('Created new canvas at: ' .. dest_path)

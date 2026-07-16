@@ -17,9 +17,12 @@ local function parse_quoted_note_arg(args)
     return nil, "Error: :Note expects exactly one quoted title, e.g. :Note \"My title\""
 end
 
-function M.start_note(...)
+local function resolve_note_title(args, opts)
+    if opts and opts.require_quoted_arg then
+        return parse_quoted_note_arg(args)
+    end
 
-    return filepath
+    return utils.get_note_title(args)
 end
 
 function M.link_note(title)
@@ -33,23 +36,13 @@ function M.link_note(title)
     end
 end
 
-function M.initialize_note_if_needed(...)
-end
-
 function M.open_note(bang, args, opts)
     local split_cmd = bang and "edit" or "split"
     local vert_prefix = config.get("field_notes_vert") and "vert" or ""
-    local title
-    local parse_error
-
-    if opts and opts.require_quoted_arg then
-        title, parse_error = parse_quoted_note_arg(args)
-        if parse_error then
-            print(parse_error)
-            return
-        end
-    else
-        title = utils.get_note_title(args)
+    local title, title_error = resolve_note_title(args, opts)
+    if title_error then
+        print(title_error)
+        return
     end
 
     if bang then
@@ -58,12 +51,10 @@ function M.open_note(bang, args, opts)
 
     local filename = utils.slugify(title) .. ".md"
     local filepath = config.get("field_notes_dir") .. "/" .. filename
-
-
     local cmd = "silent " .. vert_prefix .. " " .. split_cmd .. " " .. vim.fn.fnameescape(filepath)
     vim.cmd(cmd)
 
-    -- Initialize_note_if_needed
+    -- Initialize heading in newly created notes.
     if vim.fn.filereadable(filepath) == 0 then
         local heading = "# " .. title .. "\n\n"
         local lines = vim.split(heading, "\n", { plain = true })
@@ -73,7 +64,6 @@ function M.open_note(bang, args, opts)
     end
 
     vim.cmd("lcd " .. vim.fn.expand("%:p:h"))
-    print(vim.fn.expand("%:p"))
 end
 
 function M.open_notes_dir(bang)

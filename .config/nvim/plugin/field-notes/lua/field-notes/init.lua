@@ -10,13 +10,11 @@ local diagrams = require("field-notes.diagrams")
 M.slugify = utils.slugify
 M.get_git_dir = utils.get_git_dir
 M.get_note_title = utils.get_note_title
-M.get_note_heading = utils.get_note_heading
-M.start_note = notes.start_note
 M.link_note = notes.link_note
-M.initialize_note_if_needed = notes.initialize_note_if_needed
 M.open_note = notes.open_note
 M.open_notes_dir = notes.open_notes_dir
 M.rename_note = notes.rename_note
+M.move_image = images.move_image
 M.new_diagram = diagrams.new_diagram
 
 function M.setup(opts)
@@ -25,9 +23,9 @@ function M.setup(opts)
     vim.api.nvim_create_user_command("Note", function(opts)
         M.open_note(opts.bang, opts.args, { require_quoted_arg = true })
     end, {
-        nargs = "*",
+        nargs = 1,
         bang = true,
-        desc = "Open or create a field note",
+        desc = "Open or create a field note (quoted title)",
     })
 
     vim.api.nvim_create_user_command("Notes", function(opts)
@@ -74,21 +72,27 @@ function M.setup(opts)
     vim.api.nvim_create_user_command("Asciiflow", function()
         vim.fn.system("open https://asciiflow.com/")
     end, {
-        nargs = "*",
         desc = "Open Asciiflow in browser",
+    })
+
+    vim.api.nvim_create_user_command("Image", function(opts)
+        M.move_image(opts.args)
+    end, {
+        nargs = 1,
+        desc = "Copy image into note img dir and insert markdown link",
     })
 
     vim.api.nvim_create_user_command("Diagram", function(opts)
         M.new_diagram(opts.args)
     end, {
-        nargs = "*",
+        nargs = "?",
         desc = "Create a new diagram",
     })
 
     vim.api.nvim_create_user_command("Slugify", function(opts)
         print(M.slugify(opts.args))
     end, {
-        nargs = "*",
+        nargs = 1,
         desc = "Convert text to slug format",
     })
 

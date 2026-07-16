@@ -17,11 +17,7 @@ function M.move_image(target_image_path)
   local target_stem = vim.fn.fnamemodify(target_path, ':t:r')
   local target_ext = vim.fn.fnamemodify(target_path, ':e')
 
-  local dest_parent = vim.fn.expand('%:p:h')
-  local dest_stem = vim.fn.expand('%:t:r')
-
-  local img_subdir = utils.slugify(dest_stem)
-  local dest_dir = dest_parent .. '/img/' .. img_subdir
+  local dest_dir, img_subdir = utils.get_note_image_dir()
 
   if vim.fn.isdirectory(dest_dir) == 0 then
     vim.fn.mkdir(dest_dir, 'p')
@@ -31,15 +27,14 @@ function M.move_image(target_image_path)
   local dest_filename = slugified_target_stem .. '.' .. target_ext
   local dest_path = dest_dir .. '/' .. dest_filename
 
-  local copy_cmd = string.format('cp "%s" "%s"', target_path, dest_path)
-  local result = vim.fn.system(copy_cmd)
-  if vim.v.shell_error ~= 0 then
-    print("Error copying file: " .. result)
+  local ok, copy_error = utils.copy_file(target_path, dest_path)
+  if not ok then
+    print("Error copying file: " .. copy_error)
     return
   end
 
   local relative_path = './img/' .. img_subdir .. '/' .. dest_filename
-  local markdown_text = '![' .. target_stem .. '](' .. relative_path .. ')'
+  local markdown_text = utils.markdown_image_link(target_stem, relative_path)
   vim.fn.append(vim.fn.line('.'), markdown_text)
 
   print("Image moved to: " .. dest_path)
