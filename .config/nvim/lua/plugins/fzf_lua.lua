@@ -40,13 +40,28 @@ return {
         { "<Leader>fq", ":FzfLua quickfix<CR>" },
         { "<Leader>fl", ":FzfLua loclist<CR>" },
     },
-    -- config = function()
-    --     vim.api.nvim_create_autocmd("VimEnter", {
-    --         callback = function()
-    --             if vim.fn.line("$") == 1 and vim.fn.getline(1) == "" then
-    --                 vim.cmd("Fzf files")
-    --             end
-    --         end,
-    --     })
-    -- end,
+    config = function(_, opts)
+        require("fzf-lua").setup(opts)
+
+        vim.api.nvim_create_user_command("Notes", function(opts)
+            local notes = require("field-notes")
+            local dir = require("field-notes.config").get("field_notes_dir")
+            require("fzf-lua").files({
+                cwd = dir,
+                cmd = "ls -1t",
+                actions = {
+                    ["default"] = function(selected)
+                        if not selected or #selected == 0 then
+                            return
+                        end
+                        local stem = selected[1]:gsub("%.md$", "")
+                        notes.open_note(opts.bang, stem)
+                    end,
+                },
+            })
+        end, {
+            bang = true,
+            desc = "Browse field notes",
+        })
+    end,
 }

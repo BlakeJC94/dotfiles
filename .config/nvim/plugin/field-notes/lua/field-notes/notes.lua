@@ -36,6 +36,32 @@ function M.link_note(title)
     end
 end
 
+function M.complete_note(arg_lead, cmd_line, cursor_pos)
+    local dir = config.get("field_notes_dir")
+    local items = {}
+
+    local handle = vim.uv.fs_scandir(dir)
+    if not handle then
+        return items
+    end
+
+    while true do
+        local name, type = vim.uv.fs_scandir_next(handle)
+        if not name then
+            break
+        end
+        if type == "file" and name:match("%.md$") then
+            local stem = name:gsub("%.md$", "")
+            if stem:find(arg_lead, 1, true) == 1 then
+                table.insert(items, stem)
+            end
+        end
+    end
+
+    table.sort(items)
+    return items
+end
+
 function M.open_note(bang, args, opts)
     local split_cmd = bang and "edit" or "split"
     local vert_prefix = config.get("field_notes_vert") and "vert" or ""
@@ -117,6 +143,12 @@ function M.rename_note()
     vim.cmd("saveas " .. vim.fn.fnameescape(new_path))
     vim.fn.delete(current_file)
     print("File renamed to: " .. new_filename)
+end
+
+function M.grep_notes(pattern)
+    local dir = vim.fn.fnameescape(config.get("field_notes_dir"))
+    vim.cmd("grep! " .. vim.fn.shellescape(pattern) .. " " .. dir)
+    vim.cmd("copen")
 end
 
 return M

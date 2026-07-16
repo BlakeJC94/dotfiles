@@ -63,6 +63,8 @@
 
 [core]
     editor = "nvim"
+	fsmonitor = true
+	untrackedcache = true
 
 [credential]
     helper = cache --timeout=3600
@@ -113,6 +115,7 @@
     prune = true
     pruneTags = true
     all = true
+	parallel = 0
 
 [rebase]
     autoSquash = true
@@ -133,3 +136,9 @@
 
 [difftool "vimdiff"]
     cmd = nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
+[feature]
+	manyFiles = true
+[commitGraph]
+	generationVersion = 2
+[maintenance]
+	auto = true
