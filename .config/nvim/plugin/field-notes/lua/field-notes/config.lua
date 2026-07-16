@@ -3,6 +3,7 @@ local M = {}
 M.defaults = {
     field_notes_dir = vim.fn.expand("~/Workspace/field-notes"),
     field_notes_vert = true,
+    field_notes_default_template = nil,
 }
 
 M.options = {}

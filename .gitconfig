@@ -63,8 +63,8 @@
 
 [core]
     editor = "nvim"
-	fsmonitor = true
-	untrackedcache = true
+    fsmonitor = true
+    untrackedcache = true
 
 [credential]
     helper = cache --timeout=3600
@@ -115,7 +115,7 @@
     prune = true
     pruneTags = true
     all = true
-	parallel = 0
+    parallel = 0
 
 [rebase]
     autoSquash = true
@@ -132,13 +132,18 @@
     prompt = false
 
 [difftool "fugitive"]
-    cmd = nvim -f -c \"Gdiffsplit!\" \"$LOCAL\" \"$REMOTE\"
+    cmd = "nvim -f -c \"Gdiffsplit!\" \"$LOCAL\" \"$REMOTE\""
 
 [difftool "vimdiff"]
-    cmd = nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\""
+
 [feature]
-	manyFiles = true
+    manyFiles = true
+
 [commitGraph]
-	generationVersion = 2
+    generationVersion = 2
+
 [maintenance]
-	auto = true
+    auto = true
+
+; https://www.git-tower.com/blog/git-performance/

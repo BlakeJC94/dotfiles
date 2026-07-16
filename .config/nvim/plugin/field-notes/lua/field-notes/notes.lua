@@ -1,20 +1,25 @@
 local config = require("field-notes.config")
 local utils = require("field-notes.utils")
+local templates = require("field-notes.templates")
 local M = {}
 
--- AIDEV-NOTE: :Note accepts exactly one quoted title argument.
+-- AIDEV-NOTE: :Note accepts a quoted title and optional template name.
 local function parse_quoted_note_arg(args)
     local trimmed = vim.trim(args or "")
 
-    if trimmed:match('^"[^"]+"$') then
-        return trimmed:sub(2, -2)
+    local quoted_title = trimmed:match('^"([^"]+)"')
+    if not quoted_title then
+        quoted_title = trimmed:match("^'([^']+)'")
     end
 
-    if trimmed:match("^'[^']+'$") then
-        return trimmed:sub(2, -2)
+    if not quoted_title then
+        return nil, nil, "Error: :Note expects a quoted title, e.g. :Note \"My title\" [template]"
     end
 
-    return nil, "Error: :Note expects exactly one quoted title, e.g. :Note \"My title\""
+    local remainder = trimmed:match('^"[^"]+"%s*(.*)') or trimmed:match("^'[^']+'%s*(.*)")
+    local template_name = remainder ~= "" and vim.trim(remainder) or nil
+
+    return quoted_title, template_name, nil
 end
 
 local function resolve_note_title(args, opts)
@@ -22,14 +27,14 @@ local function resolve_note_title(args, opts)
         return parse_quoted_note_arg(args)
     end
 
-    return utils.get_note_title(args)
+    return utils.get_note_title(args), nil, nil
 end
 
 function M.link_note(title)
     local filename = utils.slugify(title) .. ".md"
     local filepath = "./" .. filename
 
-    local markdown_text = "![" .. title .. "](" .. filepath .. ")"
+    local markdown_text = "[" .. title .. "](" .. filepath .. ")"
 
     if vim.fn.expand("%:e") == "md" then
         vim.fn.append(vim.fn.line("."), markdown_text)
@@ -50,7 +55,7 @@ function M.complete_note(arg_lead, cmd_line, cursor_pos)
         if not name then
             break
         end
-        if type == "file" and name:match("%.md$") then
+        if type == "file" and name:match("%.md$") and not name:match("^_") then
             local stem = name:gsub("%.md$", "")
             if stem:find(arg_lead, 1, true) == 1 then
                 table.insert(items, stem)
@@ -65,11 +70,13 @@ end
 function M.open_note(bang, args, opts)
     local split_cmd = bang and "edit" or "split"
     local vert_prefix = config.get("field_notes_vert") and "vert" or ""
-    local title, title_error = resolve_note_title(args, opts)
+    local title, template_name, title_error = resolve_note_title(args, opts)
     if title_error then
         print(title_error)
         return
     end
+
+    template_name = template_name or config.get("field_notes_default_template")
 
     if bang then
         M.link_note(title)
@@ -77,13 +84,22 @@ function M.open_note(bang, args, opts)
 
     local filename = utils.slugify(title) .. ".md"
     local filepath = config.get("field_notes_dir") .. "/" .. filename
+
+    if template_name and vim.fn.filereadable(filepath) == 1 then
+        print("Error: cannot apply template to existing note")
+        return
+    end
     local cmd = "silent " .. vert_prefix .. " " .. split_cmd .. " " .. vim.fn.fnameescape(filepath)
     vim.cmd(cmd)
 
-    -- Initialize heading in newly created notes.
     if vim.fn.filereadable(filepath) == 0 then
-        local heading = "# " .. title .. "\n\n"
-        local lines = vim.split(heading, "\n", { plain = true })
+        local lines
+        if template_name then
+            lines = templates.apply_template(template_name, title)
+        end
+        if not lines then
+            lines = vim.split("# " .. title .. "\n\n", "\n", { plain = true })
+        end
         vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
         vim.bo.buftype = ""
         vim.bo.modified = false

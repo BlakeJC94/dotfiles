@@ -5,6 +5,7 @@ local utils = require("field-notes.utils")
 local notes = require("field-notes.notes")
 local images = require("field-notes.images")
 local diagrams = require("field-notes.diagrams")
+local templates = require("field-notes.templates")
 
 -- Expose all functions through the main module
 M.slugify = utils.slugify
@@ -17,6 +18,7 @@ M.rename_note = notes.rename_note
 M.grep_notes = notes.grep_notes
 M.move_image = images.move_image
 M.new_diagram = diagrams.new_diagram
+M.list_templates = templates.list_templates
 
 function M.setup(opts)
     config.setup(opts)
@@ -31,13 +33,31 @@ function M.setup(opts)
         return quoted
     end
 
+    local template_complete = function(arg_lead, cmd_line, cursor_pos)
+        local items = M.list_templates()
+        local filtered = {}
+        for _, item in ipairs(items) do
+            if item:find(arg_lead, 1, true) == 1 then
+                table.insert(filtered, item)
+            end
+        end
+        return filtered
+    end
+
     vim.api.nvim_create_user_command("Note", function(opts)
         M.open_note(opts.bang, opts.args, { require_quoted_arg = true })
     end, {
-        nargs = 1,
+        nargs = "*",
         bang = true,
-        complete = note_complete,
-        desc = "Open or create a field note (quoted title)",
+        complete = function(arg_lead, cmd_line, cursor_pos)
+            local has_quoted_arg = cmd_line:match('^%s*Note!?%s+"[^"]*"')
+                or cmd_line:match("^%s*Note!?%s*'[^']*'")
+            if has_quoted_arg then
+                return template_complete(arg_lead, cmd_line, cursor_pos)
+            end
+            return note_complete(arg_lead, cmd_line, cursor_pos)
+        end,
+        desc = "Open or create a field note (quoted title) [template]",
     })
 
     vim.api.nvim_create_user_command("NoteLink", function(opts)
