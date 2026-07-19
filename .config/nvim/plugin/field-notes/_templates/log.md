@@ -50,26 +50,6 @@ Afternoon
 
 1. [ ] ...
 
-## {{strftime:%Y-%m-%d %a:monday+5}}
-
-Morning
-
-1. [ ] ...
-
-Afternoon
-
-1. [ ] ...
-
-## {{strftime:%Y-%m-%d %a:monday+6}}
-
-Morning
-
-1. [ ] ...
-
-Afternoon
-
-1. [ ] ...
-
 ## Misc notes
 
 ### Wins
