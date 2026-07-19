@@ -97,18 +97,20 @@ function M.open_note(bang, args, opts)
 
     local filename = utils.slugify(title) .. ".md"
     local filepath = config.get("field_notes_dir") .. "/" .. filename
+    local note_exists_on_disk = vim.fn.filereadable(filepath) == 1
+    local note_buffer_exists = vim.fn.bufexists(filepath) == 1
 
-    if template_name and vim.fn.filereadable(filepath) == 1 then
-        print("Error: cannot apply template to existing note")
-        return
+    if template_name and (note_exists_on_disk or note_buffer_exists) then
+        -- AIDEV-NOTE: Existing file/buffer always wins; ignore template to keep :Note idempotent.
+        template_name = nil
     end
     local cmd = "silent " .. vert_prefix .. " " .. split_cmd .. " " .. vim.fn.fnameescape(filepath)
     vim.cmd(cmd)
 
-    if vim.fn.filereadable(filepath) == 0 then
+    if not note_exists_on_disk and not note_buffer_exists then
         local lines
         if template_name then
-            lines = templates.apply_template(template_name, title)
+            lines = templates.apply_template(template_name, title, opts and opts.template_context)
         end
         if not lines then
             lines = vim.split("# " .. title .. "\n\n", "\n", { plain = true })

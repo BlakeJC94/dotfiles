@@ -1,8 +1,8 @@
 local config = require("field-notes.config")
 local M = {}
 
-local function resolve_base_timestamp(base)
-    local now = os.time()
+local function resolve_base_timestamp(base, context)
+    local now = (context and context.reference_timestamp) or os.time()
     if base == "today" then
         return now
     elseif base == "monday" then
@@ -12,8 +12,8 @@ local function resolve_base_timestamp(base)
     return now
 end
 
-local function format_strftime(fmt, base, offset)
-    local ts = resolve_base_timestamp(base)
+local function format_strftime(fmt, base, offset, context)
+    local ts = resolve_base_timestamp(base, context)
     ts = ts + (offset * 86400)
     return os.date(fmt, ts)
 end
@@ -46,7 +46,7 @@ function M.list_templates()
     return items
 end
 
-function M.apply_template(template_name, title)
+function M.apply_template(template_name, title, context)
     local dir = M.template_dir()
     local path = dir .. "/" .. template_name .. ".md"
 
@@ -60,7 +60,9 @@ function M.apply_template(template_name, title)
     vim.uv.fs_close(fd)
 
     local content = data
-    local week_title = os.date("%Y-W%W: %b %d")
+    -- AIDEV-NOTE: {{week}} uses Monday-based %W numbering and Monday date for stable weekly templates.
+    local week_monday = resolve_base_timestamp("monday", context)
+    local week_title = os.date("%Y-W%W: %b %d", week_monday)
 
     content = content:gsub("{{title}}", title)
     content = content:gsub("{{date}}", os.date("%Y-%m-%d"))
@@ -68,7 +70,7 @@ function M.apply_template(template_name, title)
     content = content:gsub("{{strftime:([^}:]+):([^}]+)}}", function(fmt, expr)
         local base, offset_str = expr:match("^(%a+)([+-]?%d+)$")
         if base then
-            return format_strftime(fmt, base, tonumber(offset_str))
+            return format_strftime(fmt, base, tonumber(offset_str), context)
         end
         return "{{strftime:" .. fmt .. ":" .. expr .. "}}"
     end)

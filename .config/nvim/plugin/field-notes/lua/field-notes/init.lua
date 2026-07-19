@@ -74,7 +74,10 @@ function M.setup(opts)
         local offset = tonumber(opts.args) or 0
         local timestamp = os.time() + (offset * 7 * 86400) - ((os.date("%u", os.time()) - 1) * 86400)
         local title = os.date("%Y-W%W: %b %d", timestamp)
-        M.open_note(opts.bang, title)
+        M.open_note(opts.bang, string.format("%q log", title), {
+            require_quoted_arg = true,
+            template_context = { reference_timestamp = timestamp },
+        })
     end, {
         nargs = "?",
         bang = true,
