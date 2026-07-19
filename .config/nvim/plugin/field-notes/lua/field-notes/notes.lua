@@ -72,6 +72,15 @@ function M.complete_note(arg_lead, cmd_line, cursor_pos)
 end
 
 function M.open_note(bang, args, opts)
+    local buffer_is_empty = vim.fn.bufname("%") == ""
+        and vim.fn.line("$") == 1
+        and vim.fn.getline(1) == ""
+        and not vim.bo.modified
+
+    if buffer_is_empty then
+        bang = true
+    end
+
     local split_cmd = bang and "edit" or "split"
     local vert_prefix = config.get("field_notes_vert") and "vert" or ""
     local title, template_name, title_error = resolve_note_title(args, opts)

@@ -50,7 +50,7 @@ keybind = ctrl+shift+l=reset
 
 keybind = global:super+escape=toggle_quick_terminal
 
-keybind = ctrl+z>ctrl+z=goto_split:previous
+keybind = ctrl+z>tab=goto_split:previous
 keybind = ctrl+z>s=new_split:down
 keybind = ctrl+z>v=new_split:right
 keybind = ctrl+z>x=write_screen_file:copy
@@ -63,7 +63,7 @@ keybind = ctrl+z>n=next_tab
 keybind = ctrl+z>shift+n=move_tab:1
 keybind = ctrl+z>shift+q=close_tab
 keybind = ctrl+z>escape=ignore
-keybind = ctrl+z>z=text:\x1a
+keybind = ctrl+z>ctrl+z=text:\x1a
 keybind = ctrl+z>catch_all=ignore
 
 keybind = ctrl+z>h=goto_split:left

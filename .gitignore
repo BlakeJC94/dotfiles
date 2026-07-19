@@ -40,6 +40,10 @@
 !.config/ripgrep
 !.config/ripgrep/ripgreprc
 
+# herdr
+!.config/herdr
+!.config/herdr/config.toml
+
 # ruff
 !.ruff.toml
 

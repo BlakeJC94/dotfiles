@@ -130,6 +130,18 @@ function M.setup(opts)
     end, {
         nargs = 1,
         desc = "Write blog post to content directory",
+        complete = function(arg_lead)
+            local content_dir = vim.fn.expand(config.get("blog_content_dir"))
+            local dirs = vim.fn.readdir(content_dir, function(name)
+                return vim.fn.isdirectory(content_dir .. "/" .. name) == 1
+            end)
+            if arg_lead == "" then
+                return dirs
+            end
+            return vim.tbl_filter(function(d)
+                return d:find("^" .. vim.pesc(arg_lead)) ~= nil
+            end, dirs)
+        end,
     })
 
     vim.api.nvim_create_user_command("BlogImage", function(opts)
