@@ -5,8 +5,16 @@ return {
     opts = {
         fzf_bin = "sk",
         winopts = { border = "none" },
-        grep = { hidden = true },
-        files = { raw_cmd = vim.env.SKIM_DEFAULT_COMMAND },
+        grep = {
+            hidden = true,
+            git_icons = false,
+            file_icons = false,
+        },
+        files = {
+            raw_cmd = vim.env.SKIM_DEFAULT_COMMAND,
+            git_icons = false,
+            file_icons = false,
+        },
     },
     keys = {
         {
@@ -17,7 +25,7 @@ return {
         {
             "<C-S-s>",
             "<C-g>u<Esc>[s:FzfLua spell_suggest<CR>",
-            mode="i",
+            mode = "i",
             remap = false,
         },
         { "<Leader>N", ":FzfLua notes<CR>" },
@@ -47,7 +55,9 @@ return {
 
         fzf.register_extension("notes", function(o)
             o = fzf.config.normalize_opts(o, "notes")
-            if not o then return end
+            if not o then
+                return
+            end
             local notes = require("field-notes")
             local dir = require("field-notes.config").get("field_notes_dir")
             fzf.files(vim.tbl_extend("force", {
