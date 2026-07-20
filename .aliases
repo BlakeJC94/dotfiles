@@ -8,23 +8,14 @@ alias egrep='egrep --color=auto'
 
 alias duh='du -d 1 -h'
 
-alias today='vim -c "ThisWeek!"'
-alias notes='vim -c "Notes!"'
+alias today='vim -c "ThisWeek"'
 alias vimpy='vim -c "S uv run ipython"'
-
 
 
 alias ip-global='echo "IPv4: $(curl -4 -s https://api.ipify.org)"; echo "IPv6: $(curl -6 -s https://api64.ipify.org)"'
 alias ip-local="ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if(\$i==\"src\") print \$(i+1)}'"
-alias wttr='curl https://wttr.in/'
 
-alias dit='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
-alias l='eza'
-alias vi='command vim'
-alias vim='nvim'
-alias brewdump='command brew bundle dump --force --file="${HOME}/.Brewfile"'
-
-alias least='fmt -w 80 | bat --paging always --style plain'
+alias least='bat --paging always --style plain'
 alias leastmd='least -l markdown'
 
 alias meminfo='free -m -l -t'
@@ -33,24 +24,25 @@ alias pscpu='ps auxf | sort -nr -k 3'
 
 alias todo='rg -o --hidden --iglob "!.git" --iglob "!TODO.md" "TODO.*"'
 
+alias vi='command vim'
+alias vim='nvim'
+
+alias gcd='cd "$(dirname "$(git rev-parse --absolute-git-dir)")"'
+
+alias l='eza'
+alias d='git dotfiles'
 alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | fzf || echo .)'
 alias c='cd "$(find . -maxdepth 1 -type d | fzf || echo .)"'
 alias C='cd "$(find . -type d | fzf || echo .)"'
-
 alias q="exit"
-alias G="git"
-alias Git="git"
 
 alias teety="tee /dev/tty"
 
 alias opencode-resume='opencode --session $(opencode session list --format json | jq -r ".[] | [.title, .id] | @tsv" | fzf --delimiter=$"\t" --with-nth=1 | cut -f2)'
 
-alias gcd='cd "$(dirname "$(git rev-parse --absolute-git-dir)")"'
-
 note() {
-    vim -c "Note! ${1}"
+    vim -c "Note ${1}"
 }
-
 
 # secret() {
 #     name=${1:-}

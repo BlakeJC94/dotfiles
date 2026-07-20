@@ -21,7 +21,7 @@ return {
     },
     keys = {
         {
-            "<C-Esc>",
+            "<C-Space>",
             function()
                 require("shelly").cycle()
             end,

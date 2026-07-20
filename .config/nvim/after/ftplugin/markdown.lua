@@ -4,9 +4,9 @@ vim.opt_local.breakindentopt = "list:-1"
 vim.opt_local.conceallevel = 1
 vim.opt_local.foldlevel = 1
 
-vim.opt_local.tabstop = 2
-vim.opt_local.softtabstop = 2
-vim.opt_local.shiftwidth = 2
+vim.opt_local.tabstop = 3
+vim.opt_local.softtabstop = 3
+vim.opt_local.shiftwidth = 3
 
 vim.keymap.set("i", "<CR>", function()
     local api = vim.api
