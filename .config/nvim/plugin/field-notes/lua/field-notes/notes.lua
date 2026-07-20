@@ -72,17 +72,7 @@ function M.complete_note(arg_lead, cmd_line, cursor_pos)
 end
 
 function M.open_note(bang, args, opts)
-    local buffer_is_empty = vim.fn.bufname("%") == ""
-        and vim.fn.line("$") == 1
-        and vim.fn.getline(1) == ""
-        and not vim.bo.modified
-
-    if buffer_is_empty then
-        bang = true
-    end
-
-    local split_cmd = bang and "edit" or "split"
-    local vert_prefix = config.get("field_notes_vert") and "vert" or ""
+    local split_cmd = (opts and opts.split) or "edit"
     local title, template_name, title_error = resolve_note_title(args, opts)
     if title_error then
         print(title_error)
@@ -101,10 +91,9 @@ function M.open_note(bang, args, opts)
     local note_buffer_exists = vim.fn.bufexists(filepath) == 1
 
     if template_name and (note_exists_on_disk or note_buffer_exists) then
-        -- AIDEV-NOTE: Existing file/buffer always wins; ignore template to keep :Note idempotent.
         template_name = nil
     end
-    local cmd = "silent " .. vert_prefix .. " " .. split_cmd .. " " .. vim.fn.fnameescape(filepath)
+    local cmd = "silent " .. split_cmd .. " " .. vim.fn.fnameescape(filepath)
     vim.cmd(cmd)
 
     if not note_exists_on_disk and not note_buffer_exists then
@@ -123,21 +112,11 @@ function M.open_note(bang, args, opts)
     vim.cmd("lcd " .. vim.fn.expand("%:p:h"))
 end
 
-function M.open_notes_dir(bang)
-    local buffer_is_empty = vim.fn.bufname("%") == ""
-        and vim.fn.line("$") == 1
-        and vim.fn.getline(1) == ""
-        and not vim.bo.modified
-
-    if buffer_is_empty then
-        bang = true
-    end
-
-    local split_cmd = bang and "edit" or "split"
-    local vert_prefix = config.get("field_notes_vert") and "vert" or ""
+function M.open_notes_dir(opts)
+    local split_cmd = (opts and opts.split) or "edit"
     local dir = vim.fn.fnameescape(config.get("field_notes_dir"))
 
-    local cmd = "silent " .. vert_prefix .. " " .. split_cmd .. " " .. dir
+    local cmd = "silent " .. split_cmd .. " " .. dir
     vim.cmd(cmd)
     vim.cmd("silent lcd " .. dir)
 end

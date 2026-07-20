@@ -7,7 +7,6 @@ A lightweight note-taking plugin for Neovim. Notes are plain markdown files in a
 ```lua
 require("field-notes").setup({
     field_notes_dir = "~/Workspace/field-notes",
-    field_notes_vert = true,
     field_notes_default_template = nil,
     field_notes_templates_dir = nil,
 })
@@ -18,7 +17,6 @@ require("field-notes").setup({
 | Option | Default | Description |
 |--------|---------|-------------|
 | `field_notes_dir` | `~/Workspace/field-notes` | Directory where notes are stored as flat `.md` files |
-| `field_notes_vert` | `true` | Open notes in a vertical split (`false` for horizontal) |
 | `field_notes_default_template` | `nil` | Template name applied to all new notes when no template arg is given |
 | `field_notes_templates_dir` | `nil` | Custom template directory (defaults to `<field_notes_dir>/_templates/`) |
 
@@ -28,7 +26,9 @@ require("field-notes").setup({
 
 | Command | Args | Bang | Description |
 |---------|------|------|-------------|
-| `:Note "title" [template]` | 1-2 | Yes | Open or create a note. With `!`, opens in current window and inserts a link. Second arg is a template name. |
+| `:Note "title" [template]` | 1-2 | Yes | Open or create a note in the current window. With `!`, also inserts a link at cursor. |
+| `:NoteSplit "title" [template]` | 1-2 | Yes | Open or create a note in a horizontal split. Use `:vert` for vertical. With `!`, also inserts a link. |
+| `:NoteVSplit "title" [template]` | 1-2 | Yes | Open or create a note in a vertical split. With `!`, also inserts a link. |
 | `:NoteLink "title"` | 1 | No | Insert a markdown link to a note without opening it |
 | `:NoteRename` | 0 | No | Rename current note file based on its `# heading` |
 | `:NoteGrep <pattern>` | 1 | No | Search notes with `:grep` and open quickfix list |
@@ -37,7 +37,7 @@ require("field-notes").setup({
 
 | Command | Args | Bang | Description |
 |---------|------|------|-------------|
-| `:Log [offset]` | 0-1 | Yes | Open a weekly log note. Offset in weeks (0=this, 1=next, -1=last). Title: `YYYY-WWW: Mon DD`. |
+| `:Log [offset]` | 0-1 | Yes | Open a weekly log note. Offset in weeks (0=this, 1=next, -1=last). Title: `YYYY-WWW: Mon DD` (`W` + Monday-based `%W`). New notes use the `log` template. |
 | `:ThisWeek` | 0 | Yes | Alias for `:Log 0` |
 | `:NextWeek` | 0 | Yes | Alias for `:Log 1` |
 | `:LastWeek` | 0 | Yes | Alias for `:Log -1` |
@@ -58,7 +58,9 @@ require("field-notes").setup({
 
 ### Bang behavior
 
-Without `!`, note commands open in a split. With `!`, they open in the current window. `:Note!` also inserts a markdown link at the cursor.
+Bang (`!`) means "insert a link at the cursor before opening." This applies consistently to `:Note`, `:NoteSplit`, and `:NoteVSplit`.
+
+Without `!`, notes open normally without inserting a link. `:Note` opens in the current window, `:NoteSplit` in a horizontal split, `:NoteVSplit` in a vertical split. `:vert NoteSplit` also opens vertically.
 
 ## Auto-title
 
@@ -69,7 +71,7 @@ When no title is provided to `:Note`, the title is derived from context:
 
 ## Completion
 
-- `:Note "` completes with existing note filenames (slugified titles)
+- `:Note "`, `:NoteSplit "`, `:NoteVSplit "` complete with existing note filenames (slugified titles)
 - After the quoted title, a second argument completes with template names
 - `:NoteLink "` completes with existing note filenames
 
@@ -81,7 +83,7 @@ Templates are `.md` files in the templates directory (default: `<field_notes_dir
 :Note "Standup" meeting
 ```
 
-Or set `field_notes_default_template` to apply a template to all new notes automatically. Applying a template to an existing note errors.
+Or set `field_notes_default_template` to apply a template to all new notes automatically. If the note file or buffer already exists, any supplied/default template is ignored.
 
 ### Template variables
 
@@ -89,7 +91,7 @@ Or set `field_notes_default_template` to apply a template to all new notes autom
 |----------|-------------|
 | `{{title}}` | The note title |
 | `{{date}}` | Current date (`YYYY-MM-DD`) |
-| `{{week}}` | Current week title (`YYYY-WWW: Mon DD`) |
+| `{{week}}` | Current week title (`YYYY-WW: Mon DD`, Monday-based `%W`) |
 | `{{strftime:FORMAT}}` | Arbitrary `os.date` format (e.g. `{{strftime:%Y}}`) |
 | `{{strftime:FORMAT:base+offset}}` | Date arithmetic. `base` is `today` or `monday`, `offset` is days (e.g. `{{strftime:%A:monday+2}}` for Wednesday) |
 

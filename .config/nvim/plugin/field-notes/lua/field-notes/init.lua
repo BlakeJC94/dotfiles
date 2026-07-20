@@ -44,20 +44,55 @@ function M.setup(opts)
         return filtered
     end
 
+    local note_open_opts = { require_quoted_arg = true }
+
     vim.api.nvim_create_user_command("Note", function(opts)
-        M.open_note(opts.bang, opts.args, { require_quoted_arg = true })
+        M.open_note(opts.bang, opts.args, note_open_opts)
     end, {
         nargs = "*",
         bang = true,
         complete = function(arg_lead, cmd_line, cursor_pos)
             local has_quoted_arg = cmd_line:match('^%s*Note!?%s+"[^"]*"')
-                or cmd_line:match("^%s*Note!?%s*'[^']*'")
+                or cmd_line:match("^%s*Note!?%s+'[^']*'")
             if has_quoted_arg then
                 return template_complete(arg_lead, cmd_line, cursor_pos)
             end
             return note_complete(arg_lead, cmd_line, cursor_pos)
         end,
-        desc = "Open or create a field note (quoted title) [template]",
+        desc = "Open or create a field note in current window. With !, also insert a link.",
+    })
+
+    vim.api.nvim_create_user_command("NoteSplit", function(opts)
+        local split = opts.mods and opts.mods:find("vertical") and "vsplit" or "split"
+        M.open_note(opts.bang, opts.args, vim.tbl_extend("force", note_open_opts, { split = split }))
+    end, {
+        nargs = "*",
+        bang = true,
+        complete = function(arg_lead, cmd_line, cursor_pos)
+            local has_quoted_arg = cmd_line:match('^%s*NoteSplit!?%s+"[^"]*"')
+                or cmd_line:match("^%s*NoteSplit!?%s+'[^']*'")
+            if has_quoted_arg then
+                return template_complete(arg_lead, cmd_line, cursor_pos)
+            end
+            return note_complete(arg_lead, cmd_line, cursor_pos)
+        end,
+        desc = "Open or create a field note in a split. Use :vert for vertical. With !, also insert a link.",
+    })
+
+    vim.api.nvim_create_user_command("NoteVSplit", function(opts)
+        M.open_note(opts.bang, opts.args, vim.tbl_extend("force", note_open_opts, { split = "vsplit" }))
+    end, {
+        nargs = "*",
+        bang = true,
+        complete = function(arg_lead, cmd_line, cursor_pos)
+            local has_quoted_arg = cmd_line:match('^%s*NoteVSplit!?%s+"[^"]*"')
+                or cmd_line:match("^%s*NoteVSplit!?%s+'[^']*'")
+            if has_quoted_arg then
+                return template_complete(arg_lead, cmd_line, cursor_pos)
+            end
+            return note_complete(arg_lead, cmd_line, cursor_pos)
+        end,
+        desc = "Open or create a field note in a vertical split. With !, also insert a link.",
     })
 
     vim.api.nvim_create_user_command("NoteLink", function(opts)

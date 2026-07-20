@@ -83,7 +83,13 @@
 !.config/opencode/opencode.json
 !.config/opencode/tui.json
 !.config/opencode/AGENTS.md
-!.config/opencode/skills/**/*
+!.config/opencode/skills/
+!.config/opencode/skills/herdr-spawn
+!.config/opencode/skills/herdr-spawn/*
+!.config/opencode/skills/just
+!.config/opencode/skills/just/*
+!.config/opencode/skills/modern-python
+!.config/opencode/skills/modern-python/*
 
 # nerd-dictation
 !.config/nerd-dictation
