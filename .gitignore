@@ -23,18 +23,25 @@
 # pi
 !.pi
 !.pi/agent
+!.pi/agent/extensions
+!.pi/agent/extensions/plan-command
+!.pi/agent/extensions/plan-command/index.ts
+!.pi/agent/extensions/plan-command/utils.ts
+!.pi/agent/extensions/review-command
+!.pi/agent/extensions/review-command/index.ts
+!.pi/agent/extensions/review-command/utils.ts
 !.pi/agent/settings.json
-.pi/agent/sessions
-.pi/agent/auth.json
 !.pi/agent/skills
-!.pi/agent/skills/just
-!.pi/agent/skills/just/*
 !.pi/agent/skills/herdr-spawn
 !.pi/agent/skills/herdr-spawn/*
+!.pi/agent/skills/just
+!.pi/agent/skills/just/*
 !.pi/agent/skills/modern-python
 !.pi/agent/skills/modern-python/*
 !.pi/agent/themes
 !.pi/agent/themes/gruvbox-dark.json
+.pi/agent/auth.json
+.pi/agent/sessions
 
 # git
 !.gitconfig
