@@ -29,7 +29,7 @@ require("field-notes").setup({
 | `:Note "title" [template]` | 1-2 | Yes | Open or create a note in the current window. With `!`, also inserts a link at cursor. |
 | `:NoteSplit "title" [template]` | 1-2 | Yes | Open or create a note in a horizontal split. Use `:vert` for vertical. With `!`, also inserts a link. |
 | `:NoteVSplit "title" [template]` | 1-2 | Yes | Open or create a note in a vertical split. With `!`, also inserts a link. |
-| `:NoteLink "title"` | 1 | No | Insert a markdown link to a note without opening it |
+| `:NoteLink [path] "title"` | 1-2 | No | Insert a markdown link to a note without opening it. If path is omitted, uses `expand("#")`. |
 | `:NoteRename` | 0 | No | Rename current note file based on its `# heading` |
 | `:NoteGrep <pattern>` | 1 | No | Search notes with `:grep` and open quickfix list |
 
@@ -73,7 +73,7 @@ When no title is provided to `:Note`, the title is derived from context:
 
 - `:Note "`, `:NoteSplit "`, `:NoteVSplit "` complete with existing note filenames (slugified titles)
 - After the quoted title, a second argument completes with template names
-- `:NoteLink "` completes with existing note filenames
+- `:NoteLink "` completes with existing note filenames (path arg optional)
 
 ## Templates
 

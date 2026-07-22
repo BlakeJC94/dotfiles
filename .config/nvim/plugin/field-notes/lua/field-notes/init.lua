@@ -95,11 +95,38 @@ function M.setup(opts)
         desc = "Open or create a field note in a vertical split. With !, also insert a link.",
     })
 
+    -- AIDEV-NOTE: :NoteLink supports optional [path] before quoted title; defaults to alternate file (#).
+    local parse_note_link_args = function(args)
+        local trimmed = vim.trim(args or "")
+        if trimmed == "" then
+            return nil, nil, "Error: :NoteLink expects a title"
+        end
+
+        local source_path, title = trimmed:match('^(.-)%s*"([^"]+)"%s*$')
+        if not title then
+            source_path, title = trimmed:match("^(.-)%s*'([^']+)'%s*$")
+        end
+
+        if title then
+            source_path = vim.trim(source_path or "")
+            if source_path == "" then
+                source_path = vim.fn.expand("#")
+            end
+            return source_path, title, nil
+        end
+
+        return vim.fn.expand("#"), trimmed, nil
+    end
+
     vim.api.nvim_create_user_command("NoteLink", function(opts)
-        local title = opts.args:match('^"?(.-)"?$')
-        M.link_note(title)
+        local source_path, title, parse_error = parse_note_link_args(opts.args)
+        if parse_error then
+            print(parse_error)
+            return
+        end
+        M.link_note(title, source_path)
     end, {
-        nargs = 1,
+        nargs = "*",
         complete = note_complete,
         desc = "Insert a markdown link to a field note",
     })

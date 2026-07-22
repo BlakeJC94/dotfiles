@@ -18,6 +18,23 @@
 !.brewtstrap
 !.justfile
 !README.md
+!.AGENTS.md
+
+# pi
+!.pi
+!.pi/agent
+!.pi/agent/settings.json
+.pi/agent/sessions
+.pi/agent/auth.json
+!.pi/agent/skills
+!.pi/agent/skills/just
+!.pi/agent/skills/just/*
+!.pi/agent/skills/herdr-spawn
+!.pi/agent/skills/herdr-spawn/*
+!.pi/agent/skills/modern-python
+!.pi/agent/skills/modern-python/*
+!.pi/agent/themes
+!.pi/agent/themes/gruvbox-dark.json
 
 # git
 !.gitconfig

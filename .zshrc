@@ -16,6 +16,11 @@ esac
 # Ensure the emacs bindings are working
 bindkey -e
 
+# Up/down arrows match partially typed commands
+autoload -Uz history-beginning-search-backward history-beginning-search-forward
+bindkey '^[[A' history-beginning-search-backward
+bindkey '^[[B' history-beginning-search-forward
+
 
 ##
 # Env vars

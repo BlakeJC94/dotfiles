@@ -24,3 +24,5 @@ $os\
 $netns\
 $shell\
 $character"""
+
+command_timeout = 100
