@@ -55,7 +55,12 @@ function M.link_note(title, source_path)
     local markdown_text = "[" .. title .. "](" .. filepath .. ")"
 
     if vim.fn.expand("%:e") == "md" then
-        vim.fn.append(vim.fn.line("."), markdown_text)
+        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+        local line = vim.api.nvim_get_current_line()
+        local before = line:sub(1, col)
+        local after = line:sub(col + 1)
+        vim.api.nvim_set_current_line(before .. markdown_text .. after)
+        vim.api.nvim_win_set_cursor(0, { row, col + #markdown_text })
     end
 end
 

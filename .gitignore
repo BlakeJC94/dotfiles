@@ -24,12 +24,11 @@
 !.pi
 !.pi/agent
 !.pi/agent/extensions
+!.pi/agent/extensions/planning-questionnaire.ts
 !.pi/agent/extensions/plan-command
-!.pi/agent/extensions/plan-command/index.ts
-!.pi/agent/extensions/plan-command/utils.ts
+!.pi/agent/extensions/plan-command/*
 !.pi/agent/extensions/review-command
-!.pi/agent/extensions/review-command/index.ts
-!.pi/agent/extensions/review-command/utils.ts
+!.pi/agent/extensions/review-command/*
 !.pi/agent/settings.json
 !.pi/agent/skills
 !.pi/agent/skills/herdr-spawn

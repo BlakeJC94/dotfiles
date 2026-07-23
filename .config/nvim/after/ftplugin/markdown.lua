@@ -343,6 +343,64 @@ vim.keymap.set({ "i", "n" }, "<C-;>", function()
     api.nvim_set_current_line(new_line)
 end)
 
+local function is_backtick_fence(line)
+    return line:match("^%s*```") ~= nil
+end
+
+local function surrounding_fence_pair()
+    local row = vim.api.nvim_win_get_cursor(0)[1]
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local fences = {}
+
+    for i, line in ipairs(lines) do
+        if is_backtick_fence(line) then
+            table.insert(fences, i)
+        end
+    end
+
+    for i = 1, #fences - 1, 2 do
+        local open_row = fences[i]
+        local close_row = fences[i + 1]
+        if row >= open_row and row <= close_row then
+            return open_row, close_row
+        end
+    end
+
+    return nil, nil
+end
+
+local function select_fenced_code(inner)
+    local open_row, close_row = surrounding_fence_pair()
+    if not open_row or not close_row then
+        return
+    end
+
+    local start_row = inner and (open_row + 1) or open_row
+    local end_row = inner and (close_row - 1) or close_row
+
+    -- AIDEV-NOTE: `ic` intentionally no-ops for empty fenced blocks (adjacent fences).
+    if start_row > end_row then
+        return
+    end
+
+    local mode = vim.fn.mode(1)
+    if mode:sub(1, 1) == "v" or mode == "V" or mode == "\22" then
+        vim.cmd("normal! \27")
+    end
+
+    vim.api.nvim_win_set_cursor(0, { start_row, 0 })
+    vim.cmd("normal! V")
+    vim.api.nvim_win_set_cursor(0, { end_row, 0 })
+end
+
+vim.keymap.set({ "x", "o" }, "ic", function()
+    select_fenced_code(true)
+end, { buffer = 0 })
+
+vim.keymap.set({ "x", "o" }, "ac", function()
+    select_fenced_code(false)
+end, { buffer = 0 })
+
 -- Treesitter folds
 vim.wo.foldmethod = "expr"
 vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
