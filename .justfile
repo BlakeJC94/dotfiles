@@ -1,3 +1,13 @@
+nix-up:
+    nix-env -f .config/nixpkgs/packages.nix -i
+
+nix-upgrade:
+    nix-channel --update
+    nix-env -u
+
+nix-list:
+    nix-env -f '<nixpkgs>' -qaP --description 2>/dev/null | tee ~/.nixpkgs_cache.txt
+
 mise-up:
     mise up
 

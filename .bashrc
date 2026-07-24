@@ -5,10 +5,9 @@
 
 # If not running interactively, don't do anything
 case $- in
-    *i*) ;;
-      *) return;;
+*i*) ;;
+*) return ;;
 esac
-
 
 ##
 # Settings
@@ -27,7 +26,7 @@ stty -ixon
 # Zsh-like menu completion: Tab shows list then cycles
 bind 'set show-all-if-ambiguous on'
 bind 'TAB: menu-complete'
-bind '"\e[Z": menu-complete-backward'   # Shift-Tab
+bind '"\e[Z": menu-complete-backward' # Shift-Tab
 
 # Case-insensitive completion
 bind 'set completion-ignore-case on'
@@ -36,13 +35,11 @@ bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
 bind 'set visible-stats on'
 
-
 ##
 # Env vars
 
 # Setup common env vars
 [ -f ~/.vars ] && source ~/.vars
-
 
 ##
 # Aliases
@@ -50,14 +47,13 @@ bind 'set visible-stats on'
 # Setup common alias definitions
 [ -f ~/.aliases ] && source ~/.aliases
 
-
 ##
 # Initialisers
 
-
 if [ -f ~/.dotfiles.activate ]; then
-    # Initialise brew and tools
-    source ~/.brewtstrap
+    # Initialise package manager
+    # source ~/.brewtstrap
+    source ~/.bootstrap
 
     # Initialise tools if requested
     source ~/.bashrc.activate

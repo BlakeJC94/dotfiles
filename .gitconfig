@@ -5,7 +5,6 @@
 
 [alias]
     conf = "!f() { $EDITOR ~/.gitconfig ;  }; f"
-    dotfiles = "!f() { git --git-dir=$HOME/.dotfiles --work-tree=$HOME \"${@:-st}\"; }; f"
     ; Shorthand for common ops
     st = "!git status -sb"
     dif = "!git diff --stat"
@@ -45,6 +44,8 @@
     fz = "!git checkout $(git branch --format '%(refname:short)' | sk)"
     ; Generate keys
     key = "!~/.gitalias/key"
+    ; Dotfiles shortcut with safeties
+    dotfiles = "!~/.gitalias/dotfiles"
     ; Run branch justfile
     just = "!~/.gitalias/just"
     ; Set upstream branch
