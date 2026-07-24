@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+SAFE_COMMANDS="diff log grep show archive format-patch blame ls-files ls-tree rev-list rev-parse"
+
+# find the subcommand, skipping leading options
+cmd=""
+for arg in "$@"; do
+    case "$arg" in
+        -*) continue ;;
+        *)  cmd="$arg"; break ;;
+    esac
+done
+
+# check if the subcommand is safe
+safe=0
+case " $SAFE_COMMANDS " in
+    *" $cmd "*) safe=1 ;;
+esac
+
+# for commands that modify index or working tree, block "." and directories
+if [ "$safe" -eq 0 ]; then
+    for arg in "$@"; do
+        case "$arg" in
+            -*) continue ;;
+        esac
+        if [ "$arg" = "." ] || [ -d "$arg" ]; then
+            echo "'.' and directories not allowed with 'config $cmd'" >&2
+            return 1
+        fi
+    done
+fi
+
+git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" "$@"
