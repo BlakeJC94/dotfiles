@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+[ ! -z ${DOTFILES_DEBUG} ] && echo "Starting bootstrap"
+
+[ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ] && source "$HOME/.nix-profile/etc/profile.d/nix.sh"
+
+# Ask to install brew if not found
+if ! command -v nix >/dev/null; then
+    echo "Nix not installed"
+
+    printf "Install nix? (y/N): "
+    read -r REPLY
+    if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh
+        else
+            curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon
+        fi
+        source "$HOME/.nix-profile/etc/profile.d/nix.sh"
+    else
+        return
+    fi
+
+    printf "Install nix packages? (y/N): "
+    read -r REPLY
+    if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+        nix-channel --update
+        nix-env -f .config/nixpkgs/packages.nix -i
+    fi
+fi
