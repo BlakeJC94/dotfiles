@@ -3,16 +3,21 @@ return {
     "https://github.com/stevearc/conform.nvim",
     opts = {
         formatters_by_ft = {
-            lua = { "stylua" },
-            python = { "ruff_fix", "ruff_format" },
-            sh = { "shfmt" },
-            markdown = { "mdformat" },
-            sql = { "sqlfluff" },
+            css = { "dprint" },
+            dockerfile = { "dprint" },
+            html = { "dprint" },
             java = { "google-java-format" },
+            jinja = { "dprint" },
             json = { "jq" },
             just = { "just" },
+            lua = { "stylua" },
+            markdown = { "dprint" },
+            python = { "ruff_fix", "ruff_format" },
+            sh = { "shfmt" },
+            sql = { "sqlfluff" },
             terraform = { "terraform_fmt" },
-            yaml = { "yamlfmt" }
+            toml = { "dprint" },
+            yaml = { "dprint" },
         },
     },
 }
