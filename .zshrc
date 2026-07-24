@@ -40,8 +40,8 @@ bindkey '^[[B' history-beginning-search-forward
 # Initialisers
 
 if [ -f ~/.dotfiles.activate ]; then
-    # Initialise brew and tools
-    source ~/.brewtstrap
+    # Initialise packages
+    source ~/.bootstrap
 
     # Initialise tools if requested
     source ~/.zshrc.activate
