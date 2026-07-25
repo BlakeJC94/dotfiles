@@ -55,3 +55,5 @@ fi
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
+
+if [ -e /home/blake/.nix-profile/etc/profile.d/nix.sh ]; then . /home/blake/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

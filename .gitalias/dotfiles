@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-SAFE_COMMANDS="diff log grep show archive format-patch blame ls-files ls-tree rev-list rev-parse"
+SAFE_COMMANDS="diff log grep show archive format-patch blame ls-files ls-tree rev-list rev-parse ad cma sync"
 
 # find the subcommand, skipping leading options
 cmd=""

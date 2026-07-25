@@ -29,7 +29,7 @@ alias vim='nvim'
 
 alias gcd='cd "$(dirname "$(git rev-parse --absolute-git-dir)")"'
 
-alias d='git dotfiles'
+alias dtf='git dotfiles'
 alias l='eza'
 alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | fzf || echo .)'
 alias c='cd "$(find . -maxdepth 1 -type d | fzf || echo .)"'

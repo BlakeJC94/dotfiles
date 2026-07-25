@@ -8,6 +8,7 @@ with pkgs;
     coreutils-full
     dprint
     dprint-plugins.dprint-plugin-markdown
+    tree-sitter
     curlFull
     diffutils
     docker

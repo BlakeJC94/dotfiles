@@ -12,7 +12,7 @@
     bls = "!git branch -l"
     bmv = "!git branch -M"
     brm = "!git branch -D"
-    ad = "!git add --renormalize -v"
+    ad = "!git add -u"
     cm = "!git commit -m"
     a = "!~/.gitalias/a"
     cma = "!~/.gitalias/cma"
