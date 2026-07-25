@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# llm-conv: Continue an llm conversation using fzf
+# Usage: llm-conv [prompt arguments...]
+#
+# Select a past conversation from your llm logs, then continue it.
+# Any extra args are passed to `llm` (e.g. -m o4-mini, -s "be terse")
+
+TMPDIR="${TMPDIR:-/tmp}"
+tmpfile=$(mktemp "$TMPDIR/llm-conv.XXXXXX")
+trap 'rm -f "$tmpfile"' EXIT
+
+# Fetch all logs, group by conversation, output TSV for fzf
+# Columns: last_date (ISO), name, model, count, conversation_id
+llm logs list -n 0 --json 2>/dev/null | jq -r '
+  group_by(.conversation_id)
+  | map({
+      id: .[0].conversation_id,
+      name: .[0].conversation_name // "Untitled",
+      model: .[0].conversation_model // .[0].model // "unknown",
+      count: length,
+      last: .[-1].datetime_utc
+    })
+  | sort_by(.last)
+  | reverse[]
+  | [.last[:19], .name, .model, .count, .id]
+  | @tsv
+' > "$tmpfile"
+
+if [ ! -s "$tmpfile" ]; then
+  echo "No conversations found in llm logs." >&2
+  exit 1
+fi
+
+selected=$({ cat "$tmpfile"; } | fzf \
+  --delimiter='\t' \
+  --header='CONVERSATIONS — select to continue (Esc to cancel)' \
+  --with-nth=1..4 \
+  --preview='
+    cid={5}
+    # Preview the last few prompts/responses
+    llm logs list --json --cid "$cid" -n 0 2>/dev/null | jq -r "
+      .[] |
+      \"\u001b[1;36m> \(.prompt | tostring | split(\"\\n\")[0][:100])\u001b[0m\" +
+      if .response then \"\\n  \(.response | split(\"\\n\")[0][:120])...\\n\" else \"\\n\" end
+    "
+  ' \
+  --preview-window=right:50%:wrap)
+
+[ -z "$selected" ] && exit 0
+
+conv_id=$(printf '%s' "$selected" | awk -F'\t' '{print $5}')
+
+# Build the prefill command, quoting args safely
+prefill_args=""
+for arg in "$@"; do
+  prefill_args="$prefill_args $(printf '%q' "$arg")"
+done
+prefill="llm --cid \"$conv_id\"$prefill_args "
+
+printf '\n\033[1;32m>>\033[0m \033[90mEdit the command below and press Enter to run (Ctrl+C to cancel)\033[0m\n' >&2
+
+# Read from the terminal explicitly, in case stdin is a pipe
+IFS= read -e -r -p "$ " -i "$prefill" cmd < /dev/tty
+
+# If user just hit enter with nothing, exit
+[ -z "$cmd" ] && exit 0
+
+# Run it
+eval "$cmd"

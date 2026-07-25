@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# pi-conv: Resume a pi session using fzf with editable prefill
+# Usage: pi-conv [options] [pi options...]
+#
+# Options:
+#   -a, --all     Show sessions from all directories (default: current cwd only)
+#
+# Select a previous pi session, then edit and run the resume command.
+
+sessions_dir="${PI_SESSIONS_DIR:-$HOME/.pi/agent/sessions}"
+tmpfile=$(mktemp)
+trap 'rm -f "$tmpfile"' EXIT
+
+# Parse flags
+show_all=false
+pi_args=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -a|--all)
+      show_all=true
+      shift
+      ;;
+    -*)
+      # Pass through to pi (unknown flags)
+      pi_args+=("$1")
+      shift
+      ;;
+    *)
+      pi_args+=("$1")
+      shift
+      ;;
+  esac
+done
+
+# Convert cwd to pi's scope encoding: /foo/bar → --foo-bar--
+encode_scope() {
+  local cwd="$1"
+  # strip leading /
+  cwd="${cwd#/}"
+  # replace / with -
+  cwd=$(printf '%s' "$cwd" | tr '/' '-')
+  printf '%s' "--${cwd}--"
+}
+
+# Decode scope back to cwd
+decode_scope() {
+  local scope="$1"
+  # Remove leading and trailing --
+  scope="${scope#--}"
+  scope="${scope%--}"
+  # Replace - with / and prefix with /
+  printf '/%s' "$(printf '%s' "$scope" | tr '-' '/')"
+}
+
+current_scope=$(encode_scope "${PWD}")
+current_scope_dir="$sessions_dir/$current_scope"
+
+if [ ! -d "$sessions_dir" ]; then
+  echo "No pi sessions directory found at $sessions_dir" >&2
+  exit 1
+fi
+
+# Collect session files
+# TSV columns: datetime | name | cwd | msg_count | path | short_uuid
+find "$sessions_dir" -maxdepth 2 -type f -name '*.jsonl' | while IFS= read -r path; do
+  scope_dir=$(basename "$(dirname "$path")")
+  cwd=$(decode_scope "$scope_dir")
+
+  # Filter to current scope unless --all
+  if [ "$show_all" = false ]; then
+    [ "$scope_dir" = "$current_scope" ] || continue
+  fi
+
+  basename=$(basename "$path")
+
+  # Parse timestamp from filename: YYYY-MM-DDTHH-MM-SS-SSSZ_uuid.jsonl
+  ts_raw="${basename%%_*}"
+  ts="${ts_raw:0:10} ${ts_raw:11:2}:${ts_raw:14:2}"
+
+  # Extract UUID from last part of basename after underscore
+  uuid_base="${basename#*_}"
+  uuid="${uuid_base%.jsonl}"
+  short_uuid="${uuid:0:8}"
+
+  # Use the last user message as a session hint/name
+  name=$(jq -rs '[
+    .[]
+    | select(.type == "message" and .message.role == "user")
+    | .message.content
+    | if type == "string" then . else
+        [ .[] | select(.type == "text") | .text ] | join("")
+      end
+  ] | last // "Untitled" | split("\n")[0][:60]' "$path" 2>/dev/null)
+
+  # Count total messages/exchanges
+  msg_count=$(jq -r 'select(.type == "message") | .id' "$path" 2>/dev/null | wc -l)
+
+  printf '%s\t%s\t%s\t%d\t%s\t%s\n' \
+    "$ts" "$name" "$cwd" "$msg_count" "$path" "$short_uuid"
+done | { sort -t$'\t' -k1,1r; } > "$tmpfile"
+
+if [ ! -s "$tmpfile" ]; then
+  if [ "$show_all" = true ]; then
+    echo "No pi sessions found in $sessions_dir" >&2
+  else
+    echo "No pi sessions found in $current_scope_dir for current directory: $PWD" >&2
+    echo "Use --all to show sessions from other directories." >&2
+  fi
+  exit 1
+fi
+
+# Build fzf header
+if [ "$show_all" = true ]; then
+  header='PI SESSIONS (all dirs) — select to resume (Esc to cancel)'
+else
+  header="PI SESSIONS ($(basename "$PWD")) — select to resume (Esc to cancel) | --all for other dirs"
+fi
+
+selected=$(cat "$tmpfile" | fzf \
+  --delimiter='\t' \
+  --header="$header" \
+  --with-nth=1..4 \
+  --preview='
+    path={5}
+    jq -rs "
+      [ .[] | select(.type == \"message\") ]
+      | if length > 8 then .[-8:] else . end
+      | .[]
+      | (if .message.role == \"user\" then \"\u001b[1;36mUser\u001b[0m\
+          elif .message.role == \"assistant\" then \"\u001b[1;32mAsst\u001b[0m\
+          elif .message.role == \"toolResult\" then \"\u001b[1;33mTool\u001b[0m\
+          else .message.role end) as \$role
+      | ( .message.content
+          | if type == \"string\" then .[:200]
+            else [ .[] | select(.type == \"text\") | .text[:200] ] | join(\"\")
+            end
+        ) as \$text
+      | if \$text | length == 0 then \"\" else \"\u001b[1m\" + \$role + \":\u001b[0m \" + \$text[:200] + \"\\n\" end
+    " "$path" | sed "s/\\n/
+/g"
+  ' \
+  --preview-window=right:55%:wrap)
+
+[ -z "$selected" ] && exit 0
+
+path=$(printf '%s' "$selected" | awk -F'\t' '{print $5}')
+session_cwd=$(printf '%s' "$selected" | awk -F'\t' '{print $3}')
+
+# Build the prefill command
+prefill_args=""
+for arg in "${pi_args[@]}"; do
+  prefill_args="$prefill_args $(printf '%q' "$arg")"
+done
+
+prefill="pi --session \"$path\"$prefill_args "
+
+printf '\n\033[1;32m>>\033[0m \033[90mEdit the command below and press Enter to run (Ctrl+C to cancel)\033[0m\n' >&2
+
+# If the session is for a different cwd, optionally cd there first
+if [ "$session_cwd" != "$PWD" ]; then
+  printf '\033[33mNote: this session is from %s (current: %s)\033[0m\n' "$session_cwd" "$PWD" >&2
+fi
+
+IFS= read -e -r -p "$ " -i "$prefill" cmd < /dev/tty
+
+[ -z "$cmd" ] && exit 0
+
+eval "$cmd"
