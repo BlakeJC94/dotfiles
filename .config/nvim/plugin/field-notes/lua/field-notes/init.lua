@@ -6,6 +6,8 @@ local notes = require("field-notes.notes")
 local images = require("field-notes.images")
 local diagrams = require("field-notes.diagrams")
 local templates = require("field-notes.templates")
+local lists = require("field-notes.lists")
+local tables = require("field-notes.tables")
 
 -- Expose all functions through the main module
 M.slugify = utils.slugify
@@ -208,6 +210,39 @@ function M.setup(opts)
         nargs = 1,
         desc = "Search notes with :grep",
     })
+
+    -- lists convenience mappings
+    vim.keymap.set({ "i", "n" }, "<C-.>", function()
+        local api = vim.api
+        local row, col = unpack(api.nvim_win_get_cursor(0))
+        local shiftwidth = vim.bo.shiftwidth
+
+        vim.cmd("normal! >>")
+        -- Move cursor to maintain relative position
+        api.nvim_win_set_cursor(0, { row, col + shiftwidth })
+    end)
+
+    vim.keymap.set({ "i", "n" }, "<C-,>", function()
+        local api = vim.api
+        local row, col = unpack(api.nvim_win_get_cursor(0))
+        local shiftwidth = vim.bo.shiftwidth
+
+        vim.cmd("normal! <<")
+        -- Move cursor to maintain relative position, but don't go negative
+        local new_col = math.max(0, col - shiftwidth)
+        api.nvim_win_set_cursor(0, { row, new_col })
+    end)
+
+    vim.keymap.set({ "i", "n" }, "<C-;>", function()
+        local api = vim.api
+        api.nvim_set_current_line(lists.toggle_checkbox(api.nvim_get_current_line()))
+    end)
+
+    vim.keymap.set("i", "<CR>", function()
+        return lists.next_item()
+    end, { expr = true })
+
+    tables.setup()
 end
 
 return M
