@@ -3,8 +3,8 @@ M = {}
 -- Main Setup Function
 
 M.setup = function(opts)
-    local m = require("BlakeJC94")
-    _G.BlakeJC94 = m
+    local m = require("config")
+    _G.config = m
 
     -- Configure diagnostics
     vim.diagnostic.config({
@@ -46,7 +46,7 @@ M.setup = function(opts)
     end, {})
 
     -- Setup UI/editor utilities
-    local utils = require("BlakeJC94.utils")
+    local utils = require("config.utils")
     utils.set_custom_fold_text()
     utils.set_custom_tabline_text()
     utils.set_grep_rg_backend()
@@ -54,7 +54,7 @@ M.setup = function(opts)
     utils.set_arrow_maps()
 
     -- Load motions module and add functions to global namespace
-    local motions = require("BlakeJC94.motions")
+    local motions = require("config.motions")
     m._reverse_lines = motions._reverse_lines
     m.reverse_op = motions.reverse_op
     m.reverse_vis = motions.reverse_vis
@@ -63,7 +63,7 @@ M.setup = function(opts)
     motions.setup_sort()
 
     -- Setup autocommands
-    local autocmds = require("BlakeJC94.autocmds")
+    local autocmds = require("config.autocmds")
     autocmds.setup_create_parent_dirs()
     autocmds.setup_trim_spaces()
     autocmds.setup_info_buffer_opts()
@@ -71,12 +71,12 @@ M.setup = function(opts)
     autocmds.setup_makeprg_just()
 
     -- Setup abbreviations
-    local abbrevs = require("BlakeJC94.abbrevs")
+    local abbrevs = require("config.abbrevs")
     abbrevs.setup_snippets()
     abbrevs.setup_command_typos()
 
     -- Setup LSP
-    local lsp = require("BlakeJC94.lsp")
+    local lsp = require("config.lsp")
     lsp.set_lspconfigs()
 
 end

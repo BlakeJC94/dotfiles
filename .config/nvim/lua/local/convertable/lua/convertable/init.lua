@@ -1,4 +1,4 @@
-local M = {}
+M = {}
 
 -- Convert a list of CSV lines into a formatted Markdown table.
 local function csv_lines_to_markdown(lines)
@@ -77,20 +77,6 @@ local function set_lines(start_pos, end_pos, result)
 end
 
 -- Visual-selection entry points (global, for :command parity).
-function CsvToMarkdown()
-    local s, e = vim.fn.getpos("'<"), vim.fn.getpos("'>")
-    set_lines(s, e, csv_lines_to_markdown(vim.fn.getline(s[2], e[2])))
-end
-
-function MarkdownToCsv()
-    local s, e = vim.fn.getpos("'<"), vim.fn.getpos("'>")
-    set_lines(s, e, markdown_lines_to_csv(vim.fn.getline(s[2], e[2])))
-end
-
-function ToggleTableFormat()
-    local s, e = vim.fn.getpos("'<"), vim.fn.getpos("'>")
-    set_lines(s, e, convert_lines(vim.fn.getline(s[2], e[2])))
-end
 
 -- Operator entry point: works on the `g@` motion range (`'[`/`']`).
 function ToggleTableFormatOperator(type)
@@ -101,16 +87,31 @@ function ToggleTableFormatOperator(type)
     set_lines(s, e, convert_lines(vim.fn.getline(s[2], e[2])))
 end
 
+local set_command_table_csv_to_md = function()
+    vim.api.nvim_create_user_command("TableCsvToMd", function()
+        local s, e = vim.fn.getpos("'<"), vim.fn.getpos("'>")
+        set_lines(s, e, csv_lines_to_markdown(vim.fn.getline(s[2], e[2])))
+    end, { range = true, desc = "Convert selected CSV to Markdown table" })
+end
+
+local set_command_table_md_to_csv = function()
+    vim.api.nvim_create_user_command("TableMdToCsv", function()
+        local s, e = vim.fn.getpos("'<"), vim.fn.getpos("'>")
+        set_lines(s, e, markdown_lines_to_csv(vim.fn.getline(s[2], e[2])))
+    end, { range = true, desc = "Convert selected Markdown table to CSV" })
+end
+
+local set_command_table_toggle = function()
+    vim.api.nvim_create_user_command("TableToggle", function()
+        local s, e = vim.fn.getpos("'<"), vim.fn.getpos("'>")
+        set_lines(s, e, convert_lines(vim.fn.getline(s[2], e[2])))
+    end, { range = true, desc = "Toggle selected CSV <-> Markdown table" })
+end
+
 function M.setup()
-    vim.api.nvim_create_user_command("CsvToMarkdown", CsvToMarkdown, { range = true, desc = "Convert selected CSV to Markdown table" })
-    vim.api.nvim_create_user_command("MarkdownToCsv", MarkdownToCsv, { range = true, desc = "Convert selected Markdown table to CSV" })
-    vim.api.nvim_create_user_command("ToggleTableFormat", ToggleTableFormat, { range = true, desc = "Toggle selected CSV <-> Markdown table" })
-    vim.keymap.set("v", "<C-t>", ":ToggleTableFormat<CR>")
-    vim.keymap.set("n", "<C-t>", function()
-        vim.o.operatorfunc = "v:lua.ToggleTableFormatOperator"
-        return "g@"
-    end, { expr = true })
+    set_command_table_csv_to_md()
+    set_command_table_md_to_csv()
+    set_command_table_toggle()
 end
 
 return M
-

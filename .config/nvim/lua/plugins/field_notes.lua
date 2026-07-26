@@ -1,12 +1,12 @@
 return {
-    dir = vim.fn.stdpath("config") .. "/plugin/field-notes",
+    dir = vim.fn.stdpath("config") .. "/lua/local/field-notes",
     lazy = false,
     dependencies = {
         "https://github.com/ibhagwan/fzf-lua",
     },
     opts = {
         field_notes_dir = vim.fn.expand("~/Workspace/field-notes"),
-        field_notes_templates_dir = vim.fn.stdpath("config") .. "/plugin/field-notes/_templates",
+        field_notes_templates_dir = vim.fn.stdpath("config") .. "/lua/local/field-notes/_templates",
     },
     keys = {
         { "<Leader>nn", ":Note<CR>" },

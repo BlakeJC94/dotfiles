@@ -2,12 +2,12 @@ local M = {}
 
 -- Configure custom fold text
 M.set_custom_fold_text = function()
-    vim.opt.foldtext = "v:lua.BlakeJC94.custom_fold_text()"
+    vim.opt.foldtext = "v:lua.config.custom_fold_text()"
 end
 
 -- Configure custom tabline text
 M.set_custom_tabline_text = function()
-    vim.opt.tabline = "%!v:lua.BlakeJC94.custom_tabline_text()"
+    vim.opt.tabline = "%!v:lua.config.custom_tabline_text()"
 end
 
 -- Set ripgrep as grep backend if available

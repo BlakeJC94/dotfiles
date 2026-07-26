@@ -1,6 +1,5 @@
 return {
-    dir = vim.fn.stdpath("config"),
-    name = "BlakeJC94",
+    dir = vim.fn.stdpath("config") .. "/lua/config",
     lazy = false,
     opts = {},
     keys = {

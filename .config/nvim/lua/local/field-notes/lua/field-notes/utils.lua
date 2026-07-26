@@ -107,7 +107,9 @@ function M.get_note_title(...)
             local git_dir_in_home = git_dir_path:sub(1, #home_dir + 1) == (home_dir .. "/")
 
             -- AIDEV-NOTE: Ignore home-level bare repos (eg ~/.dotfiles with worktree=$HOME) for auto-title.
-            local is_home_bare_repo = is_bare_repo and git_dir_in_home and (worktree_path == "" or worktree_path == home_dir)
+            local is_home_bare_repo = is_bare_repo
+                and git_dir_in_home
+                and (worktree_path == "" or worktree_path == home_dir)
 
             if project_root == home_dir or git_dir_path == home_dir or is_home_bare_repo then
                 git_dir = ""
@@ -134,6 +136,27 @@ function M.get_note_title(...)
     end
 
     return title
+end
+
+function M.note_complete(arg_lead, cmd_line, cursor_pos)
+    local prefix = arg_lead:match('^"?(.*)')
+    local items = M.complete_note(prefix, cmd_line, cursor_pos)
+    local quoted = {}
+    for _, item in ipairs(items) do
+        table.insert(quoted, '"' .. item .. '"')
+    end
+    return quoted
+end
+
+function M.template_complete(arg_lead, cmd_line, cursor_pos)
+    local items = M.list_templates()
+    local filtered = {}
+    for _, item in ipairs(items) do
+        if item:find(arg_lead, 1, true) == 1 then
+            table.insert(filtered, item)
+        end
+    end
+    return filtered
 end
 
 return M

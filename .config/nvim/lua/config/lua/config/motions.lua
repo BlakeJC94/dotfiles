@@ -42,7 +42,7 @@ end
 M.setup_reverse = function()
     -- Operator pending: gR{motion}
     vim.keymap.set("n", "gR", function()
-        vim.go.operatorfunc = "v:lua.BlakeJC94.reverse_op"
+        vim.go.operatorfunc = "v:lua.config.reverse_op"
         return "g@"
     end, { expr = true, silent = true, desc = "Reverse lines operator" })
 
@@ -75,7 +75,7 @@ end
 M.setup_sort = function()
     -- Normal mode: operator pending (gs{motion})
     vim.keymap.set("n", "gs", function()
-        vim.go.operatorfunc = "v:lua.BlakeJC94.sort_lines"
+        vim.go.operatorfunc = "v:lua.config.sort_lines"
         return "g@"
     end, { expr = true, silent = true, desc = "Sort lines (operator)" })
 

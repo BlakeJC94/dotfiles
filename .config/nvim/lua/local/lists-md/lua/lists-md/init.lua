@@ -1,20 +1,7 @@
--- md-edit.lua
--- Markdown editing helpers: list indentation + checkbox toggling.
---
--- Single-file plugin. Load it any of these ways and it self-registers:
---   * drop in plugin/        (auto-sourced at startup)
---   * require("md-edit")     (runs once via package.loaded)
---   * source / dofile it
---
--- Provides (global mappings):
---   <C-.>  indent current line, preserving cursor column
---   <C-,>  unindent current line, preserving cursor column
---   <C-;>  toggle [x]/[ ] checkbox on current line (or insert one)
-
-local M = {}
+M = {}
 
 -- Toggle/insert a `[x]`/`[ ]` checkbox on the given line.
-M.toggle_checkbox = function(line)
+local toggle_checkbox = function(line)
     -- Bullet list with checkbox
     local prefix, suffix = line:match("^(%s*[-*+] )%[ %](.*)$")
     if prefix then
@@ -107,6 +94,32 @@ M.next_item = function()
     end
 
     return "<CR>"
+end
+
+M.indent_item_left = function()
+    local api = vim.api
+    local row, col = unpack(api.nvim_win_get_cursor(0))
+    local shiftwidth = vim.bo.shiftwidth
+
+    vim.cmd("normal! >>")
+    -- Move cursor to maintain relative position
+    api.nvim_win_set_cursor(0, { row, col + shiftwidth })
+end
+
+M.indent_item_right = function()
+    local api = vim.api
+    local row, col = unpack(api.nvim_win_get_cursor(0))
+    local shiftwidth = vim.bo.shiftwidth
+
+    vim.cmd("normal! <<")
+    -- Move cursor to maintain relative position, but don't go negative
+    local new_col = math.max(0, col - shiftwidth)
+    api.nvim_win_set_cursor(0, { row, new_col })
+end
+
+M.toggle_checkbox = function()
+    local api = vim.api
+    api.nvim_set_current_line(toggle_checkbox(api.nvim_get_current_line()))
 end
 
 return M

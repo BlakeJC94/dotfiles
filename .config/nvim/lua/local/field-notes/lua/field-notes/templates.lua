@@ -1,4 +1,5 @@
 local config = require("field-notes.config")
+
 local M = {}
 
 local function resolve_base_timestamp(base, context)
