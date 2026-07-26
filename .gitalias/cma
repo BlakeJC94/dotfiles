@@ -6,15 +6,23 @@ case "$1" in
 esac
 
 if [ "$mode" != "no-edit" ]; then
-    message="${1:-.}"
+    message="${1}"
+    if [ -z "$message" ]; then
+        message="sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')"
+        echo using message $message
+    else
+        shift
+    fi
+
     if [ -e "$message" ]; then
         echo message "$message" cannot be a path
         exit 1
     fi
-    shift
 fi
 
-git a "${@}"
+if [ -n "${@}" ]; then
+    git a "${@}"
+fi
 
 case "$mode" in
     normal)   git commit -m "$message" ;;
