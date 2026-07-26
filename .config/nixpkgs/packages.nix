@@ -20,7 +20,6 @@ with pkgs;
     fzf
     gawk
     gh
-    ghostty
     git
     git-lfs
     gitleaks
@@ -104,4 +103,6 @@ with pkgs;
     rectangle
     caffeine
     slack
-] else [])
+] else [
+    ghostty
+])
