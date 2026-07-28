@@ -9,11 +9,13 @@
     st = "!git status -sb"
     dif = "!git diff --stat"
     b = "!git checkout -"
-    bls = "!git branch -l"
+    ls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^$' ; }; f"
     bmv = "!git branch -M"
     brm = "!git branch -D"
     ad = "!git add -u"
     cm = "!git commit -m"
+    ca = "!git commit --amend"
+    ce = "!git commit --amend --no-edit"
     a = "!~/.gitalias/a"
     cma = "!~/.gitalias/cma"
     cma-a = "!~/.gitalias/cma --amend"
@@ -28,11 +30,10 @@
     diff-branch = "!git diff $(git merge-base master HEAD)..HEAD"
     unstage = reset HEAD --
     forget = restore --staged --worktree
-    ; Amend/Edits commits
-    commit-a = "!git commit --amend"
-    commit-e = "!git commit --amend --no-edit"
     ; Remote integrations
     hub = "!NO_COLOR=true gh"
+    hub-prs = "!gh pr list -S \"author:$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
+    hub-reviews = "!gh pr list -S \"user-review-requested:@$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
     lab = "!NO_COLOR=true glab"
     lab-remote = "!~/.gitalias/lab-remote"
     lab-mirror = "!~/.gitalias/lab-mirror"
@@ -41,7 +42,7 @@
     ignore = "!~/.gitalias/ignore"
     exclude = "!~/.gitalias/exclude"
     ; Select branch
-    fz = "!git checkout $(git branch --format '%(refname:short)' | sk)"
+    g = "!git checkout $(git branch --format '%(refname:short)' | sk)"
     ; Generate keys
     key = "!~/.gitalias/key"
     ; Dotfiles shortcut with safeties
@@ -134,6 +135,26 @@
 
 [difftool "vimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\""
+
+
+[delta]
+    line-numbers = true
+    side-by-side = true
+    syntax-theme = gruvbox-dark
+    minus-style                   = normal "#792329"
+    minus-non-emph-style          = normal "#792329"
+    minus-emph-style              = normal "#9d0006"
+    minus-empty-line-marker-style = normal "#792329"
+    zero-style                    = syntax
+    plus-style                    = syntax "#5a633a"
+    plus-non-emph-style           = syntax "#5a633a"
+    plus-emph-style               = syntax "#79740e"
+    plus-empty-line-marker-style  = normal "#5a633a"
+    line-numbers-minus-style      = "#792329"
+    line-numbers-zero-style       = "#444444"
+    line-numbers-plus-style       = "#5a633a"
+    line-numbers-left-style       = "#076678"
+    line-numbers-right-style      = "#076678"
 
 [feature]
     manyFiles = true
