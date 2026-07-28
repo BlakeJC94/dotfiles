@@ -1,6 +1,16 @@
 # {{week}}
 
-## {{strftime:%Y-%m-%d %a:monday+0}}
+## Main Quests
+
+## Side Quests
+
+## In Flight
+
+## To Review
+
+## Log
+
+### {{strftime:%Y-%m-%d %a:monday+0}}
 
 Morning
 
@@ -10,7 +20,7 @@ Afternoon
 
 1. [ ] ...
 
-## {{strftime:%Y-%m-%d %a:monday+1}}
+### {{strftime:%Y-%m-%d %a:monday+1}}
 
 Morning
 
@@ -20,7 +30,7 @@ Afternoon
 
 1. [ ] ...
 
-## {{strftime:%Y-%m-%d %a:monday+2}}
+### {{strftime:%Y-%m-%d %a:monday+2}}
 
 Morning
 
@@ -30,7 +40,7 @@ Afternoon
 
 1. [ ] ...
 
-## {{strftime:%Y-%m-%d %a:monday+3}}
+### {{strftime:%Y-%m-%d %a:monday+3}}
 
 Morning
 
@@ -40,7 +50,7 @@ Afternoon
 
 1. [ ] ...
 
-## {{strftime:%Y-%m-%d %a:monday+4}}
+### {{strftime:%Y-%m-%d %a:monday+4}}
 
 Morning
 
@@ -51,7 +61,3 @@ Afternoon
 1. [ ] ...
 
 ## Misc notes
-
-### Wins
-
-### Learnings
