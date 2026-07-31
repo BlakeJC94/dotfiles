@@ -14,6 +14,7 @@
     brm = "!git branch -D"
     ad = "!git add -u"
     cm = "!git commit -m"
+    cmf = "!nvim -c 'Git commit | wincmd o'"
     ca = "!git commit --amend"
     ce = "!git commit --amend --no-edit"
     a = "!~/.gitalias/a"
@@ -37,6 +38,7 @@
     lab = "!NO_COLOR=true glab"
     lab-remote = "!~/.gitalias/lab-remote"
     lab-mirror = "!~/.gitalias/lab-mirror"
+    prime = "!git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##'"
     ; Ignore file actions
     ignore-template = "!~/.gitalias/ignore-template"
     ignore = "!~/.gitalias/ignore"
