@@ -5,6 +5,7 @@ with pkgs;
 [
     R
     bat
+    delta
     coreutils-full
     dprint
     dprint-plugins.dprint-plugin-markdown
