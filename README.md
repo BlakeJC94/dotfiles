@@ -8,7 +8,7 @@ use them at your own risk though)
 Run the install script:
 
 ```sh
-curl -fsSL https://gitlab.com/blakejc/dotfiles/-/raw/main/.install?ref_type=heads | sh
+curl -fsSL 'https://gitlab.com/blakejc/dotfiles/-/raw/main/.install?ref_type=heads' | bash
 ```
 The tools are activated by the created `.dotfiles.activate` file in `$HOME`.
 Source the shell RC to get all the settings and whatnot (or start a new shell)
