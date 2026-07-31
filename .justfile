@@ -1,3 +1,19 @@
+deploy-dotfiles:
+    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" checkout
+
+_backup-dotfiles:
+    #!/usr/bin/env sh
+    mkdir -p .config-backup
+    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" checkout 2>&1 | grep -E "^\s+\." | awk '{print $1}' | while read -r file; do
+      mkdir -p ".config-backup/$(dirname "$file")"
+      mv "$file" ".config-backup/$file"
+    done
+
+deploy-dotfiles-safe: _backup-dotfiles deploy-dotfiles
+
+deploy-dotfiles-unsafe:
+    git dotfiles checkout --force
+
 nix-edit:
     $EDITOR .config/nixpkgs/packages.nix
 
@@ -7,19 +23,6 @@ nix-update:
 nix-upgrade:
     nix-channel --update
     nix-env -u
-
-brew-up:
-    #!/usr/bin/env bash
-    while IFS= read -r item; do
-        [ -z "$item" ] && continue
-        if ! brew list --formula | grep -q "^${item}$"; then
-            echo "Installing $item..."
-            brew install "$item"
-        else
-            brew upgrade "$item"
-        fi
-    done < ~/.listbrew
-
 
 [macos]
 cask-up:
@@ -41,24 +44,6 @@ llm-up:
     llm keys set openrouter
     llm install llm-tools-searxng
     llm keys set searxng_url --value https://searxng.probableodyssey.net
-
-
-[linux]
-soar-init:
-    #!/usr/bin/env bash
-    if ! command -v soar > /dev/null; then
-        return
-    fi
-    curl -fsSL "https://raw.githubusercontent.com/pkgforge/soar/main/install.sh" | sh
-
-[linux]
-soar-up: soar-init
-    #!/usr/bin/env bash
-    while IFS= read -r item; do
-        [ -z "$item" ] && continue
-        echo "Installing ${item}..."
-        soar install "${item}"
-    done < ~/.listsoar
 
 
 [linux]
@@ -211,15 +196,3 @@ docker-up:
     sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     sudo usermod -aG docker ${USER}
     echo "sudo requirement for docker will be dropped on the next reboot"
-
-sync:
-    git dotfiles sync
-
-push:
-    git dotfiles push
-
-pull:
-    git dotfiles pull
-
-st:
-    git dotfiles st

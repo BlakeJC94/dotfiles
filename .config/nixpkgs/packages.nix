@@ -17,7 +17,6 @@ with pkgs;
     eza
     fd
     findutils
-    firefox
     fzf
     gawk
     gh
@@ -101,9 +100,10 @@ with pkgs;
     write-good
     yamlfmt
 ] ++ (if stdenv.isDarwin then [
-    rectangle
-    caffeine
-    slack
 ] else [
+    spotify
+    docker
+    podman
+    firefox
     ghostty
 ])
