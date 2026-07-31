@@ -30,6 +30,7 @@ if ! command -v nix >/dev/null; then
         curl --silent https://gitlab.com/blakejc/dotfiles/-/blob/main/.config/nixpkgs/config.nix?ref_type=heads > "$HOME/.config/nixpkgs/config.nix"
         nix-channel --update
         nix-env -f "$HOME/.config/nixpkgs/packages.nix" -i
+        rm -r "$HOME/.config/nixpkgs/"
     fi
 fi
 
@@ -44,21 +45,22 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
-            echo "Once 'just' is installed, run 'just cask-up'"
-            printf "Install brew packages? (y/N): "
-            read -r REPLY
-            if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+        fi
+    fi
 
-                while IFS= read -r item; do
-                    [ -z "$item" ] && continue
-                    if ! brew list --cask | grep -q "^${item}$" && ! ls /Applications | grep -iq "${item}"; then
-                        echo "Installing $item..."
-                        brew install --cask "${item}"
-                    else
-                        brew upgrade --cask "${item}"
-                    fi
-                done < <(curl --silent https://gitlab.com/blakejc/dotfiles/-/raw/main/.listcask?ref_type=heads)
-            fi
+    if command -v brew >/dev/null; then
+        printf "Install brew packages? (y/N): "
+        read -r REPLY
+        if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+            while IFS= read -r item; do
+                [ -z "$item" ] && continue
+                if ! brew list --cask | grep -q "^${item}$" && ! ls /Applications | grep -iq "${item}"; then
+                    echo "Installing $item..."
+                    brew install --cask "${item}"
+                else
+                    brew upgrade --cask "${item}"
+                fi
+            done < <(curl --silent https://gitlab.com/blakejc/dotfiles/-/raw/main/.listcask?ref_type=heads)
         fi
     fi
 fi
