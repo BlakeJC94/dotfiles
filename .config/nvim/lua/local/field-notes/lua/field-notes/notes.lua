@@ -7,7 +7,7 @@ local images = require("field-notes.images")
 
 local M = {}
 
--- AIDEV-NOTE: :Note accepts a quoted title and optional template name.
+-- AIDEV-NOTE: :Note accepts a quoted title with template vars and optional template name.
 local function parse_quoted_note_arg(args)
     local trimmed = vim.trim(args or "")
 
@@ -46,6 +46,7 @@ function M.open_note(bang, args, opts)
         return
     end
 
+    title = templates.render_variables(title, title, opts and opts.template_context)
     template_name = template_name or config.get("field_notes_default_template")
 
     if bang then

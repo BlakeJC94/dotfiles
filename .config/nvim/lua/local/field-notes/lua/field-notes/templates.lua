@@ -2,8 +2,12 @@ local config = require("field-notes.config")
 
 local M = {}
 
+local function resolve_now(context)
+    return (context and context.reference_timestamp) or os.time()
+end
+
 local function resolve_base_timestamp(base, context)
-    local now = (context and context.reference_timestamp) or os.time()
+    local now = resolve_now(context)
     if base == "today" then
         return now
     elseif base == "monday" then
@@ -47,6 +51,30 @@ function M.list_templates()
     return items
 end
 
+function M.render_variables(content, title, context)
+    local now = resolve_now(context)
+
+    -- AIDEV-NOTE: Keep title/template vars in one renderer so note titles and bodies stay in sync.
+    local week_monday = resolve_base_timestamp("monday", context)
+    local week_title = os.date("%Y-W%W: %b %d", week_monday)
+
+    content = content:gsub("{{title}}", title)
+    content = content:gsub("{{date}}", os.date("%Y-%m-%d", now))
+    content = content:gsub("{{week}}", week_title)
+    content = content:gsub("{{strftime:([^}:]+):([^}]+)}}", function(fmt, expr)
+        local base, offset_str = expr:match("^(%a+)([+-]?%d+)$")
+        if base then
+            return format_strftime(fmt, base, tonumber(offset_str), context)
+        end
+        return "{{strftime:" .. fmt .. ":" .. expr .. "}}"
+    end)
+    content = content:gsub("{{strftime:([^}]+)}}", function(fmt)
+        return os.date(fmt, now)
+    end)
+
+    return content
+end
+
 function M.apply_template(template_name, title, context)
     local dir = M.template_dir()
     local path = dir .. "/" .. template_name .. ".md"
@@ -60,25 +88,7 @@ function M.apply_template(template_name, title, context)
     local data = vim.uv.fs_read(fd, stat.size, 0)
     vim.uv.fs_close(fd)
 
-    local content = data
-    -- AIDEV-NOTE: {{week}} uses Monday-based %W numbering and Monday date for stable weekly templates.
-    local week_monday = resolve_base_timestamp("monday", context)
-    local week_title = os.date("%Y-W%W: %b %d", week_monday)
-
-    content = content:gsub("{{title}}", title)
-    content = content:gsub("{{date}}", os.date("%Y-%m-%d"))
-    content = content:gsub("{{week}}", week_title)
-    content = content:gsub("{{strftime:([^}:]+):([^}]+)}}", function(fmt, expr)
-        local base, offset_str = expr:match("^(%a+)([+-]?%d+)$")
-        if base then
-            return format_strftime(fmt, base, tonumber(offset_str), context)
-        end
-        return "{{strftime:" .. fmt .. ":" .. expr .. "}}"
-    end)
-    content = content:gsub("{{strftime:([^}]+)}}", function(fmt)
-        return os.date(fmt)
-    end)
-
+    local content = M.render_variables(data, title, context)
     return vim.split(content, "\n", { plain = true })
 end
 

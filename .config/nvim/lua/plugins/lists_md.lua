@@ -5,11 +5,11 @@ return {
             pattern = "markdown",
             callback = function(event)
                 vim.keymap.set({ "n", "i" }, "<C-.>", function()
-                    require("lists-md").indent_item_right()
+                    require("lists-md").indent_item_left()
                 end, { buffer = event.buf })
 
                 vim.keymap.set({ "n", "i" }, "<C-,>", function()
-                    require("lists-md").indent_item_left()
+                    require("lists-md").indent_item_right()
                 end, { buffer = event.buf })
 
                 vim.keymap.set({ "n", "i" }, "<C-;>", function()

@@ -26,9 +26,9 @@ require("field-notes").setup({
 
 | Command | Args | Bang | Description |
 |---------|------|------|-------------|
-| `:Note "title" [template]` | 1-2 | Yes | Open or create a note in the current window. With `!`, also inserts a link at cursor. |
-| `:NoteSplit "title" [template]` | 1-2 | Yes | Open or create a note in a horizontal split. Use `:vert` for vertical. With `!`, also inserts a link. |
-| `:NoteVSplit "title" [template]` | 1-2 | Yes | Open or create a note in a vertical split. With `!`, also inserts a link. |
+| `:Note "title" [template]` | 1-2 | Yes | Open or create a note in the current window. Title supports template vars like `{{date}}`. With `!`, also inserts a link at cursor. |
+| `:NoteSplit "title" [template]` | 1-2 | Yes | Open or create a note in a horizontal split. Use `:vert` for vertical. Title supports template vars like `{{date}}`. With `!`, also inserts a link. |
+| `:NoteVSplit "title" [template]` | 1-2 | Yes | Open or create a note in a vertical split. Title supports template vars like `{{date}}`. With `!`, also inserts a link. |
 | `:NoteLink [path] "title"` | 1-2 | No | Insert a markdown link to a note without opening it. If path is omitted, uses `expand("#")`. |
 | `:NoteRename` | 0 | No | Rename current note file based on its `# heading` |
 | `:NoteGrep <pattern>` | 1 | No | Search notes with `:grep` and open quickfix list |
@@ -77,7 +77,15 @@ When no title is provided to `:Note`, the title is derived from context:
 
 ## Templates
 
-Templates are `.md` files in the templates directory (default: `<field_notes_dir>/_templates/`). When creating a new note, specify a template as the second argument:
+Templates are `.md` files in the templates directory (default: `<field_notes_dir>/_templates/`).
+
+Template variables also work in the quoted note title itself. Example:
+
+```
+:Note "Standup {{date}}" meeting
+```
+
+When creating a new note, specify a template as the second argument:
 
 ```
 :Note "Standup" meeting

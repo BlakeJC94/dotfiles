@@ -1,8 +1,12 @@
 # {{week}}
 
-## Main Quests
+## Quests
 
-## Side Quests
+### Main
+
+### Side
+
+### Misc
 
 ## In Flight
 
