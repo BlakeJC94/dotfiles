@@ -1,4 +1,7 @@
 deploy-dotfiles:
+    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set core.fsmonitor false
+    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set core.untrackedCache false
+    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set status.showUntrackedFiles no
     git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" checkout
 
 _backup-dotfiles:
