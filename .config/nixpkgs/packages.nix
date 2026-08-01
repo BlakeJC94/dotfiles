@@ -45,7 +45,6 @@ with pkgs;
     monolith
     nano
     neovim
-    nerd-fonts.jetbrains-mono
     nodejs_26
     pandoc
     pi-coding-agent
@@ -101,6 +100,8 @@ with pkgs;
     yamlfmt
 ] ++ (if stdenv.isDarwin then [
 ] else [
+    nerd-fonts.jetbrains-mono
+    bitwarden-desktop
     spotify
     docker
     podman
