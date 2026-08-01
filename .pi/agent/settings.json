@@ -1,7 +1,7 @@
 {
-  "defaultProvider": "openai",
-  "defaultModel": "gpt-5.3-codex",
-  "lastChangelogVersion": "0.80.10",
+  "defaultProvider": "openrouter",
+  "defaultModel": "z-ai/glm-5.2",
+  "lastChangelogVersion": "0.82.1",
   "theme": "gruvbox-dark",
   "defaultThinkingLevel": "medium"
 }
