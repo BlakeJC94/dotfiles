@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 
-[ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ] && source "$HOME/.nix-profile/etc/profile.d/nix.sh"
-[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix.sh" ] && source "/nix/var/nix/profiles/default/etc/profile.d/nix.sh"
+export PATH="$HOME/.nix-profile/bin:$PATH"
 
 # Set dircolors (ls colors)
 if command -v dircolors >/dev/null; then
