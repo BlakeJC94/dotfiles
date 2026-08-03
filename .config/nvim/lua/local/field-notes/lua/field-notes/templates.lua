@@ -51,6 +51,17 @@ function M.list_templates()
     return items
 end
 
+function M.template_complete(arg_lead, cmd_line, cursor_pos)
+    local items = M.list_templates()
+    local filtered = {}
+    for _, item in ipairs(items) do
+        if item:find(arg_lead, 1, true) == 1 then
+            table.insert(filtered, item)
+        end
+    end
+    return filtered
+end
+
 function M.render_variables(content, title, context)
     local now = resolve_now(context)
 

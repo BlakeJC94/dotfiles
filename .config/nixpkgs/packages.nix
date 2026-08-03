@@ -46,7 +46,6 @@ with pkgs;
     nano
     neovim
     nodejs_26
-    pandoc
     pi-coding-agent
     podman
     pre-commit

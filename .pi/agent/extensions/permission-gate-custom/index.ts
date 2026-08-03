@@ -38,8 +38,8 @@ const BLOCKLIST: Rule[] = [
     { name: "dot-source", pattern: /(^|\s)\.\s+\S+/i },
     { name: "eval", pattern: /(^|\s)eval\s+/i },
 
-    { name: "python", pattern: /\bpython(\d+(\.\d+)?)?\b/i },
-    { name: "python-c", pattern: /\bpython(\d+(\.\d+)?)?\s+-c\b/i },
+    { name: "python-c", pattern: /^\s*(?:[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|\S+)\s+)*(?:\S*\/)?python(\d+(\.\d+)?)?\s+-c\b/i },
+    { name: "python", pattern: /^\s*(?:[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|\S+)\s+)*(?:\S*\/)?python(\d+(\.\d+)?)?(?:\s|$)/i },
     { name: "uv-run", pattern: /\buv\s+run\b/i },
     { name: "node-e", pattern: /\bnode\s+-e\b/i },
     { name: "perl-e", pattern: /\bperl\s+-e\b/i },
@@ -113,12 +113,76 @@ function firstMatch(command: string, rules: Rule[]): Rule | undefined {
     return rules.find((rule) => rule.pattern.test(command));
 }
 
+function splitTokens(command: string): string[] {
+    return command.match(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|\S+/g) ?? [];
+}
+
+function stripQuotes(token: string): string {
+    if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+        return token.slice(1, -1);
+    }
+    return token;
+}
+
+function isEnvAssignment(token: string): boolean {
+    return /^[A-Za-z_][A-Za-z0-9_]*=/.test(token);
+}
+
+function basename(token: string): string {
+    return token.split("/").pop() ?? token;
+}
+
+// AIDEV-NOTE: Parse leading env assignments and git global flags to avoid false positives in allowlist checks.
+function isReadOnlyGitCommand(command: string): boolean {
+    const tokens = splitTokens(command).map(stripQuotes);
+    if (tokens.length === 0) return false;
+
+    let i = 0;
+    while (i < tokens.length && isEnvAssignment(tokens[i])) i += 1;
+    if (i >= tokens.length) return false;
+
+    if (tokens[i] === "env") {
+        i += 1;
+        while (i < tokens.length && isEnvAssignment(tokens[i])) i += 1;
+    }
+    if (i >= tokens.length) return false;
+
+    if (basename(tokens[i]).toLowerCase() !== "git") return false;
+
+    let j = i + 1;
+    while (j < tokens.length && tokens[j].startsWith("-")) j += 1;
+    if (j >= tokens.length) return false;
+
+    const subcommand = tokens[j].toLowerCase();
+    if (["status", "diff", "log", "show", "rev-parse", "ls-files", "ls-tree", "cat-file", "blame"].includes(subcommand)) {
+        return true;
+    }
+
+    if (subcommand === "remote") {
+        return tokens.slice(j + 1).includes("-v");
+    }
+
+    if (subcommand === "branch") {
+        const rest = tokens.slice(j + 1);
+        return rest.length === 0 || rest.includes("--list") || rest.includes("--show-current");
+    }
+
+    if (subcommand === "tag") {
+        const rest = tokens.slice(j + 1);
+        return rest.length === 0 || rest.includes("--list");
+    }
+
+    return false;
+}
+
 export default function permissionGateCustom(pi: ExtensionAPI): void {
     pi.on("tool_call", async (event, ctx) => {
         if (event.toolName !== "bash") return;
 
         const command = String(event.input.command ?? "").trim();
         if (!command) return;
+
+        if (isReadOnlyGitCommand(command)) return;
 
         const allowMatch = firstMatch(command, ALLOWLIST);
         if (allowMatch) return;

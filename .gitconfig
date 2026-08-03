@@ -27,10 +27,12 @@
     lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
     last = log -1 HEAD --stat
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
+    ; get = "!f() { git restore --source \"${1}\" -- \"${@:2}\"; }; f"
+    get = "!f() { git restore --source \"${1}\" \"${@:2}\"; }; f"
     ; Update staged changes
     diff-branch = "!git diff $(git merge-base master HEAD)..HEAD"
     unstage = reset HEAD --
-    forget = restore --staged --worktree
+    forget = "!f() { [ \"$#\" -eq 0 ] && git reset --hard HEAD || git restore --source=HEAD --staged --worktree -- \"$@\"; }; f"
     ; Remote integrations
     hub = "!NO_COLOR=true gh"
     hub-prs = "!gh pr list -S \"author:$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"

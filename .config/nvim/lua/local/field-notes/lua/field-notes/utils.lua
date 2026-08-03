@@ -138,25 +138,4 @@ function M.get_note_title(...)
     return title
 end
 
-function M.note_complete(arg_lead, cmd_line, cursor_pos)
-    local prefix = arg_lead:match('^"?(.*)')
-    local items = M.complete_note(prefix, cmd_line, cursor_pos)
-    local quoted = {}
-    for _, item in ipairs(items) do
-        table.insert(quoted, '"' .. item .. '"')
-    end
-    return quoted
-end
-
-function M.template_complete(arg_lead, cmd_line, cursor_pos)
-    local items = M.list_templates()
-    local filtered = {}
-    for _, item in ipairs(items) do
-        if item:find(arg_lead, 1, true) == 1 then
-            table.insert(filtered, item)
-        end
-    end
-    return filtered
-end
-
 return M

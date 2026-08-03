@@ -1,0 +1,6 @@
+{
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-5.3-codex",
+  "lastChangelogVersion": "0.83.0",
+  "theme": "gruvbox-dark"
+}

@@ -1,0 +1,1 @@
+/Users/bcook/.AGENTS.md

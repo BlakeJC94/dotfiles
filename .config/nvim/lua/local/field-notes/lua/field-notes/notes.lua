@@ -124,9 +124,45 @@ function M.rename_note()
 end
 
 function M.grep_notes(pattern)
-    local dir = vim.fn.fnameescape(config.get("field_notes_dir"))
+    local dir = vim.fn.fnameescape(config.get("field_notes_dir") or "")
     vim.cmd("grep! " .. vim.fn.shellescape(pattern) .. " " .. dir)
     vim.cmd("copen")
+end
+
+function M.list_notes()
+    local dir = vim.fn.fnameescape(config.get("field_notes_dir") or "")
+    local items = {}
+
+    local handle = vim.uv.fs_scandir(dir)
+    if not handle then
+        return items
+    end
+
+    while true do
+        local name, type = vim.uv.fs_scandir_next(handle)
+        if not name then
+            break
+        end
+        if type == "file" and name:match("%.md$") then
+            local stem = name:gsub("%.md$", "")
+            table.insert(items, stem)
+        end
+    end
+
+    table.sort(items)
+    return items
+end
+
+function M.note_complete(arg_lead, cmd_line, cursor_pos)
+    local arg_lead = arg_lead:gsub('^"?', '')
+    local items = M.list_notes()
+    local filtered = {}
+    for _, item in ipairs(items) do
+        if item:find(arg_lead, 1, true) == 1 then
+            table.insert(filtered, '"' .. item .. '"')
+        end
+    end
+    return filtered
 end
 
 --- SETUP ----------------
@@ -142,9 +178,9 @@ local function set_command_note()
         complete = function(arg_lead, cmd_line, cursor_pos)
             local has_quoted_arg = cmd_line:match('^%s*Note!?%s+"[^"]*"') or cmd_line:match("^%s*Note!?%s+'[^']*'")
             if has_quoted_arg then
-                return utils.template_complete(arg_lead, cmd_line, cursor_pos)
+                return templates.template_complete(arg_lead, cmd_line, cursor_pos)
             end
-            return utils.note_complete(arg_lead, cmd_line, cursor_pos)
+            return M.note_complete(arg_lead, cmd_line, cursor_pos)
         end,
         desc = "Open or create a field note in current window. With !, also insert a link.",
     })
@@ -161,9 +197,9 @@ local function set_command_note_split()
             local has_quoted_arg = cmd_line:match('^%s*NoteSplit!?%s+"[^"]*"')
                 or cmd_line:match("^%s*NoteSplit!?%s+'[^']*'")
             if has_quoted_arg then
-                return utils.template_complete(arg_lead, cmd_line, cursor_pos)
+                return templates.template_complete(arg_lead, cmd_line, cursor_pos)
             end
-            return utils.note_complete(arg_lead, cmd_line, cursor_pos)
+            return M.note_complete(arg_lead, cmd_line, cursor_pos)
         end,
         desc = "Open or create a field note in a split. Use :vert for vertical. With !, also insert a link.",
     })
@@ -179,9 +215,9 @@ local function set_command_note_v_split()
             local has_quoted_arg = cmd_line:match('^%s*NoteVSplit!?%s+"[^"]*"')
                 or cmd_line:match("^%s*NoteVSplit!?%s+'[^']*'")
             if has_quoted_arg then
-                return utils.template_complete(arg_lead, cmd_line, cursor_pos)
+                return templates.template_complete(arg_lead, cmd_line, cursor_pos)
             end
-            return utils.note_complete(arg_lead, cmd_line, cursor_pos)
+            return M.note_complete(arg_lead, cmd_line, cursor_pos)
         end,
         desc = "Open or create a field note in a vertical split. With !, also insert a link.",
     })
@@ -214,7 +250,7 @@ local function set_command_note_link()
         link.link_note(title, source_path)
     end, {
         nargs = "*",
-        complete = utils.note_complete,
+        complete = M.note_complete,
         desc = "Insert a markdown link to a field note",
     })
 end
