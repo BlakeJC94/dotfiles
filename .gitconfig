@@ -16,7 +16,6 @@
     cm = "!git commit -m"
     ca = "!git commit --amend"
     ce = "!git commit --amend --no-edit"
-    a = "!~/.gitalias/a"
     cma = "!~/.gitalias/cma"
     cma-a = "!~/.gitalias/cma --amend"
     cma-e = "!~/.gitalias/cma --no-edit"
