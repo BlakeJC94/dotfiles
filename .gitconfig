@@ -14,15 +14,13 @@
     brm = "!git branch -D"
     ad = "!git add -u"
     cm = "!git commit -m"
-    cmf = "!nvim -c 'Git commit | wincmd o'"
     ca = "!git commit --amend"
     ce = "!git commit --amend --no-edit"
     a = "!~/.gitalias/a"
     cma = "!~/.gitalias/cma"
     cma-a = "!~/.gitalias/cma --amend"
     cma-e = "!~/.gitalias/cma --no-edit"
-    cmap = "!f() { git cma \"$@\" && git push; }; f"
-    sync = "!git cmap \"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\""
+    sync = "!git add -uv . && git commit -m \"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\" && git push"
     lg = "!f() { if [ $# -eq 0 ]; then git log --oneline -n 8; else git log --oneline \"$@\"; fi }; f"
     lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
     last = log -1 HEAD --stat
@@ -114,7 +112,7 @@
     sort = version:refname
 
 [push]
-	default = current
+    default = current
     autoSetupRemote = true
     followTags = true
 
