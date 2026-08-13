@@ -12,6 +12,8 @@ mkdir -p "$path"
 justfile="$path/justfile"
 
 if [ ! -f "$justfile" ]; then
+    repo_root=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##')
+    echo "import \"$repo_root/justfile\"" >> "$justfile"
     $EDITOR "$justfile"
 elif [ "$#" -eq 0 ]; then
     $EDITOR "$justfile"
