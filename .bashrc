@@ -51,10 +51,6 @@ bind 'set visible-stats on'
 # Initialisers
 
 if [ -f ~/.dotfiles.activate ]; then
-    # Initialise package manager
-    source ~/.bootstrap
-
-    # Initialise tools if requested
     source ~/.bashrc.activate
 fi
 

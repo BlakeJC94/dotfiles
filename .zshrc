@@ -40,10 +40,6 @@ bindkey '^[[B' history-beginning-search-forward
 # Initialisers
 
 if [ -f ~/.dotfiles.activate ]; then
-    # Initialise packages
-    source ~/.bootstrap
-
-    # Initialise tools if requested
     source ~/.zshrc.activate
 fi
 
@@ -55,5 +51,3 @@ fi
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
-
-if [ -e /home/blake/.nix-profile/etc/profile.d/nix.sh ]; then . /home/blake/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

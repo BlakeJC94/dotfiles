@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # One-time machine setup for a fresh macOS or Linux box.
 #
-#   1. Installs package managers (Nix, Homebrew on macOS)
+#   1. Installs package managers (Homebrew on macOS and Linux)
 #   2. Generates an SSH key for GitLab
 #   3. Applies git aliases and pulls the dotfiles repo (bare) into $HOME
 #
@@ -29,9 +29,9 @@ confirm() {
 os_is() {
     # os_is darwin | os_is linux
     case "$(uname -s)" in
-        Darwin*) [ "$1" = "darwin" ] ;;
-        Linux*)  [ "$1" = "linux" ] ;;
-        *) return 1 ;;
+    Darwin*) [ "$1" = "darwin" ] ;;
+    Linux*) [ "$1" = "linux" ] ;;
+    *) return 1 ;;
     esac
 }
 
@@ -46,30 +46,11 @@ fetch() {
 source_if() { [ -f "$1" ] && . "$1"; }
 
 # Make already-installed tooling available to this script's environment.
-source_if "$HOME/.nix-profile/etc/profile.d/nix.sh"
-source_if "/nix/var/nix/profiles/default/etc/profile.d/nix.sh"
-[ -f /opt/homebrew/bin/brew ]    && eval "$(/opt/homebrew/bin/brew shellenv)"
-[ -f /usr/local/bin/brew ]      && eval "$(/usr/local/bin/brew shellenv)"
+[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+[ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
 
 # --- 1. package managers -----------------------------------------------------
-
-install_nix() {
-    log "Nix not found."
-    if ! confirm "Install Nix?"; then
-        log "Skipping Nix installation."
-        return 1
-    fi
-    if os_is darwin; then
-        curl --proto '=https' --tlsv1.2 --fail --location \
-            https://nixos.org/nix/install | sh
-    else
-        curl --proto '=https' --tlsv1.2 --fail --location \
-            https://nixos.org/nix/install | sh -s -- --no-daemon
-    fi
-    source_if "$HOME/.nix-profile/etc/profile.d/nix.sh"
-    source_if "/nix/var/nix/profiles/default/etc/profile.d/nix.sh"
-    have nix
-}
 
 install_nix_packages() {
     if ! confirm "Install Nix packages?"; then
@@ -78,8 +59,8 @@ install_nix_packages() {
     fi
     nixpkgs_dir="$HOME/.config/nixpkgs"
     mkdir -p "$nixpkgs_dir"
-    if fetch "$RAW_BASE/.config/nixpkgs/packages.nix?ref_type=heads" "$nixpkgs_dir/packages.nix" \
-       && fetch "$RAW_BASE/.config/nixpkgs/config.nix?ref_type=heads"   "$nixpkgs_dir/config.nix"; then
+    if fetch "$RAW_BASE/.config/nixpkgs/packages.nix?ref_type=heads" "$nixpkgs_dir/packages.nix" &&
+        fetch "$RAW_BASE/.config/nixpkgs/config.nix?ref_type=heads" "$nixpkgs_dir/config.nix"; then
         nix-channel --update
         nix-env -f "$nixpkgs_dir/packages.nix" -i
     else
@@ -96,8 +77,38 @@ install_brew() {
     fi
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-    [ -f /usr/local/bin/brew ]    && eval "$(/usr/local/bin/brew shellenv)"
+    [ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
     have brew
+}
+
+install_brew_packages() {
+    if ! confirm "Install Homebrew packages?"; then
+        log "Skipping packages."
+        return 0
+    fi
+    list_file="$(mktemp)"
+    if ! fetch "$RAW_BASE/.listbrew?ref_type=heads" "$list_file"; then
+        log "Failed to download package list — skipping packages."
+        rm -f "$list_file"
+        return 1
+    fi
+    while IFS= read -r item || [ -n "$item" ]; do
+        # skip blank lines and comments
+        case "$item" in '' | \#*) continue ;; esac
+        # trim surrounding whitespace
+        item="${item#"${item%%[![:space:]]*}"}"
+        item="${item%"${item##*[![:space:]]}"}"
+        [ -z "$item" ] && continue
+        # shellcheck disable=SC2010
+        if brew list 2>/dev/null | grep -Fxq "$item"; then
+            log "Upgrading $item..."
+            brew upgrade "$item" 2>/dev/null || true
+        else
+            log "Installing $item..."
+            brew install "$item"
+        fi
+    done <"$list_file"
+    rm -f "$list_file"
 }
 
 install_brew_casks() {
@@ -119,15 +130,15 @@ install_brew_casks() {
         item="${item%"${item##*[![:space:]]}"}"
         [ -z "$item" ] && continue
         # shellcheck disable=SC2010
-        if brew list --cask 2>/dev/null | grep -Fxq "$item" \
-           || ls /Applications 2>/dev/null | grep -Fqi "$item"; then
+        if brew list --cask 2>/dev/null | grep -Fxq "$item" ||
+            ls /Applications 2>/dev/null | grep -Fqi "$item"; then
             log "Upgrading $item..."
             brew upgrade --cask "$item" 2>/dev/null || true
         else
             log "Installing $item..."
             brew install --cask "$item"
         fi
-    done < "$list_file"
+    done <"$list_file"
     rm -f "$list_file"
 }
 
@@ -201,29 +212,25 @@ clone_dotfiles() {
 # --- main ---------------------------------------------------------------------
 
 main() {
-    # package managers
-    if have nix; then
-        log "Nix already installed."
-        install_nix_packages
-    elif install_nix; then
-        install_nix_packages
-    fi
-
-    if os_is darwin; then
-        if have brew; then
-            log "Homebrew already installed."
+    if have brew; then
+        log "Homebrew already installed."
+        install_brew_packages
+        if os_is darwin; then
             install_brew_casks
-        elif install_brew; then
+        fi
+    elif install_brew; then
+        install_brew_packages
+        if os_is darwin; then
             install_brew_casks
         fi
     fi
 
-    # ssh keys
-    setup_ssh
-
-    # git aliases + dotfiles
-    setup_gitalias
-    clone_dotfiles
+    # # ssh keys
+    # setup_ssh
+    #
+    # # git aliases + dotfiles
+    # setup_gitalias
+    # clone_dotfiles
 
     # marker so the dotfiles know one-time setup completed
     touch "$HOME/.dotfiles.activate"

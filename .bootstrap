@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-[ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ] && source "$HOME/.nix-profile/etc/profile.d/nix.sh"
-[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix.sh" ] && source "/nix/var/nix/profiles/default/etc/profile.d/nix.sh"
-[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
