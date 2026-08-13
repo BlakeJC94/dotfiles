@@ -5,6 +5,7 @@
 
 [alias]
     conf = "!f() { $EDITOR ~/.gitconfig ;  }; f"
+    exclude = "!f() { $EDITOR ./.git/info/exclude ;  }; f"
     ; Shorthand for common ops
     st = "!git status -sb"
     dif = "!git diff --stat"
@@ -49,6 +50,8 @@
     just = "!~/.gitalias/just"
     ; Set upstream branch
     up = "!~/.gitalias/up"
+    ; get the primary branch name from remote
+    prime = "!git symbolic-ref refs/remotes/origin/HEAD | cut -d '/' -f 4-"
     ; Clone and setup worktrees
     clonetree = "!~/.gitalias/clonetree"
     ; TODO Turn this into an llm-cli template
