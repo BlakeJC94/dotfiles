@@ -3,5 +3,9 @@
   "defaultModel": "z-ai/glm-5.2",
   "lastChangelogVersion": "0.83.0",
   "theme": "gruvbox-dark",
-  "defaultThinkingLevel": "medium"
+  "defaultThinkingLevel": "medium",
+  "extensions": [
+    "!extensions/permission-gate-custom/**",
+    "-extensions/fuzzy-path-completion",
+  ]
 }

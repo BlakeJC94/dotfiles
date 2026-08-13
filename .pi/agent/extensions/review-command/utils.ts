@@ -75,8 +75,18 @@ function isAllowedGhPrView(command: string, prUrl: string, prNumber: string): bo
 	if (!/\s--json\s/i.test(command)) {
 		return false;
 	}
-	if (!prUrl && /^(gh|git hub) pr view --json number,headRefName$/i.test(command)) {
+	if (prUrl && command.includes(prUrl)) {
 		return true;
+	}
+	if (prNumber && new RegExp(`(^|\\s)${prNumber}(\\s|$)`).test(command)) {
+		return true;
+	}
+	return false;
+}
+
+function isAllowedGhPrDiff(command: string, prUrl: string, prNumber: string): boolean {
+	if (!/^(gh|git hub) pr diff(\s|$)/i.test(command)) {
+		return false;
 	}
 	if (prUrl && command.includes(prUrl)) {
 		return true;
@@ -96,28 +106,10 @@ export function isReviewDprintCommand(command: string, reviewFileName: string): 
 export function isAllowedReviewBashCommand(command: string, prUrl: string, prNumber: string): boolean {
 	const normalized = normalizeCommand(command);
 	if (!normalized) return false;
-
-	// AIDEV-NOTE: allow exact chained base-ref diff command for /review without mutating remote branch specs.
-	if (
-		/^base=\$\(gh pr view --json baseRefName \| jq -r '\.baseRefName'\) && git fetch origin \$base:\$base && git diff \$base\.\.HEAD$/i.test(
-			normalized,
-		)
-	) {
-		return true;
-	}
-
 	if (hasUnsafeShellOperators(normalized)) return false;
 
+	if (isAllowedGhPrDiff(normalized, prUrl, prNumber)) return true;
 	if (isAllowedGhPrView(normalized, prUrl, prNumber)) return true;
-	if (/^git branch --show-current$/i.test(normalized)) return true;
-	if (/^git pull$/i.test(normalized)) return true;
-	if (/^git fetch$/i.test(normalized)) return true;
-	if (/^git fetch origin [A-Za-z0-9._/-]+:[A-Za-z0-9._/-]+$/i.test(normalized)) return true;
-	if (/^git fetch origin [A-Za-z0-9._/-]+$/i.test(normalized)) return true;
-	if (/^git checkout [A-Za-z0-9._/-]+$/i.test(normalized)) return true;
-	if (/^git merge-base [A-Za-z0-9._/-]+ HEAD$/i.test(normalized)) return true;
-	if (/^git diff \$\(git merge-base [A-Za-z0-9._/-]+ HEAD\)\.\.HEAD$/i.test(normalized)) return true;
-	if (/^git diff [0-9a-f]{7,40}\.\.HEAD$/i.test(normalized)) return true;
 
 	return false;
 }
