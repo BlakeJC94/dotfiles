@@ -1,0 +1,27 @@
+#!/bin/sh
+
+attempts=1
+sleep_time=0
+
+while getopts "n:t:" opt; do
+  case "$opt" in
+    n) attempts=$OPTARG ;;
+    t) sleep_time=$OPTARG ;;
+    *) exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+[ "$#" -gt 0 ] || exit 1
+
+i=1
+while [ "$i" -le "$attempts" ]; do
+  echo "attempt $i/$attempts: $*" >&2
+  "$@"
+  status=$?
+  [ "$status" -eq 0 ] && exit 0
+  [ "$i" -lt "$attempts" ] && sleep "$sleep_time"
+  i=$((i + 1))
+done
+
+exit "$status"
