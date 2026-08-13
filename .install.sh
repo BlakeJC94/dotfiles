@@ -225,12 +225,12 @@ main() {
         fi
     fi
 
-    # # ssh keys
-    # setup_ssh
-    #
-    # # git aliases + dotfiles
-    # setup_gitalias
-    # clone_dotfiles
+    # ssh keys
+    setup_ssh
+
+    # git aliases + dotfiles
+    setup_gitalias
+    clone_dotfiles
 
     # marker so the dotfiles know one-time setup completed
     touch "$HOME/.dotfiles.activate"
