@@ -45,6 +45,9 @@ llm-up:
     llm install llm-openrouter
     echo "Setting openrouter key"
     llm keys set openrouter
+    llm install llm-fragments-pdf
+    llm install llm-fragments-site-text
+    llm install llm-mcp-client
     llm install llm-tools-searxng
     llm keys set searxng_url --value https://searxng.probableodyssey.net
 
