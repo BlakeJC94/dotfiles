@@ -4,6 +4,7 @@ coreutils
 curl
 diffutils
 direnv
+dprint
 eza
 fd
 findutils
@@ -31,6 +32,7 @@ pandoc
 pi-coding-agent
 pre-commit
 ripgrep
+ruff
 sheets
 sk
 slides
@@ -41,3 +43,5 @@ tree-sitter-cli
 trex
 watch
 wget
+write-good
+uv
