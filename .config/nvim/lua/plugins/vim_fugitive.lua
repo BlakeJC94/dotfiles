@@ -8,9 +8,16 @@ return {
     lazy = false,
     keys = {
         { "<Leader>/", "<cmd>Gcd | echo 'Changed dir to ' . getcwd()<CR>" },
-        { "<Leader>cb", ":GBrowse!<CR>", mode = "v" },
+        { "<Leader>cc", "<cmd>Git commit<CR>" },
+        { "<Leader>ca", "<cmd>Git commit --amend<CR>" },
+        { "<Leader>ce", "<cmd>Git commit --amend --no-edit<CR>" },
+        { "<Leader>co", "<cmd>lua resolve_conflict('ours')<CR>" },
+        { "<Leader>ct", "<cmd>lua resolve_conflict('theirs')<CR>" },
+        { "<Leader>cb", "<cmd>lua resolve_conflict('both')<CR>" },
+        { "<Leader>cm", "<cmd>Git mergetool<CR>" },
+        { "<Leader>cl", ":GBrowse!<CR>", mode = "v" },
         {
-            "<Leader>cc",
+            "<Leader>C",
             function()
                 local closed = false
                 for winnr = 1, vim.fn.winnr("$") do
@@ -27,14 +34,14 @@ return {
                 end
             end,
         },
-        { "<Leader>co", "<cmd>lua resolve_conflict('ours')<CR>" },
-        { "<Leader>ct", "<cmd>lua resolve_conflict('theirs')<CR>" },
-        { "<Leader>cb", "<cmd>lua resolve_conflict('both')<CR>" },
-        { "<Leader>C", "<cmd>Git commit<CR>"}
     },
     config = function()
         -- Statusline
         vim.opt.statusline = "%<%f %h%m%r%{FugitiveStatusline()}%=%{get(b:,'gitsigns_status','')} %-14.(%l,%c%V%) %P"
+
+        -- Improve diff experience
+        vim.opt.diffopt:append('algorithm:patience')
+        vim.opt.diffopt:append('indent-heuristic')
 
         -- Configure vim-convict
         vim.g.convict_mode = "scoped"

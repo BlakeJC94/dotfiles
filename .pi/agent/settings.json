@@ -1,11 +1,11 @@
 {
   "defaultProvider": "openrouter",
-  "defaultModel": "z-ai/glm-5.2",
-  "lastChangelogVersion": "0.83.0",
+  "defaultModel": "moonshotai/kimi-k2.6",
+  "lastChangelogVersion": "0.84.2",
   "theme": "gruvbox-dark",
   "defaultThinkingLevel": "medium",
   "extensions": [
     "!extensions/permission-gate-custom/**",
-    "-extensions/fuzzy-path-completion",
+    "!extensions/fuzzy-path-completion/**"
   ]
 }

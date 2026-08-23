@@ -28,6 +28,19 @@ nix-upgrade:
     nix-env -u
 
 [macos]
+brew-up:
+    #!/usr/bin/env bash
+    while IFS= read -r item; do
+        [ -z "$item" ] && continue
+        if ! brew list | grep -q "^${item}$"; then
+            echo "Installing $item..."
+            brew install "${item}"
+        else
+            brew upgrade "${item}"
+        fi
+    done < ~/.listbrew
+
+[macos]
 cask-up:
     #!/usr/bin/env bash
     while IFS= read -r item; do
