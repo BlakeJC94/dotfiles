@@ -25,4 +25,4 @@ $netns\
 $shell\
 $character"""
 
-command_timeout = 200
+command_timeout = 500
