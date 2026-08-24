@@ -1,4 +1,7 @@
-deploy-dotfiles:
+hooks:
+    git --git-dir="$HOME/.dotfiles/" config core.hooksPath "$HOME/.githooks"
+
+init: hooks
     git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set core.fsmonitor false
     git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set core.untrackedCache false
     git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set status.showUntrackedFiles no
@@ -11,6 +14,9 @@ _backup-dotfiles:
       mkdir -p ".config-backup/$(dirname "$file")"
       mv "$file" ".config-backup/$file"
     done
+
+deploy-dotfiles:
+    git dotfiles checkout
 
 deploy-dotfiles-safe: _backup-dotfiles deploy-dotfiles
 
@@ -29,29 +35,11 @@ nix-upgrade:
 
 [macos]
 brew-up:
-    #!/usr/bin/env bash
-    while IFS= read -r item; do
-        [ -z "$item" ] && continue
-        if ! brew list | grep -q "^${item}$"; then
-            echo "Installing $item..."
-            brew install "${item}"
-        else
-            brew upgrade "${item}"
-        fi
-    done < ~/.listbrew
+    ./.install.sh --brew-packages
 
 [macos]
 cask-up:
-    #!/usr/bin/env bash
-    while IFS= read -r item; do
-        [ -z "$item" ] && continue
-        if ! brew list --cask | grep -q "^${item}$" && ! ls /Applications | grep -iq "${item}"; then
-            echo "Installing $item..."
-            brew install --cask "${item}"
-        else
-            brew upgrade --cask "${item}"
-        fi
-    done < ~/.listcask
+    ./.install.sh --brew-casks
 
 llm-up:
     #!/usr/bin/env bash
