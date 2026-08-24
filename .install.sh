@@ -13,6 +13,72 @@
 DOTFILES_REMOTE="git@gitlab.com:blakejc/dotfiles.git"
 DOTFILES_BARE="$HOME/.dotfiles"
 RAW_BASE="https://gitlab.com/blakejc/dotfiles/-/raw/main"
+BREW_PACKAGES=$(cat <<'EOF'
+awk
+bat
+coreutils
+curl
+diffutils
+direnv
+dprint
+eza
+fd
+findutils
+fzf
+gaze
+git
+git-lfs
+glow
+gnu-sed
+grep
+herdr
+jdtls
+jq
+jsongrep
+just
+less
+llm
+llmfit
+mise
+monolith
+nano
+neovim
+opencode
+pandoc
+pi-coding-agent
+pre-commit
+ripgrep
+ruff
+sheets
+sk
+slides
+starship
+tealdeer
+tree
+tree-sitter-cli
+trex
+watch
+wget
+write-good
+uv
+gitleaks
+EOF
+)
+BREW_CASKS=$(cat <<'EOF'
+bitwarden
+caffeine
+docker
+firefox
+font-jetbrains-mono-nerd-font
+fuse
+ghostty
+macmediakeyforwarder
+protonvpn
+spotify
+tailscale
+write
+EOF
+)
 
 # --- helpers -----------------------------------------------------------------
 
@@ -86,20 +152,7 @@ install_brew_packages() {
         log "Skipping packages."
         return 0
     fi
-    list_file="$(mktemp)"
-    if ! fetch "$RAW_BASE/.listbrew?ref_type=heads" "$list_file"; then
-        log "Failed to download package list — skipping packages."
-        rm -f "$list_file"
-        return 1
-    fi
     while IFS= read -r item || [ -n "$item" ]; do
-        # skip blank lines and comments
-        case "$item" in '' | \#*) continue ;; esac
-        # trim surrounding whitespace
-        item="${item#"${item%%[![:space:]]*}"}"
-        item="${item%"${item##*[![:space:]]}"}"
-        [ -z "$item" ] && continue
-        # shellcheck disable=SC2010
         if brew list 2>/dev/null | grep -Fxq "$item"; then
             log "Upgrading $item..."
             brew upgrade "$item" 2>/dev/null || true
@@ -107,8 +160,9 @@ install_brew_packages() {
             log "Installing $item..."
             brew install "$item"
         fi
-    done <"$list_file"
-    rm -f "$list_file"
+    done <<EOF
+$BREW_PACKAGES
+EOF
 }
 
 install_brew_casks() {
@@ -116,20 +170,7 @@ install_brew_casks() {
         log "Skipping casks."
         return 0
     fi
-    list_file="$(mktemp)"
-    if ! fetch "$RAW_BASE/.listcask?ref_type=heads" "$list_file"; then
-        log "Failed to download cask list — skipping casks."
-        rm -f "$list_file"
-        return 1
-    fi
     while IFS= read -r item || [ -n "$item" ]; do
-        # skip blank lines and comments
-        case "$item" in '' | \#*) continue ;; esac
-        # trim surrounding whitespace
-        item="${item#"${item%%[![:space:]]*}"}"
-        item="${item%"${item##*[![:space:]]}"}"
-        [ -z "$item" ] && continue
-        # shellcheck disable=SC2010
         if brew list --cask 2>/dev/null | grep -Fxq "$item" ||
             ls /Applications 2>/dev/null | grep -Fqi "$item"; then
             log "Upgrading $item..."
@@ -138,8 +179,9 @@ install_brew_casks() {
             log "Installing $item..."
             brew install --cask "$item"
         fi
-    done <"$list_file"
-    rm -f "$list_file"
+    done <<EOF
+$BREW_CASKS
+EOF
 }
 
 # --- 2. ssh keys --------------------------------------------------------------
@@ -211,7 +253,45 @@ clone_dotfiles() {
 
 # --- main ---------------------------------------------------------------------
 
+usage() {
+    printf '%s\n' "Usage: $0 [--brew-packages] [--brew-casks]"
+}
+
+run_brew_only() {
+    if ! have brew && ! install_brew; then
+        return 1
+    fi
+
+    if [ "$1" = "packages" ]; then
+        install_brew_packages
+    elif os_is darwin; then
+        install_brew_casks
+    else
+        log "Homebrew casks are only supported on macOS."
+        return 1
+    fi
+}
+
 main() {
+    case "${1:-}" in
+    --brew-packages)
+        [ "$#" -eq 1 ] || { usage; return 1; }
+        run_brew_only packages
+        return
+        ;;
+    --brew-casks)
+        [ "$#" -eq 1 ] || { usage; return 1; }
+        run_brew_only casks
+        return
+        ;;
+    "")
+        ;;
+    *)
+        usage
+        return 1
+        ;;
+    esac
+
     if have brew; then
         log "Homebrew already installed."
         install_brew_packages
