@@ -143,5 +143,3 @@ When a note is opened, `:lcd` is set to the notes directory so relative paths re
 ## Renaming
 
 `:NoteRename` reads the first `# heading` in the current note, slugifies it, and renames the file. Prompts before overwriting an existing file.
-
-## Renaming

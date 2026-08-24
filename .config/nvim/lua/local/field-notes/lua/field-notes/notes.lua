@@ -89,6 +89,52 @@ function M.open_notes_dir(opts)
     vim.cmd("silent lcd " .. dir)
 end
 
+local function update_note_links(old_path, new_path)
+    local notes_dir = vim.fn.expand(config.get("field_notes_dir"))
+    local old_normalized_path = vim.fs.normalize(old_path)
+
+    for _, filepath in ipairs(vim.fn.globpath(notes_dir, "**/*.md", false, true)) do
+        local source_dir = vim.fn.fnamemodify(filepath, ":p:h")
+        local lines = vim.fn.readfile(filepath)
+        local changed = false
+
+        for index, content in ipairs(lines) do
+            local line_changed = false
+            local updated_content = content:gsub("(%b[])(%(([^)%s]+)%)", function(label, _, target)
+                local target_path, suffix = target:match("^([^#?]+)(.*)$")
+                if not target_path or target_path:match("^[%a][%w+.-]*:") or target_path:sub(1, 1) == "/" then
+                    return label .. "(" .. target .. ")"
+                end
+
+                local resolved_path = vim.fs.normalize(source_dir .. "/" .. target_path)
+                if resolved_path ~= old_normalized_path then
+                    return label .. "(" .. target .. ")"
+                end
+
+                local relative_path = vim.fs.relpath(source_dir, new_path)
+                if not relative_path then
+                    return label .. "(" .. target .. ")"
+                end
+                if target_path:sub(1, 2) == "./" and relative_path:sub(1, 1) ~= "." then
+                    relative_path = "./" .. relative_path
+                end
+
+                line_changed = true
+                return label .. "(" .. relative_path .. suffix .. ")"
+            end)
+
+            if line_changed then
+                lines[index] = updated_content
+                changed = true
+            end
+        end
+
+        if changed then
+            vim.fn.writefile(lines, filepath)
+        end
+    end
+end
+
 function M.rename_note()
     local pos = vim.fn.getpos(".")
     vim.fn.cursor(1, 1)
@@ -120,6 +166,7 @@ function M.rename_note()
     vim.cmd("write")
     vim.cmd("saveas " .. vim.fn.fnameescape(new_path))
     vim.fn.delete(current_file)
+    update_note_links(current_file, new_path)
     print("File renamed to: " .. new_filename)
 end
 
