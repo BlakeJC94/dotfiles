@@ -14,6 +14,7 @@
     bmv = "!git branch -M"
     brm = "!git branch -D"
     ad = "!git add -u"
+    adf = "!f() { git ls-files -m -o --exclude-standard -z | fzf --read0 --print0 -m | xargs -0 -r git add --; }; f"
     cm = "!git commit -m"
     ca = "!git commit --amend"
     ce = "!git commit --amend --no-edit"

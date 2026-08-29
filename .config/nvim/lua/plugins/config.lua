@@ -99,26 +99,10 @@ return {
             mode = "i",
         },
         -- Use unused arrow keys
-        {
-            "<Up>",
-            "[",
-            remap = true,
-        },
-        {
-            "<Down>",
-            "]",
-            remap = true,
-        },
-        {
-            "<Left>",
-            "20zh",
-            remap = true,
-        },
-        {
-            "<Right>",
-            "20zl",
-            remap = true,
-        },
+        { "<Up>", "zk" },
+        { "<Down>", "zj" },
+        { "<Left>", "zc" },
+        { "<Right>", "zo" },
         -- Fkey maps
         {
             "<F1>",
