@@ -1,12 +1,3 @@
-hooks:
-    git --git-dir="$HOME/.dotfiles/" config core.hooksPath "$HOME/.githooks"
-
-init: hooks
-    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set core.fsmonitor false
-    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set core.untrackedCache false
-    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" config set status.showUntrackedFiles no
-    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" checkout
-
 _backup-dotfiles:
     #!/usr/bin/env sh
     mkdir -p .config-backup

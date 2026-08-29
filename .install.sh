@@ -3,7 +3,7 @@
 #
 #   1. Installs package managers (Homebrew on macOS and Linux)
 #   2. Generates an SSH key for GitLab
-#   3. Applies git aliases and pulls the dotfiles repo (bare) into $HOME
+#   3. Pulls the dotfiles repo (bare) into $HOME
 #
 # POSIX sh compatible — runs under dash/bash/etc. on macOS and Linux.
 # Idempotent: safe to re-run.
@@ -12,7 +12,7 @@
 
 DOTFILES_REMOTE="git@gitlab.com:blakejc/dotfiles.git"
 DOTFILES_BARE="$HOME/.dotfiles"
-RAW_BASE="https://gitlab.com/blakejc/dotfiles/-/raw/main"
+
 BREW_PACKAGES=$(cat <<'EOF'
 awk
 bat
@@ -28,6 +28,7 @@ fzf
 gaze
 git
 git-lfs
+gitleaks
 glow
 gnu-sed
 grep
@@ -50,6 +51,7 @@ pre-commit
 ripgrep
 ruff
 sheets
+shellcheck
 sk
 slides
 starship
@@ -57,13 +59,13 @@ tealdeer
 tree
 tree-sitter-cli
 trex
+uv
 watch
 wget
 write-good
-uv
-gitleaks
 EOF
 )
+
 BREW_CASKS=$(cat <<'EOF'
 bitwarden
 caffeine
@@ -103,37 +105,12 @@ os_is() {
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
-fetch() {
-    # fetch <url> <dest>  -> returns 0 on success
-    curl --silent --show-error --fail --location -o "$2" "$1"
-}
-
-# shellcheck disable=SC1090
-source_if() { [ -f "$1" ] && . "$1"; }
-
 # Make already-installed tooling available to this script's environment.
 [ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 [ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
 
 # --- 1. package managers -----------------------------------------------------
-
-install_nix_packages() {
-    if ! confirm "Install Nix packages?"; then
-        log "Skipping Nix packages."
-        return 0
-    fi
-    nixpkgs_dir="$HOME/.config/nixpkgs"
-    mkdir -p "$nixpkgs_dir"
-    if fetch "$RAW_BASE/.config/nixpkgs/packages.nix?ref_type=heads" "$nixpkgs_dir/packages.nix" &&
-        fetch "$RAW_BASE/.config/nixpkgs/config.nix?ref_type=heads" "$nixpkgs_dir/config.nix"; then
-        nix-channel --update
-        nix-env -f "$nixpkgs_dir/packages.nix" -i
-    else
-        log "Failed to download nixpkgs config — skipping Nix packages."
-    fi
-    rm -rf "$nixpkgs_dir"
-}
 
 install_brew() {
     log "Homebrew not found."
@@ -166,10 +143,16 @@ EOF
 }
 
 install_brew_casks() {
+    if ! os_is darwin; then
+        log "Homebrew casks are only supported on macOS."
+        return 0
+    fi
+
     if ! confirm "Install Homebrew casks?"; then
         log "Skipping casks."
         return 0
     fi
+
     while IFS= read -r item || [ -n "$item" ]; do
         if brew list --cask 2>/dev/null | grep -Fxq "$item" ||
             ls /Applications 2>/dev/null | grep -Fqi "$item"; then
@@ -190,34 +173,44 @@ setup_ssh() {
     log "Setting up SSH keys..."
     mkdir -p "$HOME/.ssh"
     chmod 700 "$HOME/.ssh"
-    if [ -f "$HOME/.ssh/id_ed25519" ]; then
-        log "Existing ed25519 SSH key found."
-    else
-        ssh-keygen -t ed25519 -C "$USER@$(uname -n)" -f "$HOME/.ssh/id_ed25519" -N ""
+
+    write=true
+    if [ -f "${HOME}/.ssh/id_ed25519" ]; then
+        printf "Do you want to overwrite it? (y/N): "
+        read -r REPLY
+        if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+            write=true
+        else
+            write=false
+        fi
     fi
-    printf '\nAdd this public key to GitLab (User Settings -> SSH Keys):\n'
-    cat "$HOME/.ssh/id_ed25519.pub"
-    printf '\n'
-    if ! confirm "Done adding the key to GitLab?"; then
-        log "Continuing anyway — the dotfiles clone over SSH will fail until the key is added."
+
+    if [ "$write" = "true" ]; then
+        printf "Enter your email address: "
+        read -r email
+        if [ -z "$email" ]; then
+            echo "ERROR: Email address is required"
+            exit 1
+        fi
+        mkdir -p "${HOME}/.ssh"
+        chmod 700 "${HOME}/.ssh"
+        echo "Generating SSH key..."
+        ssh-keygen -t ed25519 -C "$email" -f "${HOME}/.ssh/id_ed25519"
     fi
+
+    echo
+    echo "Your public SSH key:"
+    echo "===================="
+    cat "${HOME}/.ssh/id_ed25519.pub"
+    echo "===================="
+    echo
+    echo "Add this key to"
+    echo "  - https://gitlab.com/-/user_settings/ssh_keys"
+    echo "  - https://github.com/settings/ssh/new"
+    echo
 }
 
-# --- 3. git aliases + dotfiles ------------------------------------------------
-
-setup_gitalias() {
-    if ! have git; then
-        return 0
-    fi
-    tmp="$(mktemp)"
-    if fetch "$RAW_BASE/.gitalias/key?ref_type=heads" "$tmp"; then
-        log "Applying git aliases..."
-        bash "$tmp"
-    else
-        log "Could not fetch gitalias script — skipping."
-    fi
-    rm -f "$tmp"
-}
+# --- 3. dotfiles --------------------------------------------------------------
 
 clone_dotfiles() {
     if ! have git; then
@@ -234,10 +227,14 @@ clone_dotfiles() {
         fi
     fi
 
+
     # Avoid the bare repo scanning $HOME for filesystem changes / untracked files.
     git --git-dir="$DOTFILES_BARE" --work-tree="$HOME" config core.fsmonitor false
     git --git-dir="$DOTFILES_BARE" --work-tree="$HOME" config core.untrackedCache false
     git --git-dir="$DOTFILES_BARE" --work-tree="$HOME" config status.showUntrackedFiles no
+
+    # Configure githooks
+    git --git-dir="$DOTFILES_BARE" --work-tree="$HOME" config core.hooksPath "$HOME/.githooks"
 
     log "Checking out dotfiles into $HOME..."
     if ! git --git-dir="$DOTFILES_BARE" --work-tree="$HOME" checkout; then
@@ -254,34 +251,24 @@ clone_dotfiles() {
 # --- main ---------------------------------------------------------------------
 
 usage() {
-    printf '%s\n' "Usage: $0 [--brew-packages] [--brew-casks]"
-}
-
-run_brew_only() {
-    if ! have brew && ! install_brew; then
-        return 1
-    fi
-
-    if [ "$1" = "packages" ]; then
-        install_brew_packages
-    elif os_is darwin; then
-        install_brew_casks
-    else
-        log "Homebrew casks are only supported on macOS."
-        return 1
-    fi
+    printf '%s\n' "Usage: $0 [--brew-packages] [--brew-casks] [--ssh-keys]"
 }
 
 main() {
     case "${1:-}" in
     --brew-packages)
         [ "$#" -eq 1 ] || { usage; return 1; }
-        run_brew_only packages
+        install_brew_packages
         return
         ;;
     --brew-casks)
         [ "$#" -eq 1 ] || { usage; return 1; }
-        run_brew_only casks
+        install_brew_casks
+        return
+        ;;
+    --ssh-keys)
+        [ "$#" -eq 1 ] || { usage; return 1; }
+        setup_ssh
         return
         ;;
     "")
@@ -295,21 +282,19 @@ main() {
     if have brew; then
         log "Homebrew already installed."
         install_brew_packages
-        if os_is darwin; then
-            install_brew_casks
-        fi
+        install_brew_casks
     elif install_brew; then
         install_brew_packages
-        if os_is darwin; then
-            install_brew_casks
-        fi
+        install_brew_casks
     fi
 
     # ssh keys
     setup_ssh
+    if ! confirm "Done adding the key to GitLab?"; then
+        log "Continuing anyway — the dotfiles clone over SSH will fail until the key is added."
+    fi
 
-    # git aliases + dotfiles
-    setup_gitalias
+    # dotfiles
     clone_dotfiles
 
     # marker so the dotfiles know one-time setup completed
