@@ -25,8 +25,8 @@
     hist = log --graph --color=auto --abbrev-commit --pretty=concise
     ; get = "!f() { git restore --source \"${1}\" -- \"${@:2}\"; }; f"
     get = "!f() { git restore --source \"${1}\" \"${@:2}\"; }; f"
-    ; Update staged changes
     diff-branch = "!git diff $(git merge-base master HEAD)..HEAD"
+    ; Update staged changes
     unstage = reset HEAD --
     forget = "!f() { [ \"$#\" -eq 0 ] && git reset --hard HEAD || git restore --source=HEAD --staged --worktree -- \"$@\"; }; f"
     ; Remote integrations
@@ -40,7 +40,7 @@
     ; Ignore file actions
     ignore-template = "!~/.gitalias/ignore-template"
     ignore = "!~/.gitalias/ignore"
-    exclude = "!~/.gitalias/exclude"
+    exclude = "!f(){ $EDITOR .git/info/exclude ; }; f"
     ; Select branch
     g = "!git checkout $(git branch --format '%(refname:short)' | sk)"
     ; Generate keys

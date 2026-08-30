@@ -100,7 +100,7 @@ local function update_note_links(old_path, new_path)
 
         for index, content in ipairs(lines) do
             local line_changed = false
-            local updated_content = content:gsub("(%b[])(%(([^)%s]+)%)", function(label, _, target)
+            local updated_content = content:gsub("(%[[^%]]*%])%(([^%)]+)%)", function(label, target)
                 local target_path, suffix = target:match("^([^#?]+)(.*)$")
                 if not target_path or target_path:match("^[%a][%w+.-]*:") or target_path:sub(1, 1) == "/" then
                     return label .. "(" .. target .. ")"
@@ -136,17 +136,20 @@ local function update_note_links(old_path, new_path)
 end
 
 function M.rename_note()
-    local pos = vim.fn.getpos(".")
-    vim.fn.cursor(1, 1)
-    local line_num = vim.fn.search("^#\\s\\+\\(.*\\)", "n")
-    vim.fn.setpos(".", pos)
-    if line_num == 0 then
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local header_text
+    for _, line in ipairs(lines) do
+        header_text = line:match("^#%s+(.*)")
+        if header_text then
+            break
+        end
+    end
+
+    if not header_text then
         print("Error: No header found (no line matching '^# ...')")
         return
     end
 
-    local line = vim.fn.getline(line_num)
-    local header_text = line:gsub("^#%s+", "")
     local slug = utils.slugify(header_text)
 
     local current_file = vim.fn.expand("%:p")
