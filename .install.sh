@@ -48,6 +48,7 @@ opencode
 pandoc
 pi-coding-agent
 pre-commit
+python-lsp-server
 ripgrep
 ruff
 sheets
