@@ -1,0 +1,15 @@
+#!/bin/sh
+
+message="${1}"
+shift
+
+if [ -e "$message" ]; then
+    echo message "$message" cannot be a path
+    exit 1
+fi
+
+if [ -n "${@}" ]; then
+    git add "${@}"
+fi
+
+git commit -m "$message"
