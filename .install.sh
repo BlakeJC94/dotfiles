@@ -44,7 +44,6 @@ mise
 monolith
 nano
 neovim
-opencode
 pandoc
 pi-coding-agent
 pre-commit
@@ -80,6 +79,14 @@ protonvpn
 spotify
 tailscale
 write
+EOF
+)
+
+APT_PACKAGES=$(cat <<'EOF'
+build-essential
+net-tools
+wget
+xclip
 EOF
 )
 
@@ -126,17 +133,13 @@ install_brew() {
 }
 
 install_brew_packages() {
-    if ! confirm "Install Homebrew packages?"; then
-        log "Skipping packages."
-        return 0
-    fi
     while IFS= read -r item || [ -n "$item" ]; do
         if brew list 2>/dev/null | grep -Fxq "$item"; then
             log "Upgrading $item..."
-            brew upgrade "$item" 2>/dev/null || true
+            brew upgrade "$item" </dev/null 2>/dev/null || true
         else
             log "Installing $item..."
-            brew install "$item"
+            brew install "$item" </dev/null
         fi
     done <<EOF
 $BREW_PACKAGES
@@ -149,19 +152,14 @@ install_brew_casks() {
         return 0
     fi
 
-    if ! confirm "Install Homebrew casks?"; then
-        log "Skipping casks."
-        return 0
-    fi
-
     while IFS= read -r item || [ -n "$item" ]; do
         if brew list --cask 2>/dev/null | grep -Fxq "$item" ||
             ls /Applications 2>/dev/null | grep -Fqi "$item"; then
             log "Upgrading $item..."
-            brew upgrade --cask "$item" 2>/dev/null || true
+            brew upgrade --cask "$item" </dev/null 2>/dev/null || true
         else
             log "Installing $item..."
-            brew install --cask "$item"
+            brew install --cask "$item" </dev/null
         fi
     done <<EOF
 $BREW_CASKS
@@ -282,11 +280,33 @@ main() {
 
     if have brew; then
         log "Homebrew already installed."
-        install_brew_packages
-        install_brew_casks
+
+        if ! confirm "Install Homebrew packages?"; then
+            log "Skipping packages."
+        else
+            install_brew_packages
+        fi
+
+        if ! confirm "Install Homebrew casks?"; then
+            log "Skipping casks."
+        else
+            install_brew_casks
+        fi
+
     elif install_brew; then
-        install_brew_packages
-        install_brew_casks
+        log "Homebrew installed."
+
+        if ! confirm "Install Homebrew packages?"; then
+            log "Skipping packages."
+        else
+            install_brew_packages
+        fi
+
+        if ! confirm "Install Homebrew casks?"; then
+            log "Skipping casks."
+        else
+            install_brew_casks
+        fi
     fi
 
     # ssh keys

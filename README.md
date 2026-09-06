@@ -12,6 +12,8 @@ Current stack:
 * **Web Browser**: Firefox
 * **LLM Client**: llm-cli
 * **Coding agent**: pi
+* **Project env manager**: mise
+* **Python env manager**: uv
 
 ## Setup
 
