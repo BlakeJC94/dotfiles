@@ -14,6 +14,7 @@ Current stack:
 * **Coding agent**: pi
 * **Project env manager**: mise
 * **Python env manager**: uv
+* **Colorscheme**: Gruvbox Dark / Gruvbox Light
 
 ## Setup
 
