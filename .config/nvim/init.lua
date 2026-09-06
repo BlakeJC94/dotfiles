@@ -34,7 +34,6 @@ local set_options = function()
         splitright = true, -- Open vsplits on right
         shortmess = vim.o.shm .. "I", -- Disable into message
         termguicolors = true, -- Wider colorscheme support
-        background = "dark", -- Background mode
         guicursor = "", -- Cursor
         errorformat = vim.o.errorformat .. "%f", -- append %f
         -- LINE DISPLAY

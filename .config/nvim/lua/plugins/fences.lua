@@ -1,7 +1,10 @@
 return {
     dir = vim.fn.stdpath("config") .. "/lua/local/fences",
     ft = "markdown",
-    opts = { bg = "#282828" },
+    opts = {
+        link = "Folded"
+        -- bg = "#282828"
+    },
     keys = {
         {
             "ic",
