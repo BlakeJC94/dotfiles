@@ -13,6 +13,7 @@
     ls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^$' ; }; f"
     bmv = "!git branch -M"
     brm = "!git branch -D"
+    train = "!f() { base=$(git branch --show-current) || return; [ -n \"$base\" ] || { echo 'train requires a checked-out branch' >&2; return 1; }; [ \"$#\" -gt 0 ] || { echo 'usage: git train <branch>...' >&2; return 1; }; for branch in \"$@\"; do git rebase \"$base\" \"$branch\" || return; base=$branch; done; }; f"
     ad = "!git add -u"
     a = "!f() { git diff --name-only -z | fzf --read0 --print0 -m | xargs -0 -r git add --verbose --; }; f"
     cm = "!git commit -m"
@@ -42,8 +43,9 @@
     ignore-template = "!~/.gitalias/ignore-template"
     ignore = "!~/.gitalias/ignore"
     exclude = "!f(){ $EDITOR .git/info/exclude ; }; f"
+    plan = "!f() { $EDITOR ./.tmp/$(git symbolic-ref --short HEAD | slugify)/PLAN.md ;  }; f"
     ; Select branch
-    g = "!git checkout $(git branch --format '%(refname:short)' | sk)"
+    co = "!git checkout $(git branch --format '%(refname:short)' | sk)"
     ; Generate keys
     key = "!~/.gitalias/key"
     ; Dotfiles shortcut with safeties
@@ -110,7 +112,7 @@
     ui = auto
 
 [tag]
-    sort = version:refname
+    sort = -creatordate
 
 [push]
     default = current
