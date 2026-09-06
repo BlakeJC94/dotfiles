@@ -51,7 +51,11 @@ M.select_fenced_code = function(inner)
 end
 
 M.setup = function(opts)
-    vim.api.nvim_set_hl(0, "MdCodeFenceBg", { bg = opts.bg })
+    if opts.link then
+        vim.api.nvim_set_hl(0, "MdCodeFenceBg", { link = opts.link })
+    else
+        vim.api.nvim_set_hl(0, "MdCodeFenceBg", { bg = opts.bg })
+    end
 
     local ns = vim.api.nvim_create_namespace("md_code_fence_bg")
 

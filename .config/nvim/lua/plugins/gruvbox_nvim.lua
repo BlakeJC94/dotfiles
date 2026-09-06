@@ -61,33 +61,36 @@ return {
             invert_signs = false,
             invert_tabline = false,
             invert_intend_guides = false,
-            contrast = "hard", -- can be "hard" or "soft"
             overrides = {
-                NormalFloat = { bg = palette.dark0 },
-                SignColumn = { bg = palette.dark0_hard },
-                Folded = { bg = palette.dark0 },
-                ColorColumn = { bg = palette.dark0 },
-                CursorLine = { bg = palette.dark0 },
-                CursorLineNr = { bg = palette.dark0 },
-                Search = { fg = palette.bright_yellow, bg = palette.dark0 },
-                CurSearch = { bg = palette.bright_yellow, fg = palette.dark0 },
-                IncSearch = { fg = palette.bright_yellow, bg = palette.dark0 },
-                DiffChange = { bg = bg_diff_change, fg = "", reverse = false },
-                DiffAdd = { bg = bg_diff_add, fg = "", reverse = false },
-                DiffDelete = { bg = bg_diff_delete, fg = "", reverse = false },
-                DiffText = { bg = bg_diff_text, fg = "", reverse = false },
-                MatchWord = { bg = palette.dark0 },
-                MatchParenCur = { bg = palette.dark0 },
-                MatchWordCur = { bg = palette.dark0 },
-                LocalHighlight = { bg = nil, fg = nil, underline = true },
-                SymbolsOutline = { bg = nil, fg = palette.neutral_blue },
-                SymbolsOutlineConnector = { bg = nil, fg = palette.neutral_blue },
-                healthSuccess = { bg = palette.bright_green, fg = palette.dark0_hard },
-                healthError = { bg = palette.bright_red, fg = palette.dark0_hard },
+                -- NormalFloat = { bg = palette.dark0 },
+                -- SignColumn = { bg = palette.dark0_hard },
+                -- Folded = { bg = palette.dark0 },
+                -- ColorColumn = { bg = palette.dark0 },
+                -- CursorLine = { bg = palette.dark0 },
+                -- CursorLineNr = { bg = palette.dark0 },
+                -- Search = { fg = palette.bright_yellow, bg = palette.dark0 },
+                -- CurSearch = { bg = palette.bright_yellow, fg = palette.dark0 },
+                -- IncSearch = { fg = palette.bright_yellow, bg = palette.dark0 },
+                -- DiffChange = { bg = bg_diff_change, fg = "", reverse = false },
+                -- DiffAdd = { bg = bg_diff_add, fg = "", reverse = false },
+                -- DiffDelete = { bg = bg_diff_delete, fg = "", reverse = false },
+                -- DiffText = { bg = bg_diff_text, fg = "", reverse = false },
+                -- MatchWord = { bg = palette.dark0 },
+                -- MatchParenCur = { bg = palette.dark0 },
+                -- MatchWordCur = { bg = palette.dark0 },
+                -- LocalHighlight = { bg = nil, fg = nil, underline = true },
+                -- SymbolsOutline = { bg = nil, fg = palette.neutral_blue },
+                -- SymbolsOutlineConnector = { bg = nil, fg = palette.neutral_blue },
+                -- healthSuccess = { bg = palette.bright_green, fg = palette.dark0_hard },
+                -- healthError = { bg = palette.bright_red, fg = palette.dark0_hard },
             },
         })
 
-        vim.opt.background = "dark"
+        if vim.loop.os_uname().sysname == 'Darwin' and vim.trim(vim.fn.system("defaults read -g AppleInterfaceStyle")) ~= 'Dark' then
+            vim.opt.background="light"
+        else
+            vim.opt.background="dark"
+        end
         vim.highlight.on_yank({ timeout = 700 })
         vim.cmd("colorscheme gruvbox")
     end,
