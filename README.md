@@ -3,6 +3,16 @@
 Dotfiles for my various systems, feel free to browse for inspiration (Clone and
 use them at your own risk though)
 
+Current stack:
+
+* **Terminal**: Ghostty
+* **Shell**: bash (Linux) / zsh (MacOS)
+* **Editor**: nvim
+* **Package manager**: Homebrew
+* **Web Browser**: Firefox
+* **LLM Client**: llm-cli
+* **Coding agent**: pi
+
 ## Setup
 
 Run the install script:
@@ -10,6 +20,7 @@ Run the install script:
 ```sh
 curl -fsSL 'https://gitlab.com/blakejc/dotfiles/-/raw/main/.install?ref_type=heads' | bash
 ```
+
 The tools are activated by the created `.dotfiles.activate` file in `$HOME`.
 Source the shell RC to get all the settings and whatnot (or start a new shell)
 
