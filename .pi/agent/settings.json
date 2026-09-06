@@ -1,11 +1,7 @@
 {
   "defaultProvider": "openrouter",
   "defaultModel": "moonshotai/kimi-k2.6",
-  "lastChangelogVersion": "0.84.2",
-  "theme": "gruvbox-dark",
-  "defaultThinkingLevel": "medium",
-  "extensions": [
-    "!extensions/permission-gate-custom/**",
-    "!extensions/fuzzy-path-completion/**"
-  ]
+  "lastChangelogVersion": "0.84.4",
+  "theme": "gruvbox-light",
+  "defaultThinkingLevel": "medium"
 }

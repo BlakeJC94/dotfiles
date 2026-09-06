@@ -16,7 +16,7 @@ split-inherit-working-directory = true
 
 tab-inherit-working-directory = false
 
-theme = Gruvbox Dark Hard
+theme = dark:Gruvbox Dark Hard,light:Gruvbox Light
 
 window-decoration = server
 window-height = 40
