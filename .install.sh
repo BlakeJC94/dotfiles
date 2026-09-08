@@ -63,6 +63,7 @@ uv
 watch
 wget
 write-good
+marksman
 EOF
 )
 
@@ -82,6 +83,8 @@ write
 EOF
 )
 
+# TODO function 'is_mac'
+# TODO function 'install_apt_packages'
 APT_PACKAGES=$(cat <<'EOF'
 build-essential
 net-tools

@@ -1,8 +1,8 @@
 {
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-terra",
-  "lastChangelogVersion": "0.84.2",
-  "theme": "gruvbox-dark",
+  "lastChangelogVersion": "0.85.1",
+  "theme": "gruvbox-light",
   "extensions": [
     "!extensions/permission-gate-custom/**/*",
     "!extensions/fuzzy-path-completion/**/*"

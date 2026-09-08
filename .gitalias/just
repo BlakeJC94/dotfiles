@@ -1,22 +1,38 @@
 #!/bin/sh
-branch=$(git rev-parse --abbrev-ref HEAD)
 
-branch=$(echo "$branch" | tr '[:upper:]' '[:lower:]')
-branch=$(echo "$branch" | sed -E 's/[^a-zA-Z0-9-]+/-/g')
-branch=$(echo "$branch" | sed -E 's/^-+//g')
-branch=$(echo "$branch" | sed -E 's/-+$//g')
+slug() {
+    printf '%s' "$1" |
+        tr '[:upper:]' '[:lower:]' |
+        sed -E 's/[^a-zA-Z0-9-]+/-/g; s/^-+//; s/-+$//'
+}
 
-path="./.tmp/$branch"
+branch=$(slug "$(git rev-parse --abbrev-ref HEAD)")
+
+main_worktree=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
+base_branch=$(
+    git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null |
+        sed 's#^origin/##'
+)
+
+[ -n "$base_branch" ] || base_branch=$(git -C "$main_worktree" branch --show-current)
+base_branch=$(slug "$base_branch")
+
+path="$main_worktree/.tmp/$branch"
 mkdir -p "$path"
 
 justfile="$path/justfile"
+base_justfile="$main_worktree/.tmp/$base_branch/justfile"
 
 if [ ! -f "$justfile" ]; then
-    repo_root=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##')
-    echo "import \"../$repo_root/justfile\"" >> "$justfile"
+    if [ "$branch" != "$base_branch" ]; then
+        printf 'import "%s"\n' "$base_justfile" > "$justfile"
+    else
+        : > "$justfile"
+    fi
     $EDITOR "$justfile"
 elif [ "$#" -eq 0 ]; then
     $EDITOR "$justfile"
 else
-    just -d . -f "$justfile" "${@}"
+    just -d . -f "$justfile" "$@"
 fi
+
