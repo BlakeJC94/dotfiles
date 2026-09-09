@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Interactively rebase onto a commit selected via fzf
+# usage: git rb [git-rebase options]  e.g. git rb --onto master
+
+commit="$(git log --oneline --color=always \
+    | fzf --ansi --reverse --preview 'git show --color=always --stat {1}' \
+    | awk '{print $1}')" || exit
+
+if [ -z "$commit" ]; then
+    echo "rb: no commit selected" >&2
+    exit 1
+fi
+
+git rebase "$@" "$commit"

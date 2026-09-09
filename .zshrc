@@ -21,6 +21,10 @@ autoload -Uz history-beginning-search-backward history-beginning-search-forward
 bindkey '^[[A' history-beginning-search-backward
 bindkey '^[[B' history-beginning-search-forward
 
+# Ctrl+Left/Right move by word (ghostty terminfo lacks kLFT5/kRIT5)
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
 
 ##
 # Env vars

@@ -7,10 +7,12 @@
     conf = "!f() { $EDITOR ~/.gitconfig ;  }; f"
     exclude = "!f() { $EDITOR ./.git/info/exclude ;  }; f"
     ; Shorthand for common ops
-    st = "!git status -sb"
+    st = "!git status -sb --show-stash"
     dif = "!git diff --stat"
+    difs = "!git diff --stat --staged"
+    diffs = "!git diff --staged"
     b = "!git checkout -"
-    ls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^$' ; }; f"
+    bls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^$' ; }; f"
     bmv = "!git branch -M"
     brm = "!git branch -D"
     train = "!f() { base=$(git branch --show-current) || return; [ -n \"$base\" ] || { echo 'train requires a checked-out branch' >&2; return 1; }; [ \"$#\" -gt 0 ] || { echo 'usage: git train <branch>...' >&2; return 1; }; for branch in \"$@\"; do git rebase \"$base\" \"$branch\" || return; base=$branch; done; }; f"
@@ -30,13 +32,22 @@
     get = "!f() { git restore --source \"${1}\" \"${@:2}\"; }; f"
     diff-branch = "!git diff $(git merge-base master HEAD)..HEAD"
     ; Update staged changes
+    uncommit = '!git reset --soft HEAD^'
     unstage = reset HEAD --
     forget = "!f() { [ \"$#\" -eq 0 ] && git reset --hard HEAD || git restore --source=HEAD --staged --worktree -- \"$@\"; }; f"
+    purge = "!git clean -fd"
     ; Remote integrations
     hub = "!NO_COLOR=true gh"
     hub-prs = "!gh pr list -S \"author:$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
     hub-reviews = "!gh pr list -S \"user-review-requested:@$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
     lab = "!NO_COLOR=true glab"
+    ; Force-remove all local branches that don't exist on the remote
+    cleanup = "!git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D"
+    search = "!~/.gitalias/search"
+    ; Interactively rebase onto a commit selected via fzf
+    rb = "!~/.gitalias/rb"
+    ; Interactively cherry-pick commit(s) selected via fzf
+    chip = "!~/.gitalias/chip"
     lab-remote = "!~/.gitalias/lab-remote"
     lab-mirror = "!~/.gitalias/lab-mirror"
     prime = "!git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##'"
@@ -169,7 +180,7 @@
 
 ; https://www.git-tower.com/blog/git-performance/
 [credential]
-	helper = 
-	helper = cache --timeout=3600
-	helper = osxkeychain
-	helper = oauth
+    helper =
+    helper = cache --timeout=3600
+    helper = osxkeychain
+    helper = oauth

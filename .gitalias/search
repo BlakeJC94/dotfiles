@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Find commits that added/removed the given string
+# usage: git search-commits <query> [git-log options]
+
+query="${1}"
+shift
+
+if [ -z "$query" ]; then
+    echo "usage: git search-commits <query> [git-log options]" >&2
+    exit 1
+fi
+
+git log -S"$query" "$@"

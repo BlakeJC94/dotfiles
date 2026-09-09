@@ -83,8 +83,8 @@ write
 EOF
 )
 
-# TODO function 'is_mac'
-# TODO function 'install_apt_packages'
+is_mac() { os_is darwin; }
+
 APT_PACKAGES=$(cat <<'EOF'
 build-essential
 net-tools
@@ -92,6 +92,38 @@ wget
 xclip
 EOF
 )
+
+install_apt_packages() {
+    if ! os_is linux; then
+        log "apt packages are only supported on Linux."
+        return 0
+    fi
+    if ! have apt-get; then
+        log "apt-get not found — skipping apt packages."
+        return 0
+    fi
+
+    if have sudo; then
+        sudo="sudo"
+    else
+        log "sudo not found — assuming running as root."
+        sudo=
+    fi
+
+    log "Updating apt package index..."
+    $sudo apt-get update </dev/null
+
+    while IFS= read -r item || [ -n "$item" ]; do
+        if dpkg -s "$item" >/dev/null 2>&1; then
+            log "$item is already installed."
+        else
+            log "Installing $item..."
+            $sudo apt-get install -y "$item" </dev/null
+        fi
+    done <<EOF
+$APT_PACKAGES
+EOF
+}
 
 # --- helpers -----------------------------------------------------------------
 
@@ -150,7 +182,7 @@ EOF
 }
 
 install_brew_casks() {
-    if ! os_is darwin; then
+    if ! is_mac; then
         log "Homebrew casks are only supported on macOS."
         return 0
     fi
@@ -253,7 +285,7 @@ clone_dotfiles() {
 # --- main ---------------------------------------------------------------------
 
 usage() {
-    printf '%s\n' "Usage: $0 [--brew-packages] [--brew-casks] [--ssh-keys]"
+    printf '%s\n' "Usage: $0 [--brew-packages] [--brew-casks] [--ssh-keys] [--apt-packages]"
 }
 
 main() {
@@ -273,6 +305,11 @@ main() {
         setup_ssh
         return
         ;;
+    --apt-packages)
+        [ "$#" -eq 1 ] || { usage; return 1; }
+        install_apt_packages
+        return
+        ;;
     "")
         ;;
     *)
@@ -280,6 +317,15 @@ main() {
         return 1
         ;;
     esac
+
+    # apt packages (Linux only, before brew — linuxbrew needs build tools)
+    if os_is linux; then
+        if confirm "Install apt packages?"; then
+            install_apt_packages
+        else
+            log "Skipping apt packages."
+        fi
+    fi
 
     if have brew; then
         log "Homebrew already installed."
