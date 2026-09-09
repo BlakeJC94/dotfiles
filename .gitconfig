@@ -4,78 +4,205 @@
     username = BlakeJC94
 
 [alias]
-    conf = "!f() { $EDITOR ~/.gitconfig ;  }; f"
-    exclude = "!f() { $EDITOR ./.git/info/exclude ;  }; f"
-    ; Shorthand for common ops
-    st = "!git status -sb --show-stash"
-    dif = "!git diff --stat"
-    difs = "!git diff --stat --staged"
-    diffs = "!git diff --staged"
-    b = "!git checkout -"
-    bls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^$' ; }; f"
-    bmv = "!git branch -M"
-    brm = "!git branch -D"
-    train = "!f() { base=$(git branch --show-current) || return; [ -n \"$base\" ] || { echo 'train requires a checked-out branch' >&2; return 1; }; [ \"$#\" -gt 0 ] || { echo 'usage: git train <branch>...' >&2; return 1; }; for branch in \"$@\"; do git rebase \"$base\" \"$branch\" || return; base=$branch; done; }; f"
-    ad = "!git add -u"
+    # Interactively fzf-select modified (unstaged) files and stage the picks.
+    # usage: git a
     a = "!f() { git diff --name-only -z | fzf --read0 --print0 -m | xargs -0 -r git add --verbose --; }; f"
-    cm = "!git commit -m"
+
+    # Stage all tracked-file changes repo-wide (new files excluded).
+    # usage: git ad
+    ad = "!git add -u"
+
+    # Toggle back to the previously checked-out branch.
+    # usage: git b
+    b = "!git checkout -"
+
+    # List local branches one per line, for line-oriented filtering.
+    # usage: git bls | <filter>
+    bls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^$' ; }; f"
+
+    # Rename a branch, overwriting the target name if it exists.
+    # usage: git bmv <new-name> | git bmv <old> <new>
+    bmv = "!git branch -M"
+
+    # ⚠ Force-delete a branch even if unmerged.
+    # usage: git brm <branch>
+    brm = "!git branch -D"
+
+    # ⚠ Amend the last commit, editing its message.
+    # usage: git ca [-a]
     ca = "!git commit --amend"
+
+    # ⚠ Amend the last commit with staged changes, keeping its message.
+    # usage: git ce
     ce = "!git commit --amend --no-edit"
-    cma = "!~/.gitalias/cma"
-    sync = "!f() { msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\" && git add -uv . && git commit -m \"${1:-$msg}\" ; }; f"
-    yeet = "!git sync && git push"
-    lg = "!f() { if [ $# -eq 0 ]; then git log --oneline -n 8; else git log --oneline \"$@\"; fi }; f"
-    lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
-    last = log -1 HEAD --stat
-    hist = log --graph --color=auto --abbrev-commit --pretty=concise
-    ; get = "!f() { git restore --source \"${1}\" -- \"${@:2}\"; }; f"
-    get = "!f() { git restore --source \"${1}\" \"${@:2}\"; }; f"
-    diff-branch = "!git diff $(git merge-base master HEAD)..HEAD"
-    ; Update staged changes
-    uncommit = '!git reset --soft HEAD^'
-    unstage = reset HEAD --
-    forget = "!f() { [ \"$#\" -eq 0 ] && git reset --hard HEAD || git restore --source=HEAD --staged --worktree -- \"$@\"; }; f"
-    purge = "!git clean -fd"
-    ; Remote integrations
-    hub = "!NO_COLOR=true gh"
-    hub-prs = "!gh pr list -S \"author:$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
-    hub-reviews = "!gh pr list -S \"user-review-requested:@$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
-    lab = "!NO_COLOR=true glab"
-    ; Force-remove all local branches that don't exist on the remote
-    cleanup = "!git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D"
-    search = "!~/.gitalias/search"
-    ; grep a pattern in the latest commit of every local/remote branch (optionally limit to a path)
-    ; usage: git hunt <pattern> [path]
-    hunt = "!f() { git grep -n \"$1\" $(git for-each-ref --format=\"%(refname)\" refs/heads refs/remotes) -- \"${2:-.}\"; }; f"
-    ; Interactively rebase onto a commit selected via fzf
-    rb = "!~/.gitalias/rb"
-    ; Interactively cherry-pick commit(s) selected via fzf
+
+    # Cherry-pick commits fzf-picked from the log (script: ~/.gitalias/chip).
+    # usage: git chip [cherry-pick options]
     chip = "!~/.gitalias/chip"
-    lab-remote = "!~/.gitalias/lab-remote"
-    lab-mirror = "!~/.gitalias/lab-mirror"
-    prime = "!git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##'"
-    ; Ignore file actions
-    ignore-template = "!~/.gitalias/ignore-template"
-    ignore = "!~/.gitalias/ignore"
-    exclude = "!f(){ $EDITOR .git/info/exclude ; }; f"
-    plan = "!f() { $EDITOR ./.tmp/$(git symbolic-ref --short HEAD | slugify)/PLAN.md ;  }; f"
-    ; Select branch
-    co = "!git checkout $(git branch --format '%(refname:short)' | sk)"
-    ; Generate keys
-    key = "!~/.gitalias/key"
-    ; Dotfiles shortcut with safeties
-    dotfiles = "!~/.gitalias/dotfiles"
-    ; Run branch justfile
-    just = "!~/.gitalias/just"
-    ; Set upstream branch
-    up = "!~/.gitalias/up"
-    ; get the primary branch name from remote
-    prime = "!git symbolic-ref refs/remotes/origin/HEAD | cut -d '/' -f 4-"
-    ; Clone and setup worktrees
+
+    # ⚠ Prune remote-tracking refs, then force-delete local branches whose upstream is gone.
+    # usage: git cleanup
+    cleanup = "!git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D"
+
+    # Clone a repo into a bare repo + worktree layout, ready for per-branch worktrees (script: ~/.gitalias/clonetree).
+    # usage: git clonetree <url> [dir]
     clonetree = "!~/.gitalias/clonetree"
-    ; TODO Turn this into an llm-cli template
-    ; diffwhat = "!f() { local diff_out=$(git diff \"@\") || return; echo \"$diff_out\" | llm 'Summarise this git diff into a few sentences or dot points'; }; f"
-    ; TODO maintain
+
+    # Commit staged changes with a message.
+    # usage: git cm "<message>"
+    cm = "!git commit -m"
+
+    # Stage the given paths (if any), then commit with the message (script: ~/.gitalias/cma).
+    # usage: git cma "<message>" [path]...
+    cma = "!~/.gitalias/cma"
+
+    # Fuzzy-pick and check out a local branch via sk.
+    # usage: git co
+    co = "!git checkout $(git branch --format '%(refname:short)' | sk)"
+
+    # Edit ~/.gitconfig in $EDITOR.
+    # usage: git conf
+    conf = "!f() { $EDITOR ~/.gitconfig ;  }; f"
+
+    # Summarise unstaged changes per file.
+    # usage: git dif
+    dif = "!git diff --stat"
+
+    # Diff this branch's unique work since it diverged from master.
+    # usage: git diff-branch [diff-args]
+    diff-branch = "!git diff $(git merge-base master HEAD)..HEAD"
+
+    # Show the full staged diff.
+    # usage: git diffs
+    diffs = "!git diff --staged"
+
+    # Summarise staged changes per file.
+    # usage: git difs
+    difs = "!git diff --stat --staged"
+
+    # Run git against the bare dotfiles repo from anywhere, prompting before risky directory-wide operations (script: ~/.gitalias/dotfiles).
+    # usage: git dotfiles <git-subcommand> [args...]
+    dotfiles = "!~/.gitalias/dotfiles"
+
+    # Edit the repo's local exclude file (./.git/info/exclude) in $EDITOR.
+    # usage: git exclude
+    exclude = "!f() { $EDITOR ./.git/info/exclude ;  }; f"
+
+    # ⚠ Discard all uncommitted changes, or restore just the given paths from HEAD.
+    # usage: git forget [path]...
+    forget = "!f() { [ \"$#\" -eq 0 ] && git reset --hard HEAD || git restore --source=HEAD --staged --worktree -- \"$@\"; }; f"
+
+    # Restore files from an arbitrary commit/ref without moving HEAD.
+    # usage: git get <ref> <path>...
+    get = "!f() { git restore --source \"${1}\" \"${@:2}\"; }; f"
+
+    # Graph log using the custom "concise" pretty format defined below.
+    # usage: git hist [log-args]
+    hist = log --graph --color=auto --abbrev-commit --pretty=concise
+
+    # Run the GitHub CLI with colour forced off.
+    # usage: git hub <gh-subcommand> [args...]
+    hub = "!NO_COLOR=true gh"
+
+    # List your open GitHub PRs as markdown links.
+    # usage: git hub-prs
+    hub-prs = "!gh pr list -S \"author:$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
+
+    # List PRs awaiting your GitHub review as markdown links.
+    # usage: git hub-reviews
+    hub-reviews = "!gh pr list -S \"user-review-requested:@$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
+
+    # Grep a pattern across all local and remote branches.
+    # usage: git hunt <pattern> [path]
+    hunt = "!f() { git grep -n \"$1\" $(git for-each-ref --format=\"%(refname)\" refs/heads refs/remotes) -- \"${2:-.}\"; }; f"
+
+    # Edit (creating if needed) a .gitignore for cwd or a subdirectory in $EDITOR (script: ~/.gitalias/ignore).
+    # usage: git ignore [dir]
+    ignore = "!~/.gitalias/ignore"
+
+    # Print an official gitignore template for a language, picking via fzf if omitted (script: ~/.gitalias/ignore-template).
+    # usage: git ignore-template [lang]
+    ignore-template = "!~/.gitalias/ignore-template"
+
+    # Create/edit a branch-scoped justfile under .tmp/<branch>/ (script: ~/.gitalias/just).
+    # usage: git just [just-args...]
+    just = "!~/.gitalias/just"
+
+    # Refresh SSH keys via ~/.install.sh (script: ~/.gitalias/key).
+    # usage: git key
+    key = "!~/.gitalias/key"
+
+    # Run the GitLab CLI with colour forced off.
+    # usage: git lab <glab-subcommand> [args...]
+    lab = "!NO_COLOR=true glab"
+
+    # Configure the GitLab repo to push-mirror to its GitHub counterpart (script: ~/.gitalias/lab-mirror).
+    # usage: git lab-mirror
+    lab-mirror = "!~/.gitalias/lab-mirror"
+
+    # Point origin at the matching gitlab.com repo (script: ~/.gitalias/lab-remote).
+    # usage: git lab-remote
+    lab-remote = "!~/.gitalias/lab-remote"
+
+    # Show the last commit with per-file stats.
+    # usage: git last
+    last = log -1 HEAD --stat
+
+    # Compact oneline log — the last 8 commits, or any args passed to git log.
+    # usage: git lg [log-args]
+    lg = "!f() { if [ $# -eq 0 ]; then git log --oneline -n 8; else git log --oneline \"$@\"; fi }; f"
+
+    # Compact log with per-commit add/modify/delete file status — last 8 by default.
+    # usage: git lgs [log-args]
+    lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
+
+    # Edit this branch's PLAN.md under ./.tmp/<branch>/ in $EDITOR (requires slugify).
+    # usage: git plan
+    plan = "!f() { $EDITOR ./.tmp/$(git symbolic-ref --short HEAD | slugify)/PLAN.md ;  }; f"
+
+    # Print the origin repo's primary branch name (e.g. main).
+    # usage: git prime
+    prime = "!git symbolic-ref refs/remotes/origin/HEAD | cut -d '/' -f 4-"
+
+    # ⚠ Remove all untracked files and directories.
+    # usage: git purge
+    purge = "!git clean -fd"
+
+    # ⚠ Rebase onto a commit fzf-picked from the log (script: ~/.gitalias/rb).
+    # usage: git rb [rebase options]
+    rb = "!~/.gitalias/rb"
+
+    # Pickaxe: find commits that added/removed the string (script: ~/.gitalias/search).
+    # usage: git search <query> [log-args]
+    search = "!~/.gitalias/search"
+
+    # Short status with branch tracking info and stash count.
+    # usage: git st
+    st = "!git status -sb --show-stash"
+
+    # Stage tracked changes and commit them as a timestamped sync point, or with the given message.
+    # usage: git sync [message]
+    sync = "!f() { msg=\"sync: $(whoami)@$(hostname) $(date '+%Y-%m-%d %H:%M:%S')\" && git add -uv . && git commit -m \"${1:-$msg}\" ; }; f"
+
+    # ⚠ Rebase the listed branches onto the current one and onto each other, in order.
+    # usage: git train <branch>...
+    train = "!f() { base=$(git branch --show-current) || return; [ -n \"$base\" ] || { echo 'train requires a checked-out branch' >&2; return 1; }; [ \"$#\" -gt 0 ] || { echo 'usage: git train <branch>...' >&2; return 1; }; for branch in \"$@\"; do git rebase \"$base\" \"$branch\" || return; base=$branch; done; }; f"
+
+    # Undo the last commit, keeping its changes staged.
+    # usage: git uncommit
+    uncommit = '!git reset --soft HEAD^'
+
+    # Unstage the given files without touching their content.
+    # usage: git unstage <path>...
+    unstage = reset HEAD --
+
+    # Set the current branch's upstream to origin/<branch> (script: ~/.gitalias/up).
+    # usage: git up
+    up = "!~/.gitalias/up"
+
+    # Sync (stage + commit) then push in one shot.
+    # usage: git yeet [message]
+    yeet = "!git sync && git push"
 
 
 [color]
