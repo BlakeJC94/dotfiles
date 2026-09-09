@@ -74,10 +74,6 @@
     editor = "nvim"
     fsmonitor = true
     untrackedcache = true
-
-[credential]
-    helper = cache --timeout=3600
-
 [diff]
     colorMoved = plain
     algorithm = histogram
@@ -172,3 +168,8 @@
     auto = true
 
 ; https://www.git-tower.com/blog/git-performance/
+[credential]
+	helper = 
+	helper = cache --timeout=3600
+	helper = osxkeychain
+	helper = oauth
