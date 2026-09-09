@@ -86,11 +86,6 @@ return {
             },
         })
 
-        if vim.loop.os_uname().sysname == 'Darwin' and vim.trim(vim.fn.system("defaults read -g AppleInterfaceStyle")) ~= 'Dark' then
-            vim.opt.background="light"
-        else
-            vim.opt.background="dark"
-        end
         vim.highlight.on_yank({ timeout = 700 })
         vim.cmd("colorscheme gruvbox")
     end,

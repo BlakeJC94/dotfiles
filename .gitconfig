@@ -44,6 +44,9 @@
     ; Force-remove all local branches that don't exist on the remote
     cleanup = "!git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D"
     search = "!~/.gitalias/search"
+    ; grep a pattern in the latest commit of every local/remote branch (optionally limit to a path)
+    ; usage: git hunt <pattern> [path]
+    hunt = "!f() { git grep -n \"$1\" $(git for-each-ref --format=\"%(refname)\" refs/heads refs/remotes) -- \"${2:-.}\"; }; f"
     ; Interactively rebase onto a commit selected via fzf
     rb = "!~/.gitalias/rb"
     ; Interactively cherry-pick commit(s) selected via fzf
