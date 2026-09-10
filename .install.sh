@@ -28,7 +28,6 @@ gaze
 git
 git-lfs
 gitleaks
-glow
 gnu-sed
 grep
 herdr

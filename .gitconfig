@@ -165,7 +165,7 @@
     vim = "!nvim -c 'Note'"
 
     # Print plan location
-    plan = "!nvim --headless -c 'Note' -c 'pwd' -c 'echo \"\"' -c 'q' 2>&1"
+    plan = "!nvim --headless -c 'Note' -c 'echo expand(\"%:p\")' -c 'echo \"\"' -c 'q' 2>&1"
 
     # Print the origin repo's primary branch name (e.g. main).
     # usage: git prime
@@ -322,7 +322,6 @@
 
 ; https://www.git-tower.com/blog/git-performance/
 [credential]
-    helper =
     helper = cache --timeout=3600
     helper = osxkeychain
     helper = oauth

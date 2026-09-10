@@ -15,9 +15,9 @@ return {
         },
         capture_register = "+", -- Register to store output after each send; set to nil to disable
         capture_delay = 800, -- ms to wait after sending before reading terminal output
-        highlight_normal = {
-            bg = "#282828",
-        },
+        -- highlight_normal = {
+        --     bg = "#282828",
+        -- },
     },
     keys = {
         {
