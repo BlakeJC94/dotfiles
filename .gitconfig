@@ -44,6 +44,10 @@
     # usage: git cleanup
     cleanup = "!git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D"
 
+    # Remove origin fetch refspecs and tracking refs for remote branches that no longer exist.
+    # usage: git clean-dead-refs
+    clean-dead-refs = "!~/.gitalias/clean-dead-refs"
+
     # Clone a repo into a bare repo + worktree layout, ready for per-branch worktrees (script: ~/.gitalias/clonetree).
     # usage: git clonetree <url> [dir]
     clonetree = "!~/.gitalias/clonetree"

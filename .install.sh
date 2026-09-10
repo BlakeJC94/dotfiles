@@ -24,7 +24,6 @@ dprint
 eza
 fd
 findutils
-fzf
 gaze
 git
 git-lfs

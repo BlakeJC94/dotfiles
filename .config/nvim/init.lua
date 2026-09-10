@@ -137,6 +137,8 @@ local main = function()
     vim.keymap.set("c", "<Down>", function()
         return history_search(1)
     end, { expr = true })
+
+    vim.opt.shellcmdflag = "-ic"
 end
 
 main()

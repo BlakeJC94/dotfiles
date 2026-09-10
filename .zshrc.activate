@@ -1,8 +1,5 @@
 #!/usr/bin/env zsh
 
-[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-
 if [ -f /opt/homebrew/bin/brew ] ; then
     # Replace MacOS standard tools with Unix standard tools
     export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
@@ -16,8 +13,7 @@ if command -v dircolors >/dev/null; then
     eval $(dircolors)
 fi
 
-# Autocomplete
-#
+# Autocomplete for git
 if [ -f /opt/homebrew/bin/brew ] && command -v git >/dev/null; then
     fpath=("$(brew --prefix git)/share/zsh/site-functions" $fpath)
 fi
@@ -53,10 +49,10 @@ if command -v starship >/dev/null; then
     eval "$(starship init zsh)"
 fi
 
-# Initialise FZF
-if command -v fzf >/dev/null; then
-    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating fzf"
-    eval "$(fzf --zsh)"
+# Initialise sk
+if command -v sk >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating sk"
+    eval "$(sk --shell zsh --shell-bindings)"
 fi
 
 # Initialise direnv

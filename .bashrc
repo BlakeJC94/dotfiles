@@ -10,6 +10,36 @@ case $- in
 esac
 
 ##
+# Env vars
+
+# Setup common env vars
+[ -f ~/.vars ] && source ~/.vars
+[ -f ~/.vars.local ] && source ~/.vars.local
+
+##
+# Aliases
+
+# Setup common alias definitions
+[ -f ~/.aliases ] && source ~/.aliases
+[ -f ~/.aliases.local ] && source ~/.aliases.local
+
+##
+# Only load terminal/ZLE configuration in a real interactive terminal
+
+[[ $- == *i* && -t 0 ]] || return
+
+##
+# Initialisers
+
+if [ -f ~/.dotfiles.activate ]; then
+    source ~/.bashrc.activate
+    [ -f ~/.bashrc.activate.local ] && source ~/.bashrc.activate.local
+fi
+
+##
+# Extras
+
+##
 # Settings
 
 # Check the window size after each command and, if necessary,
@@ -35,29 +65,3 @@ bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
 bind 'set visible-stats on'
 
-##
-# Env vars
-
-# Setup common env vars
-[ -f ~/.vars ] && source ~/.vars
-
-##
-# Aliases
-
-# Setup common alias definitions
-[ -f ~/.aliases ] && source ~/.aliases
-
-##
-# Initialisers
-
-if [ -f ~/.dotfiles.activate ]; then
-    source ~/.bashrc.activate
-fi
-
-##
-# Extras
-
-# Local overrides
-if [ -f ~/.bashrc.local ]; then
-    source ~/.bashrc.local
-fi

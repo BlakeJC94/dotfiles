@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+git config --get-all remote.origin.fetch | while read -r refspec; do
+  case "$refspec" in
+    +refs/heads/*:refs/remotes/origin/*)
+      branch=${refspec#+refs/heads/}
+      branch=${branch%%:refs/remotes/origin/*}
+      case "$branch" in *'*'*) continue ;; esac
+
+      if git ls-remote --exit-code --heads origin "refs/heads/$branch" >/dev/null; then
+        continue
+      fi
+
+      echo "Removing dead origin branch: $branch"
+      git config --fixed-value --unset-all remote.origin.fetch "$refspec"
+      git update-ref -d "refs/remotes/origin/$branch" || true
+
+      while read -r local_branch upstream; do
+        if [ "$upstream" = "origin/$branch" ]; then
+          git branch --unset-upstream "$local_branch"
+        fi
+      done < <(git for-each-ref --format='%(refname:short) %(upstream:short)' refs/heads)
+      ;;
+  esac
+done

@@ -9,7 +9,6 @@ case $- in
       *) return;;
 esac
 
-
 ##
 # Settings
 
@@ -29,33 +28,28 @@ bindkey '^[[1;5C' forward-word
 bindkey '^[[1;5D' backward-word
 
 
-
 ##
 # Env vars
 
-# Setup common env vars
 [ -f ~/.vars ] && source ~/.vars
-
+[ -f ~/.vars.local ] && source ~/.vars.local
 
 ##
 # Aliases
 
-# Setup common alias definitions
 [ -f ~/.aliases ] && source ~/.aliases
+[ -f ~/.aliases.local ] && source ~/.aliases.local
 
+##
+# Only load terminal/ZLE configuration in a real interactive terminal
+
+[[ -o interactive && -t 0 ]] || return
 
 ##
 # Initialisers
 
 if [ -f ~/.dotfiles.activate ]; then
     source ~/.zshrc.activate
+    [ -f ~/.zshrc.activate.local ] && source ~/.zshrc.activate.local
 fi
 
-
-##
-# Extras
-
-# Local overrides
-if [ -f ~/.zshrc.local ]; then
-    source ~/.zshrc.local
-fi

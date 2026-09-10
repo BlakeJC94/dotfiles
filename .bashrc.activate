@@ -1,16 +1,5 @@
 #!/usr/bin/env bash
 
-[ -f /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-
-if [ -f /opt/homebrew/bin/brew ] ; then
-    # Replace MacOS standard tools with Unix standard tools
-    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
-fi
-
 # Set dircolors (ls colors)
 if command -v dircolors >/dev/null; then
     eval "$(dircolors)"
@@ -20,33 +9,25 @@ fi
 if command -v mise >/dev/null; then
     [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating mise"
     eval "$(mise activate bash)"
-else
-    [ ! -z ${DOTFILES_DEBUG} ] && echo "No mise"
 fi
 
 # Initialise Starship prompt
 if command -v starship >/dev/null; then
     [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating starship"
     eval "$(starship init bash)"
-else
-    [ ! -z ${DOTFILES_DEBUG} ] && echo "No starship"
 fi
 
-# Initialise FZF
-if command -v fzf >/dev/null; then
-    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating fzf"
-    eval "$(fzf --bash)"
-else
-    [ ! -z ${DOTFILES_DEBUG} ] && echo "No fzf"
+# Initialise sk
+if command -v sk >/dev/null; then
+    [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating sk"
+    eval "$(sk --shell zsh --shell-bindings)"
 fi
+
 
 # Initialise direnv
 if command -v direnv >/dev/null; then
     eval "$(direnv hook bash)"
-else
-    [ ! -z ${DOTFILES_DEBUG} ] && echo "No direnv"
 fi
 
 
 [ ! -z ${DOTFILES_DEBUG} ] && echo "Finished activations"
-
