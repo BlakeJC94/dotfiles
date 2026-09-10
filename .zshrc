@@ -13,6 +13,9 @@ esac
 ##
 # Settings
 
+# Enable autocomplete for commands
+autoload -Uz compinit && compinit
+
 # Ensure the emacs bindings are working
 bindkey -e
 
@@ -24,6 +27,7 @@ bindkey '^[[B' history-beginning-search-forward
 # Ctrl+Left/Right move by word (ghostty terminfo lacks kLFT5/kRIT5)
 bindkey '^[[1;5C' forward-word
 bindkey '^[[1;5D' backward-word
+
 
 
 ##

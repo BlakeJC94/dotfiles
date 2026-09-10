@@ -16,6 +16,12 @@ if command -v dircolors >/dev/null; then
     eval $(dircolors)
 fi
 
+# Autocomplete
+#
+if [ -f /opt/homebrew/bin/brew ] && command -v git >/dev/null; then
+    fpath=("$(brew --prefix git)/share/zsh/site-functions" $fpath)
+fi
+
 # Initialise Mise
 #
 # NOTE: If you run into this issue:

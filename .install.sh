@@ -64,6 +64,7 @@ watch
 wget
 write-good
 marksman
+taplo
 EOF
 )
 
