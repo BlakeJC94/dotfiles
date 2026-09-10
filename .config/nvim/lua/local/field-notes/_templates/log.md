@@ -2,15 +2,11 @@
 
 ## Quests
 
-### Main
+**Main**
 
-### Side
+**Side**
 
-### Misc
-
-## In Flight
-
-## To Review
+**Misc**
 
 ## Log
 
@@ -64,4 +60,4 @@ Afternoon
 
 1. [ ] ...
 
-## Misc notes
+## Notes

@@ -245,6 +245,7 @@
 
 [branch]
     sort = -committerdate
+	autoSetupMerge = false
 
 [column]
     ui = auto
