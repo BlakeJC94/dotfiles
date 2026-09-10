@@ -156,9 +156,12 @@
     # usage: git lgs [log-args]
     lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
 
-    # Edit this branch's PLAN.md under ./.tmp/<branch>/ in $EDITOR (requires slugify).
+    # Edit this branch's notes
     # usage: git plan
-    plan = "!f() { $EDITOR ./.tmp/$(git symbolic-ref --short HEAD | slugify)/PLAN.md ;  }; f"
+    vim = "!nvim -c 'Note'"
+
+    # Print plan location
+    plan = "!nvim --headless -c 'Note' -c 'pwd' -c 'echo \"\"' -c 'q' 2>&1"
 
     # Print the origin repo's primary branch name (e.g. main).
     # usage: git prime
@@ -175,6 +178,10 @@
     # Pickaxe: find commits that added/removed the string (script: ~/.gitalias/search).
     # usage: git search <query> [log-args]
     search = "!~/.gitalias/search"
+
+    # Print slug of current branch
+    # usage: git slug
+    slug = "!~/.gitalias/slug"
 
     # Short status with branch tracking info and stash count.
     # usage: git st
@@ -245,7 +252,7 @@
 
 [branch]
     sort = -committerdate
-	autoSetupMerge = false
+    autoSetupMerge = false
 
 [column]
     ui = auto

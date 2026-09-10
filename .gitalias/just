@@ -1,12 +1,6 @@
 #!/bin/sh
 
-slug() {
-    printf '%s' "$1" |
-        tr '[:upper:]' '[:lower:]' |
-        sed -E 's/[^a-zA-Z0-9-]+/-/g; s/^-+//; s/-+$//'
-}
-
-branch=$(slug "$(git rev-parse --abbrev-ref HEAD)")
+branch=$(git slug)
 
 main_worktree=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
 base_branch=$(

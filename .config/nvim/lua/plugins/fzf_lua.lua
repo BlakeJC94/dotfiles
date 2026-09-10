@@ -4,7 +4,10 @@ return {
     cmd = "FzfLua",
     opts = {
         fzf_bin = "sk",
-        winopts = { border = "none" },
+        winopts = {
+            border = "none",
+            layout = "flex",
+        },
         grep = {
             hidden = true,
             git_icons = false,

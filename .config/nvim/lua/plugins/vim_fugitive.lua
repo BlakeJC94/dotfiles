@@ -7,7 +7,6 @@ return {
     },
     lazy = false,
     keys = {
-        { "<Leader>/", "<cmd>Gcd | echo 'Changed dir to ' . getcwd()<CR>" },
         { "<Leader>cc", "<cmd>Git commit<CR>" },
         { "<Leader>ca", "<cmd>Git commit --amend<CR>" },
         { "<Leader>ce", "<cmd>Git commit --amend --no-edit<CR>" },

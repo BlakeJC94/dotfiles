@@ -65,6 +65,8 @@ wget
 write-good
 marksman
 taplo
+lua-language-server
+stylua
 EOF
 )
 

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+input=$(git branch --show-current)
+
+output=$(echo "$input" | tr '[:upper:]' '[:lower:]')
+output=$(echo "$output" | sed -E 's/[^a-zA-Z0-9-]+/-/g')
+output=$(echo "$output" | sed -E 's/^-+//g')
+output=$(echo "$output" | sed -E 's/-+$//g')
+
+echo "$output"

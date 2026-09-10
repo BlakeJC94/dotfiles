@@ -96,6 +96,47 @@ local main = function()
         colorscheme = { "retrobox" },
         dev = { path = "~/Workspace/repos" },
     })
+
+    local cmd_history = {}
+
+    local function history_search(direction)
+        local kind = vim.fn.getcmdtype()
+        local line = vim.fn.getcmdline()
+        local state = cmd_history[kind]
+
+        if not state or line ~= state.value then
+            state = {
+                prefix = line,
+                index = direction < 0 and vim.fn.histnr(kind) + 1 or 0,
+            }
+        end
+
+        local start = state.index + direction
+        local stop = direction < 0 and 1 or vim.fn.histnr(kind)
+
+        for i = start, stop, direction do
+            local entry = vim.fn.histget(kind, i)
+
+            if entry:sub(1, #state.prefix) == state.prefix then
+                state.index = i
+                state.value = entry
+                cmd_history[kind] = state
+                vim.fn.setcmdline(entry)
+                vim.fn.setcmdpos(#entry + 1)
+                break
+            end
+        end
+
+        return ""
+    end
+
+    vim.keymap.set("c", "<Up>", function()
+        return history_search(-1)
+    end, { expr = true })
+
+    vim.keymap.set("c", "<Down>", function()
+        return history_search(1)
+    end, { expr = true })
 end
 
 main()

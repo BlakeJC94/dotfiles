@@ -27,7 +27,7 @@ alias todo='rg -o --hidden --iglob "!.git" --iglob "!TODO.md" "TODO.*"'
 alias vi='command vim'
 alias vim='nvim'
 
-alias gcd='cd "$(dirname "$(git rev-parse --absolute-git-dir)")"'
+alias gcd='cd "$(dirname "$(git rev-parse --show-toplevel)")"'
 
 alias dtf='git dotfiles'
 alias l='eza'
