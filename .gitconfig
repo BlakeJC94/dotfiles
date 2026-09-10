@@ -213,7 +213,7 @@
 
     # Sync (stage + commit) then push in one shot.
     # usage: git yeet [message]
-    yeet = "!git sync && git push"
+    yeet = "!git sync ; git push"
 
 
 [color]
