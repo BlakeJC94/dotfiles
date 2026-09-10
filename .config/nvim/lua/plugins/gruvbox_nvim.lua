@@ -58,6 +58,7 @@ return {
                 folds = false,
             },
             invert_selection = false,
+            contrast = "",
             invert_signs = false,
             invert_tabline = false,
             invert_intend_guides = false,

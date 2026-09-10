@@ -62,6 +62,10 @@ M.setup = function(opts)
     motions.setup_reverse()
     motions.setup_sort()
 
+    -- Load cmd history module and add functions to global namespace
+    local cmdhistory = require("config.cmdhistory")
+    m.history_search = cmdhistory.history_search
+
     -- Setup autocommands
     local autocmds = require("config.autocmds")
     autocmds.setup_create_parent_dirs()

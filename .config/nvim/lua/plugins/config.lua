@@ -3,8 +3,23 @@ return {
     lazy = false,
     opts = {},
     keys = {
-        { "<Down>", "<C-n>", mode = "c" },
-        { "<Up>", "<C-p>", mode = "c" },
+        -- Command-mode history search with prefix matching
+        {
+            "<Up>",
+            function()
+                return _G.config.history_search(-1)
+            end,
+            mode = "c",
+            expr = true,
+        },
+        {
+            "<Down>",
+            function()
+                return _G.config.history_search(1)
+            end,
+            mode = "c",
+            expr = true,
+        },
         -- Better jumplist for large line steps (and step through visual lines with j/k)
         {
             "j",
@@ -80,17 +95,6 @@ return {
             "<C-l>",
             ":noh<CR>zx<C-l>",
             silent = true,
-        },
-        -- correct the commmandline wildmenu arrows
-        {
-            "<Down>",
-            "<C-n>",
-            mode = "c",
-        },
-        {
-            "<Up>",
-            "<C-p>",
-            mode = "c",
         },
         -- Stop accidentally opening help in insert mode
         {
