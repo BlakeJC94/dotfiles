@@ -165,6 +165,8 @@ directory = "~/.herdr/worktrees"
 
 # Background notification popup delivery
 [ui.toast]
+delivery = "system" # or "terminal" / "herdr"
+delay_seconds = 1
 # off = disable pop-up notifications
 # herdr = show in-app toasts
 # terminal = ask the outer terminal to show a desktop notification

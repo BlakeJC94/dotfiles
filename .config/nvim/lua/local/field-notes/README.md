@@ -130,7 +130,7 @@ Or set `field_notes_default_template` to apply a template to all new notes autom
     weekly.md
 ```
 
-When a note is opened, `:lcd` is set to the notes directory so relative paths resolve. Images and diagrams are stored per-note:
+Opening a note preserves the existing working directory. Images and diagrams are stored per-note:
 
 ```
 ~/Workspace/field-notes/

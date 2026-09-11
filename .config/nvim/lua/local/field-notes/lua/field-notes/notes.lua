@@ -77,7 +77,6 @@ function M.open_note(bang, args, opts)
         vim.bo.modified = false
     end
 
-    vim.cmd("lcd " .. vim.fn.expand("%:p:h"))
 end
 
 function M.open_notes_dir(opts)

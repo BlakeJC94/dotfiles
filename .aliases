@@ -74,4 +74,4 @@ pbcopy() {
     fi
 }
 
-alias plm="pbpaste | lm"
+alias plm="pbpaste | tee /dev/tty | lm"
