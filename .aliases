@@ -23,6 +23,7 @@ alias psmem='ps auxf | sort -nr -k 4'
 alias pscpu='ps auxf | sort -nr -k 3'
 
 alias todo='rg -o --hidden --iglob "!.git" --iglob "!TODO.md" "TODO.*"'
+# alias note='nvim -c "Note"'
 
 alias vi='command vim'
 alias vim='nvim'
@@ -31,14 +32,14 @@ alias gcd='cd "$(dirname "$(git rev-parse --show-toplevel)")"'
 
 alias dtf='git dotfiles'
 alias l='eza'
-alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | fzf || echo .)'
-alias c='cd "$(find . -maxdepth 1 -type d | fzf || echo .)"'
-alias C='cd "$(find . -type d | fzf || echo .)"'
+alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | sk || echo .)'
+alias c='cd "$(find . -maxdepth 1 -type d | sk || echo .)"'
+alias C='cd "$(find . -type d | sk || echo .)"'
 alias q="exit"
 
 alias teety="tee /dev/tty"
 
-alias opencode-resume='opencode --session $(opencode session list --format json | jq -r ".[] | [.title, .id] | @tsv" | fzf --delimiter=$"\t" --with-nth=1 | cut -f2)'
+alias opencode-resume='opencode --session $(opencode session list --format json | jq -r ".[] | [.title, .id] | @tsv" | sk --delimiter=$"\t" --with-nth=1 | cut -f2)'
 
 note() {
     vim -c "Note ${1}"
@@ -72,3 +73,5 @@ pbcopy() {
         cat - > /tmp/clipboard
     fi
 }
+
+alias plm="pbpaste | lm"

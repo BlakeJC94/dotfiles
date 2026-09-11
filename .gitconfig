@@ -72,6 +72,10 @@
     # usage: git dif
     dif = "!git diff --stat"
 
+    # Show the full staged diff.
+    # usage: git difs
+    difs = "!git diff --stat --staged"
+
     # Diff this branch's unique work since it diverged from master.
     # usage: git diff-branch [diff-args]
     diff-branch = "!git diff $(git merge-base master HEAD)..HEAD"
