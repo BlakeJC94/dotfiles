@@ -6,15 +6,16 @@ use them at your own risk though)
 Current stack:
 
 * **Terminal**: Ghostty
-* **Shell**: bash (Linux) / zsh (MacOS)
-* **Editor**: nvim
+* **Shell**: `bash` (Linux) / `zsh` (MacOS)
+* **Editor**: `nvim`
 * **Package manager**: Homebrew
 * **Web Browser**: Firefox
-* **LLM Client**: llm-cli
-* **Coding agent**: pi
-* **Project env manager**: mise
-* **Python env manager**: uv
+* **LLM Client**: `llm-cli`
+* **Coding agent**: `pi`
+* **Project env manager**: `mise`
+* **Python env manager**: `uv`
 * **Colorscheme**: Gruvbox Dark / Gruvbox Light
+* **Grammar checker**: `write-good`
 
 ## Setup
 
@@ -32,12 +33,6 @@ source .bashrc  # If on bash
 source .zshrc   # If on zsh
 ```
 
-On Linux, must be manually run:
-
-```bash
-just apt-up
-```
-
 ## Usage
 
 ### Adding files
@@ -45,10 +40,17 @@ just apt-up
 Add a file to the dotfile repo:
 
 ```bash
-dtf add /path/to/file
-dtf commit -m "feat: Add file"
+dtf add /path/to/file  # Will warn when you try to add a dir
+dtf cm "feat: Add file"
 dtf push
 
-# Get latest
+# Shortcut for adding all tracked files in a "sync commit"
+dtf sync
 dtf push
+
+# Shorter shortcut for sync + push
+dtf yeet
+
+# Get latest
+dtf pull
 ```

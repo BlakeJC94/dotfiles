@@ -37,7 +37,9 @@ alias c='cd "$(find . -maxdepth 1 -type d | sk || echo .)"'
 alias C='cd "$(find . -type d | sk || echo .)"'
 alias q="exit"
 
-alias teety="tee /dev/tty"
+alias fa='fd -IH'
+
+alias ty="tee /dev/tty"
 
 alias opencode-resume='opencode --session $(opencode session list --format json | jq -r ".[] | [.title, .id] | @tsv" | sk --delimiter=$"\t" --with-nth=1 | cut -f2)'
 

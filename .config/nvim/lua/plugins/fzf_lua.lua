@@ -20,17 +20,6 @@ return {
         },
     },
     keys = {
-        {
-            "<C-S-s>",
-            "i<C-g>u<Esc>[s:FzfLua spell_suggest<CR>",
-            remap = false,
-        },
-        {
-            "<C-S-s>",
-            "<C-g>u<Esc>[s:FzfLua spell_suggest<CR>",
-            mode = "i",
-            remap = false,
-        },
         { "z=", [[v:count ? v:count . 'z=' : ':FzfLua spell_suggest<CR>']], expr = true },
         { "<C-r><C-r>", "<cmd>FzfLua registers<CR>", mode = "i" },
         { "<Leader><BS>", "<cmd>FzfLua files<CR>", mode = "n" },
@@ -43,6 +32,7 @@ return {
         { "<Leader>fv", ":FzfLua lsp_document_symbols<CR>" },
         { "<Leader>fa", ":FzfLua lsp_code_actions<CR>" },
         { "<Leader>fo", ":FzfLua oldfiles cwd_only=true<CR>" }, -- Recently changed files
+        { "<Leader>fj", ":FzfLua jumps" },
         { "<Leader>fO", ":FzfLua oldfiles<CR>" }, -- Recently changed files
         { "<Leader>f/", ":FzfLua lgrep_curbuf<CR>" },
         { "<Leader>fg", ":FzfLua live_grep_native<CR>" }, -- Jumping with livegrep

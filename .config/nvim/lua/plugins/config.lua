@@ -35,7 +35,7 @@ return {
         { "gV", "`[v`]" },
         -- gF: create new file at filename over cursor
         { "gF", ":e <c-r><c-f><CR>" },
-        -- gcp/gcP: paste register and comment oout
+        -- gcp/gcP: paste register and comment out
         { "gcp", "p`[v`]gc", remap = true },
         { "gcP", "p`[v`]gc", remap = true },
         -- Make {/} don't change the jump list
@@ -80,14 +80,47 @@ return {
         },
         -- C-s : Quickly guess correct spelling errors (undoable)
         {
-            "<C-s>",
+            "<C-s><C-s>",
             "<C-g>u<Esc>[s1z=`]i<C-g>u",
             mode = "i",
             remap = false,
         },
         {
-            "<C-s>",
-            "i<C-g>u<Esc>[s1z=`]",
+            "<C-s><C-x>",
+            "<C-r>u<C-r>z=",
+            mode = "i",
+            remap = true,
+        },
+        {
+            "<C-s><C-a>",
+            "<Esc>[szg`]i",
+            mode = "i",
+            remap = false,
+        },
+        {
+            "<C-s><C-d>",
+            "<C-r>zug",
+            mode = "i",
+            remap = false,
+        },
+        {
+            "<C-s><C-s>",
+            "i<C-g>u<Esc>[s1z=`]i<C-g>u<Esc>",
+            remap = false,
+        },
+        {
+            "<C-s><C-x>",
+            "uz=",
+            remap = true,
+        },
+        {
+            "<C-s><C-a>",
+            "[szg`]",
+            remap = false,
+        },
+        {
+            "<C-s><C-d>",
+            "zug",
             remap = false,
         },
         -- <C-l>: Also recompute folds and refresh

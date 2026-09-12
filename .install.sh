@@ -65,6 +65,13 @@ marksman
 taplo
 lua-language-server
 stylua
+glances
+jless
+delta
+httpie
+z
+ipython
+julia
 EOF
 )
 
@@ -80,7 +87,6 @@ macmediakeyforwarder
 protonvpn
 spotify
 tailscale
-write
 EOF
 )
 
@@ -94,37 +100,12 @@ xclip
 EOF
 )
 
-install_apt_packages() {
-    if ! os_is linux; then
-        log "apt packages are only supported on Linux."
-        return 0
-    fi
-    if ! have apt-get; then
-        log "apt-get not found — skipping apt packages."
-        return 0
-    fi
-
-    if have sudo; then
-        sudo="sudo"
-    else
-        log "sudo not found — assuming running as root."
-        sudo=
-    fi
-
-    log "Updating apt package index..."
-    $sudo apt-get update </dev/null
-
-    while IFS= read -r item || [ -n "$item" ]; do
-        if dpkg -s "$item" >/dev/null 2>&1; then
-            log "$item is already installed."
-        else
-            log "Installing $item..."
-            $sudo apt-get install -y "$item" </dev/null
-        fi
-    done <<EOF
-$APT_PACKAGES
+UV_PACKAGES=$(cat <<'EOF'
+files-to-prompt
+strip-tags
+symbex
 EOF
-}
+)
 
 # --- helpers -----------------------------------------------------------------
 
@@ -175,7 +156,7 @@ install_brew_packages() {
             brew upgrade "$item" </dev/null 2>/dev/null || true
         else
             log "Installing $item..."
-            brew install "$item" </dev/null
+            brew install "$item" </dev/null || true
         fi
     done <<EOF
 $BREW_PACKAGES
@@ -195,10 +176,59 @@ install_brew_casks() {
             brew upgrade --cask "$item" </dev/null 2>/dev/null || true
         else
             log "Installing $item..."
-            brew install --cask "$item" </dev/null
+            brew install --cask "$item" </dev/null || true
         fi
     done <<EOF
 $BREW_CASKS
+EOF
+}
+
+
+
+install_apt_packages() {
+    if ! os_is linux; then
+        log "apt packages are only supported on Linux."
+        return 0
+    fi
+    if ! have apt-get; then
+        log "apt-get not found — skipping apt packages."
+        return 0
+    fi
+
+    if have sudo; then
+        sudo="sudo"
+    else
+        log "sudo not found — assuming running as root."
+        sudo=
+    fi
+
+    log "Updating apt package index..."
+    $sudo apt-get update </dev/null
+
+    while IFS= read -r item || [ -n "$item" ]; do
+        if dpkg -s "$item" >/dev/null 2>&1; then
+            log "$item is already installed."
+        else
+            log "Installing $item..."
+            $sudo apt-get install -y "$item" </dev/null || true
+        fi
+    done <<EOF
+$APT_PACKAGES
+EOF
+}
+
+
+install_uv_packages() {
+    while IFS= read -r item || [ -n "$item" ]; do
+        if uv tool list 2>/dev/null | grep '^-' | sed 's/^-\s*//' | grep -Fxq "$item"; then
+            log "Upgrading $item..."
+            brew upgrade "$item" </dev/null 2>/dev/null || true
+        else
+            log "Installing $item..."
+            uv tool upgrade "$item" </dev/null || true
+        fi
+    done <<EOF
+$UV_PACKAGES
 EOF
 }
 
@@ -311,6 +341,11 @@ main() {
         install_apt_packages
         return
         ;;
+    --uv-packages)
+        [ "$#" -eq 1 ] || { usage; return 1; }
+        install_uv_packages
+        return
+        ;;
     "")
         ;;
     *)
@@ -343,6 +378,12 @@ main() {
             install_brew_casks
         fi
 
+        if ! confirm "Install UV packages?"; then
+            log "Skipping packages."
+        else
+            install_uv_packages
+        fi
+
     elif install_brew; then
         log "Homebrew installed."
 
@@ -356,6 +397,12 @@ main() {
             log "Skipping casks."
         else
             install_brew_casks
+        fi
+
+        if ! confirm "Install UV packages?"; then
+            log "Skipping packages."
+        else
+            install_uv_packages
         fi
     fi
 

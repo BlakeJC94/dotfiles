@@ -62,5 +62,9 @@ else
     [ ! -z ${DOTFILES_DEBUG} ] && echo "No direnv"
 fi
 
+if command -v z >/dev/null; then
+    source $(brew --prefix)/etc/profile.d/z.sh
+fi
+
 
 [ ! -z ${DOTFILES_DEBUG} ] && echo "Finished activations"

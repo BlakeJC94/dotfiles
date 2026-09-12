@@ -29,5 +29,8 @@ if command -v direnv >/dev/null; then
     eval "$(direnv hook bash)"
 fi
 
+if command -v z >/dev/null; then
+    source $(brew --prefix)/etc/profile.d/z.sh
+fi
 
 [ ! -z ${DOTFILES_DEBUG} ] && echo "Finished activations"
