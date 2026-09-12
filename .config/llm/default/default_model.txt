@@ -1,1 +1,1 @@
-openrouter/deepseek/deepseek-v4-flash
+nextbit/deepseek/deepseek:v4-flash

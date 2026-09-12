@@ -1,5 +1,6 @@
 name: default
 
+model: nextbit/deepseek/deepseek:v4-flash
 system: |
   Be as short, direct and concise as possible. Do not make any further
   suggestions --- I'll ask exactly what I need and nothing more. If I need some
