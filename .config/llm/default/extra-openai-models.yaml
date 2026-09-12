@@ -1,0 +1,9 @@
+- model_id: nextbit/z-ai/glm:5.3-flash
+  model_name: glm:5.3-flash
+  api_base: "https://api.nextbit256.com/v1"
+  api_key_name: nextbit
+
+- model_id: nextbit/deepseek/deepseek:v4-flash
+  model_name: deepseek:v4-flash
+  api_base: "https://api.nextbit256.com/v1"
+  api_key_name: nextbit
