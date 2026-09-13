@@ -28,14 +28,18 @@ export default function (pi: ExtensionAPI) {
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
     pi.on("session_start", async (_event, ctx) => {
+        // Passing the Theme object (instead of its name) applies the theme
+        // in-memory only, so settings.json is never written to.
         let currentTheme = (await isDarkMode()) ? darkTheme: lightTheme;
-        ctx.ui.setTheme(currentTheme);
+        const themeObj = ctx.ui.getTheme(currentTheme);
+        if (themeObj) ctx.ui.setTheme(themeObj);
 
         intervalId = setInterval(async () => {
             const newTheme = (await isDarkMode()) ? darkTheme: lightTheme;
             if (newTheme !== currentTheme) {
                 currentTheme = newTheme;
-                ctx.ui.setTheme(currentTheme);
+                const themeObj = ctx.ui.getTheme(newTheme);
+                if (themeObj) ctx.ui.setTheme(themeObj);
             }
         }, 2000);
     });
