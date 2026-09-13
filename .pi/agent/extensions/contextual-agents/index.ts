@@ -7,7 +7,8 @@ const PATH_TOOLS = new Set(["read", "edit", "write"]);
 
 export default function contextualAgentsExtension(pi: ExtensionAPI): void {
 	const repoRoot = findRepoRoot(process.cwd());
-	const defaultContextFiles = new Set<string>(discoverDefaultContextFiles(process.cwd()));
+	const isGitRepo = existsSync(resolve(repoRoot, ".git"));
+	const defaultContextFiles = new Set<string>(isGitRepo ? discoverDefaultContextFiles(process.cwd()) : []);
 	const checkedDirs = new Set<string>();
 	const discoveredFiles: string[] = [];
 	const discoveredFileSet = new Set<string>();
@@ -56,6 +57,7 @@ export default function contextualAgentsExtension(pi: ExtensionAPI): void {
 	}
 
 	pi.on("tool_call", async (event, ctx) => {
+		if (!isGitRepo) return;
 		if (!PATH_TOOLS.has(event.toolName)) return;
 		const rawPath = typeof event.input.path === "string" ? event.input.path : "";
 		if (!rawPath.trim()) return;

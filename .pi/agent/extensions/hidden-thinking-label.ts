@@ -1,17 +1,7 @@
 /**
  * Hidden Thinking Label Extension
  *
- * Demonstrates `ctx.ui.setHiddenThinkingLabel()` for customizing the label shown
- * when thinking blocks are hidden.
- *
- * Usage:
- *   pi --extension examples/extensions/hidden-thinking-label.ts
- *
- * Test:
- *   1. Load this extension
- *   2. Hide thinking blocks with Ctrl+T
- *   3. Ask for something that produces reasoning output
- *   4. The collapsed thinking block label will show the custom text
+ * Customizes the label shown when thinking blocks are hidden via Ctrl+T.
  *
  * Commands:
  *   /thinking-label <text>   Set a custom hidden thinking label
@@ -20,7 +10,7 @@
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
-const DEFAULT_LABEL = "Pondering...";
+const DEFAULT_LABEL = "[Reasoning] (Ctrl+T to expand)";
 
 export default function (pi: ExtensionAPI) {
   let label = DEFAULT_LABEL;

@@ -3,5 +3,6 @@
   "defaultModel": "deepseek:v4-flash",
   "lastChangelogVersion": "0.85.0",
   "theme": "gruvbox-dark",
-  "defaultThinkingLevel": "medium"
+  "defaultThinkingLevel": "medium",
+  "hideThinkingBlock": true
 }
