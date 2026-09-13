@@ -1,6 +1,6 @@
 {
   "defaultProvider": "nextbit",
-  "defaultModel": "glm:5.3-flash",
+  "defaultModel": "deepseek:v4-flash",
   "lastChangelogVersion": "0.85.0",
   "theme": "gruvbox-dark",
   "defaultThinkingLevel": "medium"
