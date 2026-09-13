@@ -23,7 +23,11 @@ diffutils
 direnv
 dprint
 eza
+tre-command
 fd
+sd
+entr
+rsync
 findutils
 gaze
 git

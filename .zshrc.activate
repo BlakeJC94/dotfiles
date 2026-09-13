@@ -8,6 +8,16 @@ if [ -f /opt/homebrew/bin/brew ] ; then
     export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
 fi
 
+# Initialise tre
+if command -v tre >/dev/null; then
+    tre() { command tre "$@" -e && source "/tmp/tre_aliases_$USER" 2>/dev/null; }
+fi
+
+# Initialise z
+if [ -f $(brew --prefix)/etc/profile.d/z.sh ] ; then
+    source $(brew --prefix)/etc/profile.d/z.sh
+fi
+
 # Set dircolors (ls colors)
 if command -v dircolors >/dev/null; then
     eval $(dircolors)
