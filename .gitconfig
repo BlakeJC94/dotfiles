@@ -4,9 +4,13 @@
     username = BlakeJC94
 
 [alias]
-    # Interactively fzf-select modified (unstaged) files and stage the picks.
+    # Interactively sk-select modified (unstaged) files and stage the picks.
     # usage: git a
-    a = "!f() { git diff --name-only -z | fzf --read0 --print0 -m | xargs -0 -r git add --verbose --; }; f"
+    a = "!f() { git diff --name-only -z | sk --read0 --print0 -m | xargs -0 -r git add --verbose --; }; f"
+
+    # Interactively sk-select any tracked file with changes (staged or unstaged) and stage the picks.
+    # usage: git af
+    af = "!f() { git diff HEAD --name-only -z | sk --read0 --print0 -m | xargs -0 -r git add --verbose --; }; f"
 
     # Stage all tracked-file changes repo-wide (new files excluded).
     # usage: git ad
@@ -36,7 +40,7 @@
     # usage: git ce
     ce = "!git commit --amend --no-edit"
 
-    # Cherry-pick commits fzf-picked from the log (script: ~/.gitalias/chip).
+    # Cherry-pick commits sk-picked from the log (script: ~/.gitalias/chip).
     # usage: git chip [cherry-pick options]
     chip = "!~/.gitalias/chip"
 
@@ -128,7 +132,7 @@
     # usage: git ignore [dir]
     ignore = "!~/.gitalias/ignore"
 
-    # Print an official gitignore template for a language, picking via fzf if omitted (script: ~/.gitalias/ignore-template).
+    # Print an official gitignore template for a language, picking via sk if omitted (script: ~/.gitalias/ignore-template).
     # usage: git ignore-template [lang]
     ignore-template = "!~/.gitalias/ignore-template"
 
@@ -179,7 +183,7 @@
     # usage: git purge
     purge = "!git clean -fd"
 
-    # ⚠ Rebase onto a commit fzf-picked from the log (script: ~/.gitalias/rb).
+    # ⚠ Rebase onto a commit sk-picked from the log (script: ~/.gitalias/rb).
     # usage: git rb [rebase options]
     rb = "!~/.gitalias/rb"
 
@@ -300,20 +304,21 @@
     line-numbers = true
     side-by-side = true
     syntax-theme = gruvbox-dark
-    minus-style                   = normal "#792329"
-    minus-non-emph-style          = normal "#792329"
-    minus-emph-style              = normal "#9d0006"
-    minus-empty-line-marker-style = normal "#792329"
-    zero-style                    = syntax
-    plus-style                    = syntax "#5a633a"
-    plus-non-emph-style           = syntax "#5a633a"
-    plus-emph-style               = syntax "#79740e"
-    plus-empty-line-marker-style  = normal "#5a633a"
-    line-numbers-minus-style      = "#792329"
-    line-numbers-zero-style       = "#444444"
-    line-numbers-plus-style       = "#5a633a"
-    line-numbers-left-style       = "#076678"
-    line-numbers-right-style      = "#076678"
+    syntax-theme-light = gruvbox-light
+    ; minus-style                   = normal "#792329"
+    ; minus-non-emph-style          = normal "#792329"
+    ; minus-emph-style              = normal "#9d0006"
+    ; minus-empty-line-marker-style = normal "#792329"
+    ; zero-style                    = syntax
+    ; plus-style                    = syntax "#5a633a"
+    ; plus-non-emph-style           = syntax "#5a633a"
+    ; plus-emph-style               = syntax "#79740e"
+    ; plus-empty-line-marker-style  = normal "#5a633a"
+    ; line-numbers-minus-style      = "#792329"
+    ; line-numbers-zero-style       = "#444444"
+    ; line-numbers-plus-style       = "#5a633a"
+    ; line-numbers-left-style       = "#076678"
+    ; line-numbers-right-style      = "#076678"
 
 [feature]
     manyFiles = true

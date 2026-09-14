@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# Interactively cherry-pick commit(s) selected via fzf
+# Interactively cherry-pick commit(s) selected via sk
 # usage: git chip [git-cherry-pick options]  e.g. git chip -x
 
 commits="$(git log --oneline --color=always \
-    | fzf --ansi --multi --reverse --preview 'git show --color=always --stat {1}' \
+    | sk --ansi --multi --reverse --preview 'git show --color=always --stat {1}' \
     | awk '{print $1}')" || exit
 
 if [ -z "$commits" ]; then
