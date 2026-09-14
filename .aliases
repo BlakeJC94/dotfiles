@@ -32,7 +32,7 @@ alias gcd='cd "$(dirname "$(git rev-parse --show-toplevel)")"'
 
 alias dtf='git dotfiles'
 alias l='eza'
-alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | sk || echo .)'
+alias g='cd $(fd ".git$" ~/Workspace/repos -H -I -d 5 -x dirname {} \; | sk --color=none || echo .)'
 alias c='cd "$(find . -maxdepth 1 -type d | sk || echo .)"'
 alias C='cd "$(find . -type d | sk || echo .)"'
 alias q="exit"

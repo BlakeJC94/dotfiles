@@ -178,7 +178,7 @@ return {
         },
         {
             "<C-s><C-a>",
-            "[szg`]",
+            "[szg``",
             remap = false,
         },
         {
