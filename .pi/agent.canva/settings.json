@@ -6,5 +6,6 @@
   "extensions": [
     "!extensions/permission-gate-custom/**/*",
     "!extensions/fuzzy-path-completion/**/*"
-  ]
+  ],
+  "hideThinkingBlock": true
 }

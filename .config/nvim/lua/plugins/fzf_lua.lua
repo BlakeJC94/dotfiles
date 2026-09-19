@@ -4,6 +4,27 @@ return {
     cmd = "FzfLua",
     opts = {
         fzf_bin = "sk",
+        hls = {
+            normal = "Normal",
+
+            header_bind = "Normal",
+            header_text = "Normal",
+
+            fzf = {
+                normal = "Normal",
+                cursorline = "Normal",
+                border = "Normal",
+                separator = "Normal",
+                gutter = "Normal",
+                header = "Normal",
+                info = "Normal",
+                pointer = "Normal",
+                marker = "Normal",
+                spinner = "Normal",
+                prompt = "Normal",
+                query = "Normal",
+            },
+        },
         winopts = {
             border = "none",
             layout = "flex",
@@ -17,6 +38,10 @@ return {
             raw_cmd = vim.env.SKIM_DEFAULT_COMMAND,
             git_icons = false,
             file_icons = false,
+            color_icons = false,
+        },
+        git = {
+            color_icons = false,
         },
     },
     keys = {

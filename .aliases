@@ -8,7 +8,7 @@ alias egrep='egrep --color=auto'
 
 alias duh='du -d 1 -h'
 
-alias today='vim -c "ThisWeek"'
+alias log='vim -c "ThisWeek"'
 alias vimpy='vim -c "S uv run ipython"'
 
 
@@ -43,8 +43,17 @@ alias ty="tee /dev/tty"
 
 alias opencode-resume='opencode --session $(opencode session list --format json | jq -r ".[] | [.title, .id] | @tsv" | sk --delimiter=$"\t" --with-nth=1 | cut -f2)'
 
+# Extracts the first '```justfile ... ```' block from a PR and prints to stdout
+justfile() {
+    gh pr view ${1:-} --json body --jq .body | sed -n '/^```justfile[[:space:]]*$/,/^```[[:space:]]*$/ { /^```justfile[[:space:]]*$/d; /^```[[:space:]]*$/q; p; }'
+}
+
 note() {
-    vim -c "Note \"${1}\""
+    if [ -n "${1:-}" ]; then
+        vim -c "Note \"$1\""
+    else
+        vim -c "Note"
+    fi
 }
 
 # secret() {

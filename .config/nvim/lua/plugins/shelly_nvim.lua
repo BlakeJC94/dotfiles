@@ -1,5 +1,6 @@
 return {
-    "https://gitlab.com/blakejc/shelly.nvim",
+    -- "https://gitlab.com/blakejc/shelly.nvim",
+    dir = "~/Workspace/repos/shelly.nvim",
     cmd = {
         "Shelly",
         "ShellyCycle",
@@ -21,11 +22,20 @@ return {
     },
     keys = {
         {
-            "<C-Space>",
+            "<C-Space><C-Space>",
             function()
                 require("shelly").cycle()
             end,
             mode = { "n", "t" },
+            desc = "Switch between source and Shelly terminal",
+        },
+        {
+            "<C-Space><Space>",
+            function()
+                require("shelly").terminal_normal_mode()
+            end,
+            mode = "t",
+            desc = "Enter Shelly terminal normal mode",
         },
         {
             "<C-c>",

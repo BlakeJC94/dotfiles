@@ -22,7 +22,7 @@
 
     # List local branches one per line, for line-oriented filtering.
     # usage: git bls | <filter>
-    bls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^$' ; }; f"
+    bls = "!f() { git branch -l | tr ' ' '\\n' | grep -v '^+\\?\\*\\?$' ; }; f"
 
     # Rename a branch, overwriting the target name if it exists.
     # usage: git bmv <new-name> | git bmv <old> <new>
@@ -168,9 +168,16 @@
     # usage: git lgs [log-args]
     lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
 
+    # List files that are different in this branch
+    #
+    ls = "!git diff --name-only $(git merge-base origin/HEAD HEAD)..HEAD"
+
     # Edit this branch's notes
     # usage: git plan
     vim = "!nvim -c 'Note'"
+
+    # Print parent branch
+    parent = "!~/.gitalias/parent"
 
     # Print plan location
     plan = "!nvim --headless -c 'Note' -c 'echo expand(\"%:p\")' -c 'echo \"\"' -c 'q' 2>&1"
@@ -290,13 +297,15 @@
 
 [merge]
     squash = true
+    tool = nvim
+
 [difftool]
     prompt = false
 
 [difftool "fugitive"]
     cmd = "nvim -f -c \"Gdiffsplit!\" \"$LOCAL\" \"$REMOTE\""
 
-[difftool "vimdiff"]
+[difftool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\""
 
 
@@ -334,3 +343,6 @@
     helper = cache --timeout=3600
     helper = osxkeychain
     helper = oauth
+[mergetool "nvim"]
+    cmd = nvim -d \"$LOCAL\" \"$MERGED\" \"$REMOTE\"
+    trustExitCode = true

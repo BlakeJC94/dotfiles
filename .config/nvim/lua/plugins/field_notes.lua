@@ -10,8 +10,8 @@ return {
     },
     keys = {
         { "<Leader>nn", ":Note<CR>" },
-        { "<Leader>nf", ":FzfLua notes<CR>" },
-        { "<Leader>nl", ":FzfLua notes_link<CR>" },
+        { "<Leader>fnn", ":FzfLua notes<CR>" },
+        { "<Leader>fnl", ":FzfLua notes_link<CR>" },
     },
     config = function(_, opts)
         local field_notes = require("field-notes")

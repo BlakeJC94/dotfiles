@@ -1,0 +1,16 @@
+#!/bin/sh
+target=$(git rev-parse "${1:-HEAD}^{commit}") || return 1
+
+git for-each-ref --format='%(refname:short)' refs/heads |
+while IFS= read -r branch; do
+tip=$(git rev-parse "${branch}^{commit}") || continue
+
+[ "$tip" = "$target" ] && continue
+git merge-base --is-ancestor "$tip" "$target" || continue
+
+printf '%s %s\n' \
+  "$(git rev-list --count "$tip..$target")" \
+  "$branch"
+done |
+sort -n -k1,1 |
+sed -n '1{s/^[0-9][0-9]* //;p;}'

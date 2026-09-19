@@ -32,6 +32,9 @@ brew-up:
 cask-up:
     ./.install.sh --brew-casks
 
+uv-up:
+    ./.install.sh --uv-packages
+
 llm-up:
     #!/usr/bin/env bash
     llm install llm-openrouter

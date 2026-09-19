@@ -226,10 +226,10 @@ install_uv_packages() {
     while IFS= read -r item || [ -n "$item" ]; do
         if uv tool list 2>/dev/null | grep '^-' | sed 's/^-\s*//' | grep -Fxq "$item"; then
             log "Upgrading $item..."
-            brew upgrade "$item" </dev/null 2>/dev/null || true
+            uv tool upgrade "$item" </dev/null 2>/dev/null || true
         else
             log "Installing $item..."
-            uv tool upgrade "$item" </dev/null || true
+            uv tool install "$item" </dev/null || true
         fi
     done <<EOF
 $UV_PACKAGES

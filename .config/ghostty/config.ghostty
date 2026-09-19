@@ -4,7 +4,7 @@ cursor-style-blink = false
 custom-shader = shaders/cursor_warp.glsl
 
 font-family = "JetBrainsMono Nerd Font"
-font-size = 18
+font-size = 15
 
 mouse-hide-while-typing = true
 
@@ -53,6 +53,9 @@ keybind = ctrl+shift+b=scroll_page_up
 keybind = ctrl+shift+f=scroll_page_down
 keybind = ctrl+shift+/=start_search
 keybind = ctrl+shift+l=reset
+
+keybind = command+c=copy_to_clipboard
+keybind = command+v=paste_from_clipboard
 
 keybind = global:super+escape=toggle_quick_terminal
 
