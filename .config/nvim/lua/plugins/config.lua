@@ -278,14 +278,14 @@ return {
         { "<C-Right>", ":wincmd 8><CR>" },
 
         ------------------------------------------------------------
-        -- Tabs (<Leader>z prefix)
+        -- Tabs (<Shift>z prefix)
         ------------------------------------------------------------
-        { "<Leader>zc", ":tabedit %<CR>" }, -- open current file in new tab
-        { "<Leader>zn", ":tabnext<CR>" },   -- next tab
-        { "<Leader>zp", ":tabprev<CR>" },   -- previous tab
-        { "<Leader>zN", ":+tabmove<CR>" },  -- move tab right
-        { "<Leader>zP", ":-tabmove<CR>" },  -- move tab left
-        { "<Leader>zq", ":tabclose<CR>" },  -- close tab
+        { "Zc", ":tabedit %<CR>" }, -- open current file in new tab
+        { "Zn", ":tabnext<CR>" },   -- next tab
+        { "Zp", ":tabprev<CR>" },   -- previous tab
+        { "ZN", ":+tabmove<CR>" },  -- move tab right
+        { "ZP", ":-tabmove<CR>" },  -- move tab left
+        { "Zq", ":tabclose<CR>" },  -- close tab
 
         ------------------------------------------------------------
         -- Leader maps

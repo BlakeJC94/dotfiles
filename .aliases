@@ -85,4 +85,4 @@ pbcopy() {
     fi
 }
 
-alias plm="pbpaste | tee /dev/tty | lm"
+alias plm="cat <(pbpaste) <(echo -e '\n') | tee /dev/tty | lm"
