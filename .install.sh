@@ -91,6 +91,7 @@ macmediakeyforwarder
 protonvpn
 spotify
 tailscale
+hammerspoon
 EOF
 )
 

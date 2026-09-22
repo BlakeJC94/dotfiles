@@ -1,6 +1,6 @@
 return {
-    -- "https://gitlab.com/blakejc/shelly.nvim",
-    dir = "~/Workspace/repos/shelly.nvim",
+    "https://gitlab.com/blakejc/shelly.nvim",
+    -- dir = "~/Workspace/repos/shelly.nvim",
     cmd = {
         "Shelly",
         "ShellyCycle",

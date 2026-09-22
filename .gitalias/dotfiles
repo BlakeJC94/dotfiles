@@ -27,6 +27,11 @@ if [ "$safe" -eq 0 ]; then
         esac
         if [ "$arg" = "." ] || [ -d "$arg" ]; then
             echo "directory '$arg' not recommended with '$cmd'" >&2
+
+            if [ "$cmd" = "add" ] ; then
+                git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" add --dry-run -v "$arg"
+            fi
+
             printf "Proceed? [y/N] "
             read confirm
             case "$confirm" in

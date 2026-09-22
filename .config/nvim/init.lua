@@ -100,3 +100,58 @@ local main = function()
 end
 
 main()
+
+
+
+-- -- vim.api.nvim_create_autocmd('TermRequest', {
+-- --  callback = function(ev)
+-- --    local seq = vim.v.termrequest
+-- --    -- Kitty graphics protocol: APC sequence starting with 'G'
+-- --    if seq and seq:sub(1, 1) == 'G' then
+-- --      -- Reconstruct the full APC sequence and send to host terminal vim.api.nvim_ui_send('\027_G' .. seq .. '\027\\') NOTE: Return true to mark as handled (prevents any other processing)
+-- --      return true
+-- --    end
+-- --  end,
+-- -- })
+-- --
+-- --
+-- vim.api.nvim_create_autocmd('TermRequest', {
+--  callback = function(ev)
+--    local seq = vim.v.termrequest
+--    vim.notify('TermRequest: ' .. (seq and seq:sub(1, 50) or 'nil'))
+--    if seq and seq:sub(1, 1) == 'G' then
+--      -- The kitty protocol is APC (ESC _) + data + ST (ESC \)
+--      -- v:termrequest contains just the data (starts with 'G')
+--      -- Reconstruct: ESC _ + data + ESC \
+--      vim.api.nvim_ui_send('\027_' .. seq .. '\027\\')
+--      return true
+--    end
+--  end,
+-- })
+
+-- vim.api.nvim_create_autocmd('TermRequest', {
+--  callback = function(ev)
+--    local seq = vim.v.termrequest
+--    -- v:termrequest contains the full sequence including \033_
+--    -- Just need to append the ST terminator (\033\)
+--    if seq and seq:find('\027_G') then
+--      vim.api.nvim_ui_send(seq .. '\027\\')
+--      return true
+--    end
+--  end,
+-- })
+
+vim.api.nvim_create_autocmd('TermRequest', {
+ callback = function(ev)
+   local seq = vim.v.termrequest
+   if seq and seq:find('\027_G') then
+     local tty = io.open('/dev/tty', 'w')
+     if tty then
+       tty:write(seq)
+       tty:write('\027\\')
+       tty:close()
+     end
+     return true
+   end
+ end,
+})
