@@ -86,3 +86,4 @@ pbcopy() {
 }
 
 alias plm="cat <(pbpaste) <(echo -e '\n') | tee /dev/tty | lm"
+alias python=python3
