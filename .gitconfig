@@ -170,7 +170,7 @@
 
     # List files that are different in this branch
     #
-    ls = "!git diff --name-only $(git merge-base origin/HEAD HEAD)..HEAD"
+    ls = "!git diff --name-only $(git merge-base origin/$(git prime) HEAD)...HEAD"
 
     # Edit this branch's notes
     # usage: git plan
@@ -184,7 +184,7 @@
 
     # Print the origin repo's primary branch name (e.g. main).
     # usage: git prime
-    prime = "!git symbolic-ref refs/remotes/origin/HEAD | cut -d '/' -f 4-"
+    prime = "!git ls-remote --symref origin | grep HEAD | head -1 | sed 's/.*refs\\/heads\\///' | cut -f1"
 
     # ⚠ Remove all untracked files and directories.
     # usage: git purge
