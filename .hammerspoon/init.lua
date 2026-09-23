@@ -1,10 +1,5 @@
 local launch_app = function(app_name)
-    local app = hs.application.get(app_name)
-    if app then
-        app:activate()
-    else
-        hs.application.launchOrFocus(app_name)
-    end
+    hs.application.launchOrFocus(app_name)
 end
 
 hs.hotkey.bind({"cmd"}, "j", function()
