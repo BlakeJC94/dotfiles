@@ -56,3 +56,4 @@ fi
 # BEGIN ANSIBLE MANAGED BLOCK FOR canva_git
 export PATH="$HOME/.local/share/canva-git/bin:$PATH"
 # END ANSIBLE MANAGED BLOCK FOR canva_git
+export PATH="$HOME/.local/share/taz/tools/bin:$PATH"

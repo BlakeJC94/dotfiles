@@ -65,3 +65,4 @@ bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
 bind 'set visible-stats on'
 
+export PATH="$HOME/.local/share/taz/tools/bin:$PATH"

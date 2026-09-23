@@ -66,7 +66,7 @@ Without `!`, notes open normally without inserting a link. `:Note` opens in the 
 
 When no title is provided to `:Note`, the title is derived from context:
 
-- **In a git repo:** `<project>: <branch>` (e.g. `myapp: main`) - except when repo root is `$HOME` or a bare home repo is detected (eg `~/.dotfiles`)
+- **In a git repo:** `<project>: <branch>` (e.g. `myapp: main`) - except when repo root is `$HOME` or a bare home repo is detected (eg `~/.dotfiles`). New notes link existing note filenames whose stems are substrings of the new note's stem.
 - **Outside a git repo:** `<parent_dir>: <cwd_dir>` (e.g. `Workspace: notes`)
 
 ## Completion

@@ -38,8 +38,23 @@ local function resolve_note_title(args, opts)
     return utils.get_note_title(args), nil, nil
 end
 
+local function related_note_links(filename)
+    local current_stem = filename:gsub("%.md$", "")
+    local links = {}
+
+    for _, stem in ipairs(M.list_notes()) do
+        if stem ~= current_stem and current_stem:find(stem, 1, true) then
+            table.insert(links, "* [" .. stem .. "](./" .. stem .. ".md)")
+        end
+    end
+
+    return links
+end
+
 function M.open_note(bang, args, opts)
     local split_cmd = (opts and opts.split) or "edit"
+    local is_untitled = vim.trim(args or "") == ""
+    local is_git_repo = utils.get_git_dir() ~= ""
     local title, template_name, title_error = resolve_note_title(args, opts)
     if title_error then
         print(title_error)
@@ -71,6 +86,13 @@ function M.open_note(bang, args, opts)
         end
         if not lines then
             lines = vim.split("# " .. title .. "\n\n", "\n", { plain = true })
+        end
+        if is_untitled and is_git_repo then
+            local links = related_note_links(filename)
+            if #links > 0 then
+                table.insert(lines, "## Related plans")
+                vim.list_extend(lines, links)
+            end
         end
         vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
         vim.bo.buftype = ""
