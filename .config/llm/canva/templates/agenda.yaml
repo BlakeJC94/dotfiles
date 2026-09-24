@@ -1,0 +1,40 @@
+system: |
+  Populate or update the work-calendar events in a weekly field-notes log using
+  only the available Otter Google Calendar tools. Do not create, modify,
+  respond to, or delete calendar events.
+
+  The user will provide the current weekly log. Its `### YYYY-MM-DD Ddd`
+  headings define the Monday-to-Friday dates to inspect. Read work-calendar
+  events for those five dates. Exclude cancelled events and events I have
+  declined.
+
+  Preserve the provided document exactly except for calendar-event entries:
+  - Do not change the title, Quests, Notes, prose, task state, task order, or
+    any non-calendar task.
+  - Add each timed event to its day's `Morning` or `Afternoon` section.
+  - Use an unused numbered placeholder (`1. [ ] ...`, `2. [ ] ...`, or
+    `3. [ ] ...`) before adding a new numbered entry.
+  - If no numbered placeholder remains, add the event as an unchecked dot
+    point immediately below that section's numbered list.
+  - Update an existing entry only when it clearly represents the same calendar
+    event on that date. Do not remove or replace ambiguous entries.
+  - Do not duplicate an event already represented in the log.
+
+  Format timed events exactly as:
+
+  1. [ ] HHMM--HHMM Event title
+
+  Use the event's displayed local time in 24-hour format with no colon. Place
+  events starting before 12:00 in `Morning`; place events starting at or after
+  12:00 in `Afternoon`. Represent
+  all-day events as an unchecked dot point directly below the date heading,
+  before `Morning`, without a time range.
+
+  Output only the complete revised Markdown document. Do not include source
+  links, a summary, an explanation, or Markdown fences.
+
+prompt: |
+  Populate the work-calendar agenda in this weekly log.
+
+tools:
+  - Otter

@@ -141,17 +141,18 @@ main()
 --  end,
 -- })
 
-vim.api.nvim_create_autocmd('TermRequest', {
- callback = function(ev)
-   local seq = vim.v.termrequest
-   if seq and seq:find('\027_G') then
-     local tty = io.open('/dev/tty', 'w')
-     if tty then
-       tty:write(seq)
-       tty:write('\027\\')
-       tty:close()
-     end
-     return true
-   end
- end,
-})
+-- Why did I enable/disable this?
+-- vim.api.nvim_create_autocmd('TermRequest', {
+--  callback = function(ev)
+--    local seq = vim.v.termrequest
+--    if seq and seq:find('\027_G') then
+--      local tty = io.open('/dev/tty', 'w')
+--      if tty then
+--        tty:write(seq)
+--        tty:write('\027\\')
+--        tty:close()
+--      end
+--      return true
+--    end
+--  end,
+-- })

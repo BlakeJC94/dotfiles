@@ -281,15 +281,18 @@ return {
         -- Tabs (<Shift>z prefix)
         ------------------------------------------------------------
         { "Zc", ":tabedit %<CR>" }, -- open current file in new tab
-        { "Zn", ":tabnext<CR>" },   -- next tab
-        { "Zp", ":tabprev<CR>" },   -- previous tab
-        { "ZN", ":+tabmove<CR>" },  -- move tab right
-        { "ZP", ":-tabmove<CR>" },  -- move tab left
-        { "Zq", ":tabclose<CR>" },  -- close tab
+        { "Zn", ":tabnext<CR>" }, -- next tab
+        { "Zp", ":tabprev<CR>" }, -- previous tab
+        { "ZN", ":+tabmove<CR>" }, -- move tab right
+        { "ZP", ":-tabmove<CR>" }, -- move tab left
+        { "Zq", ":tabclose<CR>" }, -- close tab
 
         ------------------------------------------------------------
         -- Leader maps
         ------------------------------------------------------------
+
+        -- <Leader>g: Copy buffer path to clipboard
+        { "<Leader>g", ":let @+ = expand('%:p')<CR>", silent = true },
 
         -- <Leader>e: select the entire buffer.
         { "<Leader>e", "ggVG" },
