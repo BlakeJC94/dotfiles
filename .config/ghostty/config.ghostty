@@ -27,7 +27,7 @@ window-padding-y = 10
 window-width = 100
 
 quick-terminal-position = right
-quick-terminal-size = 40%
+quick-terminal-size = 50%
 
 bell-features = audio
 bell-audio-path = /System/Library/Sounds/Submarine.aiff
@@ -60,6 +60,8 @@ keybind = command+v=paste_from_clipboard
 keybind = global:super+escape=toggle_quick_terminal
 
 keybind = ctrl+z>tab=goto_split:previous
+
+keybind = ctrl+x>ctrl+x=goto_split:next
 keybind = ctrl+z>s=new_split:down
 keybind = ctrl+z>v=new_split:right
 keybind = ctrl+z>x=write_screen_file:copy
