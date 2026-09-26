@@ -3,10 +3,6 @@
   "defaultModel": "gpt-6-sol",
   "lastChangelogVersion": "0.85.1",
   "theme": "gruvbox-light",
-  "extensions": [
-    "!extensions/permission-gate-custom/**/*",
-    "!extensions/fuzzy-path-completion/**/*"
-  ],
   "hideThinkingBlock": true,
   "packages": [
     "npm:pi-mcp-adapter"

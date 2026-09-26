@@ -28,9 +28,20 @@ export function registerQuestionnaireTool(pi: ExtensionAPI): void {
       const questions = params.questions as Question[]
       if (questions.length === 0) return questionnaireEmptyResult()
 
-      const result = await ctx.ui.custom<QuestionnaireResult>((tui, theme, _kb, done) =>
-        createQuestionnaireComponent(tui, theme, questions, done),
-      )
+      // Notify Herdr that we're waiting for user input
+      // The herdr-agent-state extension listens for this event and reports
+      // "blocked" state to Herdr so the user sees a prompt indicator.
+      const piEvents = (pi as { events?: { emit?: (e: string, d: unknown) => void } }).events
+      piEvents?.emit?.("herdr:blocked", { active: true, label: "Planning questionnaire" })
+
+      let result: QuestionnaireResult
+      try {
+        result = await ctx.ui.custom<QuestionnaireResult>((tui, theme, _kb, done) =>
+          createQuestionnaireComponent(tui, theme, questions, done),
+        )
+      } finally {
+        piEvents?.emit?.("herdr:blocked", { active: false })
+      }
 
       if (result.cancelled) {
         return {
