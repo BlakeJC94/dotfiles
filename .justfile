@@ -1,9 +1,10 @@
 _backup-dotfiles:
-    #!/usr/bin/env sh
-    mkdir -p .config-backup
+    #!/usr/bin/env bash
+    BACKUP_DIR="$HOME/.config-backup"
+    mkdir -p "$BACKUP_DIR"
     git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" checkout 2>&1 | grep -E "^\s+\." | awk '{print $1}' | while read -r file; do
-      mkdir -p ".config-backup/$(dirname "$file")"
-      mv "$file" ".config-backup/$file"
+      mkdir -p "$BACKUP_DIR/$(dirname "$file")"
+      mv "$file" "$BACKUP_DIR/$file"
     done
 
 deploy-dotfiles:
@@ -13,16 +14,6 @@ deploy-dotfiles-safe: _backup-dotfiles deploy-dotfiles
 
 deploy-dotfiles-unsafe:
     git dotfiles checkout --force
-
-nix-edit:
-    $EDITOR .config/nixpkgs/packages.nix
-
-nix-update:
-    nix-env -f .config/nixpkgs/packages.nix -i
-
-nix-upgrade:
-    nix-channel --update
-    nix-env -u
 
 [macos]
 brew-up:
@@ -65,16 +56,22 @@ spotify-up:
 [linux]
 write-up:
     #!/usr/bin/env bash
+    TMPDIR=$(mktemp -d)
+    cd "$TMPDIR"
     wget -O write-latest.tar.gz https://www.styluslabs.com/download/write-tgz
-    mkdir -p $HOME/.local/opt
-    mv write-latest.tar.gz $HOME/.local/opt
-    tar xzfv $HOME/.local/opt/write-latest.tar.gz -C $HOME/.local/opt
-    sudo $HOME/.local/opt/Write/setup.sh
+    mkdir -p "$HOME/.local/opt"
+    mv write-latest.tar.gz "$HOME/.local/opt"
+    cd "$HOME/.local/opt"
+    tar xzfv write-latest.tar.gz
+    rm -f write-latest.tar.gz
+    sudo "$HOME/.local/opt/Write/setup.sh"
     xdg-mime default Write.desktop image/svg+xml
 
 [linux]
 install-font font="JetBrainsMono":
     #!/usr/bin/env bash
+    set -e
+    shopt -s nullglob
     # Source
     # https://dev.to/pulkitsingh/install-nerd-fonts-or-any-fonts-easily-in-linux-2e3l
     #
@@ -96,7 +93,7 @@ install-font font="JetBrainsMono":
     fi
 
     # Unzip the font file
-    unzip "$TEMP_DIR/font.zip" -d "$TEMP_DIR" 2>&1 > /dev/null
+    unzip "$TEMP_DIR/font.zip" -d "$TEMP_DIR" > /dev/null 2>&1
 
     # Move the font files to the system fonts directory
     FONTS_DIR="${HOME}/.local/share/fonts"
@@ -104,7 +101,7 @@ install-font font="JetBrainsMono":
     mv "$TEMP_DIR"/*.{ttf,otf} "${FONTS_DIR}"
 
     # Update the font cache
-    fc-cache -f -v 2>&1 > /dev/null
+    fc-cache -f -v > /dev/null 2>&1
 
     # Clean up
     rm -rf "$TEMP_DIR"
@@ -114,7 +111,7 @@ install-font font="JetBrainsMono":
 [linux]
 purge-snap:
     #!/usr/bin/env bash
-    for i in $(seq 10); do echo attmept $i && for j in $(snap list | awk '{print $1}' | tail -n +2); do sudo snap remove --purge $j; done; done
+    for i in $(seq 10); do echo "attempt $i" && for j in $(snap list | awk '{print $1}' | tail -n +2); do sudo snap remove --purge $j; done; done
     sudo apt remove -y --purge snapd
     sudo add-apt-repository -y ppa:mozillateam/ppa
     sudo apt update && sudo apt install -y firefox-esr
@@ -183,6 +180,7 @@ focus:
 # https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04
 [linux]
 docker-up:
+    #!/usr/bin/env bash
     sudo apt install ca-certificates curl gnupg
     sudo install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -195,3 +193,15 @@ docker-up:
     sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     sudo usermod -aG docker ${USER}
     echo "sudo requirement for docker will be dropped on the next reboot"
+
+# Fix zsh compinit insecure directories warning
+[macos]
+compaudit-fix:
+    #!/usr/bin/env bash
+    set -e
+    chmod g-w \
+        /opt/homebrew/opt/git/share/zsh \
+        /opt/homebrew/opt/git/share/zsh/site-functions \
+        /opt/homebrew/share/zsh \
+        /opt/homebrew/share/zsh/site-functions
+    echo "Fixed zsh compinit insecure directories"
