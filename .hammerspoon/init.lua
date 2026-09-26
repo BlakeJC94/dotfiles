@@ -1,15 +1,18 @@
-local launch_app = function(app_name)
-    hs.application.launchOrFocus(app_name)
+local function focus_app(app_name)
+    local app = hs.application.get(app_name)
+    if app then
+        local win = app:mainWindow()
+        if win then
+            win:focus()
+        else
+            app:activate()
+        end
+    else
+        hs.application.launchOrFocus(app_name)
+    end
 end
 
-hs.hotkey.bind({"cmd"}, "j", function()
-    launch_app("Ghostty")
-end)
+hs.hotkey.bind({"cmd"}, "j", function() focus_app("Ghostty") end)
+hs.hotkey.bind({"cmd"}, "h", function() focus_app("Slack") end)
+hs.hotkey.bind({"cmd"}, "k", function() focus_app("Firefox") end)
 
-hs.hotkey.bind({"cmd"}, "h", function()
-    launch_app("Slack")
-end)
-
-hs.hotkey.bind({"cmd"}, "k", function()
-    launch_app("Firefox")
-end)
