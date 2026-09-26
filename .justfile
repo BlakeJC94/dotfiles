@@ -15,6 +15,12 @@ deploy-dotfiles-safe: _backup-dotfiles deploy-dotfiles
 deploy-dotfiles-unsafe:
     git dotfiles checkout --force
 
+[linux]
+up: brew-up uv-up
+
+[macos]
+up: brew-up uv-up cask-up
+
 brew-up:
     ./.install.sh --brew-packages
 
