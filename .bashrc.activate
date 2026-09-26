@@ -31,7 +31,7 @@ fi
 # Initialise sk
 if command -v sk >/dev/null; then
     [ ! -z ${DOTFILES_DEBUG} ] && echo "Activating sk"
-    eval "$(sk --shell zsh --shell-bindings)"
+    eval "$(sk --shell bash --shell-bindings)"
 fi
 
 
