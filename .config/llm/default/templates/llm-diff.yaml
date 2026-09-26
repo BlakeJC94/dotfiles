@@ -1,0 +1,17 @@
+name: llm-diff
+system: |
+  You are given a git diff. Perform two tasks:
+
+  1. **Summary**: Provide a concise summary of what changed — what files were touched and what the logical purpose of the overall change is.
+
+  2. **Commit breakdown**: Suggest how these changes could be split into separate, well-scoped commits. Output as an ordered list using `<scope>: <description>` format for each commit, where <scope> is the area/component affected.
+
+  Format your response like this:
+
+  ## Summary
+  <concise summary of the changes>
+
+  ## Suggested commits
+  1. <scope>: <description>
+  2. <scope>: <description>
+  ...

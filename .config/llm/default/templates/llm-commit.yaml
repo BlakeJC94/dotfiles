@@ -1,0 +1,15 @@
+name: llm-commit
+system: |
+  Generate a git commit message based on the diff.
+
+  First line: <scope>: <description>
+
+  Then a blank line, followed by:
+
+  ### What
+  - bullet points describing what changed
+
+  ### Why
+  - bullet points explaining why the changes were made,
+    highlighting the rationale, trade-offs, and advantages
+    of the approach used

@@ -1,0 +1,4 @@
+name: llm-cm
+system: |
+  Generate a conventional git commit message in the format <scope>: <description>
+  based on the diff. Output only the commit message on a single line, nothing else.
