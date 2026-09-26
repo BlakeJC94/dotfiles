@@ -172,6 +172,10 @@
     # usage: git llm-cm
     llm-cm = "!f() { msg=$(git diff --cached | llm -t llm-cm) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
 
+    # Stage the given paths, then generate a one-line commit message and commit via llm.
+    # usage: git llm-cma [path]...
+    llm-cma = "!f() { [ $# -gt 0 ] && git add \"$@\"; git llm-cm; }; f"
+
     # Generate a multi-line commit message with bullet-point summary from staged changes via llm.
     # usage: git llm-commit
     llm-commit = "!f() { msg=$(git diff --cached | llm -t llm-commit) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
