@@ -168,6 +168,18 @@
     # usage: git lgs [log-args]
     lgs = "!f() { if [ $# -eq 0 ]; then git log --name-status --oneline -n 8; else git log --name-status --oneline \"$@\"; fi }; f"
 
+    # Generate a one-line commit message (<scope>: <description>) from staged changes via llm.
+    # usage: git llm-cm
+    llm-cm = "!f() { msg=$(git diff --cached | llm -t llm-cm) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
+
+    # Generate a multi-line commit message with bullet-point summary from staged changes via llm.
+    # usage: git llm-commit
+    llm-commit = "!f() { msg=$(git diff --cached | llm -t llm-commit) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
+
+    # Summarise the working diff and suggest a scoped commit breakdown via llm.
+    # usage: git llm-diff
+    llm-diff = "!f() { git diff | llm -t llm-diff; }; f"
+
     # List files that are different in this branch
     #
     ls = "!git diff --name-only $(git merge-base origin/$(git prime) HEAD)...HEAD"
