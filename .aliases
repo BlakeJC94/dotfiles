@@ -9,6 +9,7 @@ alias egrep='egrep --color=auto'
 alias duh='du -d 1 -h'
 
 alias log='vim -c "ThisWeek"'
+alias journal='vim -c "Journal"'
 alias vimpy='vim -c "S uv run ipython"'
 
 
