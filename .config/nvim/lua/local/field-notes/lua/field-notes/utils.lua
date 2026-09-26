@@ -39,7 +39,26 @@ function M.get_git_dir()
     end
 
     local dir = vim.fn.expand("%:p:h")
-    return get_git_output(dir, { "rev-parse", "--git-dir" })
+    local result = get_git_output(dir, { "rev-parse", "--git-dir" })
+
+    if result ~= "" then
+        return result
+    end
+
+    -- Detect the dotfiles bare repo (~/.dotfiles with worktree=$HOME).
+    -- The alias `git dotfiles` in ~/.gitconfig runs:
+    --   git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" "$@"
+    -- Standard git discovery won't find it (no .git in $HOME), so check explicitly.
+    local home = vim.fn.expand("~")
+    local dotfiles_dir = home .. "/.dotfiles"
+    if dir:sub(1, #home) == home and vim.fn.isdirectory(dotfiles_dir) == 1 then
+        local is_bare = get_git_output(dotfiles_dir, { "rev-parse", "--is-bare-repository" })
+        if is_bare == "true" then
+            return dotfiles_dir
+        end
+    end
+
+    return ""
 end
 
 -- AIDEV-NOTE: Use argv-based copy to avoid shell quoting bugs in paths.
@@ -93,29 +112,22 @@ function M.get_note_title(...)
                 git_dir_path = current_dir .. "/" .. git_dir_path
             end
             git_dir_path = vim.fn.fnamemodify(git_dir_path, ":p"):gsub("/$", "")
-            local project_path = vim.fn.finddir(".git/..", current_dir .. ";")
-            local project_root = vim.fn.fnamemodify(project_path, ":p"):gsub("/$", "")
-            local is_bare_repo = get_git_output(current_dir, { "rev-parse", "--is-bare-repository" }) == "true"
-            local core_worktree = get_git_output(current_dir, { "config", "--get", "core.worktree" })
-            local worktree_path = core_worktree
-            if worktree_path ~= "" and worktree_path:sub(1, 1) ~= "/" then
-                worktree_path = current_dir .. "/" .. worktree_path
-            end
-            if worktree_path ~= "" then
-                worktree_path = vim.fn.fnamemodify(worktree_path, ":p"):gsub("/$", "")
-            end
-            local git_dir_in_home = git_dir_path:sub(1, #home_dir + 1) == (home_dir .. "/")
 
-            -- AIDEV-NOTE: Ignore home-level bare repos (eg ~/.dotfiles with worktree=$HOME) for auto-title.
-            local is_home_bare_repo = is_bare_repo
-                and git_dir_in_home
-                and (worktree_path == "" or worktree_path == home_dir)
-
-            if project_root == home_dir or git_dir_path == home_dir or is_home_bare_repo then
+            -- Hardcoded: skip the dotfiles bare repo (~/.dotfiles with worktree=$HOME)
+            -- Declined via `git dotfiles` alias in ~/.gitconfig.
+            local dotfiles_dir = home_dir .. "/.dotfiles"
+            if git_dir_path == dotfiles_dir then
                 git_dir = ""
             else
-                project_name = project_path:gsub("^.*/", "")
-                branch_name = get_git_output(current_dir, { "branch", "--show-current", "--quiet" })
+                local project_path = vim.fn.finddir(".git/..", current_dir .. ";")
+                local project_root = vim.fn.fnamemodify(project_path, ":p"):gsub("/$", "")
+
+                if project_root == home_dir or git_dir_path == home_dir then
+                    git_dir = ""
+                else
+                    project_name = project_path:gsub("^.*/", "")
+                    branch_name = get_git_output(current_dir, { "branch", "--show-current", "--quiet" })
+                end
             end
         end
 

@@ -51,18 +51,46 @@ local function related_note_links(filename)
     return links
 end
 
+--- Resolve title and optional template content before opening a note.
+-- When a template is selected, renders it, extracts the first # heading
+-- as the effective title (so the filename matches what the note displays).
+-- Returns (resolved_title, template_lines_for_new_note, error_message).
+local function resolve_title_and_template(args, opts)
+    local title, template_name, err = resolve_note_title(args, opts)
+    if err then
+        return nil, nil, err
+    end
+
+    template_name = template_name or config.get("field_notes_default_template")
+
+    local template_lines
+    if template_name then
+        template_lines = templates.apply_template(template_name, title, opts and opts.template_context)
+        if template_lines then
+            for _, line in ipairs(template_lines) do
+                local header_text = line:match("^#%s+(.*)")
+                if header_text then
+                    title = header_text
+                    break
+                end
+            end
+        end
+    end
+
+    title = templates.render_variables(title, title, opts and opts.template_context)
+    return title, template_lines, nil
+end
+
 function M.open_note(bang, args, opts)
     local split_cmd = (opts and opts.split) or "edit"
     local is_untitled = vim.trim(args or "") == ""
     local is_git_repo = utils.get_git_dir() ~= ""
-    local title, template_name, title_error = resolve_note_title(args, opts)
-    if title_error then
-        print(title_error)
+
+    local title, template_lines, err = resolve_title_and_template(args, opts)
+    if err then
+        print(err)
         return
     end
-
-    title = templates.render_variables(title, title, opts and opts.template_context)
-    template_name = template_name or config.get("field_notes_default_template")
 
     if bang then
         link.link_note(title)
@@ -73,17 +101,11 @@ function M.open_note(bang, args, opts)
     local note_exists_on_disk = vim.fn.filereadable(filepath) == 1
     local note_buffer_exists = vim.fn.bufexists(filepath) == 1
 
-    if template_name and (note_exists_on_disk or note_buffer_exists) then
-        template_name = nil
-    end
     local cmd = "silent " .. split_cmd .. " " .. vim.fn.fnameescape(filepath)
     vim.cmd(cmd)
 
     if not note_exists_on_disk and not note_buffer_exists then
-        local lines
-        if template_name then
-            lines = templates.apply_template(template_name, title, opts and opts.template_context)
-        end
+        local lines = template_lines
         if not lines then
             lines = vim.split("# " .. title .. "\n\n", "\n", { plain = true })
         end
@@ -99,15 +121,6 @@ function M.open_note(bang, args, opts)
         vim.bo.modified = false
     end
 
-end
-
-function M.open_notes_dir(opts)
-    local split_cmd = (opts and opts.split) or "edit"
-    local dir = vim.fn.fnameescape(config.get("field_notes_dir"))
-
-    local cmd = "silent " .. split_cmd .. " " .. dir
-    vim.cmd(cmd)
-    vim.cmd("silent lcd " .. dir)
 end
 
 local function update_note_links(old_path, new_path)
@@ -240,57 +253,40 @@ end
 
 local note_open_opts = { require_quoted_arg = true }
 
+local function make_note_completion(name)
+    return function(arg_lead, cmd_line, cursor_pos)
+        local dq = '^%s*' .. name .. '!?%s+"[^"]*"'
+        local sq = "^%s*" .. name .. "!?%s+'[^']*'"
+        if cmd_line:match(dq) or cmd_line:match(sq) then
+            return templates.template_complete(arg_lead, cmd_line, cursor_pos)
+        end
+        return M.note_complete(arg_lead, cmd_line, cursor_pos)
+    end
+end
+
 local function set_command_note()
     vim.api.nvim_create_user_command("Note", function(opts)
         M.open_note(opts.bang, opts.args, note_open_opts)
     end, {
         nargs = "*",
         bang = true,
-        complete = function(arg_lead, cmd_line, cursor_pos)
-            local has_quoted_arg = cmd_line:match('^%s*Note!?%s+"[^"]*"') or cmd_line:match("^%s*Note!?%s+'[^']*'")
-            if has_quoted_arg then
-                return templates.template_complete(arg_lead, cmd_line, cursor_pos)
-            end
-            return M.note_complete(arg_lead, cmd_line, cursor_pos)
-        end,
+        complete = make_note_completion("Note"),
         desc = "Open or create a field note in current window. With !, also insert a link.",
     })
 end
 
-local function set_command_note_split()
-    vim.api.nvim_create_user_command("NoteSplit", function(opts)
-        local split = opts.mods and opts.mods:find("vertical") and "vsplit" or "split"
+local function define_note_split_command(name, default_split, desc)
+    vim.api.nvim_create_user_command(name, function(opts)
+        local split = default_split
+        if default_split == "split" and opts.mods and opts.mods:find("vertical") then
+            split = "vsplit"
+        end
         M.open_note(opts.bang, opts.args, vim.tbl_extend("force", note_open_opts, { split = split }))
     end, {
         nargs = "*",
         bang = true,
-        complete = function(arg_lead, cmd_line, cursor_pos)
-            local has_quoted_arg = cmd_line:match('^%s*NoteSplit!?%s+"[^"]*"')
-                or cmd_line:match("^%s*NoteSplit!?%s+'[^']*'")
-            if has_quoted_arg then
-                return templates.template_complete(arg_lead, cmd_line, cursor_pos)
-            end
-            return M.note_complete(arg_lead, cmd_line, cursor_pos)
-        end,
-        desc = "Open or create a field note in a split. Use :vert for vertical. With !, also insert a link.",
-    })
-end
-
-local function set_command_note_v_split()
-    vim.api.nvim_create_user_command("NoteVSplit", function(opts)
-        M.open_note(opts.bang, opts.args, vim.tbl_extend("force", note_open_opts, { split = "vsplit" }))
-    end, {
-        nargs = "*",
-        bang = true,
-        complete = function(arg_lead, cmd_line, cursor_pos)
-            local has_quoted_arg = cmd_line:match('^%s*NoteVSplit!?%s+"[^"]*"')
-                or cmd_line:match("^%s*NoteVSplit!?%s+'[^']*'")
-            if has_quoted_arg then
-                return templates.template_complete(arg_lead, cmd_line, cursor_pos)
-            end
-            return M.note_complete(arg_lead, cmd_line, cursor_pos)
-        end,
-        desc = "Open or create a field note in a vertical split. With !, also insert a link.",
+        complete = make_note_completion(name),
+        desc = desc,
     })
 end
 
@@ -337,9 +333,8 @@ end
 
 M.setup = function()
     set_command_note()
-    set_command_note_split()
-    set_command_note_v_split()
-    set_command_note_v_split()
+    define_note_split_command("NoteSplit", "split", "Open or create a field note in a split. Use :vert for vertical. With !, also insert a link.")
+    define_note_split_command("NoteVSplit", "vsplit", "Open or create a field note in a vertical split. With !, also insert a link.")
     set_command_note_rename()
     set_command_note_grep()
     set_command_note_link()

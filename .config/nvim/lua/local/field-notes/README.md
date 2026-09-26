@@ -1,6 +1,6 @@
 # field-notes.nvim
 
-A lightweight note-taking plugin for Neovim. Notes are plain markdown files in a flat directory, named by slugified title. Weekly logs, templates, image embedding, and SVG diagrams included.
+A lightweight note-taking plugin for Neovim. Notes are plain markdown files in a flat directory, named by slugified title. Weekly logs, templates, and image embedding included.
 
 ## Setup
 
@@ -18,6 +18,8 @@ require("field-notes").setup({
 |--------|---------|-------------|
 | `field_notes_dir` | `~/Workspace/field-notes` | Directory where notes are stored as flat `.md` files |
 | `field_notes_default_template` | `nil` | Template name applied to all new notes when no template arg is given |
+| `default_template_log` | `nil` | Override template for `:Log` (default: `log`) |
+| `default_template_journal` | `nil` | Override template for `:Journal` (default: `journal`) |
 | `field_notes_templates_dir` | `nil` | Custom template directory (defaults to `<field_notes_dir>/_templates/`) |
 
 ## Commands
@@ -37,7 +39,8 @@ require("field-notes").setup({
 
 | Command | Args | Bang | Description |
 |---------|------|------|-------------|
-| `:Log [offset]` | 0-1 | Yes | Open a weekly log note. Offset in weeks (0=this, 1=next, -1=last). Title: `YYYY-WWW: Mon DD` (`W` + Monday-based `%W`). New notes use the `log` template. |
+| `:Log [offset]` | 0-1 | Yes | Open a weekly log note. Offset in weeks (0=this, 1=next, -1=last). Title and filename derived from the template's `# heading`. Default template: `log`. |
+| `:Journal [offset]` | 0-1 | Yes | Open a weekly journal note. Same offset semantics as `:Log`. Default template: `journal`. |
 | `:ThisWeek` | 0 | Yes | Alias for `:Log 0` |
 | `:NextWeek` | 0 | Yes | Alias for `:Log 1` |
 | `:LastWeek` | 0 | Yes | Alias for `:Log -1` |
@@ -46,15 +49,7 @@ require("field-notes").setup({
 
 | Command | Args | Bang | Description |
 |---------|------|------|-------------|
-| `:Image <path>` | 1 | No | Copy image into note's `img/` dir and insert markdown link |
-| `:Diagram [title]` | 0-1 | No | Create new SVG diagram from template and insert markdown link |
-
-### Utilities
-
-| Command | Args | Bang | Description |
-|---------|------|------|-------------|
-| `:Slugify <text>` | 1 | No | Print slugified version of text |
-| `:Asciiflow` | 0 | No | Open asciiflow.com in browser |
+| `:NoteImage <path>` | 1 | No | Copy image into note's `img/` dir and insert markdown link |
 
 ### Bang behavior
 
@@ -66,7 +61,7 @@ Without `!`, notes open normally without inserting a link. `:Note` opens in the 
 
 When no title is provided to `:Note`, the title is derived from context:
 
-- **In a git repo:** `<project>: <branch>` (e.g. `myapp: main`) - except when repo root is `$HOME` or a bare home repo is detected (eg `~/.dotfiles`). New notes link existing note filenames whose stems are substrings of the new note's stem.
+- **In a git repo:** `<project>: <branch>` (e.g. `myapp: main`) — skips the dotfiles bare repo (`~/.dotfiles` with worktree=`$HOME`). New notes link existing note filenames whose stems are substrings of the new note's stem.
 - **Outside a git repo:** `<parent_dir>: <cwd_dir>` (e.g. `Workspace: notes`)
 
 ## Completion
@@ -92,6 +87,8 @@ When creating a new note, specify a template as the second argument:
 ```
 
 Or set `field_notes_default_template` to apply a template to all new notes automatically. If the note file or buffer already exists, any supplied/default template is ignored.
+
+**Filename from template heading:** When a template is applied to a new note, the filename is derived from the template's first `# heading` rather than the command's title argument. This keeps the filename in sync with what actually appears in the note. For example, a template with `# Journal: {{week}}` produces `journal-2025-w39-sep-22.md`.
 
 ### Template variables
 
@@ -130,14 +127,13 @@ Or set `field_notes_default_template` to apply a template to all new notes autom
     weekly.md
 ```
 
-Opening a note preserves the existing working directory. Images and diagrams are stored per-note:
+Opening a note preserves the existing working directory. Images are stored per-note:
 
 ```
 ~/Workspace/field-notes/
   img/
     my-note-title/
-      screenshot.png                 # :Image copies here
-      my-diagram.svg                 # :Diagram creates here
+      screenshot.png                 # :NoteImage copies here
 ```
 
 ## Renaming
