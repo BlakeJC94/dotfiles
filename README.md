@@ -19,11 +19,25 @@ Current stack:
 
 ## Setup
 
-Run the install script:
+### Full install (packages + SSH keys + dotfiles)
+
+Run the install script interactively:
 
 ```sh
 curl -fsSL 'https://gitlab.com/blakejc/dotfiles/-/raw/main/.install?ref_type=heads' | bash
 ```
+
+### Quick deploy (dotfiles only, no packages)
+
+To deploy just the dotfiles (SSH keys + bare repo checkout) without installing
+any package managers or packages, use the `--no-install` flag:
+
+```sh
+curl -fsSL 'https://gitlab.com/blakejc/dotfiles/-/raw/main/.install?ref_type=heads' | bash -s -- --no-install
+```
+
+This is useful when you want to get your configuration onto a machine quickly
+without waiting for Homebrew to install everything.
 
 The tools are activated by the created `.dotfiles.activate` file in `$HOME`.
 Source the shell RC to get all the settings and whatnot (or start a new shell)

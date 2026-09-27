@@ -323,7 +323,7 @@ clone_dotfiles() {
 # --- main ---------------------------------------------------------------------
 
 usage() {
-    printf '%s\n' "Usage: $0 [--brew-packages] [--brew-casks] [--ssh-keys] [--apt-packages]"
+    printf '%s\n' "Usage: $0 [--brew-packages] [--brew-casks] [--ssh-keys] [--apt-packages] [--uv-packages] [--no-install]"
 }
 
 main() {
@@ -351,6 +351,15 @@ main() {
     --uv-packages)
         [ "$#" -eq 1 ] || { usage; return 1; }
         install_uv_packages
+        return
+        ;;
+    --no-install)
+        [ "$#" -eq 1 ] || { usage; return 1; }
+        log "--no-install: skipping package manager installation."
+        setup_ssh
+        clone_dotfiles
+        touch "$HOME/.dotfiles.activate"
+        log "Setup complete."
         return
         ;;
     "")

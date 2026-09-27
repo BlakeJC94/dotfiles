@@ -39,7 +39,9 @@ notify-on-command-finish-after = 2s
 keybind = clear
 
 keybind = ctrl+shift+q=close_tab
-keybind = ctrl+shift+n=new_window
+keybind = ctrl+shift+n=move_tab:1
+keybind = ctrl+shift+p=move_tab:-1
+keybind = ctrl+shift+w=new_window
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+v=paste_from_clipboard
 keybind = ctrl+shift+==increase_font_size:1
@@ -68,10 +70,9 @@ keybind = ctrl+z>x=write_screen_file:copy
 keybind = ctrl+z>q=close_surface
 keybind = ctrl+z>o=toggle_split_zoom
 keybind = ctrl+z>c=new_tab
+keybind = ctrl+z>r=prompt_tab_title
 keybind = ctrl+z>p=previous_tab
-keybind = ctrl+z>shift+p=move_tab:-1
 keybind = ctrl+z>n=next_tab
-keybind = ctrl+z>shift+n=move_tab:1
 keybind = ctrl+z>shift+q=close_tab
 keybind = ctrl+z>escape=ignore
 keybind = ctrl+z>ctrl+z=text:\x1a
