@@ -12,6 +12,15 @@ return {
         { "<Leader>nn", ":Note<CR>" },
         { "<Leader>fnn", ":FzfLua notes<CR>" },
         { "<Leader>fnl", ":FzfLua notes_link<CR>" },
+        -- gX: fetch the title of the URL under the cursor and replace the
+        -- URL with a markdown link: [title](url)
+        {
+            "gX",
+            function()
+                require("field-notes.urltitle").url_title()
+            end,
+            desc = "Fetch URL title and replace with markdown link",
+        },
     },
     config = function(_, opts)
         local field_notes = require("field-notes")

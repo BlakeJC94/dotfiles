@@ -51,6 +51,18 @@ require("field-notes").setup({
 |---------|------|------|-------------|
 | `:NoteImage <path>` | 1 | No | Copy image into note's `img/` dir and insert markdown link |
 
+### URL titles
+
+`url_title` does for web URLs what `:NoteLink` does for notes: with the cursor on an `http(s)://` URL it fetches the page's `<title>` with `curl` and replaces the URL with a markdown link `[title](url)`.
+
+It is exposed as `M.url_title` rather than a command so it can be bound in your config:
+
+```lua
+vim.keymap.set("n", "gX", require("field-notes").url_title, { desc = "Fetch URL title" })
+```
+
+The fetch is asynchronous (via `vim.system`), so slow pages do not block the editor. If the URL has no `<title>` or the fetch fails, the buffer is left untouched.
+
 ### Bang behavior
 
 Bang (`!`) means "insert a link at the cursor before opening." This applies consistently to `:Note`, `:NoteSplit`, and `:NoteVSplit`.

@@ -1,12 +1,12 @@
 # field-notes.nvim — Knowledge Base
 
-A lightweight note-taking plugin for Neovim, written in Lua. Notes are plain Markdown files in a flat directory, named by slugified title. Supports weekly logs, templates with variable interpolation, image embedding, SVG diagrams, and relative linking.
+A lightweight note-taking plugin for Neovim, written in Lua. Notes are plain Markdown files in a flat directory, named by slugified title. Supports weekly logs, templates with variable interpolation, image embedding, SVG diagrams, relative linking, and URL-title link generation.
 
 **Language / Runtime:** Lua 5.1 (Neovim 0.9+), targeting `vim.system` / `vim.uv` APIs (Neovim 0.10+ features used where available).
 
 **High-Level Architecture:**
 
-The plugin is organized as a set of small, focused Lua modules beneath `lua/field-notes/`, orchestrated by a thin `init.lua` entrypoint. User-facing functionality is exposed exclusively through Neovim user commands (`:Note`, `:Log`, `:NoteLink`, `:NoteRename`, `:NoteGrep`, `:NoteImage`, `:Slugify`, `:Asciiflow`). No Lua API is required for daily use, though `M.open_note` and `M.link_note` are exported for integration.
+The plugin is organized as a set of small, focused Lua modules beneath `lua/field-notes/`, orchestrated by a thin `init.lua` entrypoint. User-facing functionality is exposed mostly through Neovim user commands (`:Note`, `:Log`, `:NoteLink`, `:NoteRename`, `:NoteGrep`, `:NoteImage`, `:Slugify`, `:Asciiflow`). No Lua API is required for daily use, though `M.open_note`, `M.link_note`, and `M.url_title` are exported for integration (the last is designed to be key-bound).
 
 Configuration is flat (a few options in `config.lua`), merged via `vim.tbl_deep_extend`. Notes live in a configurable flat directory (`field_notes_dir`), and templates live in a `_templates/` subdirectory. Weekly logs are a special case of notes with Monday-based week-date naming (`YYYY-WWW: Mon DD`). The template system supports `{{title}}`, `{{date}}`, `{{week}}`, and `{{strftime:FORMAT}}` with optional date arithmetic (`base+offset`).
 
@@ -16,10 +16,11 @@ Image handling copies files into a per-note `img/<slug>/` directory. The link mo
 
 | Path | Responsibility |
 |------|---------------|
-| `lua/field-notes/init.lua` | Entry point; registers all user commands; exports `open_note` and `link_note` |
+| `lua/field-notes/init.lua` | Entry point; registers all user commands; exports `open_note`, `link_note`, and `url_title` |
 | `lua/field-notes/config.lua` | Flat options with defaults; `setup(opts)` merges user config |
 | `lua/field-notes/notes.lua` | Core note creation, opening, renaming, grep, listing, completion |
 | `lua/field-notes/link.lua` | Markdown link insertion (`[title](path)`) with relative path resolution |
+| `lua/field-notes/urltitle.lua` | Replace the URL under the cursor with `[page title](url)` fetched via `curl` |
 | `lua/field-notes/log.lua` | Weekly log commands (`:Log`, `:ThisWeek`, `:NextWeek`, `:LastWeek`) |
 | `lua/field-notes/templates.lua` | Template directory scanning, variable rendering, template application |
 | `lua/field-notes/utils.lua` | Slugification, git detection, auto-title derivation, file copy, image dir helpers |
@@ -53,4 +54,5 @@ Image handling copies files into a per-note `img/<slug>/` directory. The link mo
 - [x] **modules/log/** — Weekly log date math, command set, template context
 - [x] **modules/images/** — Image copy, directory management, markdown link insertion
 - [x] **modules/utils/** — Slugification, git detection (including home bare repo edge case), file operations
+- [x] **modules/urltitle/** — Async URL-title fetch via `curl`, HTML entity decoding, extmark-tracked replacement
 - [x] **data-model/** — Note file naming convention, directory layout, template structure
