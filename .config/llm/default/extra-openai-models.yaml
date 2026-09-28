@@ -3,7 +3,7 @@
   api_base: "https://api.nextbit256.com/v1"
   api_key_name: nextbit
 
-- model_id: nextbit/deepseek/deepseek:v4-flash
-  model_name: deepseek:v4-flash
+- model_id: nextbit/deepseek/deepseek:v4.1-flash
+  model_name: deepseek:v4.1-flash
   api_base: "https://api.nextbit256.com/v1"
   api_key_name: nextbit
