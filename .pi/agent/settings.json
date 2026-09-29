@@ -5,6 +5,9 @@
   "theme": "gruvbox-dark",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": true,
+  "packages": [
+    "npm:pi-lsp-extension"
+  ],
   "compaction": {
     "enabled": false
   }

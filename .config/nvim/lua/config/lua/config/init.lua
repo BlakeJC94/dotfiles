@@ -71,6 +71,7 @@ M.setup = function(opts)
     autocmds.setup_create_parent_dirs()
     autocmds.setup_trim_spaces()
     autocmds.setup_info_buffer_opts()
+    autocmds.setup_textwidth_column()
     autocmds.setup_jump_to_last_edit()
     autocmds.setup_makeprg_just()
 

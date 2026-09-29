@@ -65,6 +65,33 @@ M.setup_info_buffer_opts = function()
     })
 end
 
+-- Show the file's text width in its window after filetype settings have loaded
+M.setup_textwidth_column = function()
+    local group = vim.api.nvim_create_augroup("textwidth_column", { clear = true })
+
+    vim.cmd("highlight! link ColorColumn Folded")
+
+    local function update_colorcolumn(args)
+        if vim.bo[args.buf].buftype ~= "" or vim.api.nvim_buf_get_name(args.buf) == "" then
+            return
+        end
+
+        local width = vim.bo[args.buf].textwidth
+        vim.wo.colorcolumn = width > 0 and string.format("%d,%d", width + 1, width + 2) or ""
+    end
+
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+        group = group,
+        callback = update_colorcolumn,
+    })
+
+    vim.api.nvim_create_autocmd("OptionSet", {
+        group = group,
+        pattern = "textwidth",
+        callback = update_colorcolumn,
+    })
+end
+
 -- Jump to last edit position when opening a file
 M.setup_jump_to_last_edit = function()
     vim.api.nvim_create_augroup("jump_to_last_edit", { clear = true })

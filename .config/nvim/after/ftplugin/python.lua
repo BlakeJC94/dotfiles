@@ -69,3 +69,10 @@ vim.api.nvim_create_autocmd("BufWritePost", {
         end, 2500)
     end,
 })
+
+-- Canva-specific linewidth
+local root = vim.fs.normalize(vim.fn.expand("~/Workspace/repos/canva"))
+local file = vim.fs.normalize(vim.api.nvim_buf_get_name(0))
+if vim.startswith(file, root .. "/") then
+  vim.opt_local.textwidth = 100
+end

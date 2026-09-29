@@ -4,7 +4,7 @@ cursor-style-blink = false
 custom-shader = shaders/cursor_warp.glsl
 
 font-family = "JetBrainsMono Nerd Font"
-font-size = 15
+font-size = 13
 
 mouse-hide-while-typing = true
 
@@ -26,7 +26,7 @@ window-padding-x = 10
 window-padding-y = 10
 window-width = 100
 
-quick-terminal-position = right
+quick-terminal-position = left
 quick-terminal-size = 50%
 
 bell-features = audio
@@ -63,7 +63,7 @@ keybind = global:super+escape=toggle_quick_terminal
 
 keybind = ctrl+z>tab=goto_split:previous
 
-keybind = ctrl+x>ctrl+x=goto_split:next
+keybind = ctrl+z>ctrl+x=goto_split:next
 keybind = ctrl+z>s=new_split:down
 keybind = ctrl+z>v=new_split:right
 keybind = ctrl+z>x=write_screen_file:copy

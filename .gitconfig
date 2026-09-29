@@ -117,12 +117,16 @@
     hub = "!NO_COLOR=true gh"
 
     # List your open GitHub PRs as markdown links.
-    # usage: git hub-prs
-    hub-prs = "!gh pr list -S \"author:$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
+    # usage: git hub-prs [owner/repo]
+    hub-prs = "!f() { if [ -n \"$1\" ]; then set -- -R \"$1\"; else set --; fi; gh pr list \"$@\" -S \"author:$GITHUB_USER\" --json headRefName,url,state,isDraft | jq -r '.[] | \"* [ ] [\\(if .isDraft then \"DRAFT\" else .state end): \\(.headRefName)](\\(.url))\"'; }; f"
 
     # List PRs awaiting your GitHub review as markdown links.
-    # usage: git hub-reviews
-    hub-reviews = "!gh pr list -S \"user-review-requested:@$GITHUB_USER\" --json 'headRefName,url' | jq -r '.[] | \"* [\\(.headRefName)](\\(.url))\"'"
+    # usage: git hub-reviews [owner/repo]
+    hub-reviews = "!f() { if [ -n \"$1\" ]; then set -- -R \"$1\"; else set --; fi; gh pr list \"$@\" -S \"user-review-requested:@$GITHUB_USER\" --json headRefName,url,state,isDraft | jq -r '.[] | \"* [ ] [\\(if .isDraft then \"DRAFT\" else .state end): \\(.headRefName)](\\(.url))\"'; }; f"
+
+    # Summary of Github tasks
+    # usage: git hub-summary [owner/repo]
+    hub-summary = "!f() { printf 'PRs in flight:\\n\\n'; git hub-prs \"$@\"; printf '\\nPRs for review:\\n\\n'; git hub-reviews \"$@\"; }; f"
 
     # Grep a pattern across all local and remote branches.
     # usage: git hunt <pattern> [path]
@@ -356,7 +360,6 @@
 
 ; https://www.git-tower.com/blog/git-performance/
 [credential]
-    helper = cache --timeout=3600
     helper = osxkeychain
     helper = oauth
 [mergetool "nvim"]

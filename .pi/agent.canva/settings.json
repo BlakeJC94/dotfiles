@@ -1,13 +1,14 @@
 {
-    "defaultProvider": "openai-codex",
-    "defaultModel": "gpt-6-sol",
-    "lastChangelogVersion": "0.85.1",
-    "theme": "gruvbox-light",
-    "hideThinkingBlock": true,
-    "packages": [
-        "npm:pi-mcp-adapter"
-    ],
-    "compaction": {
-        "enabled": false
-    }
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-6-sol",
+  "lastChangelogVersion": "0.87.1",
+  "theme": "gruvbox-light",
+  "hideThinkingBlock": true,
+  "packages": [
+    "npm:pi-mcp-adapter",
+    "npm:pi-lsp-extension"
+  ],
+  "compaction": {
+    "enabled": false
+  }
 }

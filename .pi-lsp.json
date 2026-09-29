@@ -1,0 +1,38 @@
+{
+    "autoStart": [
+        "python"
+    ],
+    "autoInjectDiagnostics": [
+        "python"
+    ],
+    "servers": {
+        "python": {
+            "command": "pylsp",
+            "args": []
+        },
+        "java": {
+            "command": "jdtls",
+            "initializationOptions": {
+                "settings": {
+                    "java.project.sourcePaths": [
+                        "src/main/java",
+                        "src/test/java"
+                    ],
+                    "java.project.referencedLibraries": {
+                        "include": [
+                            "bazel-bin/**/*.jar",
+                            "bazel-out/**/*.jar"
+                        ]
+                    },
+                    "java.import.exclusions": [
+                        "**/node_modules/**",
+                        "**/.metadata/**",
+                        "**/archetype-resources/**",
+                        "**/META-INF/maven/**",
+                        "**/generated-sources/**"
+                    ]
+                }
+            }
+        }
+    }
+}
