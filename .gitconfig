@@ -188,6 +188,14 @@
     # usage: git llm-diff
     llm-diff = "!f() { git diff | llm -t llm-diff; }; f"
 
+    # Generate a one-line commit message (<scope>: <description>) from staged changes via llm.
+    # usage: git llm-sync
+    llm-sync = "!f() { msg=$(git diff --cached | llm -t llm-cm) && [ -n \"$msg\" ] && git ad -uv . && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
+
+    # Generate a yeet with llm
+    # usage: git llm-yeet
+    llm-yeet = "!git llm-sync && git push"
+
     # List files that are different in this branch
     #
     ls = "!git diff --name-only $(git merge-base origin/$(git prime) HEAD)...HEAD"

@@ -292,7 +292,7 @@ return {
         ------------------------------------------------------------
 
         -- <Leader>g: Copy buffer path to clipboard
-        { "<Leader>g", ":let @+ = expand('%:p')<CR>", silent = true },
+        { "<Leader>g", ":let @+ = expand('%:p') | echo 'Path copied to clipboard'<CR>", silent = true },
 
         -- <Leader>e: select the entire buffer.
         { "<Leader>e", "ggVG" },
