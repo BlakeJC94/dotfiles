@@ -3,15 +3,15 @@ local M = {}
 -- Setup insert mode abbreviations for snippets
 M.setup_snippets = function()
     -- Date/time snippets
-    vim.cmd([[iabbrev <expr> @@D strftime('%Y-%m-%d %a')]])
-    vim.cmd([[iabbrev <expr> @@T strftime('%Y-%m-%dT%T%z')[:21] . ':00']])
+    vim.cmd([[iabbrev <expr> zzd strftime('%Y-%m-%d %a')]])
+    vim.cmd([[iabbrev <expr> zzt strftime('%Y-%m-%dT%T%z')[:21] . ':00']])
 
-    vim.cmd([[inoreabbrev <expr> xxtoday "strftime(\"%Y-%m-%d %a\", localtime() + (0 * 86400))"]])
-    vim.cmd([[inoreabbrev <expr> xxyesterday strftime("%Y-%m-%d %a", localtime() + (-1 * 86400))]])
-    vim.cmd([[inoreabbrev <expr> xxtomorrow strftime("%Y-%m-%d %a", localtime() + (1 * 86400))]])
+    vim.cmd([[inoreabbrev <expr> zztoday "strftime(\"%Y-%m-%d %a\", localtime() + (0 * 86400))"]])
+    vim.cmd([[inoreabbrev <expr> zzyesterday strftime("%Y-%m-%d %a", localtime() + (-1 * 86400))]])
+    vim.cmd([[inoreabbrev <expr> zztomorrow strftime("%Y-%m-%d %a", localtime() + (1 * 86400))]])
 
     -- UUID generator
-    vim.cmd([[inoreabbrev <expr> ,u system('uuidgen')->trim()->tolower()]])
+    vim.cmd([[inoreabbrev <expr> zzu system('uuidgen')->trim()->tolower()]])
 
     -- TODO markers
     vim.cmd([[inoreabbrev rbm # TODO: remove before merging]])
