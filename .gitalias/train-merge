@@ -1,0 +1,55 @@
+#!/bin/sh
+
+if [ "$#" -lt 2 ]; then
+    echo 'usage: git train-merge <base> <branch>...' >&2
+    exit 1
+fi
+
+original=$(git symbolic-ref --quiet --short HEAD) || exit 1
+worktree=$(git rev-parse --show-toplevel) || exit 1
+worktrees=$(git worktree list --porcelain) || exit 1
+
+if ! git diff --quiet; then
+    echo 'error: current worktree has unstaged changes' >&2
+    exit 1
+fi
+
+# Check the entire train before switching branches or merging.
+printf '%s\n' "$worktrees" | while IFS= read -r line; do
+    case "$line" in
+        'worktree '*) path=${line#worktree } ;;
+        'branch refs/heads/'*)
+            checked_out=${line#branch refs/heads/}
+            for branch in "$@"; do
+                if [ "$branch" = "$checked_out" ] && [ "$path" != "$worktree" ]; then
+                    printf 'error: branch %s is checked out in %s\n' "$branch" "$path" >&2
+                    exit 1
+                fi
+            done
+            ;;
+    esac
+done || exit 1
+
+printf 'To return to the original branch, run:\n  git switch%s\n' "$(git rev-parse --sq-quote "$original")"
+base=$1
+shift
+
+while [ "$#" -gt 0 ]; do
+    branch=$1
+    shift
+
+    git switch "$branch" || exit 1
+
+    if ! git merge --no-squash --no-ff --no-edit "$base"; then
+        if git rev-parse -q --verify MERGE_HEAD >/dev/null; then
+            printf 'Resolve conflicts, then run:\n  git add <resolved-files>\n  git merge --continue\n'
+            if [ "$#" -gt 0 ]; then
+                printf '  git train-merge%s\n' "$(git rev-parse --sq-quote "$branch" "$@")"
+            fi
+        fi
+        exit 1
+    fi
+
+    base=$branch
+done
+

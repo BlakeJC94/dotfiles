@@ -118,11 +118,12 @@
 
     # List your open GitHub PRs as markdown links.
     # usage: git hub-prs [owner/repo]
-    hub-prs = "!f() { if [ -n \"$1\" ]; then set -- -R \"$1\"; else set --; fi; gh pr list \"$@\" -S \"author:$GITHUB_USER\" --json headRefName,url,state,isDraft | jq -r '.[] | \"* [ ] [\\(if .isDraft then \"DRAFT\" else .state end): \\(.headRefName)](\\(.url))\"'; }; f"
+    hub-prs = "!f() { if [ -n \"$1\" ]; then set -- -R \"$1\"; else set --; fi; gh pr list \"$@\" -S \"author:$GITHUB_USER\" --json title,headRefName,url,state,isDraft | jq -r '.[] | \"* [ ] [\\(if .isDraft then \"DRAFT\" else .state end): \\(.title | gsub(\"[][]|/\"; \"\"))](\\(.url)) *\\(.headRefName)*\"'; }; f"
 
     # List PRs awaiting your GitHub review as markdown links.
     # usage: git hub-reviews [owner/repo]
-    hub-reviews = "!f() { if [ -n \"$1\" ]; then set -- -R \"$1\"; else set --; fi; gh pr list \"$@\" -S \"user-review-requested:@$GITHUB_USER\" --json headRefName,url,state,isDraft | jq -r '.[] | \"* [ ] [\\(if .isDraft then \"DRAFT\" else .state end): \\(.headRefName)](\\(.url))\"'; }; f"
+    ; hub-reviews = "!f() { if [ -n \"$1\" ]; then set -- -R \"$1\"; else set --; fi; gh pr list \"$@\" -S \"user-review-requested:@$GITHUB_USER\" --json headRefName,url,state,isDraft | jq -r '.[] | \"* [ ] [\\(if .isDraft then \"DRAFT\" else .state end): \\(.headRefName)](\\(.url))\"'; }; f"
+    hub-reviews = "!f() { if [ -n \"$1\" ]; then set -- -R \"$1\"; else set --; fi; gh pr list \"$@\" -S \"user-review-requested:@$GITHUB_USER\" --json title,headRefName,url,state,isDraft | jq -r '.[] | \"* [ ] [\\(if .isDraft then \"DRAFT\" else .state end): \\(.title | gsub(\"[][]|/\"; \"\"))](\\(.url)) *\\(.headRefName)*\"'; }; f"
 
     # Summary of Github tasks
     # usage: git hub-summary [owner/repo]
@@ -139,6 +140,10 @@
     # Print an official gitignore template for a language, picking via sk if omitted (script: ~/.gitalias/ignore-template).
     # usage: git ignore-template [lang]
     ignore-template = "!~/.gitalias/ignore-template"
+
+    # Print out a checklist of JIRA tickets
+    # usage: git jira
+    jira = "!~/.gitalias/jira"
 
     # Create/edit a branch-scoped justfile under .tmp/<branch>/ (script: ~/.gitalias/just).
     # usage: git just [just-args...]
@@ -174,7 +179,7 @@
 
     # Generate a one-line commit message (<scope>: <description>) from staged changes via llm.
     # usage: git llm-cm
-    llm-cm = "!f() { msg=$(git diff --cached | llm -t llm-cm) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
+    llm-cm = "!f() { msg=$(git diff --cached | llm -t llm-cm -R) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
 
     # Stage the given paths, then generate a one-line commit message and commit via llm.
     # usage: git llm-cma [path]...
@@ -182,11 +187,11 @@
 
     # Generate a multi-line commit message with bullet-point summary from staged changes via llm.
     # usage: git llm-commit
-    llm-commit = "!f() { msg=$(git diff --cached | llm -t llm-commit) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
+    llm-commit = "!f() { msg=$(git diff --cached | llm -t llm-commit -R) && [ -n \"$msg\" ] && git commit -m \"$msg\" || echo \"(no staged changes or generation failed)\"; }; f"
 
     # Summarise the working diff and suggest a scoped commit breakdown via llm.
     # usage: git llm-diff
-    llm-diff = "!f() { git diff | llm -t llm-diff; }; f"
+    llm-diff = "!f() { git diff \"$@\" | llm -t llm-diff -R; }; f"
 
     # Generate a one-line commit message (<scope>: <description>) from staged changes via llm.
     # usage: git llm-sync
@@ -240,7 +245,11 @@
 
     # ⚠ Rebase the listed branches onto the current one and onto each other, in order.
     # usage: git train <branch>...
-    train = "!f() { base=$(git branch --show-current) || return; [ -n \"$base\" ] || { echo 'train requires a checked-out branch' >&2; return 1; }; [ \"$#\" -gt 0 ] || { echo 'usage: git train <branch>...' >&2; return 1; }; for branch in \"$@\"; do git rebase \"$base\" \"$branch\" || return; base=$branch; done; }; f"
+    train-rebase = "!~/.gitalias/train-rebase"
+
+    # Merge each listed branch into the next, starting from the current branch.
+    # usage: git merge-train <branch>...
+    train-merge = "!~/.gitalias/train-merge"
 
     # Undo the last commit, keeping its changes staged.
     # usage: git uncommit

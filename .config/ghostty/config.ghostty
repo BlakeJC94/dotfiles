@@ -28,6 +28,7 @@ window-width = 100
 
 quick-terminal-position = left
 quick-terminal-size = 50%
+quick-terminal-space-behavior = remain
 
 bell-features = audio
 bell-audio-path = /System/Library/Sounds/Submarine.aiff
@@ -59,7 +60,7 @@ keybind = ctrl+shift+l=reset
 keybind = command+c=copy_to_clipboard
 keybind = command+v=paste_from_clipboard
 
-keybind = global:super+escape=toggle_quick_terminal
+keybind = global:option+h=toggle_quick_terminal
 
 keybind = ctrl+z>tab=goto_split:previous
 
@@ -87,11 +88,6 @@ keybind = ctrl+z>left=goto_split:left
 keybind = ctrl+z>down=goto_split:down
 keybind = ctrl+z>up=goto_split:up
 keybind = ctrl+z>right=goto_split:right
-
-keybind = alt+h=resize_split:left,10
-keybind = alt+j=resize_split:down,10
-keybind = alt+k=resize_split:up,10
-keybind = alt+l=resize_split:right,10
 
 keybind = alt+left=resize_split:left,10
 keybind = alt+down=resize_split:down,10

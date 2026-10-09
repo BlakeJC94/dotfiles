@@ -1,12 +1,15 @@
 {
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6-sol",
-  "lastChangelogVersion": "0.87.1",
+  "defaultProvider": "amazon-bedrock",
+  "defaultModel": "global.zai.glm-5.3",
+  "lastChangelogVersion": "1.0.3",
   "theme": "gruvbox-light",
   "hideThinkingBlock": true,
+  "defaultTools": [
+    "+codemode"
+  ],
   "packages": [
-    "npm:pi-mcp-adapter",
-    "npm:pi-lsp-extension"
+    "npm:pi-lsp-extension",
+    "npm:@wileai/pi-codex-connector"
   ],
   "compaction": {
     "enabled": false

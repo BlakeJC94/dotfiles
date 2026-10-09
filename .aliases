@@ -88,3 +88,13 @@ pbcopy() {
 
 alias plm="cat <(pbpaste) <(echo -e '\n') | tee /dev/tty | lm"
 alias python=python3
+
+with_key() {
+    key=$1
+    shift
+    value=$(cat "$HOME/.keys/$key") || {
+        echo "No $key" >&2
+        return 1
+    }
+    env "$key=$value" "$@"
+}

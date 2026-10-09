@@ -218,6 +218,16 @@ return {
         { "<Left>", "zc" },
         { "<Right>", "zo" },
 
+        --   <S-Up>    Decrease level of folding
+        --   <S-Down>  Increase level of folding
+        --   <S-Left>  Close all folds at cursor
+        --   <S-Right> Open all folds at cursor
+
+        { "<S-Up>", "zm" },
+        { "<S-Down>", "zr" },
+        { "<S-Left>", "zC" },
+        { "<S-Right>", "zO" },
+
         ------------------------------------------------------------
         -- Function keys: option toggles
         --

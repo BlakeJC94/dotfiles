@@ -25,9 +25,9 @@ M.set_undo_maps = function()
     end
 end
 
--- Disable shift/alt arrow keys in normal mode
+-- Disable alt arrow keys in normal mode
 M.set_arrow_maps = function()
-    for _, mod in pairs({ "S-", "A-" }) do
+    for _, mod in pairs({ "A-" }) do
         for _, dir in pairs({ "Left", "Down", "Up", "Right" }) do
             vim.keymap.set("n", "<" .. mod .. dir .. ">", "")
         end

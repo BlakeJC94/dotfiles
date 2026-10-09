@@ -1,25 +1,19 @@
-_backup-dotfiles:
-    #!/usr/bin/env bash
-    BACKUP_DIR="$HOME/.config-backup"
-    mkdir -p "$BACKUP_DIR"
-    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" checkout 2>&1 | grep -E "^\s+\." | awk '{print $1}' | while read -r file; do
-      mkdir -p "$BACKUP_DIR/$(dirname "$file")"
-      mv "$file" "$BACKUP_DIR/$file"
-    done
-
-deploy-dotfiles:
-    git dotfiles checkout
-
-deploy-dotfiles-safe: _backup-dotfiles deploy-dotfiles
-
-deploy-dotfiles-unsafe:
-    git dotfiles checkout --force
-
 [linux]
-up: brew-up uv-up
+up: brew-up uv-up llm-up
 
 [macos]
-up: brew-up uv-up cask-up
+up: brew-up uv-up cask-up llm-up
+
+llm-up:
+    #!/usr/bin/env bash
+    llm install llm-openrouter
+    llm install llm-fragments-pdf
+    llm install llm-fragments-site-text
+    llm install git+https://gitlab.com/blakejc/llm-tools-datetime.git
+    llm install git+https://gitlab.com/blakejc/llm-tools-codex-connector.git
+
+add:
+    git dotfiles add .gitalias .agents .config/nvim
 
 brew-up:
     ./.install.sh --brew-packages
@@ -30,16 +24,6 @@ cask-up:
 
 uv-up:
     ./.install.sh --uv-packages
-
-llm-up:
-    #!/usr/bin/env bash
-    llm install llm-openrouter
-    echo "Setting openrouter key"
-    llm keys set openrouter
-    llm install llm-fragments-pdf
-    llm install llm-fragments-site-text
-    llm install llm-mcp-client
-
 
 [linux]
 apt-up:
@@ -210,3 +194,20 @@ compaudit-fix:
         /opt/homebrew/share/zsh \
         /opt/homebrew/share/zsh/site-functions
     echo "Fixed zsh compinit insecure directories"
+
+_backup-dotfiles:
+    #!/usr/bin/env bash
+    BACKUP_DIR="$HOME/.config-backup"
+    mkdir -p "$BACKUP_DIR"
+    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" checkout 2>&1 | grep -E "^\s+\." | awk '{print $1}' | while read -r file; do
+      mkdir -p "$BACKUP_DIR/$(dirname "$file")"
+      mv "$file" "$BACKUP_DIR/$file"
+    done
+
+deploy-dotfiles:
+    git dotfiles checkout
+
+deploy-dotfiles-safe: _backup-dotfiles deploy-dotfiles
+
+deploy-dotfiles-unsafe:
+    git dotfiles checkout --force

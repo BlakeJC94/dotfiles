@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+JIRA_API_TOKEN=$(cat "$HOME/.keys/JIRA_API_TOKEN") \
+  jira issue list --raw \
+    -q 'assignee = currentUser() AND status NOT IN (Done, Cancelled, Backlog) AND issuetype NOT IN (Epic, Milestone)' |
+  jq -r '
+    def tickets($statuses):
+      [.[] |
+        select(.fields.status.name | ascii_downcase | IN($statuses[])) |
+        "* [ ] [\(.fields.summary)](https://canva.atlassian.net/browse/\(.key))"
+      ] | join("\n");
+
+    tickets(["blocked"]) as $waiting |
+    "JIRA Tickets in flight:\n\(tickets(["todo", "to do", "in progress"]))" +
+    (if $waiting == "" then ""
+     else "\n\nJIRA Tickets waiting:\n\($waiting)"
+     end)
+  '
+
