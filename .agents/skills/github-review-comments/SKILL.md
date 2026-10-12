@@ -147,7 +147,8 @@ Because the state carries the weight, nothing you flag has to be loud. Don't inf
 | Label | Shape |
 | --- | --- |
 | `nitpick` | One sentence. Often skip it. |
-| `suggestion`, `question` | One or two sentences: the change, plus the reason. Bullets if several points. |
+| `suggestion` | One or two sentences: the change, plus the reason. Bullets if several points. |
+| `question` | One or two sentences; when the question claims a failure mode, pair it with a snippet (see "Questions that claim a failure"). |
 | `note` | One or two sentences of context. |
 | `issue`, `todo` | Name the failure mode concretely (what input/state triggers it, what breaks), then the minimal fix. Code snippet if shorter than prose. |
 | `praise` | One sentence naming the specific impressive thing. |
@@ -177,6 +178,35 @@ Rules:
   spans several locations, or is only a sketch.
 - Don't write out a long implementation. If the fix needs more than a few lines, describe
   the approach in one bullet and stop.
+
+## Questions that claim a failure: pair a snippet
+
+When the substance of a `question` is a concrete failure mode, show it with a minimal
+snippet: the triggering usage plus the resulting error as comments, or the single
+expression that breaks.
+
+- The snippet is evidence, not a fix: plain fenced code block, never a `suggestion` block.
+- Fewest lines that reproduce the path - construction, call, error is usually enough.
+- Skip it when there is no claimed failure. "Is 30s fixed here or configurable upstream?"
+  is a clarifying question and needs no code.
+
+Example:
+
+````
+question: Should the default comparator fail fast for scalar models?
+
+A scalar model type-checks green (the cast hides the mismatch) and dies mid-eval, far
+from the constructor:
+
+```python
+scorer = PairwiseScorer(model=scalar_model, score_adapter=my_adapter)
+scorer.score(pair)
+# comparator(): baseline_scores.items()
+# AttributeError: 'float' object has no attribute 'items'
+```
+
+No change needed if direct use with scalar models is out of scope.
+````
 
 ## What you comment on
 

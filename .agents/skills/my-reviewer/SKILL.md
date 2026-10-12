@@ -1,9 +1,31 @@
 ---
-name: herdr-reviewer
-description: "Spawn a Pi reviewer through Herdr, address actionable feedback, and request re-review for up to three rounds or until no further notes remain. Use when explicitly asked for a Herdr reviewer or iterative review focused on simplicity, minimal dependencies, and clear, compact code. Requires HERDR_ENV=1."
+name: my-reviewer
+description: "Establish the base review norms, and spawn a Pi reviewer through Herdr that applies them for up to three rounds or until no further notes remain. Use when explicitly asked for a Herdr reviewer or iterative review focused on simplicity, minimal dependencies, and clear, compact code. Requires HERDR_ENV=1."
 ---
 
-# Herdr reviewer
+# My reviewer
+
+## Review norms
+
+The base norms for every review I run; `my-reviewer-prs` builds on them for GitHub PR reviews.
+
+Output the findings directly in the response; this skill writes no artifact. `my-reviewer-prs` runs the same review but captures the findings in a markdown report (adding what the change is and how to test it) and starts a pending GitHub review with the findings as draft comments.
+
+Focus on:
+
+- Simplicity: prefer the smallest understandable solution over abstractions.
+- Minimal dependencies: flag avoidable additions and use existing facilities.
+- Unnecessary logic: identify redundant branches, checks, state, and helpers.
+- Compact code: remove duplication and dead code without sacrificing clarity.
+- Spacing: use consistent formatting and whitespace to separate logical steps.
+- Comments: explain non-obvious intent, not what the code already says.
+
+Preserve correctness, required edge cases, public contracts, and task scope.
+Do not recommend clever compression, speculative features, broad refactors,
+or removing safeguards without evidence. Avoid cosmetic churn and invented
+findings. Report only actionable improvements worth making. Every finding
+states its severity, the file and line (or area), the issue, why it
+matters, and the smallest suggested change.
 
 ## Scope and setup
 
@@ -23,7 +45,7 @@ herdr agent start reviewer --kind pi --pane <returned-pane-id>
 
 ## Reviewer instructions
 
-Send the reviewer the task goal, exact review scope, relevant constraints, and this prompt. Replace placeholders with concrete context before submission:
+Send the reviewer the task goal, exact review scope, relevant constraints, and this prompt. The reviewer only sees the submitted text, so paste the Review norms section above into the placeholder verbatim. Replace placeholders with concrete context before submission:
 
 ```text
 You are the reviewer for this task: <goal>.
@@ -33,22 +55,9 @@ Constraints: <project instructions and behavior/API requirements>.
 Read the changes and enough surrounding code to understand them. Do not edit
 files, install dependencies, or run mutating commands. Return feedback only.
 
-Focus on:
-- Simplicity: prefer the smallest understandable solution over abstractions.
-- Minimal dependencies: flag avoidable additions and use existing facilities.
-- Unnecessary logic: identify redundant branches, checks, state, and helpers.
-- Compact code: remove duplication and dead code without sacrificing clarity.
-- Spacing: use consistent formatting and whitespace to separate logical steps.
-- Comments: explain non-obvious intent, not what the code already says.
+<Review norms from the section above, pasted verbatim>
 
-Preserve correctness, required edge cases, public contracts, and task scope.
-Do not recommend clever compression, speculative features, broad refactors,
-or removing safeguards without evidence. Avoid cosmetic churn and invented
-findings. Report only actionable improvements worth making.
-
-For each finding, give file and line, the issue, why it matters, and the
-smallest suggested change. If no actionable findings remain, reply:
-"No further notes."
+If no actionable findings remain, reply: "No further notes."
 ```
 
 Submit through `herdr agent prompt <name> "<prompt>" --wait --timeout 120000`, then read the completed feedback with `herdr agent read <name> --source recent-unwrapped --lines 200`. Follow the Herdr skill's recovery rules if blocked, stalled, timed out, or output is incomplete. Never equate an idle state or missing output with a clean review.
