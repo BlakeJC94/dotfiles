@@ -28,7 +28,7 @@ return {
                 require("gitsigns").blame_line({ full = true })
             end,
         },
-        { "[c", ":silent Gitsigns prev_hunk<CR>" },
-        { "]c", ":silent Gitsigns next_hunk<CR>" },
+        { "[h", ":silent Gitsigns prev_hunk<CR>" },
+        { "]h", ":silent Gitsigns next_hunk<CR>" },
     },
 }

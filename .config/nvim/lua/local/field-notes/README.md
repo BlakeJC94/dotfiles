@@ -28,10 +28,10 @@ require("field-notes").setup({
 
 | Command | Args | Bang | Description |
 |---------|------|------|-------------|
-| `:Note "title" [template]` | 1-2 | Yes | Open or create a note in the current window. Title supports template vars like `{{date}}`. With `!`, also inserts a link at cursor. |
-| `:NoteSplit "title" [template]` | 1-2 | Yes | Open or create a note in a horizontal split. Use `:vert` for vertical. Title supports template vars like `{{date}}`. With `!`, also inserts a link. |
-| `:NoteVSplit "title" [template]` | 1-2 | Yes | Open or create a note in a vertical split. Title supports template vars like `{{date}}`. With `!`, also inserts a link. |
-| `:NoteLink [path] "title"` | 1-2 | No | Insert a markdown link to a note without opening it. If path is omitted, uses `expand("#")`. |
+| `:Note ["title"] [-t template]` | 0-1 title | Yes | Open or create a note in the current window. Title supports template vars like `{{date}}`. With `!`, also inserts a link at cursor. |
+| `:NoteSplit ["title"] [-t template]` | 0-1 title | Yes | Open or create a note in a horizontal split. Use `:vert` for vertical. With `!`, also inserts a link. |
+| `:NoteVSplit ["title"] [-t template]` | 0-1 title | Yes | Open or create a note in a vertical split. With `!`, also inserts a link. |
+| `:NoteLink [path] "title"` | 0-2 | No | Insert a markdown link without opening a note. With no arguments, link to the last viewed field note using its first `#` heading as the title. With a title, the optional source path defaults to `expand("#")`. |
 | `:NoteRename` | 0 | No | Rename current note file based on its `# heading` |
 | `:NoteGrep <pattern>` | 1 | No | Search notes with `:grep` and open quickfix list |
 
@@ -69,17 +69,19 @@ Bang (`!`) means "insert a link at the cursor before opening." This applies cons
 
 Without `!`, notes open normally without inserting a link. `:Note` opens in the current window, `:NoteSplit` in a horizontal split, `:NoteVSplit` in a vertical split. `:vert NoteSplit` also opens vertically.
 
+With a line range and no quoted title (for example, `:'<,'>Note` or `:'<,'>Note -t meeting`), `:Note` uses the first nonblank selected line as the title and copies the selected lines into the note. The source stays unchanged. Existing notes receive the selection at the end. New notes ignore the default template, but honor an explicit `-t`.
+
 ## Auto-title
 
 When no title is provided to `:Note`, the title is derived from context:
 
-- **In a git repo:** `<project>: <branch>` (e.g. `myapp: main`) — skips the dotfiles bare repo (`~/.dotfiles` with worktree=`$HOME`). New notes link existing note filenames whose stems are substrings of the new note's stem.
-- **Outside a git repo:** `<parent_dir>: <cwd_dir>` (e.g. `Workspace: notes`)
+- **In a git repo:** `<parent_dir>: <dir>`, where `<dir>` is the directory containing Git's common directory (e.g. `Workspace: myapp`). In a linked worktree, append the worktree directory name unless it is `main` or `master`: `Workspace: myapp (feature-x)`. New notes link existing note filenames whose stems are substrings of the new note's stem.
+- **Outside a git repo:** `<parent_dir>: <cwd_dir>` (e.g. `Workspace: notes`). Git context is determined from the current working directory.
 
 ## Completion
 
 - `:Note "`, `:NoteSplit "`, `:NoteVSplit "` complete with existing note filenames (slugified titles)
-- After the quoted title, a second argument completes with template names
+- After `-t`, template names are completed (before or after the title)
 - `:NoteLink "` completes with existing note filenames (path arg optional)
 
 ## Templates
@@ -89,14 +91,16 @@ Templates are `.md` files in the templates directory (default: `<field_notes_dir
 Template variables also work in the quoted note title itself. Example:
 
 ```
-:Note "Standup {{date}}" meeting
+:Note "Standup {{date}}" -t meeting
 ```
 
-When creating a new note, specify a template as the second argument:
+When creating a new note, specify a template with `-t`:
 
 ```
-:Note "Standup" meeting
+:Note -t meeting "Standup"
 ```
+
+Use `-t` before or after the quoted title to select a template, or omit the title to derive it from context: `:Note -t meeting`. Positional template names are no longer accepted.
 
 Or set `field_notes_default_template` to apply a template to all new notes automatically. If the note file or buffer already exists, any supplied/default template is ignored.
 

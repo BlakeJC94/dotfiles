@@ -9,7 +9,7 @@ local function define_week_command(name, template_name, desc)
         local timestamp = os.time() + (offset * 7 * 86400) - ((os.date("%u", os.time()) - 1) * 86400)
         local title = os.date("%Y-W%W: %b %d", timestamp)
         local template = config.get("default_template_" .. template_name) or template_name
-        notes.open_note(opts.bang, string.format("%q %s", title, template), {
+        notes.open_note(opts.bang, string.format("%q -t %s", title, template), {
             require_quoted_arg = true,
             template_context = { reference_timestamp = timestamp },
         })

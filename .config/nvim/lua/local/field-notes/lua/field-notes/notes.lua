@@ -7,32 +7,48 @@ local images = require("field-notes.images")
 
 local M = {}
 
--- AIDEV-NOTE: :Note accepts a quoted title with template vars and optional template name.
-local function parse_quoted_note_arg(args)
+-- AIDEV-NOTE: A title is quoted; -t takes one unquoted template name in either order.
+local function parse_note_args(args)
     local trimmed = vim.trim(args or "")
-
-    local quoted_title = trimmed:match('^"([^"]+)"')
-    if not quoted_title then
-        quoted_title = trimmed:match("^'([^']+)'")
+    if trimmed == "" then
+        return nil, nil, nil
     end
 
-    if not quoted_title then
-        return nil, nil, 'Error: :Note expects a quoted title, e.g. :Note "My title" [template]'
+    local template_name, rest = trimmed:match("^%-t%s+(%S+)%s*(.*)$")
+    if template_name and not template_name:find('"', 1, true) and not template_name:find("'", 1, true) then
+        if rest == "" then
+            return nil, template_name, nil
+        end
+        local quote, title, suffix = rest:match([[^(['"])(.-)%1%s*(.*)$]])
+        if quote and title ~= "" and suffix == "" then
+            return title, template_name, nil
+        end
+    else
+        local quote, title, suffix = trimmed:match([[^(['"])(.-)%1%s*(.*)$]])
+        if quote and title ~= "" then
+            if suffix == "" then
+                return title, nil, nil
+            end
+            template_name = suffix:match("^%-t%s+(%S+)$")
+            if template_name then
+                return title, template_name, nil
+            end
+        end
     end
 
-    local remainder = trimmed:match('^"[^"]+"%s*(.*)') or trimmed:match("^'[^']+'%s*(.*)")
-    local template_name = remainder ~= "" and vim.trim(remainder) or nil
-
-    return quoted_title, template_name, nil
+    return nil, nil, 'Error: expected :Note "Title" [-t template] or :Note -t template ["Title"]'
 end
 
 local function resolve_note_title(args, opts)
+    if opts and opts.range_title then
+        return opts.range_title, opts.template_name, nil
+    end
     if opts and opts.require_quoted_arg then
-        local trimmed = vim.trim(args or "")
-        if trimmed == "" then
-            return utils.get_note_title(), nil, nil
+        local title, template_name, err = parse_note_args(args)
+        if err then
+            return nil, nil, err
         end
-        return parse_quoted_note_arg(args)
+        return title or utils.get_note_title(), template_name, nil
     end
 
     return utils.get_note_title(args), nil, nil
@@ -61,7 +77,9 @@ local function resolve_title_and_template(args, opts)
         return nil, nil, err
     end
 
-    template_name = template_name or config.get("field_notes_default_template")
+    if not (opts and opts.range_title) then
+        template_name = template_name or config.get("field_notes_default_template")
+    end
 
     local template_lines
     if template_name then
@@ -83,7 +101,9 @@ end
 
 function M.open_note(bang, args, opts)
     local split_cmd = (opts and opts.split) or "edit"
-    local is_untitled = vim.trim(args or "") == ""
+    local trimmed_args = vim.trim(args or "")
+    local is_untitled = not (opts and opts.range_title)
+        and (trimmed_args == "" or trimmed_args:match("^%-t%s+%S+$") ~= nil)
     local is_git_repo = utils.get_git_dir() ~= ""
 
     local title, template_lines, err = resolve_title_and_template(args, opts)
@@ -121,6 +141,14 @@ function M.open_note(bang, args, opts)
         vim.bo.modified = false
     end
 
+    if opts and opts.range_lines then
+        local last_line = vim.api.nvim_buf_get_lines(0, -2, -1, false)[1]
+        local content = vim.deepcopy(opts.range_lines)
+        if last_line and last_line ~= "" then
+            table.insert(content, 1, "")
+        end
+        vim.api.nvim_buf_set_lines(0, -1, -1, false, content)
+    end
 end
 
 local function update_note_links(old_path, new_path)
@@ -255,9 +283,10 @@ local note_open_opts = { require_quoted_arg = true }
 
 local function make_note_completion(name)
     return function(arg_lead, cmd_line, cursor_pos)
-        local dq = '^%s*' .. name .. '!?%s+"[^"]*"'
-        local sq = "^%s*" .. name .. "!?%s+'[^']*'"
-        if cmd_line:match(dq) or cmd_line:match(sq) then
+        local prefix = '^%s*' .. name .. '!?%s+'
+        local after_title = prefix .. [[(['"])[^'"]+%1%s+%-t%s+%S*$]]
+        local before_title = prefix .. '%-t%s+%S*$'
+        if cmd_line:match(after_title) or cmd_line:match(before_title) then
             return templates.template_complete(arg_lead, cmd_line, cursor_pos)
         end
         return M.note_complete(arg_lead, cmd_line, cursor_pos)
@@ -266,9 +295,31 @@ end
 
 local function set_command_note()
     vim.api.nvim_create_user_command("Note", function(opts)
+        local title_arg, template_name, parse_err = parse_note_args(opts.args)
+        if opts.range > 0 and not title_arg then
+            if parse_err then
+                print(parse_err)
+                return
+            end
+            local lines = vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, false)
+            local title
+            for _, line in ipairs(lines) do
+                if vim.trim(line) ~= "" then
+                    title = vim.trim(line)
+                    break
+                end
+            end
+            if not title then
+                print("Error: :Note range has no nonblank line")
+                return
+            end
+            M.open_note(opts.bang, "", { range_title = title, range_lines = lines, template_name = template_name })
+            return
+        end
         M.open_note(opts.bang, opts.args, note_open_opts)
     end, {
         nargs = "*",
+        range = true,
         bang = true,
         complete = make_note_completion("Note"),
         desc = "Open or create a field note in current window. With !, also insert a link.",
@@ -309,6 +360,10 @@ end
 
 local function set_command_note_link()
     vim.api.nvim_create_user_command("NoteLink", function(opts)
+        if vim.trim(opts.args) == "" then
+            link.link_last_note()
+            return
+        end
         local source_path, title, parse_error = link.parse_note_link_args(opts.args)
         if parse_error then
             print(parse_error)
@@ -332,6 +387,7 @@ local function set_command_note_image()
 end
 
 M.setup = function()
+    link.setup()
     set_command_note()
     define_note_split_command("NoteSplit", "split", "Open or create a field note in a split. Use :vert for vertical. With !, also insert a link.")
     define_note_split_command("NoteVSplit", "vsplit", "Open or create a field note in a vertical split. With !, also insert a link.")

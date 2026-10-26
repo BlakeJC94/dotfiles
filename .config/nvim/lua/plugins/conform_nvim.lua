@@ -19,5 +19,8 @@ return {
             toml = { "dprint" },
             yaml = { "dprint" },
         },
+        format_on_save = {
+            timeout_ms = 1500,
+        },
     },
 }

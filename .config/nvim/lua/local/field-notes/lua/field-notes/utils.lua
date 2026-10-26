@@ -100,50 +100,22 @@ function M.get_note_title(...)
     local title = table.concat(args, " ")
 
     if #title == 0 then
-        local current_dir = vim.fn.expand("%:p:h")
-        local git_dir = M.get_git_dir()
-        local project_name = ""
-        local branch_name = ""
+        local cwd = vim.fn.getcwd()
+        local common_dir = get_git_output(cwd, { "rev-parse", "--path-format=absolute", "--git-common-dir" })
+        local dir = common_dir ~= "" and vim.fn.fnamemodify(common_dir, ":h") or cwd
+        local current_dir = vim.fn.fnamemodify(dir, ":t")
+        local parent_dir = vim.fn.fnamemodify(dir, ":h:t")
+        title = parent_dir == "" and current_dir or parent_dir .. ": " .. current_dir
 
-        if #git_dir > 0 then
-            local home_dir = vim.fn.fnamemodify(vim.fn.expand("~"), ":p"):gsub("/$", "")
-            local git_dir_path = git_dir
-            if git_dir_path:sub(1, 1) ~= "/" then
-                git_dir_path = current_dir .. "/" .. git_dir_path
-            end
-            git_dir_path = vim.fn.fnamemodify(git_dir_path, ":p"):gsub("/$", "")
-
-            -- Hardcoded: skip the dotfiles bare repo (~/.dotfiles with worktree=$HOME)
-            -- Declined via `git dotfiles` alias in ~/.gitconfig.
-            local dotfiles_dir = home_dir .. "/.dotfiles"
-            if git_dir_path == dotfiles_dir then
-                git_dir = ""
-            else
-                local project_path = vim.fn.finddir(".git/..", current_dir .. ";")
-                local project_root = vim.fn.fnamemodify(project_path, ":p"):gsub("/$", "")
-
-                if project_root == home_dir or git_dir_path == home_dir then
-                    git_dir = ""
-                else
-                    project_name = project_path:gsub("^.*/", "")
-                    branch_name = get_git_output(current_dir, { "branch", "--show-current", "--quiet" })
+        if common_dir ~= "" then
+            local git_dir = get_git_output(cwd, { "rev-parse", "--path-format=absolute", "--git-dir" })
+            if git_dir ~= common_dir then
+                local worktree_root = get_git_output(cwd, { "rev-parse", "--show-toplevel" })
+                local worktree_name = vim.fn.fnamemodify(worktree_root, ":t")
+                if worktree_name ~= "" and worktree_name ~= "main" and worktree_name ~= "master" then
+                    title = title .. " (" .. worktree_name .. ")"
                 end
             end
-        end
-
-        if #git_dir == 0 then
-            local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":p"):gsub("/$", "")
-            local current_dir = vim.fn.fnamemodify(cwd, ":t")
-            local parent_dir = vim.fn.fnamemodify(cwd, ":h:t")
-            if parent_dir == "" then
-                title = current_dir
-            else
-                title = parent_dir .. ": " .. current_dir
-            end
-        else
-            project_name = project_name:gsub("^%+", "")
-            branch_name = branch_name:gsub("^%+", "")
-            title = project_name .. ": " .. branch_name
         end
     end
 
