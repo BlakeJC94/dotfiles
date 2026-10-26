@@ -13,8 +13,11 @@ comment doesn't change the code or the author's understanding, don't post it.
 
 Terse and technical. State the problem and the fix; stop.
 
-- Default shape is a **short bullet list**: one point per line, not a paragraph.
-  Exceptions: `nitpick` and `praise` are a single sentence, no bullets.
+- Format a comment like a readable git commit: the first sentence is the
+  subject. If it needs a body, add a blank line, then short dotpoints for why
+  it matters and what to do. Leave a blank line between dotpoints for visual
+  clarity. A one-sentence comment needs no body; `nitpick`
+  and `praise` stay one sentence apart from the watermark below.
 - Cut filler: no greetings, no "I might be wrong, but...", no restating the diff.
 - No hedging. "This breaks X" beats "this could potentially maybe cause issues with X".
   If you're genuinely unsure, ask a `question` instead of hedging a claim. A leading
@@ -29,10 +32,19 @@ Terse and technical. State the problem and the fix; stop.
 The reliable way to raise an `issue` or `suggestion` without putting the author on the
 defensive is to open with a question, then give the substance.
 
-- `issue`: "Does `sum([])` ever run? It returns `None`, and the caller does `total + 1`,
-  so the export job throws on empty input."
-- `suggestion`: "Could this reuse `parseHeader`? The same three lines are in
-  `parseFooter`, so the next fix has to land twice."
+For example:
+
+```text
+issue: Does `sum([])` ever run?
+
+- It returns `None`, and the caller does `total + 1`, so the export job throws on empty input.
+```
+
+```text
+suggestion: Could this reuse `parseHeader`?
+
+- The same three lines are in `parseFooter`, so the next fix has to land twice.
+```
 
 The question is framing, not softening. The concrete failure mode or reason must follow
 in the same comment. A question with no claim is the hedging this skill bans.
@@ -73,6 +85,15 @@ Respect does not mean softening into vagueness. Keep the concrete claim, drop th
 | "This needs tests." | "Any tests covering the retry path? Fine as a follow-up if not." |
 | "Why is this hardcoded?" | "Is 30s fixed here or configurable upstream?" |
 
+## Agent watermark
+
+End each agent-written GitHub comment or reply with a blank line and
+`<sub>Agent-assisted</sub>` on its own final line. Keep existing labels and
+prefixes at the start. This disclosure reminds the author to review the
+output or explicitly declare that it was published unvetted or verbatim;
+it does not replace any posting approval gate. Include it in exact drafts
+shown for approval, but not in local reports or unrelated chat responses.
+
 ## House style
 
 Rules borrowed from `~/.AGENTS.md`; they apply to review comments verbatim.
@@ -109,11 +130,12 @@ Rules borrowed from `~/.AGENTS.md`; they apply to review comments verbatim.
 ## Labels
 
 Format: `label: subject`, followed by at most a short discussion. Multiple points become
-bullets, one per line.
+bullets with a blank line between items.
 
 ```
-suggestion: Could this reuse `parseHeader`? The same three lines are in `parseFooter`,
-so the next fix has to land twice.
+suggestion: Could this reuse `parseHeader`?
+
+- The same three lines are in `parseFooter`, so the next fix has to land twice.
 ```
 
 Only these labels are used:

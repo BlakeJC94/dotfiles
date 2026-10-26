@@ -1,6 +1,7 @@
 ---
 name: my-reviewer-response
-description: Respond to GitHub review feedback on the user's own pull request from a PR URL or number: fetch unresolved review threads, triage each finding, fix the accepted ones (asking per finding), and draft an author reply for every thread, posted only after approval. Use when asked to respond to, address, or work through review comments on a PR, or when invoked with /skill:my-reviewer-response.
+description: >-
+  Respond to GitHub review feedback on the user's own pull request from a PR URL or number: fetch unresolved review threads, triage each finding, fix the accepted ones (asking per finding), and draft an author reply for every thread, posted only after approval. Use when asked to respond to, address, or work through review comments on a PR, or when invoked with /skill:my-reviewer-response.
 ---
 
 # Responding to PR review feedback
@@ -11,8 +12,8 @@ The appended user input must be either a GitHub PR URL (`https://github.com/<own
 
 - Verify the local checkout before touching code: compare `git branch --show-current` and `git rev-parse HEAD` against `gh pr view <pr> --json headRefName,headRefOid`. If the branch differs, stop and ask; never switch, fetch, or pull branches without approval. If only HEAD is behind the PR head, ask before pulling.
 - Draft everything in chat; post, commit, and push only after the user approves. Never resolve threads or dismiss reviews unprompted.
-- Replies post as the user, so write them in the author's voice, never as an agent.
-- This skill does not override approval requirements for test edits, API changes, or dependencies.
+- Replies post as the user, so write them in the author's voice, not an agent persona. Still end each agent-drafted reply or PR comment with a blank line and `<sub>Agent-assisted</sub>` on its own final line; keep any approval gate.
+- Approval to apply a finding includes its in-scope test changes; no separate test-edit approval is needed. API changes and dependencies still require approval. Never weaken tests to make checks pass.
 
 ## Fetch the review threads
 
@@ -62,8 +63,9 @@ For each accepted finding, ask the user whether to apply it or hand it back. Ask
 When applying:
 
 - Make the smallest change that fixes the finding.
-- No test edits, new dependencies, or API changes without the required approval.
-- After edits, check LSP diagnostics and run relevant permitted checks.
+- Add or update tests needed for the approved fix without separate approval. Favor meaningful behavior states and transitions over code coverage percentages; keep each test simple enough to document its setup, action, and observable outcome. Preserve or strengthen coverage; never skip tests, relax assertions, or narrow test discovery to get green checks. Explain any changed expectation against the approved behavior.
+- No new dependencies or API changes without the required approval.
+- After edits, inspect the test and test-configuration diff, check LSP diagnostics, and run relevant permitted checks.
 - Ask before committing; never push without approval. If the user pushes, capture the short SHA for the replies.
 
 ## Replies
@@ -80,7 +82,7 @@ Every unresolved thread gets exactly one reply. Follow `../github-review-comment
 
 Sequence: fixes first, then replies - a reply references a pushed SHA only after the user has pushed it.
 
-Draft every reply and show them numbered by thread index. The user approves, edits by index, or rejects each; reprint the list after every change so the indexes stay current. Post only approved replies:
+Draft every reply, including its watermark, and show them numbered by thread index. The user approves, edits by index, or rejects each; reprint the list after every change so the indexes stay current. Post only approved replies:
 
 ```bash
 gh api graphql -f query='
