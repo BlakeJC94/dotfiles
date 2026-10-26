@@ -191,7 +191,15 @@
 
     # Summarise the working diff and suggest a scoped commit breakdown via llm.
     # usage: git llm-diff
-    llm-diff = "!f() { git diff \"$@\" | llm -t llm-diff -R; }; f"
+    llm-dif = "!f() { git diff \"$@\" | llm -t llm-diff -R; }; f"
+
+    # Explain each hunk of a diff via llm; reject diffs over 3000 lines.
+    # usage: git llm-diff [diff-args...]
+    llm-diff = "!f() { diff=$(git diff \"$@\") || return; [ -n \"$diff\" ] || return 0; lines=$(printf '%s\\n' \"$diff\" | wc -l); if [ \"$lines\" -gt 3000 ]; then printf 'git llm-diff: diff has %s lines (limit: 3000)\\n' \"$lines\" >&2; return 1; fi; printf '%s\\n' \"$diff\" | llm -t llm-diff-explain -R; }; f"
+
+    # Explain each hunk of a GitHub PR diff via llm; reject diffs over 3000 lines.
+    # usage: git llm-pr-diff [pr-diff-args...]
+    llm-pr-diff = "!f() { diff=$(gh pr diff \"$@\") || return; [ -n \"$diff\" ] || return 0; lines=$(printf '%s\\n' \"$diff\" | wc -l); if [ \"$lines\" -gt 3000 ]; then printf 'git llm-pr-diff: diff has %s lines (limit: 3000)\\n' \"$lines\" >&2; return 1; fi; printf '%s\\n' \"$diff\" | llm -t llm-diff-explain -R; }; f"
 
     # Generate a one-line commit message (<scope>: <description>) from staged changes via llm.
     # usage: git llm-sync
@@ -205,7 +213,7 @@
     #
     ls = "!git diff --name-only $(git merge-base origin/$(git prime) HEAD)...HEAD"
 
-    # Edit this branch's notes
+    # Edit this worktree's notes
     # usage: git plan
     vim = "!nvim -c 'Note'"
 
@@ -349,7 +357,7 @@
 [delta]
     line-numbers = true
     side-by-side = true
-    syntax-theme = gruvbox-dark
+    syntax-theme-dark = gruvbox-dark
     syntax-theme-light = gruvbox-light
     ; minus-style                   = normal "#792329"
     ; minus-non-emph-style          = normal "#792329"

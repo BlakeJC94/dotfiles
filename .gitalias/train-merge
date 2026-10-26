@@ -1,4 +1,6 @@
 #!/bin/sh
+# Merge each listed branch into the next, starting from the current branch.
+# usage: git train-merge <branch>...
 
 if [ "$#" -lt 2 ]; then
     echo 'usage: git train-merge <base> <branch>...' >&2
