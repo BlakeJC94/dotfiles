@@ -54,6 +54,7 @@ lua-language-server
 marksman
 mise
 monolith
+mq
 nano
 neovim
 pandoc
