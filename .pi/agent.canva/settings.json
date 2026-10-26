@@ -1,6 +1,6 @@
 {
-  "defaultProvider": "amazon-bedrock",
-  "defaultModel": "global.zai.glm-5.3",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6-sol",
   "lastChangelogVersion": "1.0.3",
   "theme": "gruvbox-light",
   "hideThinkingBlock": true,
@@ -9,7 +9,7 @@
   ],
   "packages": [
     "npm:pi-lsp-extension",
-    "npm:@wileai/pi-codex-connector"
+    "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions"
   ],
   "compaction": {
     "enabled": false

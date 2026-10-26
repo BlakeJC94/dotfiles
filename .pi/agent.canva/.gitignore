@@ -3,4 +3,6 @@ models-store.json
 sessions
 file-snapshots
 trust.json
-
+mcp-cache.json
+mcp-onboarding.json
+codex-connectors-permissions.json
