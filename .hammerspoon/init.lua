@@ -1,39 +1,77 @@
-local function focus_app(app_name)
-    local app = hs.application.get(app_name)
-    if app then
-        local win = app:mainWindow()
-        if win then
-            win:focus()
+local filters = {}
+
+local function bind_app(key, app_name)
+    local windows = hs.window.filter.new(false):setAppFilter(app_name, {
+        allowRoles = app_name == "Ghostty"
+            and { "AXStandardWindow", "AXFullScreenWindow" }
+            or "AXStandardWindow",
+    })
+    windows:resume()
+    filters[app_name] = windows
+
+    hs.hotkey.bind({ "option" }, key, function()
+        local matches = windows:getWindows(hs.window.filter.sortByFocusedLast)
+        local target
+
+        if app_name == "Ghostty" then
+            local slack_spaces = {}
+
+            for _, win in ipairs(filters.Slack:getWindows()) do
+                for _, space in ipairs(hs.spaces.windowSpaces(win:id()) or {}) do
+                    slack_spaces[space] = true
+                end
+            end
+
+            for _, win in ipairs(matches) do
+                local spaces = hs.spaces.windowSpaces(win:id()) or {}
+                local separate = #spaces > 0
+
+                for _, space in ipairs(spaces) do
+                    if slack_spaces[space] then
+                        separate = false
+                        break
+                    end
+                end
+
+                if separate and win:subrole() ~= "AXFloatingWindow" then
+                    target = win
+                    break
+                end
+            end
         else
-            app:activate()
+            target = matches[1]
+            for _, win in ipairs(matches) do
+                if win:isFullScreen() then
+                    target = win
+                    break
+                end
+            end
         end
-    else
-        hs.application.launchOrFocus(app_name)
-    end
+
+        if target then
+            target:application():unhide()
+            target:unminimize()
+            target:focus()
+        elseif not hs.application.get(app_name) then
+            hs.application.launchOrFocus(app_name)
+        else
+            hs.alert.show("No matching " .. app_name .. " window found")
+        end
+    end)
 end
 
--- Search across Spaces; Quick Terminal uses AXFloatingWindow, not AXStandardWindow.
-local ghostty_windows = hs.window.filter.new(false):setAppFilter("Ghostty", {
-    allowRoles = "AXStandardWindow",
-})
--- Keep tracking between hotkeys so windows on other Spaces are not forgotten.
-ghostty_windows:resume()
+bind_app("h", "Slack")
+bind_app("j", "Ghostty")
+bind_app("k", "Firefox")
 
-hs.hotkey.bind({ "option" }, "j", function()
-    local win = ghostty_windows:getWindows(hs.window.filter.sortByFocusedLast)[1]
-    if win then
-        win:application():unhide()
-        win:unminimize()
-        win:focus()
-    elseif not hs.application.get("Ghostty") then
-        hs.application.launchOrFocus("Ghostty")
-    else
-        hs.alert.show("No normal Ghostty window found")
+hs.hotkey.bind({ "option" }, "l", function()
+    local spaces = hs.spaces.spacesForScreen(hs.screen.mainScreen()) or {}
+
+    for _, space in ipairs(spaces) do
+        if hs.spaces.spaceType(space) == "user" then
+            hs.spaces.gotoSpace(space)
+            return
+        end
     end
 end)
-hs.hotkey.bind({ "option" }, "l", function()
-    focus_app("Slack")
-end)
-hs.hotkey.bind({ "option" }, "k", function()
-    focus_app("Firefox")
-end)
+
