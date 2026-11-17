@@ -8,7 +8,8 @@ description: Write a concise, repo-verified PLAN.md feature specification before
 Produce a PLAN.md the user can review, fill gaps in, and hand to a coding
 agent. The spec separates what is verified fact from what needs the user's
 decision. The development loop lives in `../my-coder/SKILL.md`; specs never
-carry it.
+carry it. PLAN.md is a local, untracked planning artifact, not a Git deliverable:
+never stage or commit it, or include it in a PR.
 
 ## Process
 

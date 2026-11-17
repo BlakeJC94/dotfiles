@@ -12,6 +12,6 @@
         "npm:pi-lsp-extension"
     ],
     "compaction": {
-        "enabled": false
+        "enabled": true
     }
 }

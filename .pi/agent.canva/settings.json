@@ -1,6 +1,6 @@
 {
   "defaultProvider": "openai",
-  "defaultModel": "gpt-6-sol",
+  "defaultModel": "gpt-6-luna",
   "lastChangelogVersion": "1.0.3",
   "theme": "gruvbox-light",
   "hideThinkingBlock": true,
@@ -9,9 +9,11 @@
   ],
   "packages": [
     "npm:pi-lsp-extension",
-    "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions"
+    "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions",
+    "npm:pi-hermes-memory",
+    "npm:agents-cron"
   ],
   "compaction": {
-    "enabled": false
+    "enabled": true
   }
 }

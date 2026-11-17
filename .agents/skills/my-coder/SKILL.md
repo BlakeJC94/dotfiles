@@ -1,6 +1,6 @@
 ---
 name: my-coder
-description: Implement a PLAN.md spec written by my-planner from preflight to handoff. Resolve every fill-in and open decision in one batched stop, implement requirements in small verified increments, run the spec's checks after each increment, summon my-reviewer for up to three review rounds, and close with per-AC evidence. Use when asked to implement, code, execute, or run a PLAN.md / spec / plan, or when the user says my-coder.
+description: Implement a PLAN.md spec written by my-planner from preflight to handoff. Resolve every fill-in and open decision in one batched stop, implement requirements in small verified increments, run the spec's checks after each increment, review through managed my-agent or standalone summon for up to three rounds, and close with per-AC evidence. Use when asked to implement, code, execute, or run a PLAN.md / spec / plan, or when the user says my-coder.
 ---
 
 # my-coder: spec-driven implementation
@@ -18,8 +18,9 @@ re-litigate the spec.
 
 1. Read spec + context. Flag contradictions and missing requirements.
 2. Short plan -> implement in coherent increments. Run checks each increment.
-3. `/skill:summon my-reviewer`: prompt a new Pi reviewer with the task, spec,
-    diff, and check results; request actionable findings. Three-round limit.
+3. Request a separate my-reviewer at review boundaries: managed sessions use
+    `my_agent_review`; standalone sessions use `/skill:summon my-reviewer`.
+    Pass the task, plan, diff scope, decisions, constraints, and check results.
 4. Resolve justified findings, rerun checks, ask the same reviewer to verify
     the fixes and confirm the review status, then assess every AC.
 5. Never weaken ACs or tests to make checks pass.
@@ -33,6 +34,8 @@ that follows the handoff.
 
 * Read the PLAN fully (repo-root PLAN.md unless the user points elsewhere). No
     PLAN: stop, suggest my-planner. Do not improvise a spec.
+* The PLAN is a local, untracked planning artifact, not an implementation
+    deliverable. Never stage or commit it, or include it in a PR.
 * Worktree rule: the user creates the branch before invoking this skill. Work
     in the current branch and worktree only: never create, switch, or check out
     branches, never stash or discard uncommitted work. The reviewer works in
@@ -96,8 +99,8 @@ Constraint handling:
     before": preflight answers only; a new one mid-flight fires the blocker
     rule.
 * Invoking this skill to implement an approved PLAN authorizes in-scope code
-    and test edits, checks, and commits. This sets aside the blanket mutation
-    approval rule in AGENTS.md, not its API or dependency approval rules.
+    and test edits, checks, commits, and normal pushes defined below. This sets aside the blanket mutation approval rule in
+    AGENTS.md, not its API or dependency approval rules.
     Adding or updating tests for the feature or fix needs no separate approval.
     Favor meaningful behavior states and transitions over code coverage
     percentages. Each test should be stupid simple to read: clear setup,
@@ -113,8 +116,12 @@ committing. Account for removed or changed assertions against approved behavior;
 if the justification is unclear, ask rather than treating green checks as proof.
 Immediately run the spec's Commands (unit target, fmt). A failure blocks the
 next increment: fix it or fire the blocker rule. Never weaken an AC or test to
-make a check pass. Green checks end the increment: commit it before starting
-the next. Explain changed expectations and their replacement coverage at handoff.
+make a check pass. Green checks end the increment: commit it, then normal-push
+that commit before starting the next. Stage only this increment's files. First
+verify the current branch, worktree, and tracking destination; pause if the
+push target is ambiguous, unrelated work would be included, the branch or
+worktree changes, or the push is rejected. Never force-push. Explain changed
+expectations and their replacement coverage at handoff.
 
 Commit etiquette:
 
@@ -133,15 +140,22 @@ artifact path). The handoff is built from this ledger, not from memory.
 
 ## 4. Review loop
 
-After all increments, whenever the developer says "get an agent review", or
-when a substantial in-scope change is ready for review, follow
-`../summon/SKILL.md` to invoke `/skill:summon my-reviewer`. For substantial
-changes, summon proactively without asking permission or waiting for the
-developer to request it; review the completed increment before moving on. This
-starts a **new Pi coding agent** with `/skill:my-reviewer` loaded, not a
-self-review or a GitHub PR review. Pass the task goal, exact spec + diff scope,
-check results, project constraints, and relevant decisions in the handoff.
-Prompt for actionable findings with file/line, impact, and the smallest fix, or
+At review boundaries, when `my-coder` was activated with `/agent coder` or
+`/my-agent my-coder`, use the `my_agent_review` tool; otherwise follow
+`../summon/SKILL.md` and invoke `/skill:summon my-reviewer`. For substantial
+changes, request review
+proactively without waiting for the developer; review each completed increment
+before moving on. Managed review uses a separate Pi agent and activates its
+reviewer role with `/agent reviewer` before sending the review request. Pass
+the goal, approved plan path, exact diff scope, decisions, constraints, and
+check results. Start a cycle with
+`action=start`, use `action=follow_up` after fixes, and use `action=resume` after
+an interrupted request. Never resend a pending prompt or treat missing output,
+a timeout, or a blocked reviewer as clean feedback. Keep the same reviewer for
+up to three rounds and report third-round fixes without another review as
+unconfirmed. Standalone sessions retain the existing summon and self-review
+fallback behavior. Request actionable findings with file/line, impact, and the
+smallest fix, or
 an explicit "No further notes." Read the reviewer's completed feedback (not
 just its status); if blocked or missing, do not treat it as a clean review.
 
@@ -176,9 +190,10 @@ that as the requested agent review.
 
 ## 6. Handoff: one report
 
-Follow the spec's Deliverable line (repo rules still apply: push only when
-instructed). Every PR this skill opens is a draft, always: never mark ready,
-never publish; the user flips it.
+Follow the plan's Deliverable line for the requested artifact; normal-push
+verified increment commits as described in section 3. Create a PR only when
+the developer explicitly requests one. Every PR this skill opens is a draft:
+never mark it ready or publish it; the user flips it.
 
 When the deliverable is a PR, write the description in the author's voice.
 Patterns from the author's own merged PRs:
@@ -187,10 +202,17 @@ Patterns from the author's own merged PRs:
     (`Evals: [KEY] ...`) or fix prefix (`fix(area): ...`) where the repo's
     history does. Do not add `[AGENT:Coder]` to PR titles.
 * The final PR description starts with the exact heading
-    `## Summary [AGENT:Coder]`, followed by the outcome and the key API or
-    behaviour shape with code references verbatim
-    (`OpenAIBatchProvider(use_responses_api=True)`). Scale to the change:
-    trivial PR gets two sentences total.
+    `## Summary [AGENT:Coder]`. Under it, use `**Problem**` and `**Solution**`
+    labels, each followed by concise dot points. Problem points state the issue;
+    nested points show the progression that leads to it. Solution points state
+    the change and use "so that..." to communicate intent; nested points briefly
+    show how it addresses the problem. Include key API or behaviour references
+    verbatim (`OpenAIBatchProvider(use_responses_api=True)`). Trivial PRs can use
+    one sentence per label. When a meaningful visual before-and-after comparison
+    helps, add a `### Before / After` subsection after those points with a
+    concise fenced `mermaid` diagram showing clearly labelled Before and After
+    flow or state. Omit it when it adds no clarity; keep it factual and grounded
+    in the diff.
 * `## Rationale`: only when a decision needs it. One bullet per decision, each
     with its why: default preserved, reuse over rebuild, failure behaviour.
 * Scope line: what is deliberately absent, with ticket or stacked-PR links for
@@ -209,9 +231,11 @@ Patterns from the author's own merged PRs:
     result (including failures). Never leave a used script only in a local
     file, chat, or PR comment. Do not include literal credentials. Omit the
     heading when no scripts were used.
-* Style: flat dot points, code-shaped references, numbers with their
-    justification. No AI jargon, no narrative, no hedging. No h1 headings in
-    the body: use h2 for top-level sections and only the specified h3 beneath
+* Style: flat dot points outside the summary; concise nested dot points in
+    the summary to show logic and progression. Use code-shaped references and
+    justify numbers. No AI jargon, no narrative, no hedging. No h1 headings in
+    the body: use h2 for top-level sections and h3 only for `### Before / After`
+    under `## Summary` when applicable, or the specified subsections beneath
     `## Test Plan`; the PR title is the only h1.
 
 Follow the pr-create skill for mechanics (taz submit, base branch, template)
@@ -317,6 +341,8 @@ one question. Everything else waits for the handoff.
 * Declare done from review rounds alone or without per-AC evidence.
 * Let spec vocabulary (R#, AC#, the spec, PLAN.md) leak into PRs, commits, or
     GitHub comments. Translate it to plain language.
-* Add dependencies without approval. Push without the spec or user saying so.
+* Add dependencies without approval. Push only the verified task commits to a
+  known existing destination; never force-push. Create a PR only on the
+  developer's explicit request.
 * Create or switch branches, stash, or discard work. The user owns the branch;
     this skill owns the code on it.

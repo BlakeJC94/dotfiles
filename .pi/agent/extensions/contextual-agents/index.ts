@@ -67,10 +67,11 @@ export default function contextualAgentsExtension(pi: ExtensionAPI): void {
 	});
 
 	pi.on("before_agent_start", async (event) => {
-		if (!cachedPromptBlock) return;
-		return {
-			systemPrompt: `${event.systemPrompt}\n\n${cachedPromptBlock}`,
-		};
+		if (cachedPromptBlock) {
+			event.systemPromptOptions.sections["contextual-agents"] = cachedPromptBlock;
+		} else {
+			delete event.systemPromptOptions.sections["contextual-agents"];
+		}
 	});
 }
 

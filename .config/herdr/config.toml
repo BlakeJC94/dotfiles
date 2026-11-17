@@ -42,7 +42,7 @@ workspace_picker = "prefix+x"
 goto = "prefix+backspace"
 new_workspace = "prefix+c"
 new_worktree = "prefix+shift+g"
-open_worktree = "prefix+enter"    # optional, unset by default
+open_worktree = "prefix+enter" # optional, unset by default
 # remove_worktree = ""  # optional, unset by default; opens confirmation
 rename_workspace = "prefix+shift+w"
 close_workspace = "prefix+shift+q"
@@ -57,7 +57,7 @@ new_tab = "prefix+t"
 previous_tab = "prefix+shift+p"
 next_tab = "prefix+shift+n"
 # switch_tab = "prefix+1..9"
-switch_workspace = "prefix+1..9"   # optional indexed binding, e.g. "prefix+shift+1..9"
+switch_workspace = "prefix+1..9" # optional indexed binding, e.g. "prefix+shift+1..9"
 close_tab = "prefix+shift+t"
 rename_pane = "prefix+w"
 edit_scrollback = "prefix+e"
@@ -71,7 +71,7 @@ last_pane = "prefix+tab"
 split_vertical = "prefix+v"
 split_horizontal = "prefix+s"
 close_pane = "prefix+q"
-zoom = "prefix+o"       # legacy alias: fullscreen
+zoom = "prefix+o" # legacy alias: fullscreen
 resize_mode = "prefix+r"
 toggle_sidebar = "prefix+b"
 
@@ -162,6 +162,20 @@ directory = "~/.herdr/worktrees"
 # Accent color for highlights, borders, and navigation UI.
 # Accepts: hex (#89b4fa), named colors (cyan, blue, magenta), or rgb(r,g,b)
 # accent = "cyan"
+
+[ui.sidebar.spaces]
+row_gap = 0
+rows = [
+  ["state_icon", "workspace"],
+  ["branch"],
+]
+
+[ui.sidebar.agents]
+row_gap = 0
+rows = [
+  ["state_icon", "machine", "workspace", "tab"],
+  ["agent"],
+]
 
 # Background notification popup delivery
 [ui.toast]

@@ -5,7 +5,7 @@ description: Load the current branch PLAN and its explicitly linked related plan
 
 # Plan Context
 
-Load the plan context only for this request. Do not automatically inspect or load PLAN files in other work.
+Load the plan context only for this request. Do not automatically inspect or load PLAN files in other work. PLAN files are local, untracked planning artifacts, not Git deliverables; do not stage, commit, or include them in a PR.
 
 1. Run `git plan` from the project root to obtain the current PLAN path.
 2. If no readable PLAN is available, state that concisely and stop.
