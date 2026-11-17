@@ -1,105 +1,55 @@
 ---
 name: scout
-description: Scout a codebase and build or update a structured knowledge base at `.agents/knowledge`. Use when asked to explore, document, summarize, or build understanding of a project. Best for getting up to speed on unfamiliar codebases or auditing existing knowledge for staleness.
+description: Scout a codebase and create or refresh repository documentation skills under `.agents/skills/`. Use when asked to explore, document, summarize, or build understanding of a project, or to update repo-overview and component guides.
 ---
 
 # Scout
 
-Scout examines a codebase and creates a living knowledge base at `.agents/knowledge`. This is primarily agent-driven; the developer provides lightweight guidance and sign-off.
+Scout builds and maintains concise, source-verified repository skills under `.agents/skills/`. These skills are the durable, discoverable documentation for agents working in the repo; avoid creating a sporadic wiki.
 
-## Knowledge Base Structure
+## Skill Layout
 
+```text
+.agents/skills/
+├── repo-overview/SKILL.md                 # Purpose and broad architecture
+├── repo-component-<name>/SKILL.md         # Focused component guides, as needed
+└── ...
 ```
-.agents/knowledge/
-├── README.md                    # Top-level summary + checklist of suggested subtopics
-├── architecture/                # (optional) High-level architecture docs
-├── modules/<module-name>/       # Per-module deep dives
-├── data-model/                  # Schema, types, database models
-├── api/                         # API endpoints, contracts
-├── workflows/                   # Business logic flows, state machines
-├── dev-guide/                   # Dev environment, tooling, conventions
-└── ...                          # Other logical groupings
-```
+
+Each skill uses YAML frontmatter with a short `name` and a `description` that makes its subject and trigger conditions clear. Write the body as practical repo context: explain current behavior and relationships, point to source paths, and avoid duplicating large sections of the README or source.
 
 ## Workflow
 
-### A. Knowledge Base Does Not Exist
+### Create or Refresh Repo Skills
 
-1. **Scan the project** — Understand the top-level structure, language(s), framework(s), build system, key config files, entry points, and dependencies.
+1. **Inspect the current repo** — Read its local `AGENTS.md` and relevant `.agents/` instructions first. Scan tracked files, top-level structure, language/runtime, entry points, key configuration, dependencies, and available build/test commands. Use `git ls-files` when in a Git worktree; otherwise use targeted `find` and `rg` while avoiding generated or ignored content.
+2. **Verify details in source** — Read the relevant implementation and configuration before documenting behavior. Treat existing documentation as a lead, not as proof; do not repeat stale claims.
+3. **Create or refresh `repo-overview`** — Keep `.agents/skills/repo-overview/SKILL.md` focused on the repo's purpose, broad architecture, entry points, component relationships, and important conventions. Include source paths so agents can follow the explanation.
+4. **Identify useful component guides** — Create `.agents/skills/repo-component-<name>/SKILL.md` for components with enough behavior, interactions, or domain rules to merit deeper context. Do not create a guide for every file or trivial module. Each guide should explain the component's responsibility, notable behavior and edge cases, dependencies/interactions, and authoritative source paths.
+5. **Audit existing repo skills** — Compare each existing `repo-overview` and `repo-component-*` guide with the current implementation. Refresh outdated guides, add only useful missing component guides, and remove obsolete guides only when the component no longer exists. Keep unrelated skills untouched.
+6. **Report** — Summarize created, updated, or removed skills and mention any areas that could not be verified. Do not ask for sign-off on routine documentation updates.
 
-   ```bash
-   ls -la
-   # Explore further with find, tree, or targeted reads of key files
-   ```
+### Scoped Requests
 
-   > **Filter with `.gitignore`** — Use `git ls-files` or `rg --no-ignore` to scope your scan. Prefer `git ls-files` for a clean view of tracked files, or pipe `find` through `grep -Ff .gitignore` patterns when you need to see everything on disk while still respecting ignores.
-
-2. **Create the knowledge directory**:
-
-   ```bash
-   mkdir -p .agents/knowledge
-   ```
-
-3. **Write top-level summary** — Write `.agents/knowledge/README.md` with:
-   - Project name and one-sentence purpose
-   - Language / runtime / framework
-   - High-level architecture (2-3 paragraphs)
-   - Key directories and their responsibilities
-   - Build / test / run commands
-   - External dependencies and services
-
-4. **Identify subtopics** — From your scan, list logical modules, concepts, or areas that warrant deeper documentation. Append them to the top-level file as a task checklist:
-
-   ```markdown
-   ## Suggested Deep-Dives
-
-   - [ ] **architecture/** — System architecture, component relationships, data flow
-   - [ ] **modules/auth/** — Authentication and authorization
-   - [ ] **modules/api/** — API endpoints and contracts
-   - [ ] **data-model/** — Database schema, entities, migrations
-   - [ ] **workflows/ci** — CI/CD pipeline and deployment
-   ```
-
-5. **Ask the developer** whether to proceed with any/all/none of the suggested deep-dives.
-
-6. **For each approved topic**:
-   - Create the subdirectory: `mkdir -p .agents/knowledge/<topic>`
-   - Write a focused markdown file with `index.md` or `<topic>.md`
-   - Update the checklist in `README.md` — mark it `[x]` when done
-   - Present the summary and ask if corrections are needed before moving on
-
-7. **Continue** until all approved items are documented or the developer calls it done.
-
-### B. Knowledge Base Exists
-
-1. **Check top-level summary is in sync** (highest priority):
-   - Scan the project for changes: dependencies, entry points, directory structure, config files
-   - Cross-reference against `.agents/knowledge/README.md`
-   - Flag any outdated statements and propose corrections
-   - Apply corrections after developer approval
-
-2. **Identify stale or missing topics**:
-   - For each subdirectory in `.agents/knowledge/`, check whether the described code/feature still exists and is still accurate
-   - Check if new modules/features exist that aren't documented
-   - Update checklist in README.md: mark stale items `[~]` and add new suggestions
-
-3. **Present findings** to the developer and ask which updates to make.
+- If the user requests one component, focus on that component guide and update the overview only when its broad architecture or component map is affected.
+- If the user asks for an overview only, create or refresh `repo-overview` and skip component guides.
+- If the user asks to update `.agents/knowledge/` specifically, follow that explicit format request rather than this default.
 
 ## Conventions
 
-- **Top-level file**: always `.agents/knowledge/README.md`
-- **Subdirectory entry point**: `index.md` or `<topic>.md`
-- **Checklist format**: `- [ ] task`, `- [x] done`, `- [~] stale/needs-update`, `- [-] skipped`
-- Keep knowledge concise. Bullet points and brief sections > long prose.
-- Link across files with relative paths where useful.
-- When scanning, prefer `ls`, `find`, `rg`, and targeted `read` over exhaustive reads.
-- **Respect `.gitignore`** — Use `git ls-files` to list tracked files, or pipe `rg` with `--no-ignore` to skip ignored paths. This avoids noise from `node_modules`, build artifacts, vendored code, and other generated content.
+- Keep skills concise and grounded in the current source.
+- Use exact repository-relative paths and avoid unverified API, command, or behavior claims.
+- Prefer a small number of meaningful component guides over one guide per module.
+- Do not create checklists for future deep-dives or approval gates; decide from the code which guides are useful.
+- Respect `.gitignore` and avoid documenting generated files or vendored dependencies.
+- Do not delete or migrate existing `.agents/knowledge/` content unless the user explicitly requests it.
 
 ## Prompt Variations
 
-| Developer says… | Action |
+| Developer says... | Action |
 |---|---|
-| *"Scout this codebase"* (no prompt) | Ask: "Shall I scan the project and build a high-level summary at `.agents/knowledge/`?" |
-| *"Scout, focusing on the auth system"* | Only document the auth module. Skip the general summary step. |
-| *"Scout, but skip the checklist"* | Build the top-level summary and stop; do not suggest deep-dives. |
-| *"Update the knowledge base"* | Follow workflow B — check sync first, then stale topics. |
+| "Scout this codebase" | Scan the repo and create or refresh `repo-overview` plus useful component guides under `.agents/skills/`. |
+| "Scout, focusing on the auth system" | Document the auth component; refresh the overview only if needed. |
+| "Scout, overview only" | Create or refresh `repo-overview` and stop. |
+| "Update the repo skills" | Audit and refresh existing `repo-overview` and `repo-component-*` guides against source. |
+| "Update the knowledge base" | Ask whether they mean `.agents/knowledge/` or the default repo skills if context does not make that clear. |

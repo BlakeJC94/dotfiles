@@ -41,6 +41,8 @@ require("field-notes").setup({
 |---------|------|------|-------------|
 | `:Log [offset]` | 0-1 | Yes | Open a weekly log note. Offset in weeks (0=this, 1=next, -1=last). Title and filename derived from the template's `# heading`. Default template: `log`. |
 | `:Journal [offset]` | 0-1 | Yes | Open a weekly journal note. Same offset semantics as `:Log`. Default template: `journal`. |
+| `:LogCreate [offset]` | 0-1 | No | Create the rendered weekly log file without opening it. Uses the same offset and template settings as `:Log`; leaves an existing file unchanged. |
+| `:JournalCreate [offset]` | 0-1 | No | Create the rendered weekly journal file without opening it. Uses the same offset and template settings as `:Journal`; leaves an existing file unchanged. |
 | `:ThisWeek` | 0 | Yes | Alias for `:Log 0` |
 | `:NextWeek` | 0 | Yes | Alias for `:Log 1` |
 | `:LastWeek` | 0 | Yes | Alias for `:Log -1` |

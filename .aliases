@@ -10,6 +10,24 @@ alias duh='du -d 1 -h'
 
 alias log='vim -c "Log"'
 alias journal='vim -c "Journal"'
+
+_field_notes_create() {
+    local name="$1" ex_command="$2"
+    shift 2
+    if [ "$#" -gt 1 ] || { [ "$#" -eq 1 ] && [[ ! $1 =~ ^-?[0-9]+$ ]]; }; then
+        printf 'Usage: %s [offset]\n' "$name" >&2
+        return 2
+    fi
+    if [ "$#" -eq 1 ]; then
+        nvim -c "$ex_command $1"
+    else
+        nvim -c "$ex_command"
+    fi
+}
+
+log-create() { _field_notes_create log-create LogCreate "$@"; }
+journal-create() { _field_notes_create journal-create JournalCreate "$@"; }
+
 alias vimpy='vim -c "S uv run ipython"'
 
 
