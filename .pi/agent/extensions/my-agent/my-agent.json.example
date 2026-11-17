@@ -1,0 +1,22 @@
+{
+  "my-planner": {
+    "provider": "<provider>",
+    "model": "<exact-model-id>",
+    "thinkingLevel": "high"
+  },
+  "my-coder": {
+    "provider": "<provider>",
+    "model": "<exact-model-id>",
+    "thinkingLevel": "medium"
+  },
+  "my-reviewer": {
+    "provider": "<provider>",
+    "model": "<exact-model-id>",
+    "thinkingLevel": "high"
+  },
+  "my-monkey": {
+    "provider": "<provider>",
+    "model": "<exact-model-id>",
+    "thinkingLevel": "high"
+  }
+}
