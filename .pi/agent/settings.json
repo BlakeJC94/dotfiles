@@ -1,21 +1,21 @@
 {
-  "defaultProvider": "nextbit",
-  "defaultModel": "deepseek:v4.1-flash",
-  "lastChangelogVersion": "1.5.2",
-  "theme": "gruvbox-light",
-  "defaultThinkingLevel": "medium",
-  "hideThinkingBlock": true,
-  "defaultTools": [
-    "+codemode"
-  ],
-  "packages": [
-    "npm:pi-lsp-extension",
-    "npm:pi-hermes-memory"
-  ],
-  "compaction": {
-    "enabled": true
-  },
-  "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-lsp-extension\",\"scope\":\"user\"}": "1.4.0"
-  }
+    "defaultProvider": "nextbit",
+    "defaultModel": "deepseek:v4.1-flash",
+    "lastChangelogVersion": "1.5.2",
+    "theme": "gruvbox-light/gruvbox-dark",
+    "defaultThinkingLevel": "medium",
+    "hideThinkingBlock": true,
+    "defaultTools": [
+        "+codemode"
+    ],
+    "packages": [
+        "npm:pi-lsp-extension",
+        "npm:pi-hermes-memory"
+    ],
+    "compaction": {
+        "enabled": true
+    },
+    "extensionChangelogVersions": {
+        "{\"source\":\"npm:pi-lsp-extension\",\"scope\":\"user\"}": "1.4.0"
+    }
 }
