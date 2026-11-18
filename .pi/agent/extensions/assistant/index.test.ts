@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import assistantExtension, { buildAssistantInstructions, buildScheduleRequest } from "./index.ts";
+import assistantExtension, { ASSISTANT_MODE_ENV, buildActivationLine, buildAssistantInstructions, buildDateTimeLine, buildScheduleRequest, isAssistantModeEnabled } from "./index.ts";
 
 function createExtension() {
   const commands = new Map<string, { handler: (args: string, ctx: unknown) => Promise<void> }>();
@@ -41,12 +41,14 @@ test("assistant mode adds and removes its own prompt section", async () => {
   await command.handler("on", ctx);
   const enabledEvent = { systemPromptOptions: { sections: {} } };
   handlers.get("before_agent_start")!(enabledEvent);
-  assert.match(enabledEvent.systemPromptOptions.sections["workday-assistant"], /workday assistant mode/);
+  assert.match(enabledEvent.systemPromptOptions.sections["field-notes-assistant"], /source of truth is the field-notes directory/);
+  assert.match(enabledEvent.systemPromptOptions.sections["field-notes-assistant"], /Assistant mode activated:/);
+  assert.doesNotMatch(enabledEvent.systemPromptOptions.sections["field-notes-assistant"], /Current date and time:/);
 
   await command.handler("off", ctx);
-  const disabledEvent = { systemPromptOptions: { sections: { "workday-assistant": "old" } } };
+  const disabledEvent = { systemPromptOptions: { sections: { "field-notes-assistant": "old" } } };
   handlers.get("before_agent_start")!(disabledEvent);
-  assert.equal(disabledEvent.systemPromptOptions.sections["workday-assistant"], undefined);
+  assert.equal(disabledEvent.systemPromptOptions.sections["field-notes-assistant"], undefined);
 });
 
 test("checkin adds assistant instructions for one turn without enabling the mode", async () => {
@@ -59,11 +61,64 @@ test("checkin adds assistant instructions for one turn without enabling the mode
 
   const checkinEvent = { systemPromptOptions: { sections: {} } };
   handlers.get("before_agent_start")!(checkinEvent);
-  assert.ok(checkinEvent.systemPromptOptions.sections["workday-assistant"]);
+  assert.ok(checkinEvent.systemPromptOptions.sections["field-notes-assistant"]);
 
-  const nextEvent = { systemPromptOptions: { sections: { "workday-assistant": "old" } } };
+  const nextEvent = { systemPromptOptions: { sections: { "field-notes-assistant": "old" } } };
   handlers.get("before_agent_start")!(nextEvent);
-  assert.equal(nextEvent.systemPromptOptions.sections["workday-assistant"], undefined);
+  assert.equal(nextEvent.systemPromptOptions.sections["field-notes-assistant"], undefined);
+});
+
+test("datetime line reflects the configured timezone", () => {
+  const line = buildDateTimeLine(new Date("2026-11-18T01:30:00Z"), "Australia/Melbourne");
+  assert.match(line, /Current date and time:/);
+  assert.match(line, /2026-11-18/);
+  assert.match(line, /12:30/);
+  assert.match(line, /Australia\/Melbourne/);
+  assert.match(buildActivationLine(new Date("2026-11-18T01:30:00Z"), "Australia/Melbourne"), /Assistant mode activated:.*2026-11-18 12:30/);
+});
+
+test("system prompt section is static so the prefix cache survives", async () => {
+  const { commands, handlers } = createExtension();
+  const { ctx } = createContext();
+  const input = handlers.get("input") as unknown as (event: { text: string; source: string }) => { action: string; text?: string };
+
+  assert.equal(input({ text: "hello", source: "interactive" }).action, "continue");
+
+  await commands.get("assistant")!.handler("on", ctx);
+
+  const first = { systemPromptOptions: { sections: {} as Record<string, string> } };
+  const second = { systemPromptOptions: { sections: {} as Record<string, string> } };
+  handlers.get("before_agent_start")!(first);
+  handlers.get("before_agent_start")!(second);
+  assert.match(first.systemPromptOptions.sections["field-notes-assistant"], /Assistant mode activated:/);
+  assert.equal(first.systemPromptOptions.sections["field-notes-assistant"], second.systemPromptOptions.sections["field-notes-assistant"]);
+
+  const stamped = input({ text: "hello", source: "interactive" });
+  assert.equal(stamped.action, "transform");
+  assert.match(stamped.text ?? "", /Current date and time:/);
+  assert.match(stamped.text ?? "", /hello/);
+
+  assert.equal(input({ text: "/assistant off", source: "interactive" }).action, "continue");
+  assert.equal(input({ text: "hello", source: "extension" }).action, "continue");
+});
+
+test("PI_ASSISTANT_MODE enables the assistant for headless runs", () => {
+  assert.equal(isAssistantModeEnabled({ [ASSISTANT_MODE_ENV]: "1" }), true);
+  assert.equal(isAssistantModeEnabled({ [ASSISTANT_MODE_ENV]: "on" }), true);
+  assert.equal(isAssistantModeEnabled({ [ASSISTANT_MODE_ENV]: "false" }), false);
+  assert.equal(isAssistantModeEnabled({}), false);
+
+  const previous = process.env[ASSISTANT_MODE_ENV];
+  process.env[ASSISTANT_MODE_ENV] = "1";
+  try {
+    const { handlers } = createExtension();
+    const event = { systemPromptOptions: { sections: {} as Record<string, string> } };
+    handlers.get("before_agent_start")!(event);
+    assert.match(event.systemPromptOptions.sections["field-notes-assistant"], /Assistant mode activated:/);
+  } finally {
+    if (previous === undefined) delete process.env[ASSISTANT_MODE_ENV];
+    else process.env[ASSISTANT_MODE_ENV] = previous;
+  }
 });
 
 test("instructions and schedule setup use the local config and required tasks", () => {
@@ -71,9 +126,14 @@ test("instructions and schedule setup use the local config and required tasks", 
   const scheduleRequest = buildScheduleRequest();
 
   assert.match(instructions, /config\.toml/);
-  assert.match(instructions, /Only add or change entries under today's date inside ## Log/);
+  assert.match(instructions, /Only add or change entries under today's date heading/);
+  assert.match(instructions, /log-create/);
+  assert.match(instructions, /journal-create/);
+  assert.match(instructions, /kebab-case/);
+  assert.match(instructions, /q4-planning-notes\.md/);
   assert.match(scheduleRequest, /assistant-start-of-day/);
   assert.match(scheduleRequest, /assistant-afternoon-checkin/);
   assert.match(scheduleRequest, /assistant-zoom-poll/);
+  assert.match(scheduleRequest, /PI_ASSISTANT_MODE=1/);
   assert.match(scheduleRequest, /Do not change crontab/);
 });

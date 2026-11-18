@@ -1,13 +1,12 @@
 import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { Type } from "typebox";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import type { ExtensionAPI, ExtensionToolContext } from "@earendil-works/pi-coding-agent";
 
-import { parseRoleSettings } from "./roles.ts";
+import { parseRoleSettings, readOptionalTextFile } from "./roles.ts";
 import { buildReviewPrompt, getReviewState, hasCompletedMarker, type ReviewModelSettings, type ReviewState } from "./review-state.ts";
 
 const execFileAsync = promisify(execFile);
@@ -70,7 +69,7 @@ export function registerReviewTool(pi: ExtensionAPI): void {
         const missing = required.find(([, value]) => !value?.trim());
         if (missing) return errorResult(`action=start requires ${missing[0]}.`);
 
-        const reviewerModel = await getReviewerModel(ctx);
+        const reviewerModel = await getReviewerModel(pi, ctx);
         if (!reviewerModel.ok) return errorResult(reviewerModel.error);
         const id = randomUUID();
         const state: ReviewState = {
@@ -119,16 +118,24 @@ export function registerReviewTool(pi: ExtensionAPI): void {
 }
 
 async function getReviewerModel(
+  pi: ExtensionAPI,
   ctx: ExtensionToolContext,
 ): Promise<{ ok: true; value: ReviewModelSettings } | { ok: false; error: string }> {
-  let config: string;
   const path = join(getAgentDir(), "my-agent.json");
-  try {
-    config = readFileSync(path, "utf8");
-  } catch (error) {
-    return { ok: false, error: `Cannot read ${path}: ${errorMessage(error)}` };
+  const configText = readOptionalTextFile(path);
+  if (!configText.ok) return configText;
+
+  // Without a config file, review with the active model instead of failing.
+  if (configText.value === undefined) {
+    const model = ctx.model;
+    if (!model) return { ok: false, error: "No reviewer configuration file and no active model to review with." };
+    return {
+      ok: true,
+      value: { provider: model.provider, model: model.id, thinkingLevel: ctx.thinkingLevel ?? pi.getThinkingLevel() },
+    };
   }
-  const parsed = parseRoleSettings(config, "my-reviewer");
+
+  const parsed = parseRoleSettings(configText.value, "my-reviewer");
   if (!parsed.ok) return parsed;
   const model = ctx.modelRegistry.find(parsed.value.provider, parsed.value.model);
   if (!model) return { ok: false, error: `Reviewer model ${parsed.value.provider}/${parsed.value.model} is unavailable.` };

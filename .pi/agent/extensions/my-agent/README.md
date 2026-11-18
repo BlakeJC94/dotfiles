@@ -27,6 +27,8 @@ Create `~/.pi/agent/my-agent.json` with explicit model settings for each role yo
 
 There are no default models. The selected model must be available and authenticated before a role is activated.
 
+The config file is optional: if it is absent, a role still activates its skill on the current model and thinking level instead of failing, and a review runs on the active model. A config file that is present but invalid, missing the requested role, or unauthenticated still stops activation.
+
 ## Use
 
 - `/agent planner`

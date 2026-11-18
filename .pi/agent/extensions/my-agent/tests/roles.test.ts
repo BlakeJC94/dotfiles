@@ -1,12 +1,28 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 
-import { getRoleState, parseRoleCommandArg, parseRoleSettings, parseSkill, renderRoleSection } from "../roles.ts";
+import { getRoleState, parseRoleCommandArg, parseRoleSettings, parseSkill, readOptionalTextFile, renderRoleSection } from "../roles.ts";
 
 test("parseRoleCommandArg accepts short names and existing skill names", () => {
   assert.equal(parseRoleCommandArg("coder"), "my-coder");
   assert.equal(parseRoleCommandArg("my-coder"), "my-coder");
   assert.equal(parseRoleCommandArg("unknown"), undefined);
+});
+
+test("readOptionalTextFile ignores a missing config file but reads a present one", () => {
+  const dir = mkdtempSync(join(tmpdir(), "my-agent-config-"));
+  try {
+    assert.deepEqual(readOptionalTextFile(join(dir, "my-agent.json")), { ok: true, value: undefined });
+
+    const present = join(dir, "present.json");
+    writeFileSync(present, "{\"my-coder\":{}}");
+    assert.deepEqual(readOptionalTextFile(present), { ok: true, value: "{\"my-coder\":{}}" });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("parseRoleSettings requires exact settings for the requested role", () => {

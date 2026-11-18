@@ -13,6 +13,7 @@ import {
   parseRoleCommandArg,
   parseRoleSettings,
   parseSkill,
+  readOptionalTextFile,
   renderRoleSection,
   type LoadedSkill,
   type RoleBaseline,
@@ -29,7 +30,7 @@ let inactiveLogged = false;
 
 interface ActiveRole {
   skill: LoadedSkill;
-  settings: RoleSettings;
+  settings?: RoleSettings;
   state: RoleSessionState;
   orgContext: string;
 }
@@ -68,7 +69,7 @@ export default function myAgentExtension(pi: ExtensionAPI): void {
       persistRole(pi, activeRole.state);
       syncRoleTools(pi, activeRole.skill.name);
       updateStatus(ctx, activeRole);
-      ctx.ui.notify(`Activated ${name} on ${activeRole.settings.provider}/${activeRole.settings.model}.`, "info");
+      ctx.ui.notify(`Activated ${name} on ${modelLabel(activeRole)}.`, "info");
     },
   };
   pi.registerCommand("agent", roleCommand);
@@ -157,14 +158,12 @@ async function activateRole(
   const skillPath = join(homedir(), ".agents", "skills", name, "SKILL.md");
   const orgContextPath = join(homedir(), ".agents", "skills", "my-workflow", "ORG_CONTEXT.md");
 
-  let configText: string;
+  // The config file is optional. Without it, the role activates on the current model.
+  const configText = readOptionalTextFile(configPath);
+  if (!configText.ok) return configText;
+
   let skillText: string;
   let orgContext: string;
-  try {
-    configText = readFileSync(configPath, "utf8");
-  } catch (error) {
-    return { ok: false, error: `Cannot read ${configPath}: ${errorMessage(error)}` };
-  }
   try {
     skillText = readFileSync(skillPath, "utf8");
   } catch (error) {
@@ -176,33 +175,40 @@ async function activateRole(
     return { ok: false, error: `Cannot read ${orgContextPath}: ${errorMessage(error)}` };
   }
 
-  const parsedSettings = parseRoleSettings(configText, name);
-  if (!parsedSettings.ok) return parsedSettings;
+  let settings: RoleSettings | undefined;
+  if (configText.value !== undefined) {
+    const parsedSettings = parseRoleSettings(configText.value, name);
+    if (!parsedSettings.ok) return parsedSettings;
+    settings = parsedSettings.value;
+  }
   const parsedSkill = parseSkill(name, skillPath, skillText);
   if (!parsedSkill.ok) return parsedSkill;
-
-  const model = ctx.modelRegistry.find(parsedSettings.value.provider, parsedSettings.value.model);
-  if (!model) return { ok: false, error: `Model ${parsedSettings.value.provider}/${parsedSettings.value.model} is not available.` };
-  if (!ctx.modelRegistry.hasConfiguredAuth(model)) {
-    return { ok: false, error: `No configured authentication for ${parsedSettings.value.provider}.` };
-  }
-  const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-  if (!auth.ok) return { ok: false, error: `Authentication failed for ${parsedSettings.value.provider}: ${auth.error}` };
 
   const baseline = baselineOverride ?? {
     provider: ctx.model?.provider,
     model: ctx.model?.id,
     thinkingLevel: ctx.thinkingLevel ?? pi.getThinkingLevel(),
   };
-  const applied = await pi.setModel(model);
-  if (!applied) return { ok: false, error: `Pi could not apply ${parsedSettings.value.provider}/${parsedSettings.value.model}.` };
-  pi.setThinkingLevel(parsedSettings.value.thinkingLevel);
+
+  if (settings) {
+    const model = ctx.modelRegistry.find(settings.provider, settings.model);
+    if (!model) return { ok: false, error: `Model ${settings.provider}/${settings.model} is not available.` };
+    if (!ctx.modelRegistry.hasConfiguredAuth(model)) {
+      return { ok: false, error: `No configured authentication for ${settings.provider}.` };
+    }
+    const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
+    if (!auth.ok) return { ok: false, error: `Authentication failed for ${settings.provider}: ${auth.error}` };
+
+    const applied = await pi.setModel(model);
+    if (!applied) return { ok: false, error: `Pi could not apply ${settings.provider}/${settings.model}.` };
+    pi.setThinkingLevel(settings.thinkingLevel);
+  }
 
   return {
     ok: true,
     role: {
       skill: parsedSkill.value,
-      settings: parsedSettings.value,
+      settings,
       state: { skillName: name, baseline },
       orgContext,
     },
@@ -240,12 +246,16 @@ function updateStatus(ctx: ExtensionContext, role: ActiveRole | undefined): void
     ctx.ui.setStatus("my-agent", undefined);
     return;
   }
-  const label = `my-agent:${role.skill.name} (${role.settings.provider}/${role.settings.model})`;
+  const label = `my-agent:${role.skill.name} (${modelLabel(role)})`;
   ctx.ui.setStatus("my-agent", ctx.ui.theme.fg("accent", label));
 }
 
+function modelLabel(role: ActiveRole): string {
+  return role.settings ? `${role.settings.provider}/${role.settings.model}` : "current model";
+}
+
 function activeDescription(role: ActiveRole | undefined): string {
-  return role ? `Active: ${role.skill.name} (${role.settings.provider}/${role.settings.model}).` : "No role is active.";
+  return role ? `Active: ${role.skill.name} (${modelLabel(role)}).` : "No role is active.";
 }
 
 function hasManagedEnvironment(): boolean {

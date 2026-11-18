@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 export const ROLE_NAMES = ["my-planner", "my-coder", "my-reviewer", "my-monkey"] as const;
 
 export type RoleName = (typeof ROLE_NAMES)[number];
@@ -62,6 +64,17 @@ export function parseRoleSettings(json: string, roleName: RoleName): ParseResult
   };
 }
 
+// The role config file is optional: an absent file leaves the active model in place
+// rather than failing activation. Any other read failure is still an error.
+export function readOptionalTextFile(path: string): ParseResult<string | undefined> {
+  try {
+    return { ok: true, value: readFileSync(path, "utf8") };
+  } catch (error) {
+    if (isFileNotFoundError(error)) return { ok: true, value: undefined };
+    return { ok: false, error: `Cannot read ${path}: ${errorMessage(error)}` };
+  }
+}
+
 export function parseSkill(name: RoleName, sourceFile: string, source: string): ParseResult<LoadedSkill> {
   const frontmatter = source.match(/^---\r?\n[\s\S]*?^---[ \t]*(?:\r?\n|$)/m);
   const body = frontmatter ? source.slice(frontmatter[0].length) : source;
@@ -123,4 +136,12 @@ export function renderRoleSection(skill: LoadedSkill): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isFileNotFoundError(error: unknown): boolean {
+  return isRecord(error) && error.code === "ENOENT";
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
