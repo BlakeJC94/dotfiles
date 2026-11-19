@@ -4,5 +4,6 @@ models-store.json
 sessions
 file-snapshots
 trust.json
+settings.json
 pi-hermes-memory
 projects-memory
