@@ -52,8 +52,38 @@ export default function btwExtension(pi: ExtensionAPI) {
 				return;
 			}
 
+			if (trimmed === "--add") {
+				if (history.length === 0) {
+					ctx.ui.notify("No /btw turn to add", "warning");
+					return;
+				}
+
+				const last = history[history.length - 1]!;
+
+				pi.sendMessage(
+					{
+						customType: "btw-added",
+						display: true,
+						content: [
+							"The following was previously discussed in a `/btw` aside:\n",
+							`**User:** ${last.userText}`,
+							"",
+							`**Assistant:** ${last.assistantText}`,
+						].join("\n"),
+						details: {
+							userText: last.userText,
+							assistantText: last.assistantText,
+						},
+					},
+					{ triggerTurn: false },
+				);
+
+				ctx.ui.notify("Last /btw turn added to session", "info");
+				return;
+			}
+
 			if (!trimmed) {
-				ctx.ui.notify("Usage: /btw <message>  (or --clear, --history)", "warning");
+				ctx.ui.notify("Usage: /btw <message>  (or --clear, --history, --add)", "warning");
 				return;
 			}
 
@@ -116,38 +146,6 @@ export default function btwExtension(pi: ExtensionAPI) {
 					"error",
 				);
 			}
-		},
-	});
-
-	pi.registerCommand("btw-add", {
-		description: "Pull the last /btw turn into the current session context.",
-		handler: async (_args, ctx) => {
-			if (history.length === 0) {
-				ctx.ui.notify("No /btw turn to add", "warning");
-				return;
-			}
-
-			const last = history[history.length - 1]!;
-
-			pi.sendMessage(
-				{
-					customType: "btw-added",
-					display: true,
-					content: [
-						"The following was previously discussed in a `/btw` aside:\n",
-						`**User:** ${last.userText}`,
-						"",
-						`**Assistant:** ${last.assistantText}`,
-					].join("\n"),
-					details: {
-						userText: last.userText,
-						assistantText: last.assistantText,
-					},
-				},
-				{ triggerTurn: false },
-			);
-
-			ctx.ui.notify("Last /btw turn added to session", "info");
 		},
 	});
 }
