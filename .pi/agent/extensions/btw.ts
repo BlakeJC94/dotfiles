@@ -16,14 +16,15 @@ export default function btwExtension(pi: ExtensionAPI) {
 
 	// Render imported /btw turns nicely in the TUI transcript.
 	pi.registerMessageRenderer("btw-added", (message, _options, theme) => {
-		const data = (message.details ?? {}) as { userText?: string; assistantText?: string };
-		const lines = [
-			theme.fg("accent", theme.bold("Imported from /btw")),
-			"",
-			`${theme.bold("User:")} ${data.userText ?? ""}`,
-			"",
-			`${theme.bold("Assistant:")} ${data.assistantText ?? ""}`,
-		];
+		const data = (message.details ?? {}) as { turns?: Array<{ userText: string; assistantText: string }> };
+		const turns = data.turns ?? [];
+		const lines: string[] = [theme.fg("accent", theme.bold("Imported from /btw")), ""];
+		for (const turn of turns) {
+			lines.push(`${theme.bold("User:")} ${turn.userText}`);
+			lines.push("");
+			lines.push(`${theme.bold("Assistant:")} ${turn.assistantText}`);
+			lines.push("");
+		}
 		return new Text(lines.join("\n"), 0, 0);
 	});
 
@@ -83,38 +84,51 @@ export default function btwExtension(pi: ExtensionAPI) {
 				return;
 			}
 
+			if (trimmed === "--close") {
+				clearBtwWidget(ctx);
+				ctx.ui.notify("Closed /btw widget", "info");
+				return;
+			}
+
 			if (trimmed === "--add") {
 				if (history.length === 0) {
 					ctx.ui.notify("No /btw turn to add", "warning");
 					return;
 				}
 
-				const last = history[history.length - 1]!;
+				const parts: string[] = [
+					"The following was previously discussed in a `/btw` aside:\n",
+				];
+				for (const turn of history) {
+					parts.push(`**User:** ${turn.userText}`);
+					parts.push("");
+					parts.push(`**Assistant:** ${turn.assistantText}`);
+					parts.push("");
+				}
 
 				pi.sendMessage(
 					{
 						customType: "btw-added",
 						display: true,
-						content: [
-							"The following was previously discussed in a `/btw` aside:\n",
-							`**User:** ${last.userText}`,
-							"",
-							`**Assistant:** ${last.assistantText}`,
-						].join("\n"),
+						content: parts.join("\n"),
 						details: {
-							userText: last.userText,
-							assistantText: last.assistantText,
+							turns: history.map((turn) => ({
+								userText: turn.userText,
+								assistantText: turn.assistantText,
+							})),
 						},
 					},
 					{ triggerTurn: false },
 				);
 
-				ctx.ui.notify("Last /btw turn added to session", "info");
+				clearBtwWidget(ctx);
+				history = [];
+				ctx.ui.notify("Added /btw chain to session and cleared side channel", "info");
 				return;
 			}
 
 			if (!trimmed) {
-				ctx.ui.notify("Usage: /btw <message>  (or --clear, --history, --add)", "warning");
+				ctx.ui.notify("Usage: /btw <message>  (or --clear, --history, --add, --close)", "warning");
 				return;
 			}
 
