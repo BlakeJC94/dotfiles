@@ -1,0 +1,4 @@
+# Hermes project memory state - do not track
+*.md
+*.recovery-*
+skills/

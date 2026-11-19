@@ -1,0 +1,7 @@
+# Hermes memory state - do not track
+*.md
+*.recovery-*
+sessions.db
+sessions.db-shm
+sessions.db-wal
+skills/
