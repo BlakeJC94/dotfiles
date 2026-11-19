@@ -1,7 +1,7 @@
 import { uuidv7 } from "@earendil-works/pi-ai";
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { DynamicBorder, getMarkdownTheme, type ExtensionAPI, type ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
 import type { AssistantMessage, TextContent, UserMessage } from "@earendil-works/pi-ai";
-import { Text } from "@earendil-works/pi-tui";
+import { Container, Markdown, matchesKey, Text } from "@earendil-works/pi-tui";
 
 type BtwTurn = {
 	user: UserMessage;
@@ -33,6 +33,35 @@ export default function btwExtension(pi: ExtensionAPI) {
 			.filter((c): c is TextContent => c.type === "text")
 			.map((c) => c.text)
 			.join("\n");
+	};
+
+	const showBtwOverlay = async (text: string, ctx: ExtensionCommandContext) => {
+		if (ctx.mode !== "tui") return;
+
+		await ctx.ui.custom(
+			(_tui, theme, _kb, done) => {
+				const container = new Container();
+				const border = new DynamicBorder((s: string) => theme.fg("accent", s));
+				const mdTheme = getMarkdownTheme();
+
+				container.addChild(border);
+				container.addChild(new Text(theme.fg("accent", theme.bold("/btw aside")), 1, 0));
+				container.addChild(new Markdown(text, 1, 1, mdTheme));
+				container.addChild(new Text(theme.fg("dim", "Press Enter or Esc to close"), 1, 0));
+				container.addChild(border);
+
+				return {
+					render: (width: number) => container.render(width),
+					invalidate: () => container.invalidate(),
+					handleInput: (data: string) => {
+						if (matchesKey(data, "enter") || matchesKey(data, "escape")) {
+							done(undefined);
+						}
+					},
+				};
+			},
+			{ overlay: true },
+		);
 	};
 
 	pi.registerCommand("btw", {
@@ -133,8 +162,8 @@ export default function btwExtension(pi: ExtensionAPI) {
 				const text = extractText(response);
 
 				if (ctx.mode === "tui") {
-					ctx.ui.setEditorText(text);
-					ctx.ui.notify("/btw response loaded into editor", "info");
+					ctx.ui.notify("Showing /btw response in overlay", "info");
+					await showBtwOverlay(text, ctx);
 				} else if (ctx.mode === "print" || ctx.mode === "json") {
 					console.log(`\n[btw]\n${text}\n`);
 				} else {
