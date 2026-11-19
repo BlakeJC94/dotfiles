@@ -8,6 +8,7 @@
   "defaultTools": [
     "+codemode"
   ],
+  "shellCommandPrefix": "shopt -s expand_aliases\nsource ~/.vars\nsource ~/.aliases",
   "packages": [
     "npm:pi-lsp-extension",
     "npm:pi-hermes-memory",
