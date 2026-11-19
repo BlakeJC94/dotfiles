@@ -1,7 +1,7 @@
 import { uuidv7 } from "@earendil-works/pi-ai";
-import { DynamicBorder, getMarkdownTheme, type ExtensionAPI, type ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
+import { getMarkdownTheme, type ExtensionAPI, type ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
 import type { AssistantMessage, TextContent, UserMessage } from "@earendil-works/pi-ai";
-import { Container, Markdown, matchesKey, Text } from "@earendil-works/pi-tui";
+import { Markdown, Text } from "@earendil-works/pi-tui";
 
 type BtwTurn = {
 	user: UserMessage;
@@ -35,33 +35,34 @@ export default function btwExtension(pi: ExtensionAPI) {
 			.join("\n");
 	};
 
-	const showBtwOverlay = async (text: string, ctx: ExtensionCommandContext) => {
+	const renderBtwWidget = (
+		ctx: ExtensionCommandContext,
+		currentUser?: string,
+		streamingAssistant?: string,
+	) => {
 		if (ctx.mode !== "tui") return;
 
-		await ctx.ui.custom(
-			(_tui, theme, _kb, done) => {
-				const container = new Container();
-				const border = new DynamicBorder((s: string) => theme.fg("accent", s));
-				const mdTheme = getMarkdownTheme();
+		const parts: string[] = [];
+		for (const turn of history) {
+			parts.push(`**User:** ${turn.userText}`);
+			parts.push("");
+			parts.push(`**Assistant:** ${turn.assistantText}`);
+			parts.push("");
+		}
+		if (currentUser) {
+			parts.push(`**User:** ${currentUser}`);
+			parts.push("");
+			parts.push(`**Assistant:** ${streamingAssistant ?? ""}▌`);
+		}
 
-				container.addChild(border);
-				container.addChild(new Text(theme.fg("accent", theme.bold("/btw aside")), 1, 0));
-				container.addChild(new Markdown(text, 1, 1, mdTheme));
-				container.addChild(new Text(theme.fg("dim", "Press Enter or Esc to close"), 1, 0));
-				container.addChild(border);
+		const markdown = parts.join("\n");
+		ctx.ui.setWidget("btw", (_tui, _theme) => new Markdown(markdown, 0, 0, getMarkdownTheme()));
+	};
 
-				return {
-					render: (width: number) => container.render(width),
-					invalidate: () => container.invalidate(),
-					handleInput: (data: string) => {
-						if (matchesKey(data, "enter") || matchesKey(data, "escape")) {
-							done(undefined);
-						}
-					},
-				};
-			},
-			{ overlay: true },
-		);
+	const clearBtwWidget = (ctx: ExtensionCommandContext) => {
+		if (ctx.mode === "tui") {
+			ctx.ui.setWidget("btw", undefined);
+		}
 	};
 
 	pi.registerCommand("btw", {
@@ -72,6 +73,7 @@ export default function btwExtension(pi: ExtensionAPI) {
 
 			if (trimmed === "--clear" || trimmed === "-c") {
 				history = [];
+				clearBtwWidget(ctx);
 				ctx.ui.notify("Cleared /btw memory", "info");
 				return;
 			}
@@ -133,8 +135,12 @@ export default function btwExtension(pi: ExtensionAPI) {
 			]);
 			messages.push(userMessage);
 
+			if (ctx.mode === "tui") {
+				renderBtwWidget(ctx, trimmed);
+			}
+
 			try {
-				const response = (await ctx.modelRegistry.complete(
+				const stream = ctx.modelRegistry.streamSimple(
 					ctx.model,
 					{
 						systemPrompt:
@@ -142,13 +148,33 @@ export default function btwExtension(pi: ExtensionAPI) {
 						messages,
 					},
 					{ sessionId: uuidv7() },
-				)) as AssistantMessage;
+				);
 
-				if (response.stopReason === "aborted" || response.stopReason === "error") {
-					ctx.ui.notify(
-						`/btw failed: ${response.errorMessage || response.stopReason}`,
-						"error",
-					);
+				let streamed = "";
+				let finalResponse: AssistantMessage | undefined;
+
+				for await (const event of stream as AsyncIterable<{
+					type: string;
+					delta?: string;
+					message?: AssistantMessage;
+					errorMessage?: string;
+					reason?: string;
+				}>) {
+					if (event.type === "text_delta" && event.delta) {
+						streamed += event.delta;
+						if (ctx.mode === "tui") {
+							renderBtwWidget(ctx, trimmed, streamed);
+						}
+					} else if (event.type === "done" && event.message) {
+						finalResponse = event.message;
+					} else if (event.type === "error") {
+						throw new Error(event.errorMessage || "stream error");
+					}
+				}
+
+				const response = finalResponse;
+				if (!response) {
+					ctx.ui.notify("/btw produced no response", "warning");
 					return;
 				}
 
@@ -159,15 +185,12 @@ export default function btwExtension(pi: ExtensionAPI) {
 					assistantText: extractText(response),
 				});
 
-				const text = extractText(response);
-
 				if (ctx.mode === "tui") {
-					ctx.ui.notify("Showing /btw response in overlay", "info");
-					await showBtwOverlay(text, ctx);
+					renderBtwWidget(ctx);
 				} else if (ctx.mode === "print" || ctx.mode === "json") {
-					console.log(`\n[btw]\n${text}\n`);
+					console.log(`\n[btw]\n${extractText(response)}\n`);
 				} else {
-					ctx.ui.notify(text.slice(0, 500), "info");
+					ctx.ui.notify(extractText(response).slice(0, 500), "info");
 				}
 			} catch (err) {
 				ctx.ui.notify(
