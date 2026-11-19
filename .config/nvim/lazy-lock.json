@@ -8,6 +8,7 @@
   "gitreview": { "branch": "main", "commit": "fe685c675aa5a7075f9b370505e20751e27a32d7" },
   "gitsigns.nvim": { "branch": "main", "commit": "31d6fb2d618bca1482b9f274751ead5f03461408" },
   "gruvbox.nvim": { "branch": "main", "commit": "154eb5ff5b96d0641307113fa385eaf0d36d9796" },
+  "herdr-nvim": { "branch": "main", "commit": "2905408e1985db1a319b466ba9873f40e29f5e7a" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
   "llm.nvim": { "branch": "main", "commit": "7001401f3de0eec389b9895ba2f13e4fd4ad23de" },
   "nvim-highlight-colors": { "branch": "main", "commit": "e4c7af0211866162d999ce0bdd6a029302e19139" },

@@ -2,7 +2,7 @@
   "defaultProvider": "openai",
   "defaultModel": "gpt-6-luna",
   "modelThinkingLevels": {
-    "llama.cpp/prism-ml/Ternary-Bonsai-2-27B-gguf:Q2_0": "medium"
+    "llama.cpp/prism-ml/Ternary-Bonsai-2-27B-gguf:Q2_0": "low"
   },
   "lastChangelogVersion": "1.0.3",
   "theme": "gruvbox-light/gruvbox-dark",

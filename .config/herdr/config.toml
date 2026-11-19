@@ -38,29 +38,27 @@ settings = "prefix+shift+s"
 detach = "prefix+d"
 reload_config = "prefix+shift+r"
 open_notification_target = "prefix+g"
-workspace_picker = "prefix+x"
-goto = "prefix+backspace"
+# workspace_picker = "prefix+x"
+# goto = "prefix+backspace"
 new_workspace = "prefix+c"
-new_worktree = "prefix+shift+g"
+# new_worktree = "prefix+shift+g"
 open_worktree = "prefix+enter" # optional, unset by default
 # remove_worktree = ""  # optional, unset by default; opens confirmation
 rename_workspace = "prefix+shift+w"
 close_workspace = "prefix+shift+q"
 previous_workspace = "prefix+p"
 next_workspace = "prefix+n"
-# previous_agent = "prefix+shift+p"
-# next_agent = "prefix+shift+n"
-# focus_agent = ""        # optional indexed binding, e.g. "prefix+alt+1..9"
-# remote_image_paste = "ctrl+v" # only active in herdr --remote; empty disables raw-key image paste
+previous_agent = "prefix+ctrl+p"
+next_agent = "prefix+ctrl+n"
 new_tab = "prefix+t"
-# rename_tab = "prefix+shift+t"
+rename_tab = "prefix+shift+t"
 previous_tab = "prefix+shift+p"
 next_tab = "prefix+shift+n"
 # switch_tab = "prefix+1..9"
 switch_workspace = "prefix+1..9" # optional indexed binding, e.g. "prefix+shift+1..9"
-close_tab = "prefix+shift+t"
-rename_pane = "prefix+w"
-edit_scrollback = "prefix+e"
+# close_tab = "prefix+shift+t"
+# rename_pane = "prefix+w"
+# edit_scrollback = "prefix+escape"
 focus_pane_left = ["prefix+h", "prefix+left"]
 focus_pane_down = ["prefix+j", "prefix+down"]
 focus_pane_up = ["prefix+k", "prefix+up"]
@@ -72,17 +70,20 @@ split_vertical = "prefix+v"
 split_horizontal = "prefix+s"
 close_pane = "prefix+q"
 zoom = "prefix+o" # legacy alias: fullscreen
-resize_mode = "prefix+r"
+# resize_mode = "prefix+r"
 toggle_sidebar = "prefix+b"
 
-# Navigate-mode movement. These local shortcuts win while navigate mode is open.
-# They are independent from focus_pane_*. Do not include prefix+, esc, enter, tab, or 1..9 here.
-# navigate_workspace_up = "up"
-# navigate_workspace_down = "down"
-# navigate_pane_left = "h"      # left arrow always focuses the pane to the left
-# navigate_pane_down = "j"
-# navigate_pane_up = "k"
-# navigate_pane_right = "l"     # right arrow always focuses the pane to the right
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+
+[[keys.command]]
+key = "prefix+backspace"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.pick-file"
+description = "open file from agent output"
 
 # Custom commands use the same binding syntax.
 # type = "shell" runs detached in the background.

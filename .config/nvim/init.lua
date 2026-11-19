@@ -88,6 +88,9 @@ local main = function()
     vim.g.mapleader = " "
     vim.g.maplocalleader = " "
     set_options()
+    if vim.env.HERDR_TAB_ID then
+        vim.o.background = "light"
+    end
 
     bootstrap_package_manager()
     vim.cmd.colorscheme("retrobox")

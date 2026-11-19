@@ -1,0 +1,32 @@
+{
+  "providers": {
+    "llama.cpp": {
+      "modelOverrides": {
+        "prism-ml/Ternary-Bonsai-2-27B-gguf:Q2_0": {
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "off": null,
+            "minimal": "minimal",
+            "low": "low",
+            "medium": "medium",
+            "high": "high",
+            "xhigh": "xhigh",
+            "max": "max"
+          },
+          "compat": {
+            "supportsReasoningEffort": true,
+            "thinkingFormat": "chat-template",
+            "chatTemplateKwargs": {
+              "enable_thinking": {
+                "$var": "thinking.enabled"
+              },
+              "reasoning_effort": {
+                "$var": "thinking.effort"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

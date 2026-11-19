@@ -12,7 +12,8 @@ Current stack:
 * **Web Browser**: Firefox
 * **LLM Client**: `llm-cli`
 * **Coding agent**: `pi`
-* **Project env manager**: `mise`
+* **Agent multiplexer**: `herdr`
+* **Project env manager**: `direnv`
 * **Python env manager**: `uv`
 * **Colorscheme**: Gruvbox Dark / Gruvbox Light
 * **Grammar checker**: `write-good`
