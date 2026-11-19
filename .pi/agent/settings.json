@@ -1,22 +1,24 @@
 {
-  "defaultProvider": "nextbit",
-  "defaultModel": "deepseek:v4.1-flash",
-  "lastChangelogVersion": "1.5.2",
-  "theme": "gruvbox-light/gruvbox-dark",
-  "defaultThinkingLevel": "medium",
-  "hideThinkingBlock": true,
-  "defaultTools": [
-    "+codemode"
-  ],
-  "packages": [
-    "npm:pi-lsp-extension",
-    "npm:pi-hermes-memory",
-    "npm:pi-declutter"
-  ],
-  "compaction": {
-    "enabled": true
-  },
-  "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-lsp-extension\",\"scope\":\"user\"}": "1.4.0"
-  }
+    "defaultProvider": "nextbit",
+    "defaultModel": "deepseek:v4.1-flash",
+    "lastChangelogVersion": "1.5.2",
+    "theme": "gruvbox-light/gruvbox-dark",
+    "defaultThinkingLevel": "medium",
+    "hideThinkingBlock": true,
+    "defaultTools": [
+        "+codemode"
+    ],
+    "packages": [
+        "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions",
+        "npm:agents-cron",
+        "npm:pi-declutter",
+        "npm:pi-hermes-memory",
+        "npm:pi-lsp-extension"
+    ],
+    "compaction": {
+        "enabled": true
+    },
+    "extensionChangelogVersions": {
+        "{\"source\":\"npm:pi-lsp-extension\",\"scope\":\"user\"}": "1.4.0"
+    }
 }

@@ -1,19 +1,23 @@
 {
-    "defaultProvider": "openai",
-    "defaultModel": "gpt-6-luna",
-    "lastChangelogVersion": "1.0.3",
-    "theme": "gruvbox-light/gruvbox-dark",
-    "hideThinkingBlock": true,
-    "defaultTools": [
-        "+codemode"
-    ],
-    "packages": [
-        "npm:pi-lsp-extension",
-        "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions",
-        "npm:pi-hermes-memory",
-        "npm:agents-cron"
-    ],
-    "compaction": {
-        "enabled": true
-    }
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6-luna",
+  "modelThinkingLevels": {
+    "llama.cpp/prism-ml/Ternary-Bonsai-2-27B-gguf:Q2_0": "medium"
+  },
+  "lastChangelogVersion": "1.0.3",
+  "theme": "gruvbox-light/gruvbox-dark",
+  "hideThinkingBlock": true,
+  "defaultTools": [
+    "+codemode"
+  ],
+  "packages": [
+    "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions",
+    "npm:agents-cron",
+    "npm:pi-declutter",
+    "npm:pi-hermes-memory",
+    "npm:pi-lsp-extension"
+  ],
+  "compaction": {
+    "enabled": true
+  }
 }

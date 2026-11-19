@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import assistantExtension, { ASSISTANT_MODE_ENV, buildActivationLine, buildAssistantInstructions, buildDateTimeLine, buildScheduleRequest, isAssistantModeEnabled } from "./index.ts";
+import assistantExtension, { ASSISTANT_MODE_ENV, buildActivationLine, buildAssistantInstructions, buildDateTimeLine, buildScheduleRequest, isAssistantModeEnabled, parseAssistantModelConfig, switchAssistantModel } from "./index.ts";
 
 function createExtension() {
   const commands = new Map<string, { handler: (args: string, ctx: unknown) => Promise<void> }>();
@@ -10,6 +10,7 @@ function createExtension() {
     registerCommand(name: string, command: { handler: (args: string, ctx: unknown) => Promise<void> }) {
       commands.set(name, command);
     },
+    setModel: async () => true,
     on(name: string, handler: (event: { systemPromptOptions: { sections: Record<string, string> } }) => void) {
       handlers.set(name, handler);
       return () => {};
@@ -28,6 +29,8 @@ function createContext() {
     messages,
     ctx: {
       ui: { notify: (message: string) => notifications.push(message) },
+      model: { id: "previous-model" },
+      modelRegistry: { find: () => ({ id: "assistant-model" }) },
       sendUserMessage: async (message: string) => messages.push(message),
     },
   };
@@ -66,6 +69,30 @@ test("checkin adds assistant instructions for one turn without enabling the mode
   const nextEvent = { systemPromptOptions: { sections: { "field-notes-assistant": "old" } } };
   handlers.get("before_agent_start")!(nextEvent);
   assert.equal(nextEvent.systemPromptOptions.sections["field-notes-assistant"], undefined);
+});
+
+test("assistant model config requires a provider and model ID", () => {
+  assert.deepEqual(
+    parseAssistantModelConfig('assistant_model_provider = "openai"\nassistant_model_id = "gpt-example"'),
+    { provider: "openai", id: "gpt-example" },
+  );
+  assert.equal(parseAssistantModelConfig('assistant_model_provider = ""\nassistant_model_id = ""'), undefined);
+  assert.throws(() => parseAssistantModelConfig('assistant_model_provider = "openai"'), /Configure both/);
+});
+
+test("assistant model switching preserves the model to restore", async () => {
+  const previousModel = { id: "previous" } as Parameters<typeof switchAssistantModel>[2];
+  const assistantModel = { id: "assistant" } as Parameters<typeof switchAssistantModel>[2];
+  const selected: unknown[] = [];
+  const ctx = { model: previousModel } as Parameters<typeof switchAssistantModel>[0];
+  const setModel: Parameters<typeof switchAssistantModel>[1] = async (model) => {
+    selected.push(model);
+    return true;
+  };
+
+  const result = await switchAssistantModel(ctx, setModel, assistantModel);
+  assert.deepEqual(result, { ok: true, previousModel });
+  assert.deepEqual(selected, [assistantModel]);
 });
 
 test("datetime line reflects the configured timezone", () => {

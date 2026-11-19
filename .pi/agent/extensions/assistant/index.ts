@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
 
 const configPath = fileURLToPath(new URL("./config.toml", import.meta.url));
 
@@ -13,6 +13,38 @@ function readConfiguredTimezone(): string {
     // Fall through to the system timezone.
   }
   return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+}
+
+export interface AssistantModelConfig {
+  provider: string;
+  id: string;
+}
+
+export function parseAssistantModelConfig(config: string): AssistantModelConfig | undefined {
+  const provider = config.match(/^\s*assistant_model_provider\s*=\s*"([^"]*)"/m)?.[1]?.trim();
+  const id = config.match(/^\s*assistant_model_id\s*=\s*"([^"]*)"/m)?.[1]?.trim();
+  if (!provider && !id) return undefined;
+  if (!provider || !id) throw new Error("Configure both assistant_model_provider and assistant_model_id.");
+  return { provider, id };
+}
+
+export async function switchAssistantModel(
+  ctx: Pick<ExtensionCommandContext, "model">,
+  setModel: ExtensionAPI["setModel"],
+  model: NonNullable<ExtensionCommandContext["model"]>,
+): Promise<{ ok: true; previousModel: NonNullable<ExtensionCommandContext["model"]> | undefined } | { ok: false }> {
+  const previousModel = ctx.model;
+  return (await setModel(model)) ? { ok: true, previousModel } : { ok: false };
+}
+
+function readConfiguredAssistantModel(): AssistantModelConfig | undefined {
+  let config: string;
+  try {
+    config = readFileSync(configPath, "utf8");
+  } catch {
+    return undefined;
+  }
+  return parseAssistantModelConfig(config);
 }
 
 function formatDateTime(now: Date, timeZone: string): string {
@@ -95,6 +127,8 @@ export default function assistantExtension(pi: ExtensionAPI): void {
   let enabled = isAssistantModeEnabled();
   let checkinPending = false;
   let activationLine: string | null = null;
+  let previousModel: NonNullable<ExtensionCommandContext["model"]> | undefined;
+  let assistantModelActive = false;
 
   pi.on("before_agent_start", (event) => {
     if (!enabled && !checkinPending) {
@@ -127,7 +161,46 @@ export default function assistantExtension(pi: ExtensionAPI): void {
       const action = args.trim().toLowerCase();
 
       if (!action || action === "on" || action === "off") {
-        enabled = action === "on" || (!action && !enabled);
+        const shouldEnable = action === "on" || (!action && !enabled);
+        if (shouldEnable && !assistantModelActive) {
+          try {
+            const configuredModel = readConfiguredAssistantModel();
+            if (configuredModel) {
+              const model = ctx.modelRegistry.find(configuredModel.provider, configuredModel.id);
+              if (!model) {
+                ctx.ui.notify(`Assistant model ${configuredModel.provider}/${configuredModel.id} was not found.`, "error");
+                return;
+              }
+              const result = await switchAssistantModel(ctx, pi.setModel, model);
+              if (!result.ok) {
+                ctx.ui.notify(`Could not switch to assistant model ${configuredModel.provider}/${configuredModel.id}; check provider authentication.`, "error");
+                return;
+              }
+              previousModel = result.previousModel;
+              assistantModelActive = true;
+            }
+          } catch (error) {
+            ctx.ui.notify(`Could not enable assistant mode: ${error instanceof Error ? error.message : String(error)}`, "error");
+            return;
+          }
+        }
+
+        if (!shouldEnable && assistantModelActive) {
+          let restored = previousModel === undefined;
+          if (previousModel) {
+            try {
+              restored = await pi.setModel(previousModel);
+              if (!restored) ctx.ui.notify("Could not restore the previous model; check provider authentication.", "error");
+            } catch (error) {
+              ctx.ui.notify(`Could not restore the previous model: ${error instanceof Error ? error.message : String(error)}`, "error");
+            }
+          }
+          if (restored) {
+            previousModel = undefined;
+            assistantModelActive = false;
+          }
+        }
+        enabled = shouldEnable;
         activationLine = enabled ? buildActivationLine() : null;
         ctx.ui.notify(`Field-notes assistant ${enabled ? "enabled" : "disabled"} for this session.`, "info");
         return;

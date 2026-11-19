@@ -1,5 +1,7 @@
 timezone = "Australia/Melbourne"
 field_notes_dir = "~/Workspace/field-notes"
+assistant_model_provider = "llama.cpp"
+assistant_model_id = "prism-ml/Ternary-Bonsai-2-27B-gguf:Q2_0"
 
 [slack]
 channels = []
