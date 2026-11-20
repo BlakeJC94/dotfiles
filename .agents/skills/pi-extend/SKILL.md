@@ -30,7 +30,9 @@ All forms should export a default function accepting Pi's `ExtensionAPI`.
 ## Workflow
 
 1. **Identify the target extension** in `~/.pi/agent/extensions/`. Read its source and per-extension `README.md` (if any).
-2. **Make the minimal change.** Use `registerCommand`, `registerTool`, `registerProvider`, `pi.on(...)`, or system-prompt sections as appropriate. Prefer Node built-ins and Pi's host APIs; avoid new npm dependencies unless approved.
+2. **Make the minimal change.** Use `registerCommand`, `registerTool`, `registerProvider`, `registerShortcut`, `pi.on(...)`, or system-prompt sections as appropriate. Prefer Node built-ins and Pi's host APIs; avoid new npm dependencies unless approved.
+   - `pi.registerShortcut("ctrl+s", { description, handler })` adds a global TUI keybinding. Pick a key that is free in the main editor; picker-scoped defaults (for example `ctrl+s` in the model or session pickers) do not block it.
+   - Extensions cannot call the internal `session.getLastAssistantText()`. Read transcript state through the read-only `ctx.sessionManager` (`getBranch()`, `getEntries()`, `buildSessionContext()`).
 3. **Run tests / typecheck** if the extension is a pi package with scripts:
    ```bash
    cd ~/.pi/agent/extensions/<name>
@@ -69,3 +71,4 @@ If unsure, check `~/.pi/agent/extensions/<name>/.gitignore` or the global dotfil
 - [ ] `git dotfiles status --short` shows only the intended files.
 - [ ] `npm test` / `npm run typecheck` pass for any pi package that was modified.
 - [ ] The modified extension loads without errors after `/reload` or on a fresh Pi start.
+- [ ] TUI-only behavior (keybindings, custom editors, widgets) is exercised by driving `pi` in a pty, for example `python3` + `pty.fork()` with `TERM=xterm-256color`, since a non-TTY run cannot trigger it.
