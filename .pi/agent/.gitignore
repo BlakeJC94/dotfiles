@@ -6,6 +6,7 @@ file-snapshots
 trust.json
 pi-hermes-memory
 projects-memory
+kagi-api.json
 
 # herdr-managed integration file (auto-generated; herdr overwrites it on reinstall/update)
 /extensions/herdr-agent-state.ts
