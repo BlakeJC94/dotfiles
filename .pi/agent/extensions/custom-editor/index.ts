@@ -16,6 +16,7 @@ import type { UserMessage } from "@earendil-works/pi-ai";
  *   - `- item`     -> <Shift+Enter> -> `- `
  *   - `* [ ] item` -> <Shift+Enter> -> `* [ ] `
  *   - `1. item`    -> <Shift+Enter> -> `2. `
+ *   - `a. item`    -> <Shift+Enter> -> `b. `
  * - Indent with <C-.> (right) / <C-,> (left) to match the nvim lists-md plugin.
  *   Note: <C-.> and <C-,> require a terminal that reports enhanced key events
  *   (Kitty keyboard protocol or modifyOtherKeys), because the raw control
@@ -43,26 +44,37 @@ interface ParsedListLine {
   marker: string;
   checkbox: string;
   content: string;
-  isNumbered: boolean;
 }
 
 function parseListLine(line: string): ParsedListLine | null {
-  // Marker, then whitespace, then an optional checkbox (`[ ]` / `[x]`).
+  // Marker (bullet, numbered, or single letter), then whitespace, then an
+  // optional checkbox (`[ ]` / `[x]`).
   const match = line.match(
-    /^(\s*)((?:[-*+])|(?:\d+\.))\s+(?:\[([ xX])\]\s*)?(.*)$/
+    /^(\s*)((?:[-*+])|(?:\d+\.)|(?:[a-zA-Z]\.))\s+(?:\[([ xX])\]\s*)?(.*)$/
   );
   if (!match) return null;
   const [, indent, marker, checkbox = "", content] = match;
-  const isNumbered = /^\d+\.$/.test(marker);
-  return { indent, marker, checkbox, content, isNumbered };
+  return { indent, marker, checkbox, content };
+}
+
+/** Advance a numbered or lettered list marker to the next item. */
+function nextMarker(marker: string): string {
+  const num = marker.match(/^(\d+)\.$/);
+  if (num) return `${parseInt(num[1]!, 10) + 1}.`;
+
+  const alpha = marker.match(/^([a-zA-Z])\.$/);
+  if (alpha) {
+    const code = alpha[1]!.charCodeAt(0);
+    // Wrap z -> a and Z -> A.
+    const next = code === 90 ? 65 : code === 122 ? 97 : code + 1;
+    return `${String.fromCharCode(next)}.`;
+  }
+
+  return marker;
 }
 
 function getContinuationPrefix(parsed: ParsedListLine): string {
-  let marker = parsed.marker;
-  if (parsed.isNumbered) {
-    const num = parseInt(marker, 10);
-    marker = `${num + 1}.`;
-  }
+  const marker = nextMarker(parsed.marker);
   const checkbox = parsed.checkbox ? `[${parsed.checkbox}] ` : "";
   return `${parsed.indent}${marker} ${checkbox}`;
 }

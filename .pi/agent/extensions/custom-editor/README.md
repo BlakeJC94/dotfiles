@@ -26,7 +26,12 @@ List continuation examples:
 - item          ->  Shift+Enter  ->  - 
 * [ ] item      ->  Shift+Enter  ->  * [ ] 
 1. item         ->  Shift+Enter  ->  2. 
+a. item         ->  Shift+Enter  ->  b. 
 ```
+
+Bullets (`-` `*` `+`), numbered (`1.`), and single-letter (`a.` / `A.`) ordered
+markers are supported; lettered markers advance to the next letter and wrap
+`z -> a`. A checkbox (`[ ]` / `[x]`) is carried over onto the new item.
 
 `Ctrl+.` and `Ctrl+,` require a terminal that reports enhanced key events (Kitty
 keyboard protocol or modifyOtherKeys), because the raw control characters for `.`
