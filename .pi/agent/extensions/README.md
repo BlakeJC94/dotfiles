@@ -21,6 +21,7 @@ Extensions are hot-reloadable in a running Pi session with `/reload`.
 | [`pi-file-snapshots`](./pi-file-snapshots/) | pi package | Git-free file checkpoints: snapshots every `write`/`edit` and lets you restore the working tree with `/snapshots`. |
 | [`planning-questionnaire`](./planning-questionnaire/) | pi package | Interactive batch clarifying questionnaire tool plus a read-only `/clarify` planning command. |
 | [`prompt-injection-guard`](./prompt-injection-guard/) | directory | Scans tool inputs and outputs for prompt-injection patterns and blocks or sanitizes them. |
+| [`skill-reload`](./skill-reload/) | directory | After a compaction, nudges the model to reload skills whose instructions were summarized away. |
 | [`web-search`](./web-search/) | directory | Web search/fetch/research tools (`web_search`, `web_fetch`, `web_research`) and a `/websearch` command. |
 
 ## Loading an extension manually
