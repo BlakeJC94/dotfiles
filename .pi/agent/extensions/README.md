@@ -12,9 +12,9 @@ Extensions are hot-reloadable in a running Pi session with `/reload`.
 | [`btw`](./btw.ts) | file | Private `/btw` asides to the model, carried forward in memory but not saved to session history. |
 | [`commands`](./commands/) | directory | `/commands` slash command that lists every registered command grouped by source. |
 | [`contextual-agents`](./contextual-agents/) | directory | Auto-injects path-scoped `AGENTS.md` / `CLAUDE.md` files into the system prompt when files are read or edited. |
+| [`custom-editor`](./custom-editor/) | directory | Custom input editor: `Shift+Enter` continues Markdown lists, `C-.` / `C-,` indent/outdent, and `Up` / `Down` cycles prompts from recent sessions. |
 | [`herdr-agent-state`](./herdr-agent-state/) | directory | Reports Pi's lifecycle state (`idle` / `working` / `blocked`) to a parent [Herdr](https://github.com/earendil-works/herdr) terminal multiplexer. |
 | [`hidden-thinking-label`](./hidden-thinking-label/) | directory | `/thinking-label` command to customize the collapsed reasoning/thinking label in the TUI. |
-| [`lists-md`](./lists-md.ts) | file | Custom input editor for Markdown lists: `Shift+Enter` continues bullets, numbers, and checkboxes; `C-.` / `C-,` indent/outdent. |
 | [`mono-skills`](./mono-skills/) | directory | Discovers `.agents/skills` directories inside a monorepo, prefixes their skill names, and caches them per scope. |
 | [`my-agent`](./my-agent/) | directory | Herdr-managed role selection and reviewer handoff (`/agent planner|coder|reviewer|monkey`). |
 | [`nextbit`](./nextbit/) | directory | Registers the [Nextbit](https://api.nextbit256.com/v1) API as a custom model provider. |
@@ -72,7 +72,7 @@ cd ../planning-questionnaire && npm install && npm test
 cd ../my-agent && npm test
 ```
 
-Standalone file extensions (`btw.ts`, `lists-md.ts`) and directory extensions without a `package.json` rely on Pi's built-in TypeScript loader and have no separate build step.
+Standalone file extensions (`btw.ts`) and directory extensions without a `package.json` rely on Pi's built-in TypeScript loader and have no separate build step.
 
 ## Adding a new extension
 
