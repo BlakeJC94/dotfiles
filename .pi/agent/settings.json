@@ -14,7 +14,8 @@
     "npm:pi-hermes-memory",
     "npm:pi-declutter",
     "npm:agents-cron",
-    "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions"
+    "git:github.com/BlakeJC94/pi-codex-connectors@fix/herdr-blocked-permissions",
+    "npm:@mjakl/pi-kagi-api"
   ],
   "compaction": {
     "enabled": true
