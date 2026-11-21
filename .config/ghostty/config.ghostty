@@ -37,6 +37,11 @@ notify-on-command-finish-action = bell
 notify-on-command-finish-after = 2s
 
 
+# Left Option acts as Meta so terminal apps get alt+ bindings (Pi word-nav and
+# shortcuts, nvim/readline). Right Option still composes accents: Right-Option
+# u then e = ë. Set to true if you want both Option keys as Meta.
+macos-option-as-alt = left
+
 keybind = clear
 
 keybind = ctrl+shift+q=close_tab
