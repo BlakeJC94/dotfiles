@@ -37,7 +37,7 @@ help = "prefix+?"
 settings = "prefix+shift+s"
 detach = "prefix+d"
 reload_config = "prefix+shift+r"
-open_notification_target = "prefix+g"
+# open_notification_target = "prefix+g"
 # workspace_picker = "prefix+x"
 # goto = "prefix+backspace"
 new_workspace = "prefix+c"
@@ -84,6 +84,18 @@ key = "prefix+backspace"
 type = "plugin_action"
 command = "chmarax.herdr-nvim.pick-file"
 description = "open file from agent output"
+
+[[keys.command]]
+key = "prefix+g"
+type = "plugin_action"
+command = "chmarax.gitview.toggle" # sidebar in the current tab
+description = "git view sidebar"
+
+# [[keys.command]]
+# key = "cmd+g"
+# type = "plugin_action"
+# command = "chmarax.gitview.toggle-tab"   # dedicated gitview tab
+# description = "git view tab"
 
 # Custom commands use the same binding syntax.
 # type = "shell" runs detached in the background.
@@ -174,8 +186,8 @@ rows = [
 [ui.sidebar.agents]
 row_gap = 0
 rows = [
-  ["state_icon", "machine", "workspace", "tab"],
-  ["agent"],
+  ["state_icon", "machine", "workspace"],
+  ["tab", "agent"],
 ]
 
 # Background notification popup delivery

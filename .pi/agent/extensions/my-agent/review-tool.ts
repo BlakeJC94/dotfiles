@@ -13,7 +13,7 @@ const execFileAsync = promisify(execFile);
 const REVIEW_PARAMS = Type.Object({
   action: Type.Union([Type.Literal("start"), Type.Literal("follow_up"), Type.Literal("resume")]),
   goal: Type.Optional(Type.String()),
-  planPath: Type.Optional(Type.String()),
+  planSection: Type.Optional(Type.String()),
   diffScope: Type.Optional(Type.String()),
   decisions: Type.Optional(Type.String()),
   constraints: Type.Optional(Type.String()),
@@ -25,7 +25,7 @@ const REVIEW_PARAMS = Type.Object({
 interface ReviewParams {
   action: "start" | "follow_up" | "resume";
   goal?: string;
-  planPath?: string;
+  planSection?: string;
   diffScope?: string;
   decisions?: string;
   constraints?: string;
@@ -42,7 +42,7 @@ export function registerReviewTool(pi: ExtensionAPI): void {
       "Start a separate read-only reviewer agent by activating /agent reviewer, continue the same reviewer for another round, or safely resume a pending review without resending its review prompt.",
     promptSnippet: "request or resume a separate reviewer role through Herdr",
     promptGuidelines: [
-      "Use my_agent_review at review boundaries with the goal, approved plan path, exact diff scope, decisions, constraints, and check results. The tool activates /agent reviewer before sending the review request.",
+      "Use my_agent_review at review boundaries with the goal, approved plan section (field-note path plus exact `##` heading), exact diff scope, decisions, constraints, and check results. The tool activates /agent reviewer before sending the review request.",
       "Use action=start for a new cycle, follow_up after fixes, and resume after an interrupted or blocked request. Never repeat a pending prompt.",
       "Stop after round 3 and report any fixes made after that review as unconfirmed.",
     ],
@@ -59,7 +59,7 @@ export function registerReviewTool(pi: ExtensionAPI): void {
         }
         const required = [
           ["goal", input.goal],
-          ["planPath", input.planPath],
+          ["planSection", input.planSection],
           ["diffScope", input.diffScope],
           ["decisions", input.decisions],
           ["constraints", input.constraints],
@@ -79,7 +79,7 @@ export function registerReviewTool(pi: ExtensionAPI): void {
           round: 1,
           status: "starting",
           goal: input.goal!,
-          planPath: input.planPath!,
+          planSection: input.planSection!,
           diffScope: input.diffScope!,
           decisions: input.decisions!,
           constraints: input.constraints!,

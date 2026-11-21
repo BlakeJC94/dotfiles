@@ -1,13 +1,14 @@
 ---
 name: my-coder
-description: Implement a PLAN.md spec written by my-planner from preflight to handoff. Resolve every fill-in and open decision in one batched stop, implement requirements in small verified increments, run the spec's checks after each increment, review through managed my-agent or standalone summon for up to three rounds, and close with per-AC evidence. Use when asked to implement, code, execute, or run a PLAN.md / spec / plan, or when the user says my-coder.
+description: Implement a plan section written by my-planner in this worktree's field note from preflight to handoff. Resolve every fill-in and open decision in one batched stop, implement requirements in small verified increments, run the spec's checks after each increment, review through managed my-agent or standalone summon for up to three rounds, and close with per-AC evidence. Use when asked to implement, code, execute, or run a plan section / spec / plan, or when the user says my-coder.
 ---
 
 # my-coder: spec-driven implementation
 
-Consume a PLAN.md produced by `../my-planner/SKILL.md`. The spec carries the
-ingredients: task (R#), constraints, context, acceptance criteria, checks. This
-skill owns the development loop; specs never repeat it.
+Consume a plan section (`## <heading>`) that `../my-planner/SKILL.md` appended
+to this worktree's field note (`git fieldnote` prints the note path). The spec
+carries the ingredients: task (R#), constraints, context, acceptance criteria,
+checks. This skill owns the development loop; specs never repeat it.
 
 Goal: higher quality output with less babysitting. Every check-in adds fatigue.
 So: batch decisions up front, verify continuously, report once. Always assume
@@ -32,10 +33,11 @@ that follows the handoff.
 
 ## 1. Preflight: the one mandatory stop
 
-* Read the PLAN fully (repo-root PLAN.md unless the user points elsewhere). No
-    PLAN: stop, suggest my-planner. Do not improvise a spec.
-* The PLAN is a local, untracked planning artifact, not an implementation
-    deliverable. Never stage or commit it, or include it in a PR.
+* Read the plan section fully: run `git fieldnote`, then read from the `##`
+    heading the planner handed off to the next `##` (or EOF). No note or no
+    matching heading: stop, suggest my-planner. Do not improvise a spec.
+* The plan lives in the field note outside the repo, not an implementation
+    deliverable. Never copy it into the repo, a commit, or a PR.
 * Worktree rule: the user creates the branch before invoking this skill. Work
     in the current branch and worktree only: never create, switch, or check out
     branches, never stash or discard uncommitted work. The reviewer works in
@@ -147,7 +149,7 @@ changes, request review
 proactively without waiting for the developer; review each completed increment
 before moving on. Managed review uses a separate Pi agent and activates its
 reviewer role with `/agent reviewer` before sending the review request. Pass
-the goal, approved plan path, exact diff scope, decisions, constraints, and
+the goal, approved plan heading and field-note path, exact diff scope, decisions, constraints, and
 check results. Start a cycle with
 `action=start`, use `action=follow_up` after fixes, and use `action=resume` after
 an interrupted request. Never resend a pending prompt or treat missing output,
@@ -250,7 +252,7 @@ Reapply after any later `taz submit` update.
 Spec privacy:
 
 * The spec is private to the author and this agent. Its vocabulary never
-    appears in outward-facing artifacts: no R#, AC#, "the spec", PLAN.md,
+    appears in outward-facing artifacts: no R#, AC#, "the spec", the plan,
     fill-ins, gates.
 * PR descriptions, commit messages, and GitHub comments translate spec
     semantics into plain language: "verified image input over both transports",
@@ -339,7 +341,7 @@ one question. Everything else waits for the handoff.
 * Guess a fill-in, a scope, or a gate.
 * Weaken an AC, a test, or a check to proceed.
 * Declare done from review rounds alone or without per-AC evidence.
-* Let spec vocabulary (R#, AC#, the spec, PLAN.md) leak into PRs, commits, or
+* Let spec vocabulary (R#, AC#, the spec, the plan) leak into PRs, commits, or
     GitHub comments. Translate it to plain language.
 * Add dependencies without approval. Push only the verified task commits to a
   known existing destination; never force-push. Create a PR only on the

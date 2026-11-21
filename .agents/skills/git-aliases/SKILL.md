@@ -37,6 +37,11 @@ Check `~/.gitconfig` when a requested Git workflow may match an alias below. The
 - `git get <ref> <path>...` - restore paths from a ref without moving `HEAD`.
 - `git up` - set the current branch's upstream through `~/.gitalias/up`.
 
+## Notes and plans
+
+- `git fieldnote` - print this worktree's field-notes note path, creating the note (with its auto `#` title) if it does not exist. Plans live there as `##` sections, outside the repo.
+- `git vim` - open this worktree's field-notes note in Neovim for editing.
+
 ## Destructive or publish operations
 
 Check the target and working-tree state before using these aliases:

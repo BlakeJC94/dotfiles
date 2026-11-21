@@ -15,7 +15,7 @@ export interface ReviewState {
   round: number;
   status: ReviewStatus;
   goal: string;
-  planPath: string;
+  planSection: string;
   diffScope: string;
   decisions: string;
   constraints: string;
@@ -45,7 +45,7 @@ export function getReviewState(branch: readonly unknown[]): ReviewState | undefi
     value.round > 3 ||
     !isReviewStatus(value.status) ||
     typeof value.goal !== "string" ||
-    typeof value.planPath !== "string" ||
+    typeof value.planSection !== "string" ||
     typeof value.diffScope !== "string" ||
     typeof value.decisions !== "string" ||
     typeof value.constraints !== "string" ||
@@ -67,13 +67,13 @@ export function buildReviewPrompt(state: ReviewState): string {
     "Review the current changes and return only actionable findings, or exactly 'No further notes.'",
     `Review cycle: ${state.id}; round ${state.round}/3; revision: ${state.revision}.`,
     `Goal: ${state.goal}`,
-    `Approved plan: ${state.planPath}`,
+    `Approved plan section: ${state.planSection}`,
     `Exact diff scope: ${state.diffScope}`,
     `Decisions: ${state.decisions}`,
     `Constraints: ${state.constraints}`,
     `Checks: ${state.checkResults}`,
     ...(followUp ? [`Round updates: ${state.updates ?? "None provided."}`] : []),
-    "Read the approved plan and the specified diff scope. Do not edit files.",
+    "Read the approved plan section and the specified diff scope. Do not edit files.",
     "Report findings with severity, file and line, impact, and the smallest fix.",
     `End your complete response with this exact line: ${state.marker}`,
   ].join("\n");

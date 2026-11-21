@@ -15,7 +15,6 @@ description: Work on note creation, opening, renaming, searching, listing, compl
 - New notes use the first rendered template `#` heading as their effective title when present, so the filename follows the heading. Otherwise a new buffer starts with `# <title>`.
 - `:Note!`, `:NoteSplit!`, and `:NoteVSplit!` insert a note link before opening. Split commands pass the selected split mode to `open_note`.
 - A range passed to `:Note` without a quoted title uses the first nonblank selected line as the title and appends the selected lines to the note. Range-created notes skip the default template, but an explicit `-t` template is applied.
-- For untitled notes in a Git repo, matching existing note stems can be added under `## Related plans`.
 - `:NoteRename` uses the first `#` heading, renames the current file to its slug, then updates relative Markdown links in Markdown files under the configured notes directory. External URLs and absolute paths are skipped.
 - `:NoteGrep`, note listing, and completion use the configured notes directory.
 

@@ -10,7 +10,7 @@ const review: ReviewState = {
   round: 2,
   status: "waiting",
   goal: "Keep role state branch-local.",
-  planPath: "PLAN.md",
+  planSection: "~/Workspace/field-notes/repos-gitreview.md ## PROJ-1234 Fix bug plot issue",
   diffScope: "my-agent/index.ts and tests",
   decisions: "No fallback model.",
   constraints: "Read-only reviewer.",

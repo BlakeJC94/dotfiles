@@ -9,7 +9,8 @@ handoffs.
 - Workflow coordinator: owns the end-to-end sequence, user questions, approval
   gates, and handoff routing.
 - Planner: researches the request, resolves requirements with the coordinator,
-  and writes the repo-verified `PLAN.md`. Does not start implementation before
+  and appends the repo-verified plan section to this worktree's field note.
+  Does not start implementation before
   explicit developer approval.
 - Coder: implements the approved plan, runs checks, owns code changes, and
   prepares the draft PR after internal review and any requested monkey pass.

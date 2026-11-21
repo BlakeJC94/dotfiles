@@ -71,10 +71,6 @@ Hardcoded detection of the dotfiles bare repo (`~/.dotfiles` with worktree=`$HOM
 - `get_note_title()` hardcodes `git_dir_path == <dotfiles_dir>` to skip the git auto-title
 - This replaces a previous generic heuristic that tried to detect any home-level bare repo dynamically
 
-### Existing Note Linking (Auto-Title)
-
-When an auto-titled note is created in a git repo, existing notes whose slugs are substrings of the new slug get linked in a "## Related plans" section. Example: creating `myapp: feature-x` would link an existing note named `feature-x`.
-
 ---
 
 ## Images & Media

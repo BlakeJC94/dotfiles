@@ -54,19 +54,6 @@ local function resolve_note_title(args, opts)
     return utils.get_note_title(args), nil, nil
 end
 
-local function related_note_links(filename)
-    local current_stem = filename:gsub("%.md$", "")
-    local links = {}
-
-    for _, stem in ipairs(M.list_notes()) do
-        if stem ~= current_stem and current_stem:find(stem, 1, true) then
-            table.insert(links, "* [" .. stem .. "](./" .. stem .. ".md)")
-        end
-    end
-
-    return links
-end
-
 --- Resolve title and optional template content before opening a note.
 -- When a template is selected, renders it, extracts the first # heading
 -- as the effective title (so the filename matches what the note displays).
@@ -101,10 +88,6 @@ end
 
 function M.open_note(bang, args, opts)
     local split_cmd = (opts and opts.split) or "edit"
-    local trimmed_args = vim.trim(args or "")
-    local is_untitled = not (opts and opts.range_title)
-        and (trimmed_args == "" or trimmed_args:match("^%-t%s+%S+$") ~= nil)
-    local is_git_repo = utils.get_git_dir() ~= ""
 
     local title, template_lines, err = resolve_title_and_template(args, opts)
     if err then
@@ -128,13 +111,6 @@ function M.open_note(bang, args, opts)
         local lines = template_lines
         if not lines then
             lines = vim.split("# " .. title .. "\n\n", "\n", { plain = true })
-        end
-        if is_untitled and is_git_repo then
-            local links = related_note_links(filename)
-            if #links > 0 then
-                table.insert(lines, "## Related plans")
-                vim.list_extend(lines, links)
-            end
         end
         vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
         vim.bo.buftype = ""

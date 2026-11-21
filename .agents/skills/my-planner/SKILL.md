@@ -1,15 +1,15 @@
 ---
 name: my-planner
-description: Write a concise, repo-verified PLAN.md feature specification before implementation. Use when the user asks to plan a Jira ticket, or to write a spec/plan/PLAN.md for a feature or fix. For Jira tickets, crawl linked tickets and PRs via the Codex Atlassian/GitHub connectors; for prose, start with a clarifying questionnaire. Ask targeted questions about definition of done and verification commands before drafting.
+description: Append a concise, repo-verified plan section to this worktree's field note before implementation, headed with the Jira ticket key plus a short description (or just the description for prose work). Use when the user asks to plan a Jira ticket, or to write a spec/plan for a feature or fix. For Jira tickets, crawl linked tickets and PRs via the Codex Atlassian/GitHub connectors; for prose, start with a clarifying questionnaire. Ask targeted questions about definition of done and verification commands before drafting.
 ---
 
 # my-planner: pre-implementation feature specifications
 
-Produce a PLAN.md the user can review, fill gaps in, and hand to a coding
-agent. The spec separates what is verified fact from what needs the user's
-decision. The development loop lives in `../my-coder/SKILL.md`; specs never
-carry it. PLAN.md is a local, untracked planning artifact, not a Git deliverable:
-never stage or commit it, or include it in a PR.
+Append a concise plan section to this worktree's field note (outside the repo,
+so plans never touch version control). One `##` section per idea; the user
+reviews it, fills gaps in, and hands it to a coding agent. The spec separates
+what is verified fact from what needs the user's decision. The development loop
+lives in `../my-coder/SKILL.md`; specs never carry it.
 
 ## Process
 
@@ -23,12 +23,21 @@ never stage or commit it, or include it in a PR.
    Ask explicitly what "done" means and which commands or manual checks prove
    it when the ticket or repo does not settle them. Prefer options grounded in
    verified repo commands. Do not ask for facts the tree already answers.
-5. Write PLAN.md from the template below, in the repo root (or where the user
-   points). If an answer is deferred, put a `* **QUESTION**` dotpoint in
-   **Ask before**, with the reason and options; leave a following
-   `* **ANSWER**` dotpoint for the developer to fill in. Do not guess.
-6. Report the unanswered questions to the user: count, where they are, one
-   line each.
+5. Get this worktree's field note with `git fieldnote` (it creates the note if
+   missing and prints its absolute path). Append the plan to the end of that
+   note as one `##` section:
+   * Jira work: `## <TICKET-KEY> <short description>`.
+   * Prose idea: `## <short description>`.
+   The description must be clear, short, and specific: 3-6 words, sentence
+   case, no trailing punctuation. Never write a plan file into the repo. Update
+   an existing section for the same work in place instead of duplicating it.
+   Use the template below with its headings demoted one level: the plan's own
+   `##` line is the section heading, and its numbered sections become `###`.
+   If an answer is deferred, put a `* **QUESTION**` dotpoint in **Ask before**,
+   with the reason and options; leave a following `* **ANSWER**` dotpoint for
+   the developer to fill in. Do not guess.
+6. Report the field-note path and the exact `##` heading, then the unanswered
+   questions: count, where they are, one line each.
 
 ## Input mode A: Jira ticket
 
@@ -112,13 +121,13 @@ Style (all learned the hard way):
 ## Template
 
 ```
-# [TICKET-KEY]: [summary]
+## [TICKET-KEY] [summary]
 
 Paths verified against the current tree. Ticket paths are pre-migration;
 [package] lives under [real path] ([abbrev] below).
 N unanswered questions for you: all in section 2 (or 0 if resolved).
 
-## 1. Task and desired outcome
+### 1. Task and desired outcome
 
 **Problem**
 
@@ -138,7 +147,7 @@ N unanswered questions for you: all in section 2 (or 0 if resolved).
 
 * [items with ticket keys]
 
-## 2. Constraints and decisions
+### 2. Constraints and decisions
 
 **Hard**
 
@@ -161,7 +170,7 @@ N unanswered questions for you: all in section 2 (or 0 if resolved).
 * **QUESTION** [Which verified command or manual check is required, if still undecided?]
 * **ANSWER**
 
-## 3. Relevant context
+### 3. Relevant context
 
 **Files (line refs current)**
 
@@ -181,7 +190,7 @@ N unanswered questions for you: all in section 2 (or 0 if resolved).
 
 * [Non-blocking unknown and where the answer lives; move developer-owned decisions to Ask before.]
 
-## 4. Acceptance criteria
+### 4. Acceptance criteria
 
 "Unit" = [main test target].
 
@@ -202,7 +211,7 @@ N unanswered questions for you: all in section 2 (or 0 if resolved).
 
 **Deliverable**: [working tree / commit / draft PR, as decided in section 2]
 
-## 5. References
+### 5. References
 
 * [KEY] - [one-line descriptor] ([status]). [URL]
 * [PR #] - [title] ([state, date]). [URL]

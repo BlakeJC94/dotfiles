@@ -9,7 +9,8 @@ Invoke this standalone skill with `/skill:my-workflow`. It coordinates the role
 agents but does not add a `/agent workflow` role. The role skills own their
 work:
 
-- `my-planner` researches the request and writes `PLAN.md`.
+- `my-planner` researches the request and appends a `##` plan section to this
+  worktree's field note.
 - `my-coder` implements the approved plan, runs checks, and uses the managed reviewer loop.
 - `my-reviewer` reviews changes read-only and reports actionable findings.
 - `my-monkey` probes likely bugs read-only; this stage is optional.
@@ -86,12 +87,13 @@ idle status alone.
 
 1. Start `my-planner` and provide the idea or ticket, user context, current
    branch/worktree, and the workflow role map.
-2. Require a repo-verified `PLAN.md` with scope, constraints, acceptance
-   criteria, exact verification commands, and open decisions. The plan is a
-   local, untracked artifact; it is never staged, committed, or included in a
-   PR.
-3. Get the planner's handoff. Present the plan path, concise summary, and
-   unresolved decisions to the developer.
+2. Require a repo-verified plan section in this worktree's field note (path from
+   `git fieldnote`), headed `## <TICKET-KEY> <short description>`, with scope,
+   constraints, acceptance criteria, exact verification commands, and open
+   decisions. The plan lives outside the repo; it is never staged, committed,
+   or included in a PR.
+3. Get the planner's handoff. Present the field-note path and plan heading, a
+   concise summary, and unresolved decisions to the developer.
 4. If the planner finds unresolved decisions, have it send concise questions
    to the workflow coordinator; the coordinator batches them for the developer
    and relays the answers. Stop until the developer explicitly approves the
@@ -101,12 +103,12 @@ idle status alone.
 ## 4. Implementation and internal review
 
 1. After plan approval, start `my-coder` in the same worktree. Provide the
-   approved plan path, approval, role map, and planner's unique Herdr agent
-   name. Activate it with `/agent coder`. Keep the planner available for the
-   coder's direct completion handoff. Instruct the coder to implement and
-   complete internal review, then stop before creating the draft PR. This
-   workflow invocation authorizes a draft PR after later gates pass; it does
-   not authorize a merge.
+   approved plan heading and field-note path, approval, role map, and the
+   planner's unique Herdr agent name. Activate it with `/agent coder`. Keep the
+   planner available for the coder's direct completion handoff. Instruct the
+   coder to implement and complete internal review, then stop before creating
+   the draft PR. This workflow invocation authorizes a draft PR after later
+   gates pass; it does not authorize a merge.
 2. Let `my-coder` follow `../my-coder/SKILL.md`: preflight, small verified
    increments, required checks, commits and pushes, managed reviewer rounds,
    and per-acceptance-criterion evidence. Do not duplicate or bypass its review

@@ -32,13 +32,7 @@ open_note(bang, args, opts)
   └─ If new note (not on disk, not in buffer):
       ├─ Use pre-rendered template lines if available
       └─ Otherwise create "# title\n\n" heading
-      └─ If untitled AND in git repo: append "## Related plans" section
-          with links to existing notes whose slug is a substring of current slug
 ```
-
-### Related Note Links (auto-linking)
-
-When an auto-titled note is created in a git repo, `related_note_links(filename)` scans all existing note stems and finds any that are substrings of the current stem. These are appended as a "## Related plans" section with markdown links. This creates an automatic web of references for context-aware scratchpad notes.
 
 ### Title Resolution Details
 

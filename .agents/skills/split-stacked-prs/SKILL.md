@@ -35,8 +35,8 @@ load the `just` and `pr-create` skills when using those workflows.
 4. Make PR0 the documentation-only staging branch, based on `master`. Put all
     in-scope repository documentation changes from the final snapshot in PR0 so
     contracts and specs are reviewed before implementation; never include the
-    private, untracked `PLAN.md`. Keep implementation PRs focused on code and
-    tests. If implementation reveals a necessary docs change, update PR0 and
+    private plan in the worktree field note. Keep implementation PRs focused on
+    code and tests. If implementation reveals a necessary docs change, update PR0 and
     propagate it through the stack for re-review. Name implementation branches
     and map each to its parent: `master -> PR0 -> PR1 -> PR2 -> ... -> PRN`.
     PR1 is based on PR0; each later PR is based on its immediate predecessor.

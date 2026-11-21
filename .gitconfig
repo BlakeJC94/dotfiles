@@ -100,6 +100,10 @@
     # usage: git exclude
     exclude = "!f() { $EDITOR ./.git/info/exclude ;  }; f"
 
+    # Print this worktree's field-notes note path, creating the note if missing.
+    # usage: git fieldnote
+    fieldnote = "!nvim --headless -c 'Note' -c 'silent write' -c 'echo expand(\"%:p\")' -c 'q' 2>&1"
+
     # ⚠ Discard all uncommitted changes, or restore just the given paths from HEAD.
     # usage: git forget [path]...
     forget = "!f() { [ \"$#\" -eq 0 ] && git reset --hard HEAD || git restore --source=HEAD --staged --worktree -- \"$@\"; }; f"
@@ -213,15 +217,12 @@
     #
     ls = "!git diff --name-only $(git merge-base origin/$(git prime) HEAD)...HEAD"
 
-    # Edit this worktree's notes
-    # usage: git plan
+    # Open this worktree's field-notes note for editing.
+    # usage: git vim
     vim = "!nvim -c 'Note'"
 
     # Print parent branch
     parent = "!~/.gitalias/parent"
-
-    # Print plan location
-    plan = "!nvim --headless -c 'Note' -c 'echo expand(\"%:p\")' -c 'echo \"\"' -c 'q' 2>&1"
 
     # Print the origin repo's primary branch name (e.g. main).
     # usage: git prime

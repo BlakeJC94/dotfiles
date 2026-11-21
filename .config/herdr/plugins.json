@@ -5,8 +5,8 @@
     "version": "0.6.0",
     "min_herdr_version": "0.7.0",
     "description": "Two-pane git view: changed files + diff, Enter opens nvim",
-    "manifest_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/54128-0/checkout/herdr-plugin.toml",
-    "plugin_root": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/54128-0/checkout",
+    "manifest_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/23100-0/checkout/herdr-plugin.toml",
+    "plugin_root": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/23100-0/checkout",
     "enabled": true,
     "platforms": [
       "macos",
@@ -95,8 +95,8 @@
       "owner": "ChmaraX",
       "repo": "herdr-gitview",
       "resolved_commit": "f69e71bbbb53237c27d8282c1d4a95d11380daf1",
-      "managed_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/54128-0/checkout",
-      "installed_unix_ms": 1794997187571
+      "managed_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/23100-0/checkout",
+      "installed_unix_ms": 1795163835746
     }
   },
   {
@@ -105,8 +105,8 @@
     "version": "1.3.1",
     "min_herdr_version": "0.7.5",
     "description": "Full-height nvim sidebar with agent annotations: toggle with one key, comment code, send to any agent.",
-    "manifest_path": "/Users/bcook/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23/herdr-plugin.toml",
-    "plugin_root": "/Users/bcook/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23",
+    "manifest_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.herdr-nvim-178624809c23/22853-0/checkout/herdr-plugin.toml",
+    "plugin_root": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.herdr-nvim-178624809c23/22853-0/checkout",
     "enabled": true,
     "platforms": [
       "macos",
@@ -234,8 +234,8 @@
       "owner": "ChmaraX",
       "repo": "herdr-nvim",
       "resolved_commit": "2905408e1985db1a319b466ba9873f40e29f5e7a",
-      "managed_path": "/Users/bcook/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23",
-      "installed_unix_ms": 1795058648857
+      "managed_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.herdr-nvim-178624809c23/22853-0/checkout",
+      "installed_unix_ms": 1795163785576
     }
   }
 ]
