@@ -12,8 +12,13 @@ llm-up:
     llm install git+https://gitlab.com/blakejc/llm-tools-datetime.git
     llm install git+https://gitlab.com/blakejc/llm-tools-codex-connector.git
 
-add:
-    git dotfiles add .gitalias .agents .config/nvim
+# Directories where I commonly add new files; `just add-dirs` stages them.
+add_dirs := ".gitalias .agents .config/nvim .pi/agent/extensions"
+
+add-dirs:
+    git dotfiles add {{ add_dirs }}
+
+add: add-dirs
 
 brew-up:
     ./.install.sh --brew-packages
