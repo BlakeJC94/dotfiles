@@ -157,7 +157,7 @@ function renderContext(ctx: ExtensionContext): string {
 		"# Conversation context",
 		"",
 		"_Read-only snapshot since the last compaction. Your prompt is the window below._",
-		"_Submit with `:wqa`, return to Pi's editor with `:PiEdit`, cancel with `:cq`._",
+		"_Submit with `:wq`, return to Pi's editor with `:PiEdit`, cancel with `:cq`._",
 		"",
 	];
 

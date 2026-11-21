@@ -10,13 +10,15 @@
 --   PI_NVIM_OUTCOME : file where the chosen outcome is recorded
 --
 -- Outcomes:
---   :wqa / ZZ        -> exit 0, no outcome file -> extension submits
+--   :wq / :wqa / ZZ  -> exit 0, no outcome file -> extension submits
 --   :PiSubmit        -> outcome "submit"
 --   :PiEdit          -> outcome "edit"    (return to Pi's editor)
 --   :PiCancel / :cq  -> outcome "cancel" / non-zero exit
 --
 -- The prompt buffer is persisted on exit unless an outcome was already
--- recorded, so the plain `:wqa` path works without a mapping.
+-- recorded, so the plain `:wq` path works without a mapping. Closing the
+-- prompt window itself quits nvim, so `:wq` does not leave the context split
+-- open behind it.
 
 local prompt_win = vim.api.nvim_get_current_win()
 local prompt_buf = vim.api.nvim_get_current_buf()
@@ -71,6 +73,15 @@ for _, win in ipairs(vim.api.nvim_list_wins()) do
   vim.wo[win].foldmethod = "manual"
   vim.wo[win].foldenable = false
 end
+
+-- `:wq` / `:q` only close one window, which would leave the context split
+-- behind. Quitting the prompt window quits the whole transient editor.
+vim.api.nvim_create_autocmd("WinClosed", {
+  pattern = tostring(prompt_win),
+  callback = function()
+    vim.cmd("qa!")
+  end,
+})
 
 -- Start at the end of the prompt, ready to type.
 vim.cmd("normal! G$")

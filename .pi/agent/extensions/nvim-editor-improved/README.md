@@ -31,8 +31,8 @@ The window layout is:
 
 | Action | Result |
 |--------|--------|
-| `:wqa` (or `ZZ`) | Submit the edited text as the next prompt. |
-| `:PiSubmit` | Same as `:wqa`. |
+| `:wq` (or `:wqa`, `ZZ`) | Submit the edited text as the next prompt. |
+| `:PiSubmit` | Same as `:wq`. |
 | `:PiEdit` | Return the edited text to Pi's editor without submitting. |
 | `:cq` (or `:PiCancel`) | Cancel; Pi's editor keeps its previous contents. |
 
