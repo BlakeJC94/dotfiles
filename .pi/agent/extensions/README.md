@@ -13,15 +13,16 @@ Extensions are hot-reloadable in a running Pi session with `/reload`.
 | [`commands`](./commands/) | directory | `/commands` slash command that lists every registered command grouped by source. |
 | [`contextual-agents`](./contextual-agents/) | directory | Auto-injects path-scoped `AGENTS.md` / `CLAUDE.md` files into the system prompt when files are read or edited. |
 | [`copy-code-block`](./copy-code-block.ts) | file | `Ctrl+S` copies the last fenced code block in the last agent message to the clipboard. |
+| [`custom-editor`](./custom-editor/) | directory | Custom input editor: `Shift+Enter` continues Markdown lists, `Ctrl+.` / `Ctrl+,` indent/outdent, and `Up` / `Down` cycles prompts from recent sessions. |
 | [`herdr-agent-state`](./herdr-agent-state/) | directory | Reports Pi's lifecycle state (`idle` / `working` / `blocked`) to a parent [Herdr](https://github.com/earendil-works/herdr) terminal multiplexer. |
 | [`hidden-thinking-label`](./hidden-thinking-label/) | directory | `/thinking-label` command to customize the collapsed reasoning/thinking label in the TUI. |
-| [`lists-md`](./lists-md.ts) | file | Custom input editor for Markdown lists: `Shift+Enter` continues bullets, numbers, and checkboxes; `C-.` / `C-,` indent/outdent. |
 | [`mono-skills`](./mono-skills/) | directory | Discovers `.agents/skills` directories inside a monorepo, prefixes their skill names, and caches them per scope. |
 | [`my-agent`](./my-agent/) | directory | Herdr-managed role selection and reviewer handoff (`/agent planner|coder|reviewer|monkey`). |
 | [`nextbit`](./nextbit/) | directory | Registers the [Nextbit](https://api.nextbit256.com/v1) API as a custom model provider. |
 | [`pi-file-snapshots`](./pi-file-snapshots/) | pi package | Git-free file checkpoints: snapshots every `write`/`edit` and lets you restore the working tree with `/snapshots`. |
 | [`planning-questionnaire`](./planning-questionnaire/) | pi package | Interactive batch clarifying questionnaire tool plus a read-only `/clarify` planning command. |
 | [`prompt-injection-guard`](./prompt-injection-guard/) | directory | Scans tool inputs and outputs for prompt-injection patterns and blocks or sanitizes them. |
+| [`skill-reload`](./skill-reload/) | directory | After a compaction, nudges the model to reload skills whose instructions were summarized away. |
 | [`web-search`](./web-search/) | directory | Web search/fetch/research tools (`web_search`, `web_fetch`, `web_research`) and a `/websearch` command. |
 
 ## Loading an extension manually
@@ -53,6 +54,10 @@ pi --extension ./btw.ts
 | Key | Extension | Description |
 |-----|-----------|-------------|
 | `Ctrl+S` | copy-code-block | Copy the last fenced code block in the last agent message (contents only, no fences). |
+| `Shift+Enter` | custom-editor | Continue the current Markdown list item (bullet, numbered, or checkbox); on an empty item, end the list. |
+| `Ctrl+.` / `Ctrl+,` | custom-editor | Indent / outdent the current list line by 4 spaces (requires enhanced key events). |
+| `Up` / `Down` | custom-editor | With an empty input (or the cursor at the start), cycle prompts from recent sessions. |
+| `Ctrl+Shift+End` | custom-editor | Move the cursor to the end of the current input. |
 
 ## Tools added
 
@@ -79,7 +84,7 @@ cd ../planning-questionnaire && npm install && npm test
 cd ../my-agent && npm test
 ```
 
-Standalone file extensions (`btw.ts`, `lists-md.ts`) and directory extensions without a `package.json` rely on Pi's built-in TypeScript loader and have no separate build step.
+Standalone file extensions (`btw.ts`) and directory extensions without a `package.json` rely on Pi's built-in TypeScript loader and have no separate build step.
 
 ## Adding a new extension
 
