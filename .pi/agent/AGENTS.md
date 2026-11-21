@@ -1,1 +1,1 @@
-/Users/bcook/.AGENTS.md
+../../.AGENTS.md
