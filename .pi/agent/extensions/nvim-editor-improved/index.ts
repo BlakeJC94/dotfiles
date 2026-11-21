@@ -1,8 +1,8 @@
 /**
  * nvim-editor-improved
  *
- * Opens the current Pi prompt in real nvim, with a read-only, condensed
- * snapshot of the conversation (everything since the last compaction) in a
+ * Opens the current Pi prompt in real nvim, with a read-only snapshot of the
+ * conversation (user and assistant messages since the last compaction) in a
  * split above the editable prompt buffer. Pi is suspended while nvim owns the
  * terminal, so the user's own init.lua, plugins, and keymaps all apply.
  *
@@ -27,22 +27,13 @@ const LUA_SHIM = fileURLToPath(new URL("./pi-context.lua", import.meta.url));
 
 /** Total line budget for the rendered context snapshot. */
 const MAX_CONTEXT_LINES = 4000;
-/** Lines kept from each tool result before truncating. */
-const MAX_TOOL_RESULT_LINES = 12;
-/** Characters kept from a tool call's serialized arguments. */
-const MAX_TOOL_ARG_CHARS = 160;
 
 type Outcome = "submit" | "edit" | "cancel";
 
-/** Loosely-typed view over the session message union for rendering. */
+/** Loosely-typed view over a session message for rendering. */
 interface AnyMessage {
 	role?: string;
 	content?: unknown;
-	toolName?: string;
-	isError?: boolean;
-	command?: string;
-	output?: string;
-	customType?: string;
 }
 
 export default function (pi: ExtensionAPI) {
@@ -153,7 +144,7 @@ function openInNvim(ctx: ExtensionContext, prompt: string): { outcome: Outcome; 
 
 // --- Context rendering -----------------------------------------------------
 
-/** Render the compaction-aware conversation window the model sees. */
+/** Render the user/assistant conversation since the last compaction. */
 function renderContext(ctx: ExtensionContext): string {
 	const blocks: string[][] = [];
 	for (const entry of ctx.sessionManager.buildContextEntries()) {
@@ -185,65 +176,27 @@ function renderContext(ctx: ExtensionContext): string {
 }
 
 function renderEntry(entry: SessionEntry): string[] {
-	switch (entry.type) {
-		case "compaction":
-			return ["## ⏮ compaction summary", "", entry.summary.trim(), ""];
-		case "branch_summary":
-			return ["## ⏮ branch summary", "", entry.summary.trim(), ""];
-		case "custom_message": {
-			const text = contentToText(entry.content).trim();
-			return text ? [`## ${entry.customType}`, "", text, ""] : [];
-		}
-		case "message":
-			return renderMessage(entry.message as unknown as AnyMessage);
-		default:
-			return [];
-	}
+	if (entry.type !== "message") return [];
+	return renderMessage(entry.message as unknown as AnyMessage);
 }
 
+/** Only user and assistant text; tool calls, tool results, and thinking are omitted. */
 function renderMessage(message: AnyMessage): string[] {
-	switch (message.role) {
-		case "user": {
-			const text = contentToText(message.content).trim();
-			return text ? ["## 🧑 user", "", text, ""] : [];
-		}
-		case "assistant": {
-			const lines = ["## 🤖 assistant", ""];
-			const blocks = Array.isArray(message.content) ? message.content : [];
-			for (const block of blocks) {
-				if (!block || typeof block !== "object") continue;
-				const b = block as { type?: string; text?: string; name?: string; arguments?: unknown };
-				if (b.type === "text" && typeof b.text === "string") {
-					lines.push(b.text.trimEnd());
-				} else if (b.type === "toolCall" && typeof b.name === "string") {
-					lines.push(`- 🔧 ${b.name}(${formatArgs(b.arguments)})`);
-				}
-			}
-			lines.push("");
-			return lines;
-		}
-		case "toolResult": {
-			const body = contentToText(message.content).trimEnd();
-			const label = `- ↩ ${message.toolName ?? "tool"}${message.isError ? " (error)" : ""}:`;
-			return [label, "```", truncateLines(body, MAX_TOOL_RESULT_LINES), "```", ""];
-		}
-		case "bashExecution": {
-			if (typeof message.output !== "string") return [];
-			return [
-				`- $ ${message.command ?? ""}`,
-				"```",
-				truncateLines(message.output.trimEnd(), MAX_TOOL_RESULT_LINES),
-				"```",
-				"",
-			];
-		}
-		case "custom": {
-			const text = contentToText(message.content).trim();
-			return text ? [`## ${message.customType ?? "note"}`, "", text, ""] : [];
-		}
-		default:
-			return [];
+	if (message.role === "user") {
+		const text = contentToText(message.content).trim();
+		return text ? ["## 🧑 user", "", text, ""] : [];
 	}
+	if (message.role === "assistant") {
+		const texts: string[] = [];
+		const blocks = Array.isArray(message.content) ? message.content : [];
+		for (const block of blocks) {
+			if (!block || typeof block !== "object") continue;
+			const b = block as { type?: string; text?: string };
+			if (b.type === "text" && typeof b.text === "string" && b.text.trim()) texts.push(b.text.trimEnd());
+		}
+		return texts.length > 0 ? ["## 🤖 assistant", "", ...texts, ""] : [];
+	}
+	return [];
 }
 
 function contentToText(content: unknown): string {
@@ -257,23 +210,4 @@ function contentToText(content: unknown): string {
 		else if (b.type === "image") parts.push("[image]");
 	}
 	return parts.join("\n");
-}
-
-function formatArgs(args: unknown): string {
-	if (args === undefined || args === null) return "";
-	let text: string;
-	try {
-		text = typeof args === "string" ? args : JSON.stringify(args);
-	} catch {
-		text = String(args);
-	}
-	if (text.length > MAX_TOOL_ARG_CHARS) text = `${text.slice(0, MAX_TOOL_ARG_CHARS)}…`;
-	return text;
-}
-
-function truncateLines(text: string, maxLines: number): string {
-	const lines = text.split("\n");
-	if (lines.length <= maxLines) return text;
-	const omitted = lines.length - maxLines;
-	return [...lines.slice(0, maxLines), `… (+${omitted} more line${omitted === 1 ? "" : "s"})`].join("\n");
 }

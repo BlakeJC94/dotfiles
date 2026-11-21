@@ -65,6 +65,13 @@ if context_path and context_path ~= "" and vim.fn.filereadable(context_path) == 
   vim.api.nvim_set_current_win(prompt_win)
 end
 
+-- This is a transient scratch editor, not a document: never fold, even though
+-- the user's markdown config folds real .md files. Overrides both buffers.
+for _, win in ipairs(vim.api.nvim_list_wins()) do
+  vim.wo[win].foldmethod = "manual"
+  vim.wo[win].foldenable = false
+end
+
 -- Start at the end of the prompt, ready to type.
 vim.cmd("normal! G$")
 
