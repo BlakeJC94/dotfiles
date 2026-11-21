@@ -2,9 +2,10 @@
  * nvim-editor-improved
  *
  * Opens the current Pi prompt in real nvim, with a read-only snapshot of the
- * conversation (user and assistant messages since the last compaction) in a
- * split above the editable prompt buffer. Pi is suspended while nvim owns the
- * terminal, so the user's own init.lua, plugins, and keymaps all apply.
+ * conversation (compaction summaries plus user and assistant messages since the
+ * last compaction) in a split above the editable prompt buffer. Pi is suspended
+ * while nvim owns the terminal, so the user's own init.lua, plugins, and keymaps
+ * all apply.
  *
  * Outcomes:
  * - `:wqa` (or `:PiSubmit`) -> submit the edited text as the next prompt
@@ -176,6 +177,14 @@ function renderContext(ctx: ExtensionContext): string {
 }
 
 function renderEntry(entry: SessionEntry): string[] {
+	if (entry.type === "compaction") {
+		const summary = entry.summary.trim();
+		return summary ? ["## ⏮ compaction summary", "", summary, ""] : [];
+	}
+	if (entry.type === "branch_summary") {
+		const summary = entry.summary.trim();
+		return summary ? ["## ⏮ branch summary", "", summary, ""] : [];
+	}
 	if (entry.type !== "message") return [];
 	return renderMessage(entry.message as unknown as AnyMessage);
 }

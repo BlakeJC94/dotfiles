@@ -44,10 +44,11 @@ normal input.
 
 ## What the context window contains
 
-User and assistant messages since the last compaction (`buildContextEntries()`),
-rendered as Markdown. Tool calls, tool results, bash executions, and thinking
-blocks are omitted to keep it readable. The snapshot is capped at 4000 lines; if
-it overflows, the oldest messages are dropped and a note is left behind.
+Compaction and branch summaries, plus user and assistant messages since the
+last compaction (`buildContextEntries()`), rendered as Markdown. Tool calls,
+tool results, bash executions, and thinking blocks are omitted to keep it
+readable. The snapshot is capped at 4000 lines; if it overflows, the oldest
+messages are dropped and a note is left behind.
 
 The context window never folds, even if your nvim config folds Markdown by
 default. This is a transient scratch editor, not a document.
