@@ -19,6 +19,7 @@ Extensions are hot-reloadable in a running Pi session with `/reload`.
 | [`mono-skills`](./mono-skills/) | directory | Discovers `.agents/skills` directories inside a monorepo, prefixes their skill names, and caches them per scope. |
 | [`my-agent`](./my-agent/) | directory | Herdr-managed role selection and reviewer handoff (`/agent planner|coder|reviewer|monkey`). |
 | [`nextbit`](./nextbit/) | directory | Registers the [Nextbit](https://api.nextbit256.com/v1) API as a custom model provider. |
+| [`nvim-editor-improved`](./nvim-editor-improved/) | directory | Context-aware nvim prompt editor: read-only conversation snapshot above the editable prompt, submit with `:wqa`. |
 | [`pi-file-snapshots`](./pi-file-snapshots/) | pi package | Git-free file checkpoints: snapshots every `write`/`edit` and lets you restore the working tree with `/snapshots`. |
 | [`planning-questionnaire`](./planning-questionnaire/) | pi package | Interactive batch clarifying questionnaire tool plus a read-only `/clarify` planning command. |
 | [`prompt-injection-guard`](./prompt-injection-guard/) | directory | Scans tool inputs and outputs for prompt-injection patterns and blocks or sanitizes them. |
@@ -47,6 +48,7 @@ pi --extension ./btw.ts
 | `/injection-guard ...` | prompt-injection-guard | Show settings, set mode, or test a string. |
 | `/snapshots` | pi-file-snapshots | List file checkpoints and restore the working tree to one. |
 | `/thinking-label [text]` | hidden-thinking-label | Set or reset the collapsed thinking label. |
+| `/vim` | nvim-editor-improved | Edit the prompt in nvim with a read-only conversation snapshot above it. |
 | `/websearch <query>` | web-search | Quick DuckDuckGo search. |
 
 ## Keybindings added
@@ -58,6 +60,7 @@ pi --extension ./btw.ts
 | `Ctrl+.` / `Ctrl+,` | custom-editor | Indent / outdent the current list line by 4 spaces (requires enhanced key events). |
 | `Up` / `Down` | custom-editor | With an empty input (or the cursor at the start), cycle prompts from recent sessions. |
 | `Ctrl+Shift+End` | custom-editor | Move the cursor to the end of the current input. |
+| `Alt+G` | nvim-editor-improved | Edit the prompt in nvim with a read-only conversation snapshot above it. |
 
 ## Tools added
 
