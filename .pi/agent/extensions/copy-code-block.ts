@@ -3,9 +3,11 @@ import { copyToClipboard, type ExtensionAPI } from "@earendil-works/pi-coding-ag
 /**
  * copy-code-block Pi extension
  *
- * Press <C-s> to copy the last fenced code block in the most recent agent
- * message to the system clipboard. <C-x> copies the whole last message; <C-s>
- * sits just above it and copies only the code, without the ``` fences.
+ * Press <M-x> (alt+x) to copy the last fenced code block in the most recent
+ * agent message to the system clipboard. The built-in <C-x> copies the whole
+ * last message; <M-x> is its alt-layer neighbour and copies only the code,
+ * without the ``` fences. alt+x avoids the ctrl layer, where every usable key
+ * is already claimed by a built-in or a terminal control sequence.
  *
  * Behavior:
  * - Looks only at the last assistant message on the active branch.
@@ -95,7 +97,7 @@ function getLastAssistantText(
 }
 
 export default function (pi: ExtensionAPI) {
-  pi.registerShortcut("ctrl+s", {
+  pi.registerShortcut("alt+x", {
     description: "Copy the last code block in the last agent message",
     handler: async (ctx) => {
       const text = getLastAssistantText(ctx.sessionManager);
