@@ -4,6 +4,12 @@ return {
     cmd = "FzfLua",
     opts = {
         fzf_bin = "sk",
+        -- Pass an explicit `--color=none` on the command line so it wins over
+        -- any (possibly malformed) `$SKIM_DEFAULT_OPTIONS`. CLI args take
+        -- precedence over skim's env defaults.
+        fzf_opts = {
+            ["--color"] = "none",
+        },
         hls = {
             normal = "Normal",
 
