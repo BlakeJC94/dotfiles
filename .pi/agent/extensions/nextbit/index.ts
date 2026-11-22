@@ -2,10 +2,11 @@
  * Nextbit provider extension.
  *
  * Registers the "nextbit" provider (https://api.nextbit256.com/v1, OpenAI
- * Chat Completions compatible). The model list is fetched from /v1/models at
- * startup, so context windows, pricing, and new models stay current without
- * editing this file. If the API is unreachable, a bundled snapshot of the
- * model list (captured 2025-09-12) is used instead.
+ * Chat Completions compatible). The bundled model snapshot is registered
+ * immediately so startup and /reload never block on the network, then
+ * /v1/models is fetched in the background to keep context windows, pricing,
+ * and new models current without editing this file. If the API is
+ * unreachable, the snapshot stays in place.
  *
  * Auth: `/login nextbit` — key stored in ~/.pi/agent/auth.json.
  */
@@ -77,26 +78,26 @@ interface ProviderModelConfig {
     compat: { supportsDeveloperRole: false };
 }
 
-/** Snapshot of the model list, used when /v1/models cannot be fetched. */
+/** Snapshot of the model list, registered immediately and used if /v1/models cannot be fetched. */
 const FALLBACK_MODELS: ProviderModelConfig[] = [
     {
         "id": "alia-salamandra:40b",
         "name": "ALIA Salamandra 40B",
         "reasoning": false,
         "input": ["text"],
-        "contextWindow": 32768,
-        "maxTokens": 32768,
+        "contextWindow": 65536,
+        "maxTokens": 16384,
         "cost": { "input": 0.3, "output": 0.6, "cacheRead": 0, "cacheWrite": 0 },
         "compat": { "supportsDeveloperRole": false }
     },
     {
-        "id": "deepseek:v4-flash",
-        "name": "DeepSeek V4 Flash",
-        "reasoning": true,
+        "id": "deepseek:v4.1-flash",
+        "name": "deepseek:v4.1-flash",
+        "reasoning": false,
         "input": ["text"],
         "contextWindow": 1048576,
         "maxTokens": 131072,
-        "cost": { "input": 0.15, "output": 0.35, "cacheRead": 0.035, "cacheWrite": 0 },
+        "cost": { "input": 0.21, "output": 0.84, "cacheRead": 0.004, "cacheWrite": 0 },
         "compat": { "supportsDeveloperRole": false }
     },
     {
@@ -116,7 +117,7 @@ const FALLBACK_MODELS: ProviderModelConfig[] = [
         "input": ["text"],
         "contextWindow": 1048576,
         "maxTokens": 131072,
-        "cost": { "input": 2, "output": 4, "cacheRead": 0.17, "cacheWrite": 0 },
+        "cost": { "input": 1.74, "output": 3.48, "cacheRead": 0.145, "cacheWrite": 0 },
         "compat": { "supportsDeveloperRole": false }
     },
     {
@@ -126,17 +127,7 @@ const FALLBACK_MODELS: ProviderModelConfig[] = [
         "input": ["text"],
         "contextWindow": 1048576,
         "maxTokens": 131072,
-        "cost": { "input": 1.122, "output": 3.366, "cacheRead": 0.037, "cacheWrite": 0 },
-        "compat": { "supportsDeveloperRole": false }
-    },
-    {
-        "id": "euryale:33-70b",
-        "name": "Euryale 3.3 70B",
-        "reasoning": false,
-        "input": ["text"],
-        "contextWindow": 131072,
-        "maxTokens": 16384,
-        "cost": { "input": 0.65, "output": 0.75, "cacheRead": 0, "cacheWrite": 0 },
+        "cost": { "input": 1.056, "output": 3.168, "cacheRead": 0.035, "cacheWrite": 0 },
         "compat": { "supportsDeveloperRole": false }
     },
     {
@@ -150,6 +141,26 @@ const FALLBACK_MODELS: ProviderModelConfig[] = [
         "compat": { "supportsDeveloperRole": false }
     },
     {
+        "id": "gemma3:12b-it",
+        "name": "gemma3:12b-it",
+        "reasoning": false,
+        "input": ["text"],
+        "contextWindow": 131072,
+        "maxTokens": 16384,
+        "cost": { "input": 0.35, "output": 0.45, "cacheRead": 0.05, "cacheWrite": 0 },
+        "compat": { "supportsDeveloperRole": false }
+    },
+    {
+        "id": "gemma3:27b",
+        "name": "gemma3:27b",
+        "reasoning": false,
+        "input": ["text"],
+        "contextWindow": 131072,
+        "maxTokens": 16384,
+        "cost": { "input": 0.08, "output": 0.35, "cacheRead": 0.04, "cacheWrite": 0 },
+        "compat": { "supportsDeveloperRole": false }
+    },
+    {
         "id": "gemma4:26b-a4b",
         "name": "Gemma 4 26B A4B",
         "reasoning": false,
@@ -160,23 +171,13 @@ const FALLBACK_MODELS: ProviderModelConfig[] = [
         "compat": { "supportsDeveloperRole": false }
     },
     {
-        "id": "glm:5.3-flash",
-        "name": "GLM 5.3 Flash",
-        "reasoning": true,
-        "input": ["text"],
-        "contextWindow": 1048576,
-        "maxTokens": 128000,
-        "cost": { "input": 0.15, "output": 0.5, "cacheRead": 0.03, "cacheWrite": 0 },
-        "compat": { "supportsDeveloperRole": false }
-    },
-    {
-        "id": "mythomax:13b",
-        "name": "MythoMax 13B",
+        "id": "gemma4:31b",
+        "name": "gemma4:31b",
         "reasoning": false,
         "input": ["text"],
-        "contextWindow": 4096,
-        "maxTokens": 4096,
-        "cost": { "input": 0.06, "output": 0.06, "cacheRead": 0, "cacheWrite": 0 },
+        "contextWindow": 262144,
+        "maxTokens": 131072,
+        "cost": { "input": 0.125, "output": 0.34, "cacheRead": 0.075, "cacheWrite": 0 },
         "compat": { "supportsDeveloperRole": false }
     },
     {
@@ -189,26 +190,6 @@ const FALLBACK_MODELS: ProviderModelConfig[] = [
         "cost": { "input": 0.1, "output": 0.22, "cacheRead": 0, "cacheWrite": 0 },
         "compat": { "supportsDeveloperRole": false }
     },
-    {
-        "id": "remm-slerp:l2-13b",
-        "name": "Remm Slerp L2 13B",
-        "reasoning": false,
-        "input": ["text"],
-        "contextWindow": 6144,
-        "maxTokens": 4096,
-        "cost": { "input": 0.45, "output": 0.65, "cacheRead": 0, "cacheWrite": 0 },
-        "compat": { "supportsDeveloperRole": false }
-    },
-    {
-        "id": "unslopnemo:12b",
-        "name": "UnslopNemo 12B",
-        "reasoning": false,
-        "input": ["text"],
-        "contextWindow": 32768,
-        "maxTokens": 32768,
-        "cost": { "input": 0.4, "output": 0.4, "cacheRead": 0, "cacheWrite": 0 },
-        "compat": { "supportsDeveloperRole": false }
-    }
 ];
 
 /** Convert a per-token price string to dollars per million tokens. */
@@ -250,22 +231,27 @@ async function fetchModels(): Promise<ProviderModelConfig[]> {
     return (payload.data ?? []).map(toModelConfig);
 }
 
-export default async function (pi: ExtensionAPI): Promise<void> {
-    let models: ProviderModelConfig[];
-    try {
-        models = await fetchModels();
-        if (models.length === 0) {
-            throw new Error("empty model list");
-        }
-    } catch {
-        // API unreachable (offline, down, or rate-limited): use the snapshot.
-        models = FALLBACK_MODELS;
-    }
-
+export default function (pi: ExtensionAPI): void {
+    // Register the bundled snapshot synchronously so startup and /reload never wait on the network.
     pi.registerProvider("nextbit", {
         name: "Nextbit",
         baseUrl: BASE_URL,
         api: "openai-completions",
-        models
+        models: FALLBACK_MODELS
     });
+
+    // Refresh the catalog in the background; registerProvider after load takes effect immediately.
+    void fetchModels()
+        .then((models) => {
+            if (models.length === 0) return;
+            pi.registerProvider("nextbit", {
+                name: "Nextbit",
+                baseUrl: BASE_URL,
+                api: "openai-completions",
+                models
+            });
+        })
+        .catch(() => {
+            // API unreachable, or reloaded before the fetch resolved: keep the snapshot.
+        });
 }
