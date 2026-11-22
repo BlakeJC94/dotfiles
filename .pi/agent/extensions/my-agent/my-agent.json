@@ -1,22 +1,22 @@
 {
     "my-planner": {
-        "provider": "openai",
-        "model": "gpt-6.1-sol",
+        "provider": "nextbit",
+        "model": "deepseek:v4-pro",
         "thinkingLevel": "high"
     },
     "my-coder": {
-        "provider": "openai",
-        "model": "gpt-6-luna",
+        "provider": "nextbit",
+        "model": "deepseek:v4.1-flash",
         "thinkingLevel": "high"
     },
     "my-reviewer": {
-        "provider": "openai",
-        "model": "gpt-6.1-sol",
+        "provider": "nextbit",
+        "model": "deepseek:v4-pro",
         "thinkingLevel": "high"
     },
     "my-monkey": {
-        "provider": "openai",
-        "model": "gpt-6.1-sol",
+        "provider": "nextbit",
+        "model": "deepseek:v4-pro",
         "thinkingLevel": "high"
     }
 }

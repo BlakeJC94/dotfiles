@@ -1,1 +1,22 @@
-../agent/extensions/my-agent/my-agent.json
+{
+    "my-planner": {
+        "provider": "openai",
+        "model": "gpt-6.1-sol",
+        "thinkingLevel": "high"
+    },
+    "my-coder": {
+        "provider": "openai",
+        "model": "gpt-6-luna",
+        "thinkingLevel": "high"
+    },
+    "my-reviewer": {
+        "provider": "openai",
+        "model": "gpt-6.1-sol",
+        "thinkingLevel": "high"
+    },
+    "my-monkey": {
+        "provider": "openai",
+        "model": "gpt-6.1-sol",
+        "thinkingLevel": "high"
+    }
+}
