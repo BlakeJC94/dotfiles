@@ -1,0 +1,14 @@
+# Herdr runtime state, not configuration.
+herdr-client.log
+herdr-server.log
+herdr.sock
+herdr-client.sock
+herdr.sock.agent
+.plugins.lock
+session.json
+session-snapshots/
+release-notes.json
+
+# Plugin runtime state and installed checkouts.
+plugins/.locks/
+plugins/github-installations/
