@@ -186,8 +186,8 @@ rows = [
 [ui.sidebar.agents]
 row_gap = 0
 rows = [
-  ["state_icon", "machine", "workspace"],
-  ["tab", "agent"],
+  ["state_icon", "machine"],
+  ["workspace", "tab"],
 ]
 
 # Background notification popup delivery
