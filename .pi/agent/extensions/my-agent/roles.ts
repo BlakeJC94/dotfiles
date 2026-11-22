@@ -33,6 +33,11 @@ export type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string
 
 const THINKING_LEVELS = new Set<ThinkingLevel>(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
 
+// Set on a pane by the review tool when it spawns a worker. my-agent reads it to
+// keep that worker from reporting a finished Herdr state, so Herdr does not
+// notify the developer when a spawned reviewer becomes ready for input.
+export const SPAWNED_WORKER_ENV = "MY_AGENT_WORKER_ROLE";
+
 export function parseRoleSettings(json: string, roleName: RoleName): ParseResult<RoleSettings> {
   let config: unknown;
   try {

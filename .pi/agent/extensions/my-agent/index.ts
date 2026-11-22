@@ -9,6 +9,7 @@ import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import { registerCommunicationTool } from "./communication-tool.ts";
 import { registerReviewTool } from "./review-tool.ts";
 import {
+  SPAWNED_WORKER_ENV,
   getRoleState,
   parseRoleCommandArg,
   parseRoleSettings,
@@ -26,6 +27,10 @@ const execFileAsync = promisify(execFile);
 const COMMUNICATION_TOOL = "my_agent_communicate";
 const REVIEW_TOOL = "my_agent_review";
 const ROLE_ENTRY = "my-agent-role";
+// The managed Herdr integration reports state as this source. A spawned worker
+// reuses it with a saturated seq so its later idle reports are ignored, which
+// keeps the worker "working" and suppresses Herdr's finish notification.
+const WORKER_STATE_SOURCE = "herdr:pi";
 let inactiveLogged = false;
 
 interface ActiveRole {
@@ -43,8 +48,18 @@ export default function myAgentExtension(pi: ExtensionAPI): void {
 
   let herdrReady = false;
   let activeRole: ActiveRole | undefined;
+  const spawnedWorker = isSpawnedWorker();
   registerCommunicationTool(pi);
   registerReviewTool(pi);
+
+  if (spawnedWorker) {
+    pi.on("agent_start", () => {
+      void suppressSpawnedWorkerFinish();
+    });
+    pi.on("agent_settled", () => {
+      void suppressSpawnedWorkerFinish();
+    });
+  }
 
   const roleCommand = {
     description: "Activate a configured skill role: /agent <planner|coder|reviewer|monkey>",
@@ -69,6 +84,7 @@ export default function myAgentExtension(pi: ExtensionAPI): void {
       persistRole(pi, activeRole.state);
       syncRoleTools(pi, activeRole.skill.name);
       updateStatus(ctx, activeRole);
+      if (spawnedWorker) await suppressSpawnedWorkerFinish();
       ctx.ui.notify(`Activated ${name} on ${modelLabel(activeRole)}.`, "info");
     },
   };
@@ -260,6 +276,40 @@ function activeDescription(role: ActiveRole | undefined): string {
 
 function hasManagedEnvironment(): boolean {
   return process.env.HERDR_ENV === "1" && !!process.env.HERDR_SOCKET_PATH && !!process.env.HERDR_PANE_ID;
+}
+
+function isSpawnedWorker(): boolean {
+  return parseRoleCommandArg(process.env[SPAWNED_WORKER_ENV]?.trim() ?? "") !== undefined;
+}
+
+// Report the worker as working at the managed integration's source with a seq
+// it can never exceed. Its own idle report on settle is then ignored, so the
+// pane never transitions to done and Herdr stays quiet. The worker is finished
+// from the caller's perspective when its completion marker appears in the pane.
+async function suppressSpawnedWorkerFinish(): Promise<void> {
+  const paneId = process.env.HERDR_PANE_ID;
+  if (!paneId) return;
+  try {
+    await execFileAsync(
+      process.env.HERDR_BIN_PATH ?? "herdr",
+      [
+        "pane",
+        "report-agent",
+        paneId,
+        "--source",
+        WORKER_STATE_SOURCE,
+        "--agent",
+        "pi",
+        "--state",
+        "working",
+        "--seq",
+        String(Number.MAX_SAFE_INTEGER),
+      ],
+      { timeout: 5000, maxBuffer: 16384 },
+    );
+  } catch (error) {
+    console.warn(`my-agent: could not suppress spawned worker finish: ${errorMessage(error)}`);
+  }
 }
 
 async function checkHerdrReadiness(mode: ExtensionContext["mode"]): Promise<{ ready: true } | { ready: false; reason: string }> {

@@ -6,8 +6,13 @@ import { Type } from "typebox";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import type { ExtensionAPI, ExtensionToolContext } from "@earendil-works/pi-coding-agent";
 
-import { parseRoleSettings, readOptionalTextFile } from "./roles.ts";
+import { SPAWNED_WORKER_ENV, parseRoleSettings, readOptionalTextFile } from "./roles.ts";
 import { buildReviewPrompt, getReviewState, hasCompletedMarker, type ReviewModelSettings, type ReviewState } from "./review-state.ts";
+
+const REVIEWER_ROLE = "my-reviewer";
+const ACTIVATION_TIMEOUT_MS = 30_000;
+const REVIEW_TIMEOUT_MS = 120_000;
+const WORK_STATE = "working";
 
 const execFileAsync = promisify(execFile);
 const REVIEW_PARAMS = Type.Object({
@@ -172,6 +177,8 @@ async function startReview(pi: ExtensionAPI, state: ReviewState, ctx: ExtensionT
       "--cwd",
       ctx.cwd,
       "--no-focus",
+      "--env",
+      `${SPAWNED_WORKER_ENV}=${REVIEWER_ROLE}`,
     ]);
     const pane = findRecord(split, "pane");
     const paneId = pane?.pane_id;
@@ -207,10 +214,16 @@ async function startReview(pi: ExtensionAPI, state: ReviewState, ctx: ExtensionT
 
 async function activateReviewer(pi: ExtensionAPI, state: ReviewState) {
   try {
-    await herdrJson(["agent", "prompt", state.name, "/agent reviewer", "--wait", "--timeout", "120000"]);
+    // A spawned worker reports itself as working and never settles to idle, so
+    // `--wait` would hang. Wait for the worker's working report instead; the role
+    // command sends it after activation, which is what gates the review prompt.
+    await herdrJson(["agent", "prompt", state.name, "/agent reviewer"]);
   } catch (error) {
     return errorResult(`Reviewer role activation failed. Resume to retry activation before review: ${errorMessage(error)}`, state);
   }
+
+  const ready = await waitForReviewerWorking(state);
+  if (!ready.ok) return block(pi, state, ready.error);
 
   state.status = "prompting";
   persist(pi, state);
@@ -219,25 +232,17 @@ async function activateReviewer(pi: ExtensionAPI, state: ReviewState) {
 
 async function sendReviewPrompt(pi: ExtensionAPI, state: ReviewState) {
   try {
-    await herdrJson([
-      "agent",
-      "prompt",
-      state.name,
-      buildReviewPrompt(state),
-      "--wait",
-      "--timeout",
-      "120000",
-    ]);
-    return await collectFeedback(pi, state);
+    await herdrJson(["agent", "prompt", state.name, buildReviewPrompt(state)]);
   } catch (error) {
-    return block(pi, state, `Reviewer prompt/wait failed. Resume to inspect its state; the prompt will not be resent: ${errorMessage(error)}`);
+    return block(pi, state, `Reviewer prompt submission failed. Resume to inspect its state; the prompt will not be resent: ${errorMessage(error)}`);
   }
+  return await collectFeedback(pi, state);
 }
 
 async function resumeReview(pi: ExtensionAPI, state: ReviewState, ctx: ExtensionToolContext) {
   if (state.status === "completed") return successResult(state, state.feedback ?? "Completed feedback is unavailable.");
 
-  if (state.status === "starting") {
+  if (state.status === "starting" || state.status === "activating") {
     if (!state.paneId) return block(pi, state, "Reviewer start was interrupted before its pane id was saved. Inspect Herdr manually; no second pane will be created.");
     try {
       const agents = await herdrJson(["agent", "list"]);
@@ -252,40 +257,56 @@ async function resumeReview(pi: ExtensionAPI, state: ReviewState, ctx: Extension
     }
   }
 
-  try {
-    const agent = await herdrJson(["agent", "get", state.name]);
-    const status = findAgentStatus(agent);
-    if (status === "working") {
-      await herdrJson(["agent", "wait", state.name, "--timeout", "120000"]);
-    }
-    if (state.status === "activating") return await activateReviewer(pi, state);
-    return await collectFeedback(pi, state);
-  } catch (error) {
-    const message = `Could not resume reviewer ${state.name}: ${errorMessage(error)}`;
-    return state.status === "activating" ? errorResult(message, state) : block(pi, state, message);
-  }
+  // The prompt was already submitted; wait for its completion marker without resending.
+  return await collectFeedback(pi, state);
 }
 
 async function collectFeedback(pi: ExtensionAPI, state: ReviewState) {
-  try {
-    const agent = await herdrJson(["agent", "get", state.name]);
-    const status = findAgentStatus(agent);
-    const output = await herdrText(["agent", "read", state.name, "--source", "recent-unwrapped", "--lines", "200"]);
-    if (status === "blocked") return block(pi, state, `Reviewer is blocked and needs user input. No feedback was treated as complete.\n${output}`);
-    if (status !== "idle" && status !== "done") {
-      return block(pi, state, `Reviewer did not settle (${status ?? "unknown"}). No feedback was treated as complete.\n${output}`);
+  const paneId = state.paneId;
+  if (!paneId) return block(pi, state, "Reviewer pane id is unavailable; its output cannot be read.");
+  const deadline = Date.now() + REVIEW_TIMEOUT_MS;
+  let output = "";
+  while (true) {
+    try {
+      // Read the pane, not the agent: a suppressed worker stays "working", and
+      // agent reads refuse alternate-screen history until the agent is idle.
+      output = await herdrText(["pane", "read", paneId, "--source", "recent-unwrapped", "--lines", "500"]);
+    } catch (error) {
+      return block(pi, state, `Reviewer output could not be read; review remains unconfirmed: ${errorMessage(error)}`);
     }
-    if (!state.marker || !hasCompletedMarker(output, state.marker)) {
-      return block(pi, state, `Reviewer settled without its completion marker. Feedback is unconfirmed; inspect before continuing.\n${output}`);
+    if (state.marker && hasCompletedMarker(output, state.marker)) {
+      state.status = "completed";
+      state.feedback = output;
+      persist(pi, state);
+      return successResult(state, output);
     }
-
-    state.status = "completed";
-    state.feedback = output;
-    persist(pi, state);
-    return successResult(state, output);
-  } catch (error) {
-    return block(pi, state, `Reviewer output could not be read; review remains unconfirmed: ${errorMessage(error)}`);
+    if (Date.now() >= deadline) {
+      return block(pi, state, `Reviewer did not produce its completion marker. Feedback is unconfirmed; inspect before continuing.\n${output}`);
+    }
+    await delay(1000);
   }
+}
+
+// A spawned worker never settles to idle, so wait for the working report the role
+// command sends after activation instead of a settled-state read.
+async function waitForReviewerWorking(state: ReviewState): Promise<{ ok: true } | { ok: false; error: string }> {
+  const deadline = Date.now() + ACTIVATION_TIMEOUT_MS;
+  let status: string | undefined;
+  while (Date.now() < deadline) {
+    try {
+      const agent = await herdrJson(["agent", "get", state.name]);
+      status = findAgentStatus(agent);
+      if (status === WORK_STATE) return { ok: true };
+    } catch (error) {
+      return { ok: false, error: `Could not read reviewer status after activation: ${errorMessage(error)}` };
+    }
+    await delay(500);
+  }
+  return { ok: false, error: `Reviewer did not report ${WORK_STATE} after role activation (last status ${status ?? "unknown"}). Resume to retry.` };
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function herdrJson(args: string[]): Promise<unknown> {
