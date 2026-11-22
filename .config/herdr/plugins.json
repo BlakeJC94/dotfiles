@@ -1,5 +1,81 @@
 [
   {
+    "plugin_id": "blake.tab-status",
+    "name": "tab-status",
+    "version": "0.1.0",
+    "min_herdr_version": "0.9.5",
+    "description": "Prefix tabs whose agent finished unseen (done) or is blocked with '* '",
+    "manifest_path": "/Users/blake/.config/herdr/plugins/tab-status/herdr-plugin.toml",
+    "plugin_root": "/Users/blake/.config/herdr/plugins/tab-status",
+    "enabled": true,
+    "platforms": [
+      "macos",
+      "linux"
+    ],
+    "startup": [
+      {
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "pane.agent_detected",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""
+        ]
+      },
+      {
+        "on": "pane.agent_status_changed",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""
+        ]
+      },
+      {
+        "on": "pane.exited",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""
+        ]
+      },
+      {
+        "on": "pane.focused",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""
+        ]
+      },
+      {
+        "on": "tab.focused",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""
+        ]
+      },
+      {
+        "on": "tab.renamed",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""
+        ]
+      }
+    ],
+    "source": {
+      "kind": "local"
+    }
+  },
+  {
     "plugin_id": "chmarax.gitview",
     "name": "gitview",
     "version": "0.6.0",

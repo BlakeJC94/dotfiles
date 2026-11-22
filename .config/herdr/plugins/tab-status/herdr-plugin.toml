@@ -1,0 +1,33 @@
+id = "blake.tab-status"
+name = "tab-status"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Prefix tabs whose agent finished unseen (done) or is blocked with '* '"
+platforms = ["macos", "linux"]
+
+[[startup]]
+command = ["bash", "-c", "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""]
+
+[[events]]
+on = "pane.agent_status_changed"
+command = ["bash", "-c", "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["bash", "-c", "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""]
+
+[[events]]
+on = "pane.exited"
+command = ["bash", "-c", "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""]
+
+[[events]]
+on = "tab.renamed"
+command = ["bash", "-c", "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""]
+
+[[events]]
+on = "tab.focused"
+command = ["bash", "-c", "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""]
+
+[[events]]
+on = "pane.focused"
+command = ["bash", "-c", "exec bash \"$HERDR_PLUGIN_ROOT/tab-status.sh\""]
