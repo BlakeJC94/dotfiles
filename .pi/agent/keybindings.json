@@ -1,4 +1,6 @@
 {
   "$schema": "https://pi.dev/schemas/keybindings.schema.json",
-  "tui.altScreen.search": ["ctrl+shift+f", "ctrl+/"]
+  "tui.altScreen.search": ["ctrl+shift+f", "ctrl+/"],
+  "tui.select.up": ["up", "shift+tab"],
+  "app.thinking.cycle": []
 }
