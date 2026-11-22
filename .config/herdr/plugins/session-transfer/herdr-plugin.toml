@@ -1,0 +1,10 @@
+id = "blake.session-transfer"
+name = "session-transfer"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Fork a pi session to another saved Herdr machine. Driven by the session-transfer skill."
+platforms = ["macos", "linux"]
+
+# No bound action yet: the session-transfer skill drives transfer.sh directly so
+# it can pass the chosen machine and destination. Bind a key here when a
+# fixed-destination TUI entry point becomes useful.
