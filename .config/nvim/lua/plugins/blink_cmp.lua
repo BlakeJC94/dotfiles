@@ -20,10 +20,28 @@ return {
             },
             ["<S-CR>"] = { "snippet_backward", "fallback" },
 
-            ["<C-e>"] = { "hide", "fallback" },
+            ["<Esc>"] = {
+                function(cmp)
+                    if cmp.is_menu_visible() then
+                        return cmp.hide()
+                    end
+                end,
+                "fallback",
+            },
+            ["<C-e>"] = { "cancel", "fallback" },
 
-            ["<Tab>"] = { "select_next", "fallback" },
-            ["<S-Tab>"] = { "select_prev", "fallback" },
+            ["<Tab>"] = {
+                function(cmp)
+                    if cmp.snippet_active() then
+                        return cmp.accept()
+                    else
+                        return cmp.select_and_accept()
+                    end
+                end,
+                "snippet_forward",
+                "fallback",
+            },
+            ["<S-Tab>"] = { "snippet_backward", "select_prev", "fallback" },
 
             ["<Up>"] = { "select_prev", "fallback" },
             ["<Down>"] = { "select_next", "fallback" },
@@ -35,7 +53,12 @@ return {
 
             ["<C-k>"] = { "show_signature", "hide_signature", "fallback" },
         },
-        completion = { documentation = { auto_show = true } },
+        completion = {
+            documentation = { auto_show = true },
+            list = {
+                selection = { preselect = true, auto_insert = false },
+            },
+        },
         cmdline = { enabled = false },
         sources = {
             default = { "lsp", "path", "snippets", "buffer" },
