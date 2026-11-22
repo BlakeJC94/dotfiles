@@ -1,5 +1,22 @@
 [
   {
+    "plugin_id": "blake.session-transfer",
+    "name": "session-transfer",
+    "version": "0.1.0",
+    "min_herdr_version": "0.9.5",
+    "description": "Fork a pi session to another saved Herdr machine. Driven by the session-transfer skill.",
+    "manifest_path": "/Users/blake/.config/herdr/plugins/session-transfer/herdr-plugin.toml",
+    "plugin_root": "/Users/blake/.config/herdr/plugins/session-transfer",
+    "enabled": true,
+    "platforms": [
+      "macos",
+      "linux"
+    ],
+    "source": {
+      "kind": "local"
+    }
+  },
+  {
     "plugin_id": "blake.tab-status",
     "name": "tab-status",
     "version": "0.1.0",
