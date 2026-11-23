@@ -91,6 +91,12 @@ type = "plugin_action"
 command = "chmarax.gitview.toggle" # sidebar in the current tab
 description = "git view sidebar"
 
+[[keys.command]]
+key = "prefix+r"
+type = "plugin_action"
+command = "blake.pi-reload.reload"
+description = "reload Pi sessions"
+
 # [[keys.command]]
 # key = "cmd+g"
 # type = "plugin_action"
