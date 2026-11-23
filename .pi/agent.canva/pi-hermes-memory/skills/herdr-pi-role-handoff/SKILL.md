@@ -1,7 +1,7 @@
 ---
 name: "herdr-pi-role-handoff"
 description: "Start a Pi role agent in a new Herdr tab and hand it an approved task. Handles agent_pane_busy despite a ready shell, slash-command agent_prompt_stalled, and communication timeouts without duplicate prompts."
-version: 1
+version: 2
 created: "2026-11-19"
 updated: "2026-11-19"
 ---
@@ -18,11 +18,11 @@ Use only when the user explicitly requests a Herdr agent/tab or delegates startu
 7. If communication times out, inspect child status and output. A visible task and acknowledgement establish delivery even if the tool timed out waiting for the whole task. Do not resend or interrupt working agents.
 
 ## Pitfalls
-- Observed with Herdr 0.9.0: agent start can report agent_pane_busy while process-info shows only an idle zsh shell.
-- A synchronous /agent command may complete without the working-state transition expected by herdr agent prompt --wait.
+- Observed with Herdr 0.9.0: agent start can report agent_pane_busy while process-info shows only an idle zsh shell. A blocked direnv .envrc message does not authorize direnv allow; leave its permissions unchanged.
+- A synchronous /agent command may complete without the working-state transition expected by herdr agent prompt --wait. Inspect the activation confirmation and role/model before deciding whether anything failed.
 - my_agent_communicate can time out after 120 seconds while the recipient continues legitimate work; timeout alone does not mean delivery failed.
+- my_agent_communicate readback can fail with agent_not_idle after the child opens a questionnaire: recent-unwrapped history requires idle scrolling. Inspect agent get and agent read --source visible instead; an acknowledgement and visible questionnaire prove delivery. Do not resend or answer the child's approval.
 - A coder skill can authorize normal commits/pushes by default. Explicit working-tree-only instructions must override that when the developer has not authorized Git deliverables.
-
 ## Verification
 1. Confirm the child shows the intended activated role/model.
 2. Confirm the task appears in the child's output and it explicitly acknowledges the task and boundaries.

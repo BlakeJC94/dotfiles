@@ -29,6 +29,7 @@ log-create() { _field_notes_create log-create LogCreate "$@"; }
 journal-create() { _field_notes_create journal-create JournalCreate "$@"; }
 
 alias vimpy='vim -c "S uv run ipython"'
+alias codex='FORCE_COLOR=1 codex'
 
 
 alias ip-global='echo "IPv4: $(curl -4 -s https://api.ipify.org)"; echo "IPv6: $(curl -6 -s https://api64.ipify.org)"'

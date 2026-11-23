@@ -1,7 +1,6 @@
 vim.opt_local.formatoptions:remove("tc")
 vim.opt_local.wrap = true
 vim.opt_local.conceallevel = 1
-vim.opt_local.foldlevel = 1
 
 -- Treat backslash commands as words so they can expand on a delimiter.
 vim.opt_local.iskeyword:append("\\")

@@ -3,11 +3,13 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
 import { promisify } from "node:util";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
+import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 
 import { registerCommunicationTool } from "./communication-tool.ts";
 import { registerReviewTool } from "./review-tool.ts";
+import { canSummonAgents, parseSummonArgs, parseSummonToolParams, summonAgent, type SummonedAgent, type SummonRequest, type SummonToolParams } from "./summon.ts";
 import {
   SPAWNED_WORKER_ENV,
   getRoleState,
@@ -26,6 +28,7 @@ import {
 const execFileAsync = promisify(execFile);
 const COMMUNICATION_TOOL = "my_agent_communicate";
 const REVIEW_TOOL = "my_agent_review";
+const SUMMON_TOOL = "my_agent_summon";
 const ROLE_ENTRY = "my-agent-role";
 // The managed Herdr integration reports state as this source. A spawned worker
 // reuses it with a saturated seq so its later idle reports are ignored, which
@@ -49,8 +52,68 @@ export default function myAgentExtension(pi: ExtensionAPI): void {
   let herdrReady = false;
   let activeRole: ActiveRole | undefined;
   const spawnedWorker = isSpawnedWorker();
+  let summoning = false;
   registerCommunicationTool(pi);
   registerReviewTool(pi);
+  pi.registerTool({
+    name: SUMMON_TOOL,
+    label: "My Agent Summon",
+    description: "Start a fresh Pi role agent in a tab, workspace or pane, preserving caller focus. Available to planner and coder roles only.",
+    promptSnippet: "summon an authorized role agent in another tab, workspace or pane",
+    promptGuidelines: [
+      "Use my_agent_summon only when the developer or active workflow authorizes delegation and the requested layout.",
+      "Children receive only the supplied or default message, not parent history or approvals. Include task scope, plan paths and unresolved gates explicitly.",
+      "Do not bypass approval gates or startup errors with shell commands. Inspect the returned child before retrying; never resend uncertain work automatically.",
+      "Coders must still use my_agent_review for the managed review loop; summoning does not track review rounds.",
+    ],
+    parameters: Type.Object({
+      layout: Type.Union([Type.Literal("tab"), Type.Literal("workspace"), Type.Literal("pane")]),
+      role: Type.Union([Type.Literal("planner"), Type.Literal("coder"), Type.Literal("reviewer"), Type.Literal("monkey")]),
+      directory: Type.Optional(Type.String({ minLength: 1, description: "Workspace layout only. Defaults to caller cwd; relative paths and ~ are supported." })),
+      direction: Type.Optional(Type.Union([Type.Literal("right"), Type.Literal("down")], { description: "Pane layout only. Defaults to right; down matches -v." })),
+      message: Type.Optional(Type.String({ minLength: 1, description: "Task message. Overrides the role's configured defaultMessage and built-in default." })),
+    }),
+    defaultActive: false,
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+      const request = parseSummonToolParams(params as SummonToolParams, ctx.cwd, activeRole?.skill.name);
+      const child = await performSummon(request, ctx);
+      return {
+        content: [{ type: "text", text: `Summoned ${child.name}: ${child.paneId}, workspace ${child.workspaceId}. Fresh session; task submitted.` }],
+        details: child,
+      };
+    },
+  });
+
+  async function performSummon(request: SummonRequest, ctx: ExtensionContext): Promise<SummonedAgent> {
+    if (!herdrReady) throw new Error("my-agent is inactive because Herdr is not ready in this session.");
+    if (summoning) throw new Error("A summon is already in progress; inspect its result before starting another.");
+    summoning = true;
+    try {
+      ctx.signal?.throwIfAborted();
+      const config = readOptionalTextFile(join(getAgentDir(), "my-agent.json"));
+      if (!config.ok) throw new Error(config.error);
+      let settings: RoleSettings;
+      if (config.value === undefined) {
+        if (!ctx.model) throw new Error("No role configuration or active model is available.");
+        settings = { provider: ctx.model.provider, model: ctx.model.id, thinkingLevel: ctx.thinkingLevel ?? pi.getThinkingLevel() };
+      } else {
+        const parsed = parseRoleSettings(config.value, request.role);
+        if (!parsed.ok) throw new Error(parsed.error);
+        settings = parsed.value;
+      }
+      const model = ctx.modelRegistry.find(settings.provider, settings.model);
+      if (!model || !ctx.modelRegistry.hasConfiguredAuth(model)) {
+        throw new Error(`Model ${settings.provider}/${settings.model} is unavailable or unauthenticated.`);
+      }
+      const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
+      if (!auth.ok) throw new Error(`Authentication failed for ${settings.provider}: ${auth.error}`);
+      const paneId = process.env.HERDR_PANE_ID!;
+      const workspaceId = process.env.HERDR_WORKSPACE_ID ?? paneId.split(":")[0];
+      return await summonAgent(request, { paneId, workspaceId, agentDir: getAgentDir(), model: settings, signal: ctx.signal });
+    } finally {
+      summoning = false;
+    }
+  }
 
   if (spawnedWorker) {
     pi.on("agent_start", () => {
@@ -62,8 +125,19 @@ export default function myAgentExtension(pi: ExtensionAPI): void {
   }
 
   const roleCommand = {
-    description: "Activate a configured skill role: /agent <planner|coder|reviewer|monkey>",
-    handler: async (args: string, ctx: ExtensionContext) => {
+    description: "Activate a role, or summon-tab / summon-workspace / summon-pane [-v] <role> [message]",
+    handler: async (args: string, ctx: ExtensionCommandContext) => {
+      if (args.trimStart().startsWith("summon-")) {
+        try {
+          const request = parseSummonArgs(args, ctx.cwd);
+          await ctx.waitForIdle();
+          const child = await performSummon(request, ctx);
+          ctx.ui.notify(`Summoned ${child.name}: ${child.paneId}, workspace ${child.workspaceId}. Fresh session; task submitted.`, "info");
+        } catch (error) {
+          ctx.ui.notify(`Could not summon agent: ${errorMessage(error)}`, "error");
+        }
+        return;
+      }
       const name = parseRoleCommandArg(args.trim());
       if (!name) {
         ctx.ui.notify(`Usage: /agent <planner|coder|reviewer|monkey>. ${activeDescription(activeRole)}`, "warning");
@@ -252,6 +326,8 @@ function syncRoleTools(pi: ExtensionAPI, skillName: RoleName | undefined): void 
   else next.delete(COMMUNICATION_TOOL);
   if (skillName === "my-coder") next.add(REVIEW_TOOL);
   else next.delete(REVIEW_TOOL);
+  if (canSummonAgents(skillName)) next.add(SUMMON_TOOL);
+  else next.delete(SUMMON_TOOL);
   if (next.size !== current.length || [...next].some((name, index) => name !== current[index])) {
     pi.setActiveTools([...next]);
   }

@@ -2,21 +2,25 @@
   "my-planner": {
     "provider": "<provider>",
     "model": "<exact-model-id>",
-    "thinkingLevel": "high"
+    "thinkingLevel": "high",
+    "defaultMessage": "Plan the current task without implementing it."
   },
   "my-coder": {
     "provider": "<provider>",
     "model": "<exact-model-id>",
-    "thinkingLevel": "medium"
+    "thinkingLevel": "medium",
+    "defaultMessage": "Implement the approved plan, respecting unresolved gates. Do not commit or push."
   },
   "my-reviewer": {
     "provider": "<provider>",
     "model": "<exact-model-id>",
-    "thinkingLevel": "high"
+    "thinkingLevel": "high",
+    "defaultMessage": "Review the current changes read-only and report actionable findings."
   },
   "my-monkey": {
     "provider": "<provider>",
     "model": "<exact-model-id>",
-    "thinkingLevel": "high"
+    "thinkingLevel": "high",
+    "defaultMessage": "Probe the current changes read-only for likely bugs and report evidence."
   }
 }

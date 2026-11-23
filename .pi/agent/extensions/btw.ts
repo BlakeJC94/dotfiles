@@ -66,69 +66,77 @@ export default function btwExtension(pi: ExtensionAPI) {
 		}
 	};
 
+	pi.registerCommand("btw-add", {
+		description: "Add the private /btw conversation to session history.",
+		handler: async (_args, ctx) => {
+			if (history.length === 0) {
+				ctx.ui.notify("No /btw turn to add", "warning");
+				return;
+			}
+
+			const parts: string[] = [
+				"The following was previously discussed in a `/btw` aside:\n",
+			];
+			for (const turn of history) {
+				parts.push(`**User:** ${turn.userText}`);
+				parts.push("");
+				parts.push(`**Assistant:** ${turn.assistantText}`);
+				parts.push("");
+			}
+
+			pi.sendMessage(
+				{
+					customType: "btw-added",
+					display: true,
+					content: parts.join("\n"),
+					details: {
+						turns: history.map((turn) => ({
+							userText: turn.userText,
+							assistantText: turn.assistantText,
+						})),
+					},
+				},
+				{ triggerTurn: false },
+			);
+
+			clearBtwWidget(ctx);
+			history = [];
+			ctx.ui.notify("Added /btw chain to session and cleared side channel", "info");
+		},
+	});
+
+	pi.registerCommand("btw-clear", {
+		description: "Clear the private /btw conversation.",
+		handler: async (_args, ctx) => {
+			history = [];
+			clearBtwWidget(ctx);
+			ctx.ui.notify("Cleared /btw memory", "info");
+		},
+	});
+
+	pi.registerCommand("btw-history", {
+		description: "Show the number of prior private /btw turns.",
+		handler: async (_args, ctx) => {
+			ctx.ui.notify(`/btw has ${history.length} prior turn(s)`, "info");
+		},
+	});
+
+	pi.registerCommand("btw-close", {
+		description: "Close the private /btw widget.",
+		handler: async (_args, ctx) => {
+			clearBtwWidget(ctx);
+			ctx.ui.notify("Closed /btw widget", "info");
+		},
+	});
+
 	pi.registerCommand("btw", {
 		description:
 			"Private aside to the model. Not stored in session history; prior /btw turns are carried forward.",
 		handler: async (args, ctx) => {
 			const trimmed = args.trim();
 
-			if (trimmed === "--clear" || trimmed === "-c") {
-				history = [];
-				clearBtwWidget(ctx);
-				ctx.ui.notify("Cleared /btw memory", "info");
-				return;
-			}
-
-			if (trimmed === "--history" || trimmed === "-h") {
-				ctx.ui.notify(`/btw has ${history.length} prior turn(s)`, "info");
-				return;
-			}
-
-			if (trimmed === "--close") {
-				clearBtwWidget(ctx);
-				ctx.ui.notify("Closed /btw widget", "info");
-				return;
-			}
-
-			if (trimmed === "--add") {
-				if (history.length === 0) {
-					ctx.ui.notify("No /btw turn to add", "warning");
-					return;
-				}
-
-				const parts: string[] = [
-					"The following was previously discussed in a `/btw` aside:\n",
-				];
-				for (const turn of history) {
-					parts.push(`**User:** ${turn.userText}`);
-					parts.push("");
-					parts.push(`**Assistant:** ${turn.assistantText}`);
-					parts.push("");
-				}
-
-				pi.sendMessage(
-					{
-						customType: "btw-added",
-						display: true,
-						content: parts.join("\n"),
-						details: {
-							turns: history.map((turn) => ({
-								userText: turn.userText,
-								assistantText: turn.assistantText,
-							})),
-						},
-					},
-					{ triggerTurn: false },
-				);
-
-				clearBtwWidget(ctx);
-				history = [];
-				ctx.ui.notify("Added /btw chain to session and cleared side channel", "info");
-				return;
-			}
-
 			if (!trimmed) {
-				ctx.ui.notify("Usage: /btw <message>  (or --clear, --history, --add, --close)", "warning");
+				ctx.ui.notify("Usage: /btw <message>", "warning");
 				return;
 			}
 

@@ -1,14 +1,13 @@
 # Custom Editor Extension
 
-A single input editor that combines Markdown-list editing and cross-session prompt
-history. Both features previously lived in separate editor-replacing extensions
-(`lists-md.ts` and `persistent-prompt-history.ts`); Pi's
-`ctx.ui.setEditorComponent` is **last-wins** and replaces the editor rather than
-composing with it, so only one extension may own it. They are merged here.
+A single input editor that combines inline prompt snippets, Markdown-list editing,
+and cross-session prompt history. Pi's `ctx.ui.setEditorComponent` is **last-wins**
+and replaces the editor rather than composing with it, so all editor behavior
+lives here.
 
 ## Files
 
-- `index.ts` — extension source (editor class, list helpers, prompt-history loader)
+- `index.ts` — extension source (editor class, prompt snippets, list helpers, prompt-history loader)
 
 ## Keybindings
 
@@ -37,6 +36,22 @@ markers are supported; lettered markers advance to the next letter and wrap
 `Ctrl+.` and `Ctrl+,` require a terminal that reports enhanced key events (Kitty
 keyboard protocol or modifyOtherKeys), because the raw control characters for `.`
 and `,` collide with legacy terminal input.
+
+## Prompt snippets
+
+Type a token followed by a space to replace it with an editable prompt:
+
+| Token | Prompt |
+|-------|--------|
+| `:r` / `:review` | Review changes without editing; optional focus at the end. |
+| `:d` / `:debug` | Diagnose a symptom without editing; type the symptom at the end. |
+| `:t` / `:test` | Run relevant tests; optionally specify a command or suite at the end. |
+| `:e` / `:explain` | Explain a file or symbol; optionally specify a target at the end. |
+| `:p` / `:plan` | Plan a goal without editing; type the goal at the end. |
+| `:v` / `:verify` | Verify a claim against code; type the claim at the end. |
+
+Expansion happens only when the exact token follows the start of input or whitespace.
+It does not submit the prompt; continue editing and press Enter when ready.
 
 ## Prompt history
 

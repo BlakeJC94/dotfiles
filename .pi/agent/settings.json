@@ -2,7 +2,7 @@
   "defaultProvider": "nextbit",
   "defaultModel": "deepseek:v4.1-flash",
   "lastChangelogVersion": "1.5.2",
-  "theme": "gruvbox-light/gruvbox-dark",
+  "theme": "system",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": false,
   "defaultTools": [

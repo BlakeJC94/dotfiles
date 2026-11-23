@@ -9,6 +9,7 @@ export interface RoleSettings {
   provider: string;
   model: string;
   thinkingLevel: ThinkingLevel;
+  defaultMessage?: string;
 }
 
 export interface RoleBaseline {
@@ -59,12 +60,17 @@ export function parseRoleSettings(json: string, roleName: RoleName): ParseResult
     return { ok: false, error: `${roleName}.thinkingLevel must be an exact supported thinking level.` };
   }
 
+  if (raw.defaultMessage !== undefined && (typeof raw.defaultMessage !== "string" || !raw.defaultMessage.trim())) {
+    return { ok: false, error: `${roleName}.defaultMessage must be a non-empty string.` };
+  }
+
   return {
     ok: true,
     value: {
       provider: raw.provider,
       model: raw.model,
       thinkingLevel: raw.thinkingLevel as ThinkingLevel,
+      ...(typeof raw.defaultMessage === "string" ? { defaultMessage: raw.defaultMessage } : {}),
     },
   };
 }

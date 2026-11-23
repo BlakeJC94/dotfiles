@@ -5,11 +5,10 @@ import type { UserMessage } from "@earendil-works/pi-ai";
 /**
  * custom-editor Pi extension
  *
- * A single input editor that combines two behaviors which used to live in
- * separate editor-replacing extensions (`lists-md.ts` and
- * `persistent-prompt-history.ts`). Pi's `ctx.ui.setEditorComponent` is
- * last-wins — it replaces the editor instead of composing with it — so only
- * one extension may own the editor. Both feature sets are merged here.
+ * A single input editor combines prompt snippets, Markdown-list editing, and
+ * cross-session prompt history. Pi's `ctx.ui.setEditorComponent` is last-wins —
+ * it replaces the editor instead of composing with it — so all editor behavior
+ * lives here.
  *
  * Markdown lists:
  * - Press <Shift+Enter> at the end of a Markdown list line to continue it.
@@ -34,6 +33,57 @@ type EditorArguments = ConstructorParameters<typeof CustomEditor>;
 
 const MAX_PROMPTS = 100;
 const INDENT_SIZE = 4;
+
+const PROMPT_SNIPPETS: Record<string, string> = {
+  review: [
+    "Review the current change set: inspect git status, staged and unstaged diffs, and relevant untracked files.",
+    "Focus on correctness, edge cases, and error handling. Do not modify files.",
+    "Report only actionable findings as `file:line` - issue - impact. Omit empty categories; if none, say so.",
+    "Additional focus (optional): ",
+  ].join("\n"),
+  debug: [
+    "Investigate the symptom below. Do not edit files.",
+    "Trace expected versus actual behavior. Check relevant code and environment/config before ranking causes.",
+    "Report the most likely cause with evidence and one confirming check. If evidence is insufficient, say what is missing; do not guess.",
+    "Symptom: ",
+  ].join("\n"),
+  test: [
+    "Run the relevant project tests. Follow repository instructions and configuration; do not assume a package manager or default command.",
+    "If I provide a command or suite below, run it; otherwise choose based on repository guidance.",
+    "Report the command, pass/fail/skip counts, and failures as `file:line` - message. If all pass, give one line and stop.",
+    "Command or suite (optional): ",
+  ].join("\n"),
+  explain: [
+    "Explain the target below, or the current file/active symbol if blank.",
+    "Use up to 5 short bullets: purpose, main flow, key design, and connections. Cite `file:line` for non-obvious claims.",
+    "Target (optional): ",
+  ].join("\n"),
+  plan: [
+    "Produce the smallest viable plan for the goal below. Inspect repository guidance and relevant code; do not edit.",
+    "Return `file` - change - reason, then assumptions and verification commands. Stop at the plan.",
+    "Goal: ",
+  ].join("\n"),
+  verify: [
+    "Verify the claim below against the current code. Give a verdict: TRUE, FALSE, or PARTIAL.",
+    "Cite exact `file:line` evidence. If not found, say NOT FOUND and list searched paths; do not speculate.",
+    "Claim: ",
+  ].join("\n"),
+};
+
+const PROMPT_SNIPPET_ALIASES: Record<string, keyof typeof PROMPT_SNIPPETS> = {
+  ":r": "review",
+  ":review": "review",
+  ":d": "debug",
+  ":debug": "debug",
+  ":t": "test",
+  ":test": "test",
+  ":e": "explain",
+  ":explain": "explain",
+  ":p": "plan",
+  ":plan": "plan",
+  ":v": "verify",
+  ":verify": "verify",
+};
 
 // Emacs-style raw key sequences for the underlying editor.
 const LINE_START = "\x01"; // ctrl+a
@@ -137,7 +187,7 @@ class CustomEditorWithListsAndHistory extends CustomEditor {
     if (this.handleHistoryNavigation(data)) return;
 
     const previousText = this.getText();
-    if (!this.handleListInput(data)) {
+    if (!this.handlePromptSnippet(data) && !this.handleListInput(data)) {
       super.handleInput(data);
     }
     if (this.getText() !== previousText) {
@@ -173,6 +223,30 @@ class CustomEditorWithListsAndHistory extends CustomEditor {
       }
     }
     return false;
+  }
+
+  /** Expand a prompt snippet when its token is followed by a space. */
+  private handlePromptSnippet(data: string): boolean {
+    if (data !== " ") return false;
+
+    const text = this.getText();
+    const lines = this.getLines();
+    const { line, col } = this.getCursor();
+    const offset =
+      lines.slice(0, line).reduce((length, item) => length + item.length + 1, 0) + col;
+    const match = text
+      .slice(0, offset)
+      .match(/(^|\s)(:r|:review|:d|:debug|:t|:test|:e|:explain|:p|:plan|:v|:verify)$/);
+    if (!match) return false;
+
+    const snippet = PROMPT_SNIPPETS[PROMPT_SNIPPET_ALIASES[match[2]!]!];
+    const tokenStart = offset - match[0].length + match[1]!.length;
+    const updated = text.slice(0, tokenStart) + snippet + text.slice(offset);
+    this.setText(updated);
+
+    const cursorLines = updated.slice(0, tokenStart + snippet.length).split("\n");
+    this.moveCursorTo(cursorLines.length - 1, cursorLines[cursorLines.length - 1]!.length);
+    return true;
   }
 
   /** Markdown-list keys. Returns true when the input was consumed. */

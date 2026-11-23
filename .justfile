@@ -16,7 +16,7 @@ llm-up:
 add_dirs := ".gitalias .agents .config/nvim .pi/agent/extensions"
 
 add-dirs:
-    git dotfiles add {{ add_dirs }}
+    git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" add {{ add_dirs }}
 
 add: add-dirs
 
