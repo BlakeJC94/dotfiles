@@ -4,7 +4,7 @@
     "name": "pi-reload",
     "version": "0.1.0",
     "min_herdr_version": "0.9.5",
-    "description": "Confirm and reload idle Pi sessions in the current Herdr workspace",
+    "description": "Confirm and reload idle Pi sessions across all local Herdr workspaces",
     "manifest_path": "/Users/bcook/.config/herdr/plugins/pi-reload/herdr-plugin.toml",
     "plugin_root": "/Users/bcook/.config/herdr/plugins/pi-reload",
     "enabled": true,
@@ -23,7 +23,7 @@
         "command": [
           "bash",
           "-c",
-          "exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin blake.pi-reload --entrypoint confirm --env \"HERDR_RELOAD_WORKSPACE_ID=${HERDR_WORKSPACE_ID:?missing Herdr workspace context}\""
+          "exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin blake.pi-reload --entrypoint confirm"
         ]
       }
     ],
@@ -51,8 +51,8 @@
     "version": "0.1.0",
     "min_herdr_version": "0.9.5",
     "description": "Fork a pi session to another saved Herdr machine. Driven by the session-transfer skill.",
-    "manifest_path": "/Users/blake/.config/herdr/plugins/session-transfer/herdr-plugin.toml",
-    "plugin_root": "/Users/blake/.config/herdr/plugins/session-transfer",
+    "manifest_path": "/Users/bcook/.config/herdr/plugins/session-transfer/herdr-plugin.toml",
+    "plugin_root": "/Users/bcook/.config/herdr/plugins/session-transfer",
     "enabled": true,
     "platforms": [
       "macos",
@@ -68,8 +68,8 @@
     "version": "0.1.0",
     "min_herdr_version": "0.9.5",
     "description": "Prefix tabs whose agent finished unseen (done) or is blocked with '* '",
-    "manifest_path": "/Users/blake/.config/herdr/plugins/tab-status/herdr-plugin.toml",
-    "plugin_root": "/Users/blake/.config/herdr/plugins/tab-status",
+    "manifest_path": "/Users/bcook/.config/herdr/plugins/tab-status/herdr-plugin.toml",
+    "plugin_root": "/Users/bcook/.config/herdr/plugins/tab-status",
     "enabled": true,
     "platforms": [
       "macos",
@@ -144,8 +144,8 @@
     "version": "0.6.0",
     "min_herdr_version": "0.7.0",
     "description": "Two-pane git view: changed files + diff, Enter opens nvim",
-    "manifest_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/23100-0/checkout/herdr-plugin.toml",
-    "plugin_root": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/23100-0/checkout",
+    "manifest_path": "/Users/bcook/.config/herdr/plugins/gitview/herdr-plugin.toml",
+    "plugin_root": "/Users/bcook/.config/herdr/plugins/gitview",
     "enabled": true,
     "platforms": [
       "macos",
@@ -230,12 +230,7 @@
       }
     ],
     "source": {
-      "kind": "github",
-      "owner": "ChmaraX",
-      "repo": "herdr-gitview",
-      "resolved_commit": "f69e71bbbb53237c27d8282c1d4a95d11380daf1",
-      "managed_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.gitview-57cd0959dba0/23100-0/checkout",
-      "installed_unix_ms": 1795163835746
+      "kind": "local"
     }
   },
   {
@@ -244,8 +239,8 @@
     "version": "1.3.1",
     "min_herdr_version": "0.7.5",
     "description": "Full-height nvim sidebar with agent annotations: toggle with one key, comment code, send to any agent.",
-    "manifest_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.herdr-nvim-178624809c23/22853-0/checkout/herdr-plugin.toml",
-    "plugin_root": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.herdr-nvim-178624809c23/22853-0/checkout",
+    "manifest_path": "/Users/bcook/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23/herdr-plugin.toml",
+    "plugin_root": "/Users/bcook/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23",
     "enabled": true,
     "platforms": [
       "macos",
@@ -372,9 +367,10 @@
       "kind": "github",
       "owner": "ChmaraX",
       "repo": "herdr-nvim",
+      "requested_ref": "2905408e1985db1a319b466ba9873f40e29f5e7a",
       "resolved_commit": "2905408e1985db1a319b466ba9873f40e29f5e7a",
-      "managed_path": "/Users/blake/.config/herdr/plugins/github-installations/chmarax.herdr-nvim-178624809c23/22853-0/checkout",
-      "installed_unix_ms": 1795163785576
+      "managed_path": "/Users/bcook/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23",
+      "installed_unix_ms": 1795467060374
     }
   }
 ]
