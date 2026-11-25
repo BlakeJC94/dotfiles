@@ -1,11 +1,11 @@
 ---
 name: pi-extend
-description: Edit, create, or maintain Pi extensions under ~/.pi/agent/extensions. Use when the user changes an extension, adds a command/tool/provider/event, fixes a bug, or asks to keep the extensions README in sync. Commits via the git dotfiles alias.
+description: Edit, create, or maintain Pi extensions under ~/.pi/agent/extensions. Use when the user changes an extension, adds a command/tool/provider/event, fixes a bug, or asks to keep the extensions README in sync. Use explicit bare-repository Git commands for dotfiles changes.
 ---
 
 # pi-extend: maintain local Pi extensions
 
-This skill guides changes to the local Pi extensions in `~/.pi/agent/extensions/`. It keeps the top-level README accurate and commits everything through the `git dotfiles` alias that manages this dotfiles repo.
+This skill guides changes to the local Pi extensions in `~/.pi/agent/extensions/`. It keeps the top-level README accurate. For Git operations in the home-directory dotfiles worktree, use `git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" <command>`; do not use aliases or wrappers.
 
 ## When to use
 
@@ -47,13 +47,15 @@ All forms should export a default function accepting Pi's `ExtensionAPI`.
    - Update **Configuration files**, **Development**, **Adding a new extension**, or **Notes** sections as needed.
    - Keep descriptions concise and consistent with existing rows.
 5. **Update the per-extension README** if the extension has one and its behavior, commands, tools, configuration, or usage changed.
-6. **Review the diff** with `git dotfiles diff` or `git dotfiles diff --cached`. Ensure no secrets or generated artifacts are staged.
-7. **Stage changes** with `git dotfiles add <paths>`.
-8. **Commit** with a Conventional Commit message scoped to `pi-ext`, for example:
-   - `feat(pi-ext): add /foo command to web-search`
-   - `fix(pi-ext): guard against empty query in commands`
-   - `docs(pi-ext): update README with new assistant schedules`
-9. **Push** if the user asks: `git dotfiles push`.
+6. **Review dotfiles changes** with explicit Git commands, for example:
+   ```bash
+   git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" diff -- <paths>
+   git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" diff --cached -- <paths>
+   ```
+   Ensure no secrets or generated artifacts are staged.
+7. **Stage changes** only after authorization, using `git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" add -- <paths>`.
+8. **Commit** only when requested, using `git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" commit -m "fix(pi-ext): short description"` or another appropriate Conventional Commit message.
+9. **Push** only if the user asks, using `git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" push`.
 
 ## What not to commit
 
@@ -68,7 +70,7 @@ If unsure, check `~/.pi/agent/extensions/<name>/.gitignore` or the global dotfil
 ## Verification
 
 - [ ] The top-level `~/.pi/agent/extensions/README.md` accurately reflects every command, tool, provider, and configuration change.
-- [ ] `git dotfiles status --short` shows only the intended files.
+- [ ] `git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" status --short` shows only the intended files.
 - [ ] `npm test` / `npm run typecheck` pass for any pi package that was modified.
 - [ ] The modified extension loads without errors after `/reload` or on a fresh Pi start.
 - [ ] TUI-only behavior (keybindings, custom editors, widgets) is exercised by driving `pi` in a pty, for example `python3` + `pty.fork()` with `TERM=xterm-256color`, since a non-TTY run cannot trigger it.
