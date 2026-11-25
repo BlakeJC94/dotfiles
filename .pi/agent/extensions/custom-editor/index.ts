@@ -164,6 +164,7 @@ class CustomEditorWithListsAndHistory extends CustomEditor {
     prompts: string[],
   ) {
     super(tui, theme, keybindings);
+    // Keep this unset so Pi wires its native clipboard-to-temp-file handler.
     this.editorKeybindings = keybindings;
     for (let i = prompts.length - 1; i >= 0; i--) {
       this.addToHistory(prompts[i]!);
@@ -251,6 +252,17 @@ class CustomEditorWithListsAndHistory extends CustomEditor {
 
   /** Markdown-list keys. Returns true when the input was consumed. */
   private handleListInput(data: string): boolean {
+    if (matchesKey(data, "ctrl+;")) {
+      const { line } = this.getCursor();
+      const currentLine = this.getLines()[line] ?? "";
+      if (currentLine.startsWith("* ")) {
+        this.modifyCurrentLine((text) => text.slice(2), -2);
+      } else {
+        this.modifyCurrentLine((text) => `* ${text}`, 2);
+      }
+      return true;
+    }
+
     if (matchesKey(data, "shift+enter") && !this.isShowingAutocomplete()) {
       const { line, col } = this.getCursor();
       const lines = this.getLines();

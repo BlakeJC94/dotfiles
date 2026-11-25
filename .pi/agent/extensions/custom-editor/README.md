@@ -14,6 +14,7 @@ lives here.
 | Key | Action |
 |-----|--------|
 | `Shift+Enter` | Continue the current Markdown list item (bullet, numbered, or checkbox). On an empty item, strip the marker and insert a plain newline to end the list. |
+| `Ctrl+;` | Add `* ` at the start of the current line or remove an existing leading `* `. |
 | `Ctrl+.` | Indent the current list line right by 4 spaces. |
 | `Ctrl+,` | Indent the current list line left, snapped to a multiple of 4 spaces. |
 | `Up` | With an empty input (or the cursor at the very start), load the previous prompt from recent sessions. |
@@ -33,9 +34,9 @@ Bullets (`-` `*` `+`), numbered (`1.`), and single-letter (`a.` / `A.`) ordered
 markers are supported; lettered markers advance to the next letter and wrap
 `z -> a`. A checkbox (`[ ]` / `[x]`) is carried over onto the new item.
 
-`Ctrl+.` and `Ctrl+,` require a terminal that reports enhanced key events (Kitty
-keyboard protocol or modifyOtherKeys), because the raw control characters for `.`
-and `,` collide with legacy terminal input.
+`Ctrl+;`, `Ctrl+.` and `Ctrl+,` require a terminal that reports enhanced key
+events (Kitty keyboard protocol or modifyOtherKeys), because their raw control
+characters collide with legacy terminal input.
 
 ## Prompt snippets
 

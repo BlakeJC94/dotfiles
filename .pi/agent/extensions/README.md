@@ -11,8 +11,8 @@ Extensions are hot-reloadable in a running Pi session with `/reload`.
 | [`btw`](./btw.ts) | file | Private `/btw` asides to the model, with `/btw-add`, `/btw-clear`, `/btw-history`, and `/btw-close` management commands. |
 | [`commands`](./commands/) | directory | `/commands` slash command that lists every registered command grouped by source. |
 | [`contextual-agents`](./contextual-agents/) | directory | Auto-injects path-scoped `AGENTS.md` / `CLAUDE.md` files into the system prompt when files are read or edited. |
-| [`copy-code-block`](./copy-code-block.ts) | file | `Alt+X` opens a filterable picker of code blocks from recent agent messages, with a live preview, and copies the selected one. |
-| [`custom-editor`](./custom-editor/) | directory | Custom input editor: mnemonic and full-name prompt snippets, Markdown-list editing, and prompt history. |
+| [`copy-code-block`](./copy-code-block.ts) | file | `Alt+X` opens a filterable picker of code and quote blocks from recent agent messages, with a live preview, and copies the selected one. |
+| [`custom-editor`](./custom-editor/) | directory | Custom input editor: prompt snippets, Markdown-list editing, prompt history, and Pi-native clipboard image paste. |
 | [`herdr-agent-state`](./herdr-agent-state/) | directory | Reports Pi's lifecycle state (`idle` / `working` / `blocked`) to a parent [Herdr](https://github.com/earendil-works/herdr) terminal multiplexer. |
 | [`hidden-thinking-label`](./hidden-thinking-label/) | directory | `/thinking-label` command to customize the collapsed reasoning/thinking label in the TUI. |
 | [`mono-skills`](./mono-skills/) | directory | Discovers `.agents/skills` directories inside a monorepo, prefixes their skill names, and caches them per scope. |
@@ -21,9 +21,10 @@ Extensions are hot-reloadable in a running Pi session with `/reload`.
 | [`nvim-editor-improved`](./nvim-editor-improved/) | directory | Context-aware nvim prompt editor: read-only conversation snapshot above the editable prompt, submit with `:wqa`. |
 | [`pi-file-snapshots`](./pi-file-snapshots/) | pi package | Git-free file checkpoints: snapshots every `write`/`edit` and lets you restore the working tree with `/snapshots`. |
 | [`planning-questionnaire`](./planning-questionnaire/) | pi package | Interactive batch clarifying questionnaire tool plus a read-only `/clarify` planning command. |
+| [`plugin-help`](./plugin-help/) | directory | `/plugin-help` lists installed Pi extensions and shows locally maintained TL;DR pages. |
 | [`prompt-injection-guard`](./prompt-injection-guard/) | directory | Scans tool inputs and outputs for prompt-injection patterns and blocks or sanitizes them. |
 | [`skill-reload`](./skill-reload/) | directory | After a compaction, nudges the model to reload skills whose instructions were summarized away. |
-| [`tips`](./tips/) | directory | Shows configurable Pi usage tips at session start and every three completed turns. |
+| [`tips`](./tips/) | directory | Shows a persistent active-snippets reminder above the editor while Pi is ready for input, with rotating tips at startup and randomly every 6–10 completed turns. |
 | [`web-search`](./web-search/) | directory | Web search/fetch/research tools (`web_search`, `web_fetch`, `web_research`) and a `/websearch` command. |
 
 ## Loading an extension manually
@@ -50,6 +51,7 @@ pi --extension ./btw.ts
 | `/btw-history` | btw | Show the number of prior private turns. |
 | `/btw-close` | btw | Close the private conversation widget. |
 | `/commands [extension\|prompt\|skill]` | commands | List all registered slash commands, optionally filtered by source. |
+| `/plugin-help [name]` | plugin-help | List installed Pi extensions or show the local TL;DR page for one. |
 | `/clarify` | planning-questionnaire | Start a read-only planning phase with batched clarifying questions. |
 | `/injection-guard ...` | prompt-injection-guard | Show settings, set mode, or test a string. |
 | `/snapshots` | pi-file-snapshots | List file checkpoints and restore the working tree to one. |
@@ -61,8 +63,9 @@ pi --extension ./btw.ts
 
 | Key | Extension | Description |
 |-----|-----------|-------------|
-| `Alt+X` | copy-code-block | Pick a code block from recent agent messages (filterable, with preview) and copy its contents (no fences). |
+| `Alt+X` | copy-code-block | Pick a code or quote block from recent agent messages (filterable, with preview) and copy its contents without outer Markdown delimiters. |
 | `Shift+Enter` | custom-editor | Continue the current Markdown list item (bullet, numbered, or checkbox); on an empty item, end the list. |
+| `Ctrl+;` | custom-editor | Add `* ` to an empty line or remove a leading `* ` from the current line (requires enhanced key events). |
 | `Ctrl+.` / `Ctrl+,` | custom-editor | Indent / outdent the current list line by 4 spaces (requires enhanced key events). |
 | `Up` / `Down` | custom-editor | With an empty input (or the cursor at the start), cycle prompts from recent sessions. |
 | `Ctrl+Shift+End` | custom-editor | Move the cursor to the end of the current input. |
@@ -91,7 +94,7 @@ pi --extension ./btw.ts
 
 ## Tips
 
-The `tips` extension shows one tip at session start and every three completed turns, then cycles through the list. Edit the single `pi-tips` block below and run `/reload` to apply changes.
+The `tips` extension shows a persistent active-snippets reminder above the editor while Pi is ready for input, and clears it while the agent is running. It includes a rotating tip at session start and randomly after 6–10 completed turns. Tips cycle through the list. Edit the `pi-tips` block below to change tips, then run `/reload`.
 
 ```pi-tips
 Use /tree to explore another approach without losing the current conversation branch.
@@ -102,13 +105,12 @@ Use /tree's no-tools filter to navigate long sessions by prompts and responses i
 Use /commands extension to browse installed extension commands and inspect their source paths.
 Use /clarify to batch planning questions; its planning phase stays read-only.
 Use /snapshots to restore files changed by Pi's /write/ and /edit/ tools; bash edits are not captured.
-Type :r, :d, :t, :e, :p, or :v followed by a space to expand a review, debug, test, explain, plan, or verify prompt.
 Press /Alt+G/ or run /vim to edit a prompt in nvim with recent conversation context visible.
-Press /Alt+X/ to search recent assistant code blocks and copy one without fences.
+Press /Alt+X/ to search recent assistant code and quote blocks and copy one without outer Markdown delimiters.
 Use /btw for a side question; run /btw-add to bring the aside into the main session.
 Use /websearch <query> for quick web lookup; /web_research/ can search and fetch several pages.
 In Herdr, /agent summon-pane reviewer ... starts a fresh reviewer with only the message you provide.
-In Markdown lists, /Shift+Enter/ continues the item; /Ctrl+./ and /Ctrl+,/ indent and outdent it.
+In Markdown lists, /Shift+Enter/ continues the item; /Ctrl+;/ toggles a `* ` marker; /Ctrl+./ and /Ctrl+,/ indent and outdent.
 In a monorepo, run /refreshskills after changing nested .agents/skills; cached skills load in a new session.
 Use /agents_dirs(path)/ to find nested AGENTS.md and .agents guidance that applies before editing a file.
 In Git repos, contextual-agents automatically loads path-specific AGENTS.md or CLAUDE.md as files are read or edited.
@@ -154,7 +156,8 @@ When editing extensions, use the `pi-extend` skill (`/skill:pi-extend`) to keep 
 2. Register commands, tools, providers, event handlers, or prompt sections as needed.
 3. Add a per-extension `README.md` if it has user-facing commands or configuration.
 4. Update this README to include the new extension, its commands/tools, and any configuration.
-5. Run `git dotfiles add .pi/agent/extensions/<name>` to track it.
+5. Agents should keep `plugin-help/pages.ts` current whenever an extension is added, changed, renamed, or removed, including locally maintained TL;DR pages for external Pi packages.
+6. Run `git dotfiles add .pi/agent/extensions/<name>` to track it.
 
 See the [Pi extensions documentation](https://pi.dev/docs/extensions) and the example extensions bundled with Pi for patterns.
 

@@ -16,31 +16,35 @@ import {
 /**
  * copy-code-block Pi extension
  *
- * Press <M-x> (alt+x) to open a picker of every fenced code block from the
- * assistant messages on the active branch, newest first. Filter by typing,
- * cycle with the arrow keys, watch the live preview, then Enter to copy the
- * highlighted block's contents (without the ``` fences) to the system
- * clipboard. <C-x> still copies the whole last message.
+ * Press <M-x> (alt+x) to open a picker of code and quote blocks from assistant
+ * messages on the active branch, newest first. Filter by type, language, or
+ * content, cycle with the arrow keys, and Enter to copy the selected block
+ * without its outer fence or quote markers. <C-x> still copies the whole last
+ * message.
  *
  * Behavior:
- * - Collects code blocks from assistant messages on the active branch only,
- *   newest block first.
- * - The picker filters by language and the first lines of each block.
- * - Shows an error and copies nothing when there are no code blocks at all.
+ * - Collects fenced code and `>` quote blocks from assistant messages on the
+ *   active branch only, newest block first.
+ * - The picker filters by type, language, and the first lines of each block.
+ * - Shows an error and copies nothing when there are no matching blocks.
  */
 
 const FENCE_OPEN_RE = /^ {0,3}(`{3,}|~{3,})(.*)$/;
 const FENCE_CLOSE_RE = /^ {0,3}(`{3,}|~{3,})[ \t]*$/;
+const QUOTE_LINE_RE = /^ {0,3}>(?: ?)(.*)$/;
 
 const PREVIEW_LINES = 15;
 const VISIBLE_ITEMS = 8;
 const LANGUAGE_COLUMN = 14;
 
-interface FencedBlock {
-  /** Block contents without the surrounding fences. */
-  code: string;
-  /** First token of the fence info string, e.g. `ts`. Empty for a bare fence. */
+interface ExtractedBlock {
+  type: "code" | "quote";
+  /** Block contents without Markdown delimiters. */
+  content: string;
+  /** First token of a code fence's info string, e.g. `ts`. */
   language: string;
+  /** Starting line, used to preserve document order across block types. */
+  position: number;
 }
 
 /**
@@ -48,9 +52,9 @@ interface FencedBlock {
  * CommonMark fence rules: a closing fence must use the same character and be
  * at least as long as the opening fence.
  */
-function extractCodeBlocks(markdown: string): FencedBlock[] {
+function extractCodeBlocks(markdown: string): ExtractedBlock[] {
   const lines = markdown.split(/\r?\n/);
-  const blocks: FencedBlock[] = [];
+  const blocks: ExtractedBlock[] = [];
   let i = 0;
 
   while (i < lines.length) {
@@ -79,10 +83,59 @@ function extractCodeBlocks(markdown: string): FencedBlock[] {
     }
 
     blocks.push({
-      code: body.join("\n"),
+      type: "code",
+      content: body.join("\n"),
       language: info.trim().split(/\s+/)[0] ?? "",
+      position: i,
     });
     i = closed ? j + 1 : lines.length;
+  }
+
+  return blocks;
+}
+
+/** Return explicitly marked Markdown quote blocks without their `>` markers. */
+function extractQuoteBlocks(markdown: string): ExtractedBlock[] {
+  const lines = markdown.split(/\r?\n/);
+  const blocks: ExtractedBlock[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const fence = FENCE_OPEN_RE.exec(lines[i] ?? "");
+    const info = fence?.[2] ?? "";
+    if (fence && !(fence[1][0] === "`" && info.includes("`"))) {
+      const fenceChar = fence[1][0];
+      const minLength = fence[1].length;
+      let j = i + 1;
+      for (; j < lines.length; j++) {
+        const close = FENCE_CLOSE_RE.exec(lines[j] ?? "");
+        if (close && close[1][0] === fenceChar && close[1].length >= minLength) break;
+      }
+      i = j < lines.length ? j + 1 : lines.length;
+      continue;
+    }
+
+    const opening = QUOTE_LINE_RE.exec(lines[i] ?? "");
+    if (!opening) {
+      i++;
+      continue;
+    }
+
+    const position = i;
+    const content = [opening[1]];
+    i++;
+
+    while (i < lines.length) {
+      const continuation = QUOTE_LINE_RE.exec(lines[i] ?? "");
+      if (!continuation) break;
+      content.push(continuation[1]);
+      i++;
+    }
+
+    const text = content.join("\n");
+    if (text.trim()) {
+      blocks.push({ type: "quote", content: text, language: "", position });
+    }
   }
 
   return blocks;
@@ -107,7 +160,7 @@ function assistantText(message: unknown): string | undefined {
   return text.trim() ? text : undefined;
 }
 
-interface CodeBlock extends FencedBlock {
+interface CopyBlock extends ExtractedBlock {
   /** 1-based position in the picker: 1 is the newest block. */
   index: number;
   /** Number of lines in the block. */
@@ -118,11 +171,11 @@ interface CodeBlock extends FencedBlock {
   matchText: string;
 }
 
-function toCodeBlock(block: FencedBlock, index: number): CodeBlock {
-  const codeLines = block.code.split("\n");
-  const nonEmpty = codeLines.map((line) => line.trim()).filter(Boolean);
+function toCopyBlock(block: ExtractedBlock, index: number): CopyBlock {
+  const contentLines = block.content.split("\n");
+  const nonEmpty = contentLines.map((line) => line.trim()).filter(Boolean);
   const firstLine = nonEmpty[0] ?? "(empty block)";
-  const matchText = [block.language, ...nonEmpty.slice(0, 2)]
+  const matchText = [block.type, block.language, ...nonEmpty.slice(0, 2)]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -130,18 +183,18 @@ function toCodeBlock(block: FencedBlock, index: number): CodeBlock {
   return {
     ...block,
     index,
-    lines: codeLines.length,
+    lines: contentLines.length,
     firstLine,
     matchText,
   };
 }
 
-/** Collect code blocks from assistant messages, newest block first. */
-function collectCodeBlocks(sessionManager: {
+/** Collect code and quote blocks from assistant messages, newest block first. */
+function collectCopyBlocks(sessionManager: {
   getBranch(): readonly { type: string; message?: unknown }[];
-}): CodeBlock[] {
+}): CopyBlock[] {
   const branch = sessionManager.getBranch();
-  const blocks: CodeBlock[] = [];
+  const blocks: CopyBlock[] = [];
 
   for (let i = branch.length - 1; i >= 0; i--) {
     const entry = branch[i];
@@ -150,10 +203,12 @@ function collectCodeBlocks(sessionManager: {
     const text = assistantText(entry.message);
     if (!text) continue;
 
-    const found = extractCodeBlocks(text);
+    const found = [...extractCodeBlocks(text), ...extractQuoteBlocks(text)].sort(
+      (a, b) => a.position - b.position,
+    );
     for (let k = found.length - 1; k >= 0; k--) {
       const block = found[k];
-      if (block) blocks.push(toCodeBlock(block, blocks.length + 1));
+      if (block) blocks.push(toCopyBlock(block, blocks.length + 1));
     }
   }
 
@@ -172,12 +227,12 @@ function printableInput(data: string): string | undefined {
   return undefined;
 }
 
-/** Interactive code-block picker rendered inside `ctx.ui.custom()`. */
-class CodeBlockPicker implements Component {
+/** Interactive content-block picker rendered inside `ctx.ui.custom()`. */
+class CopyBlockPicker implements Component {
   private readonly tui: TUI;
   private readonly theme: Theme;
-  private readonly blocks: CodeBlock[];
-  private readonly done: (result: CodeBlock | null) => void;
+  private readonly blocks: CopyBlock[];
+  private readonly done: (result: CopyBlock | null) => void;
 
   private filter = "";
   private selected = 0;
@@ -186,8 +241,8 @@ class CodeBlockPicker implements Component {
   constructor(
     tui: TUI,
     theme: Theme,
-    blocks: CodeBlock[],
-    done: (result: CodeBlock | null) => void,
+    blocks: CopyBlock[],
+    done: (result: CopyBlock | null) => void,
   ) {
     this.tui = tui;
     this.theme = theme;
@@ -261,20 +316,20 @@ class CodeBlockPicker implements Component {
 
     lines.push(rule);
 
-    const title = this.theme.bold(this.theme.fg("accent", "Copy code block"));
+    const title = this.theme.bold(this.theme.fg("accent", "Copy content block"));
     const count = `${this.blocks.length} block${this.blocks.length === 1 ? "" : "s"} · Alt+X`;
     lines.push(truncateToWidth(` ${title}  ${this.theme.fg("muted", count)}`, w, "…"));
 
     const label = this.theme.fg("muted", "Filter: ");
     const value = this.filter
       ? this.theme.fg("text", this.filter)
-      : this.theme.fg("dim", "type to filter by language or content");
+      : this.theme.fg("dim", "type to filter by type, language, or content");
     lines.push(truncateToWidth(` ${label}${value}`, w, "…"));
 
     lines.push(rule);
 
     if (list.length === 0) {
-      lines.push(this.theme.fg("warning", " No matching code blocks"));
+      lines.push(this.theme.fg("warning", " No matching blocks"));
     } else {
       const { start, end } = this.visibleRange(list.length);
       for (let i = start; i < end; i++) {
@@ -309,7 +364,7 @@ class CodeBlockPicker implements Component {
   // ---- state ----
 
   /** Filtered blocks with the selection clamped into range. */
-  private list(): CodeBlock[] {
+  private list(): CopyBlock[] {
     const query = this.filter.trim();
     const list = query ? fuzzyFilter(this.blocks, query, (b) => b.matchText) : this.blocks;
     if (this.selected >= list.length) this.selected = Math.max(0, list.length - 1);
@@ -338,10 +393,10 @@ class CodeBlockPicker implements Component {
 
   // ---- rendering ----
 
-  private renderRow(block: CodeBlock, active: boolean, width: number): string {
+  private renderRow(block: CopyBlock, active: boolean, width: number): string {
     const prefix = active ? "→ " : "  ";
     const num = `#${block.index}`.padEnd(4);
-    const lang = (block.language || "text").slice(0, LANGUAGE_COLUMN).padEnd(LANGUAGE_COLUMN);
+    const lang = (block.language || block.type).slice(0, LANGUAGE_COLUMN).padEnd(LANGUAGE_COLUMN);
     const meta = `${block.lines}L`;
 
     const fixed = 2 + num.length + 1 + lang.length + 1 + meta.length + 2;
@@ -360,14 +415,14 @@ class CodeBlockPicker implements Component {
     );
   }
 
-  private renderPreview(block: CodeBlock, width: number): string[] {
+  private renderPreview(block: CopyBlock, width: number): string[] {
     const out: string[] = [];
-    const header = `${block.language || "text"} · ${block.lines} line${
+    const header = `${block.language || block.type} · ${block.lines} line${
       block.lines === 1 ? "" : "s"
     }`;
     out.push(truncateToWidth(` ${this.theme.fg("muted", header)}`, width, "…"));
 
-    const all = block.code.split("\n");
+    const all = block.content.split("\n");
     const shown = all.slice(0, PREVIEW_LINES);
     const gutterWidth = String(shown.length).length;
     const textWidth = Math.max(1, width - gutterWidth - 3);
@@ -388,23 +443,23 @@ class CodeBlockPicker implements Component {
 
 export default function (pi: ExtensionAPI) {
   pi.registerShortcut("alt+x", {
-    description: "Pick a code block from recent agent messages and copy it",
+    description: "Pick a code or quote block from recent agent messages and copy it",
     handler: async (ctx) => {
-      const blocks = collectCodeBlocks(ctx.sessionManager);
+      const blocks = collectCopyBlocks(ctx.sessionManager);
       if (blocks.length === 0) {
-        ctx.ui.notify("No code blocks in recent agent messages.", "error");
+        ctx.ui.notify("No code or quote blocks in recent agent messages.", "error");
         return;
       }
 
-      const chosen = await ctx.ui.custom<CodeBlock | null>(
+      const chosen = await ctx.ui.custom<CopyBlock | null>(
         (tui, theme, _keybindings, done) =>
-          new CodeBlockPicker(tui, theme, blocks, done),
+          new CopyBlockPicker(tui, theme, blocks, done),
       );
       if (!chosen) return;
 
       try {
-        await copyToClipboard(chosen.code);
-        ctx.ui.notify(`Copied code block #${chosen.index} to clipboard.`, "info");
+        await copyToClipboard(chosen.content);
+        ctx.ui.notify(`Copied ${chosen.type} block #${chosen.index} to clipboard.`, "info");
       } catch (error) {
         ctx.ui.notify(
           error instanceof Error ? error.message : String(error),
