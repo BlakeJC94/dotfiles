@@ -1,0 +1,25 @@
+[package]
+name = "herdr-gitview"
+version = "0.6.0"
+edition = "2024"
+description = "Two-pane git view plugin for herdr: changed files + syntax-highlighted diff, real nvim editing, staging, history, and review notes for AI agents"
+license = "MIT"
+repository = "https://github.com/ChmaraX/herdr-gitview"
+readme = "README.md"
+keywords = ["herdr", "git", "tui", "diff"]
+categories = ["command-line-utilities", "development-tools"]
+publish = false
+
+[dependencies]
+anyhow = "1.0.104"
+crossterm = "0.29.0"
+# `deadline`: a program past its deadline is killed with its process group.
+libc = "0.2"
+ratatui = "0.30.2"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.150"
+similar = "3.1.1"
+syntect = { version = "5.3.0", default-features = false, features = ["default-onig"] }
+toml = "1.1.3"
+two-face = { version = "0.5.1", default-features = false, features = ["syntect-onig"] }
+unicode-width = "0.2.2"

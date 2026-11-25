@@ -1,0 +1,1061 @@
+//! Preview-pane state: the currently shown diff, scroll position, and the
+//! small state machine (splash / diff / empty / error).
+//!
+//! Like the list's `App`, this owns no channels or terminals. `preview::run`
+//! feeds it IPC messages, key events, and diff-worker results, then renders it
+//! via `preview::ui`. That keeps the diff parsing/scroll math easy to test.
+
+use std::path::PathBuf;
+
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::text::{Line, Span, Text};
+
+use crate::config::Config;
+use crate::git::{ChangeKind, Repo, Scope};
+use crate::keymap::{Action, Keymap};
+
+/// Hard cap on rendered diff lines; beyond this we show a truncation notice so
+/// a 100k-line diff can't stall the render loop.
+const MAX_LINES: usize = 20_000;
+
+use super::card::{self, Card, MIN_WIDTH as MIN_CARD_WIDTH};
+use super::compose::{Composer, Outcome};
+
+pub use crate::ipc::ShowReq;
+
+/// A batched review note, anchored to a file (and optionally a line range).
+#[derive(Debug, Clone)]
+pub struct Note {
+    pub id: u64,
+    pub file: PathBuf,
+    /// New-file line range; 0-0 = whole file (list-side note).
+    pub start: u32,
+    pub end: u32,
+    pub text: String,
+    /// The selected diff lines (`-`/`+`/space prefixed), possibly empty.
+    pub snippet: String,
+    /// Whether this note was written against the staged (cached) diff, so
+    /// re-showing it later (notes view) picks the same side.
+    pub cached: bool,
+}
+
+/// A popup the run loop should open on our behalf.
+pub enum PopupReq {
+    PickAgent,
+}
+
+pub enum State {
+    /// Nothing to show yet: dim centered message.
+    Splash(&'static str),
+    /// A diff is loaded in `doc`.
+    Diff,
+    /// The file has no changes in the requested view.
+    Empty,
+    /// The file is binary; no diff to render.
+    Binary,
+    /// The diff build failed; holds the first stderr line.
+    Error(String),
+}
+
+pub struct PreviewApp {
+    pub cfg: Config,
+    pub repo: Repo,
+    pub keys: Keymap,
+
+    /// Last Show request (what the header/stale-guard describe).
+    pub current: Option<ShowReq>,
+    /// The built diff (kept for click-to-unfold rebuilds).
+    built: Option<super::render::DiffDoc>,
+    /// An unfold revealed uncolored lines; the session asks the worker.
+    highlight_wanted: bool,
+    /// Styled, capped diff text (plus a truncation notice line when capped).
+    pub doc: Text<'static>,
+    /// `doc`, word-wrapped to `viewport_w`, plus the row<->line maps. Kept in
+    /// sync with `doc`/`viewport_w` via `sync_wrapped` — every scroll/click
+    /// computation must go through this (never `doc.lines.len()` directly),
+    /// since a wrapped line renders as more rows than it has logical lines.
+    wrapped: super::render::WrappedDoc,
+    /// First inserted line's new-file number (editor jump target).
+    pub first_change: Option<u32>,
+    /// Extra lines hidden by the cap (0 = not truncated).
+    pub scroll: u16,
+    /// Last body height, remembered so Page math is viewport-aware.
+    pub viewport_h: u16,
+    /// Body width of the last draw; note cards are boxed to it.
+    pub viewport_w: u16,
+
+    // ---- review notes / selection ----
+    /// Cursor line in the rendered doc (drives selection).
+    pub cursor_line: usize,
+    /// Selection anchor (`v`); selection = anchor..=cursor.
+    pub select_anchor: Option<usize>,
+    /// Batched review notes across files.
+    pub notes: Vec<Note>,
+    /// Set when `a` was pressed: what the annotate popup will describe.
+    pub pending_note: Option<Note>,
+    /// The open inline composer, if any. While set it owns every keystroke.
+    pub composer: Option<Composer>,
+    /// Popup for the run loop to open.
+    pub popup_request: Option<PopupReq>,
+    /// `n` pressed here: ask the list pane to open the notes view.
+    pub notes_view_request: bool,
+    /// Enter pressed here: ask the list pane to open the editor on the
+    /// current selection (same flow as Enter in the list).
+    pub edit_request: bool,
+    /// Pristine copies of the lines currently tinted, so a cursor move can
+    /// restore them instead of re-cloning the whole (up to 20k-line) doc.
+    saved_tint: Vec<(usize, ratatui::text::Line<'static>)>,
+    /// The file the current doc was built for (cursor-preservation check).
+    shown_file: Option<PathBuf>,
+    /// Rendered indices of injected note-card lines (excluded from ranges).
+    card_lines: Vec<usize>,
+    /// The first doc line of each note's card, keyed by note id.
+    card_starts: Vec<(u64, usize)>,
+    /// Where the open composer box sits in the doc: `(first line, height)`.
+    composer_span: Option<(usize, usize)>,
+    /// Note id to scroll to once its file's diff arrives (notes view hover).
+    pending_focus: Option<u64>,
+    /// Bumped on every note mutation; the run loop broadcasts on change.
+    pub notes_rev: u64,
+    /// Monotonic id source for notes.
+    next_note_id: u64,
+    /// Transient footer flash message.
+    pub flash: Option<(String, std::time::Instant)>,
+
+    pub state: State,
+    pub should_quit: bool,
+    /// True only when *this* pane initiated the quit (via `q`), so it should
+    /// tear down the whole herdr view. A `Quit` message or EOF just exits.
+    pub close_view: bool,
+}
+
+impl PreviewApp {
+    pub fn new(cfg: Config, repo: Repo, keys: Keymap) -> PreviewApp {
+        PreviewApp {
+            cfg,
+            repo,
+            keys,
+            current: None,
+            built: None,
+            highlight_wanted: false,
+            doc: Text::default(),
+            wrapped: super::render::WrappedDoc::default(),
+            first_change: None,
+            scroll: 0,
+            viewport_h: 0,
+            viewport_w: 0,
+            cursor_line: 0,
+            select_anchor: None,
+            notes: Vec::new(),
+            pending_note: None,
+            composer: None,
+            popup_request: None,
+            notes_view_request: false,
+            edit_request: false,
+            saved_tint: Vec::new(),
+            shown_file: None,
+            card_lines: Vec::new(),
+            card_starts: Vec::new(),
+            composer_span: None,
+            pending_focus: None,
+            notes_rev: 0,
+            next_note_id: 1,
+            flash: None,
+            state: State::Splash("waiting for file list…"),
+            should_quit: false,
+            close_view: false,
+        }
+    }
+
+    /// The list connected; if we haven't shown anything yet, switch the splash
+    /// text from "waiting" to "no file selected".
+    pub fn on_connected(&mut self) {
+        if self.current.is_none() {
+            self.state = State::Splash("no file selected");
+        }
+    }
+
+    /// The list has nothing selected any more — drop the shown diff.
+    pub fn clear(&mut self) {
+        self.current = None;
+        self.built = None;
+        self.shown_file = None;
+        self.saved_tint.clear();
+        self.doc = Text::default();
+        self.sync_wrapped();
+        self.first_change = None;
+        self.scroll = 0;
+        self.state = State::Splash("no file selected");
+    }
+
+    // ---- Show / diff results ---------------------------------------------
+
+    /// Record a new Show request. Scroll resets on a file change, is preserved
+    /// on a same-file refresh (e.g. Tab staged toggle or auto-refresh). The
+    /// old `doc` is kept until the worker returns, so there is no flicker.
+    pub fn begin_show(&mut self, req: ShowReq) {
+        let same_file = self
+            .current
+            .as_ref()
+            .map(|c| c.file == req.file)
+            .unwrap_or(false);
+        if !same_file {
+            self.scroll = 0;
+        }
+        self.current = Some(req);
+    }
+
+    /// Apply a worker result, dropping it if it is stale (the selection moved
+    /// on while the diff was computing).
+    pub fn apply_diff(&mut self, req: &ShowReq, result: Result<super::render::DiffDoc, String>) {
+        if self.current.as_ref() != Some(req) {
+            return; // stale — a newer Show already superseded this one
+        }
+        match result {
+            Ok(doc) => self.set_diff(doc),
+            Err(msg) => self.state = State::Error(msg),
+        }
+    }
+
+    /// Color lines of the shown doc, if `req` is still what is shown.
+    /// Returns whether they were applied.
+    pub fn apply_highlights(&mut self, req: &ShowReq, h: &super::render::Highlights) -> bool {
+        if self.current.as_ref() != Some(req) {
+            return false;
+        }
+        let Some(built) = self.built.as_mut() else {
+            return false;
+        };
+        if !built.apply_highlights(h) {
+            return false;
+        }
+        self.rebuild();
+        true
+    }
+
+    /// Lines on screen are still waiting for syntax colors.
+    pub fn highlight_pending(&self) -> bool {
+        self.built.as_ref().is_some_and(|b| b.highlight_pending())
+    }
+
+    /// The coloring an unfold made necessary, for the worker to run.
+    pub fn take_highlight_job(&mut self) -> Option<(ShowReq, super::render::HighlightJob)> {
+        if !std::mem::take(&mut self.highlight_wanted) {
+            return None;
+        }
+        let job = self.built.as_ref()?.highlight_job()?;
+        Some((self.current.clone()?, job))
+    }
+
+    fn set_diff(&mut self, built: super::render::DiffDoc) {
+        self.first_change = built.first_change;
+        if built.binary {
+            self.built = None;
+            self.saved_tint.clear();
+            self.doc = Text::default();
+            self.sync_wrapped();
+            self.state = State::Binary;
+            self.clamp_scroll();
+            return;
+        }
+        if built.is_empty {
+            self.built = None;
+            self.saved_tint.clear();
+            self.doc = Text::default();
+            self.sync_wrapped();
+            self.state = State::Empty;
+            self.clamp_scroll();
+            return;
+        }
+        // A same-file refresh (auto-poll, stage toggle) keeps the cursor and
+        // any live selection; only a *different* file resets them.
+        let same_file = self
+            .current
+            .as_ref()
+            .map(|req| self.shown_file.as_ref() == Some(&req.file))
+            .unwrap_or(false);
+        self.shown_file = self.current.as_ref().map(|req| req.file.clone());
+        self.built = Some(built);
+        if !same_file {
+            self.cursor_line = 0;
+            self.select_anchor = None;
+        }
+        self.state = State::Diff;
+        self.clamp_scroll();
+        self.rebuild();
+        if let Some(id) = self.pending_focus.take() {
+            self.scroll_to_note(id);
+        }
+    }
+
+    /// Copy the built text into `doc`, applying the render cap and injecting
+    /// the current file's note cards under their anchor lines.
+    fn sync_doc(&mut self) {
+        let Some(built) = &self.built else {
+            return;
+        };
+        // Cap the *source* before anything is spliced in. Capping afterwards
+        // would leave card_lines / card_starts / composer_span pointing at
+        // lines that had just been truncated away — on a very large diff the
+        // composer box vanished while still owning every keystroke.
+        let mut doc = built.text.clone();
+        let dropped = doc.lines.len().saturating_sub(MAX_LINES);
+        if dropped > 0 {
+            doc.lines.truncate(MAX_LINES);
+        }
+
+        // Note cards: a boxed block spliced in under the anchor line, so a
+        // note reads as a comment on the code rather than another diff row.
+        // Each card is 1+ lines, so the index bookkeeping below tracks every
+        // line it occupies (`card_lines`) plus where each card starts
+        // (`card_starts`, keyed by note id for `scroll_to_note`).
+        self.card_lines.clear();
+        self.card_starts.clear();
+        self.composer_span = None;
+        if let Some(req) = &self.current {
+            let width = self.viewport_w.max(MIN_CARD_WIDTH) as usize;
+            // While a note is being rewritten its own card is hidden — the
+            // composer box standing in its place *is* that note.
+            let editing = self.composer.as_ref().and_then(|c| c.editing);
+            let mut cards: Vec<Card> = self
+                .notes
+                .iter()
+                .filter(|n| n.file == req.file && Some(n.id) != editing)
+                .map(|n| {
+                    let (anchor, lost) = card::anchor_of(built, n.end);
+                    let mut label = card::range_label("note", n.start, n.end);
+                    if lost {
+                        // Its line is gone from this diff (the file changed
+                        // under it). Say so rather than quietly rendering it
+                        // at the top as if it were a whole-file note.
+                        label.push_str(" · anchor lost");
+                    }
+                    Card {
+                        anchor,
+                        lines: card::note_card(&label, &n.text, width, self.cfg.theme),
+                        note: Some(n.id),
+                    }
+                })
+                .collect();
+            // The composer goes in last, so among cards anchored to the same
+            // line the box you are typing in sits closest to the code.
+            let composing = self.composer.as_ref().map(|c| {
+                let note = self.pending_note.as_ref();
+                let (anchor, _) = card::anchor_of(built, note.map(|n| n.end).unwrap_or(0));
+                let prefix = if c.editing.is_some() {
+                    "edit note"
+                } else {
+                    "new note"
+                };
+                let (start, end) = note.map(|n| (n.start, n.end)).unwrap_or((0, 0));
+                Card {
+                    anchor,
+                    lines: card::composer_card(
+                        &card::range_label(prefix, start, end),
+                        &c.input,
+                        width,
+                        self.cfg.theme,
+                    ),
+                    note: None,
+                }
+            });
+            if let Some(card) = composing {
+                cards.push(card);
+            }
+
+            // Accent the gutter of every commented line *before* anything is
+            // spliced in, while the anchors still index the unshifted doc, so
+            // a line with a note is recognizable once its card scrolls away.
+            for card in &cards {
+                if card.anchor > 0 {
+                    card::accent_gutter(&mut doc.lines, card.anchor - 1, built);
+                }
+            }
+            // Ascending by anchor (stable, so notes on one line keep their
+            // order), then spliced in from the bottom up so an insertion
+            // never shifts an anchor that hasn't been used yet.
+            cards.sort_by_key(|card| card.anchor);
+            for card in cards.iter().rev() {
+                let at = card.anchor.min(doc.lines.len());
+                doc.lines.splice(at..at, card.lines.iter().cloned());
+            }
+            // Then top-down for the index math: each card sits after every
+            // card already spliced in above it. `card_starts` is keyed by note
+            // id, not by rank — a rank would be computed over a different set
+            // than the one that produced it whenever a note is being edited.
+            let mut shift = 0usize;
+            for card in &cards {
+                let start = card.anchor + shift;
+                match card.note {
+                    Some(id) => self.card_starts.push((id, start)),
+                    None => self.composer_span = Some((start, card.lines.len())),
+                }
+                self.card_lines.extend(start..start + card.lines.len());
+                shift += card.lines.len();
+            }
+        }
+
+        // The notice is chrome, like a card: it belongs to no source line, so
+        // the cursor must not be able to rest on it and report a line number.
+        if dropped > 0 {
+            self.card_lines.push(doc.lines.len());
+            doc.lines.push(Line::from(Span::styled(
+                format!("… diff truncated ({dropped} more lines)"),
+                Style::new().fg(Color::DarkGray).add_modifier(Modifier::DIM),
+            )));
+        }
+        self.doc = doc;
+    }
+
+    // ---- mouse ------------------------------------------------------------
+
+    /// Wheel scrolls; a left click moves the cursor (and expands folds);
+    /// dragging extends a selection. `y` is the terminal row (body starts at
+    /// 1, under the header).
+    pub fn on_mouse(&mut self, kind: crossterm::event::MouseEventKind, y: u16) {
+        use crossterm::event::{MouseButton, MouseEventKind};
+        match kind {
+            MouseEventKind::ScrollDown => self.scroll_by(3),
+            MouseEventKind::ScrollUp => self.scroll_by(-3),
+            MouseEventKind::Down(MouseButton::Left) if y >= 1 => {
+                // `scroll`/`y` are rendered-row coordinates (what a wrapped
+                // line actually paints); map back to the logical doc line
+                // everything else here (cards, cursor, folds) addresses.
+                let row = self.scroll as usize + (y - 1) as usize;
+                let line = self.line_of_row(row);
+                // Cards count as their neighbors; clicks on them do nothing.
+                let card_free = !self.card_lines.contains(&line);
+                let to_built = self.doc_to_built(line);
+                if let (Some(bl), Some(built)) = (to_built, self.built.as_mut())
+                    && built.unfold_at(bl)
+                {
+                    self.highlight_wanted = true; // the revealed lines are plain
+                    self.clamp_scroll();
+                    self.rebuild();
+                    return;
+                }
+                if card_free && line < self.content_lines() {
+                    self.select_anchor = None;
+                    self.cursor_line = line;
+                    self.restyle();
+                }
+            }
+            MouseEventKind::Drag(MouseButton::Left) if y >= 1 => {
+                let row = self.scroll as usize + (y - 1) as usize;
+                let line = self
+                    .line_of_row(row)
+                    .min(self.content_lines().saturating_sub(1));
+                if self.select_anchor.is_none() {
+                    self.select_anchor = Some(self.cursor_line);
+                }
+                // Dragging across a card extends past it, never onto it.
+                let dir = if line >= self.cursor_line { 1 } else { -1 };
+                self.cursor_line = self.snap_off_card(line, dir);
+                self.restyle();
+            }
+            _ => {}
+        }
+    }
+
+    /// Map a doc line index (with cards injected) back to the built index.
+    fn doc_to_built(&self, line: usize) -> Option<usize> {
+        if self.card_lines.contains(&line) {
+            return None;
+        }
+        let cards_before = self.card_lines.iter().filter(|c| **c < line).count();
+        Some(line - cards_before)
+    }
+
+    // ---- scrolling --------------------------------------------------------
+
+    /// Record the body size of the current draw. A width change re-boxes the
+    /// note cards, so they always match the pane they are drawn in.
+    pub fn set_viewport(&mut self, w: u16, h: u16) {
+        self.viewport_h = h;
+        if self.viewport_w != w {
+            self.viewport_w = w;
+            if matches!(self.state, State::Diff) {
+                self.rebuild(); // re-boxes cards and re-wraps for the new width
+            } else {
+                self.sync_wrapped(); // still re-wrap so `wrapped` stays current
+            }
+        }
+        self.clamp_scroll();
+    }
+
+    /// Number of logical content lines in the document (incl. any notice).
+    /// This is *not* what's on screen once a line wraps — use
+    /// `visible_row_count` for anything measured against `scroll`.
+    fn content_lines(&self) -> usize {
+        self.doc.lines.len()
+    }
+
+    /// Re-wrap `doc` to `viewport_w`. Call after either changes, before any
+    /// scroll-bound math (`max_scroll`, click mapping, ...) runs against it.
+    fn sync_wrapped(&mut self) {
+        self.wrapped = super::render::wrap_diff_text(&self.doc, self.viewport_w as usize);
+    }
+
+    /// The wrapped rows painted in a body `height` rows tall at the current
+    /// scroll — only those, so a frame never copies the whole doc.
+    pub fn visible_text(&self, height: usize) -> Text<'static> {
+        let rows = &self.wrapped.text.lines;
+        let top = (self.scroll as usize).min(rows.len());
+        Text::from(rows[top..(top + height).min(rows.len())].to_vec())
+    }
+
+    /// Rendered rows currently in the document — the unit `scroll` and
+    /// on-screen `y` coordinates count in, once lines can wrap.
+    fn visible_row_count(&self) -> usize {
+        self.wrapped.text.lines.len()
+    }
+
+    /// The rendered row logical `line` starts on.
+    fn row_of_line(&self, line: usize) -> usize {
+        self.wrapped.line_to_row.get(line).copied().unwrap_or(0)
+    }
+
+    /// The logical doc line rendered `row` belongs to (clamped to the last
+    /// line once `row` runs past the wrapped content).
+    fn line_of_row(&self, row: usize) -> usize {
+        self.wrapped
+            .row_to_line
+            .get(row)
+            .copied()
+            .unwrap_or_else(|| self.content_lines().saturating_sub(1))
+    }
+
+    fn max_scroll(&self) -> u16 {
+        self.visible_row_count()
+            .saturating_sub(self.viewport_h as usize)
+            .min(u16::MAX as usize) as u16
+    }
+
+    fn clamp_scroll(&mut self) {
+        let max = self.max_scroll();
+        if self.scroll > max {
+            self.scroll = max;
+        }
+    }
+
+    /// Scroll by `delta` lines. `i32::MIN` jumps home, `i32::MAX` to bottom.
+    pub fn scroll_by(&mut self, delta: i32) {
+        let max = self.max_scroll();
+        self.scroll = match delta {
+            i32::MIN => 0,
+            i32::MAX => max,
+            d => {
+                let next = i64::from(self.scroll) + i64::from(d);
+                next.clamp(0, i64::from(max)) as u16
+            }
+        };
+        self.keep_cursor_visible();
+    }
+
+    /// Drag the cursor along with the viewport so it is never off-screen:
+    /// scrolling (wheel, or ctrl+d/u forwarded from the list) used to leave
+    /// it behind, so focusing the diff pane showed no cursor at all and the
+    /// first `j` jumped somewhere unrelated.
+    ///
+    /// A live selection is left alone — moving the cursor there would silently
+    /// extend the selection.
+    fn keep_cursor_visible(&mut self) {
+        if self.select_anchor.is_some() {
+            return;
+        }
+        // `scroll`/`viewport_h` are row-space; the cursor is a logical doc
+        // line, so clamp in row-space and map the result back to a line.
+        let last_row = self.visible_row_count().saturating_sub(1);
+        let top = self.scroll as usize;
+        let bottom = (top + self.viewport_h.max(1) as usize - 1).min(last_row);
+        let cur_row = self.row_of_line(self.cursor_line);
+        let clamped_row = cur_row.clamp(top.min(bottom), bottom);
+        // Snapping away from the clamp edge keeps the cursor on screen.
+        let dir = if clamped_row < cur_row { -1 } else { 1 };
+        let clamped = self.snap_off_card(self.line_of_row(clamped_row), dir);
+        if clamped != self.cursor_line {
+            self.cursor_line = clamped;
+            self.restyle();
+        }
+    }
+
+    /// The file line number under the cursor for the header: the new-file
+    /// number, or the old one on a deleted line. `None` on a fold or a note
+    /// card, which belong to no source line.
+    pub fn cursor_file_line(&self) -> Option<u32> {
+        let built = self.built.as_ref()?;
+        let line = self.doc_to_built(self.cursor_line)?;
+        let (old, new) = built.numbers_of_line(line)?;
+        new.or(old)
+    }
+
+    /// Page relative to the viewport height (`full` = whole page, else half).
+    pub fn page(&mut self, down: bool, full: bool) {
+        let vh = self.viewport_h.max(1) as i32;
+        let amount = if full { vh } else { (vh / 2).max(1) };
+        self.scroll_by(if down { amount } else { -amount });
+    }
+
+    // ---- direct keys (preview pane focused) ------------------------------
+
+    pub fn on_key(&mut self, ev: crossterm::event::KeyEvent) {
+        // The composer owns every keystroke while it is open, so a note can
+        // contain any character the keymap would otherwise claim.
+        if self.composer.is_some() {
+            self.compose_key(ev);
+            return;
+        }
+        let Some(action) = self.keys.action(&ev) else {
+            return;
+        };
+        match action {
+            // nvim-style: j/k always move the cursor; the view follows.
+            Action::Down | Action::ScrollDown => self.move_cursor(1),
+            Action::Up | Action::ScrollUp => self.move_cursor(-1),
+            Action::HalfPageDown => self.move_cursor(self.viewport_h.max(2) as i32 / 2),
+            Action::HalfPageUp => self.move_cursor(-(self.viewport_h.max(2) as i32) / 2),
+            Action::Top | Action::DiffTop => self.move_cursor(i32::MIN),
+            Action::Bottom | Action::DiffBottom => self.move_cursor(i32::MAX),
+            Action::Select => {
+                if matches!(self.state, State::Diff) {
+                    self.select_anchor = match self.select_anchor {
+                        Some(_) => None,
+                        None => {
+                            self.flash("visual: j/k extend · a note · esc cancel");
+                            Some(self.cursor_line)
+                        }
+                    };
+                    self.restyle();
+                }
+            }
+            Action::Annotate => self.begin_annotate(),
+            Action::NotesView => self.notes_view_request = true,
+            // Enter: open the editor, same as Enter over in the list. The
+            // list owns that flow (busy lockout, tab-nvim reuse), so just
+            // ask it.
+            Action::Edit => self.edit_request = true,
+            Action::SendNotes => {
+                if self.notes.is_empty() {
+                    self.flash("no notes yet — select lines and press a");
+                } else {
+                    self.popup_request = Some(PopupReq::PickAgent);
+                }
+            }
+            Action::Quit => {
+                // Esc/q first backs out of an active selection.
+                if self.select_anchor.is_some() {
+                    self.select_anchor = None;
+                    self.restyle();
+                } else {
+                    self.should_quit = true;
+                    self.close_view = true;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    // ---- cursor / selection ----------------------------------------------
+
+    /// Move the cursor line (i32::MIN/MAX = home/end), keep it visible, and
+    /// re-apply the selection styling. Only meaningful while selecting (the
+    /// cursor is invisible otherwise).
+    fn move_cursor(&mut self, delta: i32) {
+        let last = self.content_lines().saturating_sub(1);
+        let (target, dir) = match delta {
+            i32::MIN => (0, 1),
+            i32::MAX => (last, -1),
+            d => (
+                (self.cursor_line as i64 + i64::from(d)).clamp(0, last as i64) as usize,
+                if d < 0 { -1 } else { 1 },
+            ),
+        };
+        // Step over a whole card rather than into it.
+        self.cursor_line = self.snap_off_card(target, dir);
+        // Keep the cursor inside the viewport. `scroll`/`vh` are row-space;
+        // convert the cursor's logical line to its row before comparing.
+        let vh = self.viewport_h.max(1) as usize;
+        let cur_row = self.row_of_line(self.cursor_line);
+        if cur_row < self.scroll as usize {
+            self.scroll = cur_row as u16;
+        } else if cur_row >= self.scroll as usize + vh {
+            self.scroll = (cur_row + 1 - vh) as u16;
+        }
+        self.restyle();
+    }
+
+    /// The nearest line that is not part of a note card, searching in `dir`
+    /// (-1 back, +1 forward) first and the other way if that runs out.
+    ///
+    /// Cards are read-only decoration. Letting the cursor land on one means
+    /// you can select and annotate your own annotation, which is nonsense —
+    /// and the doc↔source mapping has no line to give it either.
+    fn snap_off_card(&self, line: usize, dir: i32) -> usize {
+        let last = self.content_lines().saturating_sub(1);
+        let line = line.min(last);
+        if !self.card_lines.contains(&line) {
+            return line;
+        }
+        let forward = (line..=last).find(|i| !self.card_lines.contains(i));
+        let backward = (0..=line).rev().find(|i| !self.card_lines.contains(i));
+        let (first, second) = if dir < 0 {
+            (backward, forward)
+        } else {
+            (forward, backward)
+        };
+        first.or(second).unwrap_or(line)
+    }
+
+    /// The selected rendered-line range (anchor..=cursor), or the cursor line.
+    pub fn selection(&self) -> (usize, usize) {
+        match self.select_anchor {
+            Some(a) => (a.min(self.cursor_line), a.max(self.cursor_line)),
+            None => (self.cursor_line, self.cursor_line),
+        }
+    }
+
+    /// Full re-render from the built diff (cards re-injected), then tint.
+    /// Use after anything that changes the doc's *content*; plain cursor or
+    /// selection moves go through `restyle` alone.
+    fn rebuild(&mut self) {
+        self.sync_doc();
+        self.sync_wrapped();
+        self.saved_tint.clear();
+        // Cards have just moved (a note was added, edited, deleted, or the
+        // pane was resized) and may now sit under the cursor.
+        self.cursor_line = self.snap_off_card(self.cursor_line, 1);
+        self.restyle();
+    }
+
+    /// Tint the cursor line / selection with subtle background colors,
+    /// restoring the previously tinted lines first (text colors are never
+    /// touched; the tint overrides the red/green line tints while selected,
+    /// like an editor would).
+    fn restyle(&mut self) {
+        // Restore whatever was tinted before.
+        let mut touched = Vec::with_capacity(self.saved_tint.len() + 1);
+        for (idx, line) in self.saved_tint.drain(..) {
+            if let Some(slot) = self.doc.lines.get_mut(idx) {
+                *slot = line;
+                touched.push(idx);
+            }
+        }
+        if !matches!(self.state, State::Diff) {
+            self.rewrap(&touched);
+            return;
+        }
+        // The cursor line has to read as "you are here" against the diff's
+        // own red/green tints, so it is a real cursorline, not a whisper.
+        let cursor_bg = if !self.cfg.theme.is_light() {
+            Color::Rgb(0x39, 0x3b, 0x4f)
+        } else {
+            Color::Rgb(0xdf, 0xe4, 0xee)
+        };
+        let select_bg = if !self.cfg.theme.is_light() {
+            Color::Rgb(0x45, 0x47, 0x5a)
+        } else {
+            Color::Rgb(0xd8, 0xdd, 0xe6)
+        };
+        let last = self.doc.lines.len().saturating_sub(1);
+        self.cursor_line = self.cursor_line.min(last);
+        let tint = |idx: usize,
+                    bg: Color,
+                    saved: &mut Vec<(usize, ratatui::text::Line<'static>)>,
+                    lines: &mut Vec<ratatui::text::Line<'static>>| {
+            if let Some(line) = lines.get_mut(idx) {
+                saved.push((idx, line.clone()));
+                line.style = line.style.bg(bg);
+                for span in &mut line.spans {
+                    span.style = span.style.bg(bg);
+                }
+            }
+        };
+        let mut saved = std::mem::take(&mut self.saved_tint);
+        match self.select_anchor {
+            Some(_) => {
+                let (a, b) = self.selection();
+                // Cards inside the range stay untinted — they are not part of
+                // the selection and contribute nothing to the note.
+                for idx in (a..=b).filter(|i| !self.card_lines.contains(i)) {
+                    tint(idx, select_bg, &mut saved, &mut self.doc.lines);
+                }
+            }
+            None => tint(self.cursor_line, cursor_bg, &mut saved, &mut self.doc.lines),
+        }
+        touched.extend(saved.iter().map(|(idx, _)| *idx));
+        self.saved_tint = saved;
+        self.rewrap(&touched);
+    }
+
+    /// Re-wrap just the doc lines a tint change touched. A tint never
+    /// changes a line's width, so its rows keep their count and every
+    /// row<->line map stays valid; anything else falls back to a full wrap.
+    fn rewrap(&mut self, lines: &[usize]) {
+        let width = self.viewport_w as usize;
+        for &idx in lines {
+            let Some(line) = self.doc.lines.get(idx) else {
+                continue;
+            };
+            if !self.wrapped.rewrap_line(idx, line, width) {
+                self.sync_wrapped();
+                return;
+            }
+        }
+    }
+
+    // ---- notes ------------------------------------------------------------
+
+    /// `a`: capture the selection as a pending note and ask the run loop to
+    /// open the annotate popup. With no active selection, the note covers the
+    /// whole file.
+    fn begin_annotate(&mut self) {
+        let Some(req) = self.current.clone() else {
+            return;
+        };
+        if req.commit.is_some() || req.scope != Scope::Worktree {
+            self.flash("notes work on staged/unstaged changes only");
+            return;
+        }
+
+        let Some(built) = &self.built else {
+            return;
+        };
+        let (a, b) = self.selection();
+        let mut numbers = Vec::new();
+        let mut snippet = String::new();
+        for line in a..=b {
+            let Some(bl) = self.doc_to_built(line) else {
+                continue;
+            };
+            if let Some((old, new)) = built.numbers_of_line(bl) {
+                numbers.push(new.or(old).unwrap_or(0));
+            }
+            if let Some(text) = built.marker_text_of_line(bl)
+                && !text.is_empty()
+                && snippet.lines().count() < 40
+            {
+                snippet.push_str(&text);
+                snippet.push('\n');
+            }
+        }
+        // A range that mapped to no source line at all (only cards, or only
+        // folds) would silently become a whole-file note — refuse instead.
+        let (start, end) = match (numbers.iter().min(), numbers.iter().max()) {
+            (Some(&s), Some(&e)) if s > 0 => (s, e),
+            _ => {
+                self.flash("select some code to annotate");
+                return;
+            }
+        };
+        self.pending_note = Some(Note {
+            id: 0, // allocated when committed
+            file: req.file,
+            start,
+            end,
+            text: String::new(),
+            snippet,
+            cached: req.cached,
+        });
+        self.composer = Some(Composer::new(String::new(), None));
+        self.rebuild();
+        self.scroll_to_composer();
+    }
+
+    /// Hand a key to the open composer and act on what it asks for.
+    fn compose_key(&mut self, ev: crossterm::event::KeyEvent) {
+        let width = self.composer_width();
+        let Some(composer) = self.composer.as_mut() else {
+            return;
+        };
+        match composer.key(ev, width) {
+            Outcome::Ignored => {}
+            Outcome::Edited => {
+                self.rebuild();
+                self.scroll_to_composer();
+            }
+            Outcome::Save => self.commit_composer(),
+            Outcome::Cancel => self.cancel_composer(),
+        }
+    }
+
+    /// Text width inside the composer box (the card's own inner width).
+    fn composer_width(&self) -> usize {
+        card::card_text_width(self.viewport_w.max(MIN_CARD_WIDTH) as usize)
+    }
+
+    /// Enter in the composer: save a new note or the edit of an existing one.
+    /// An empty note is a cancel — there is nothing to send an agent.
+    fn commit_composer(&mut self) {
+        let Some(composer) = self.composer.take() else {
+            return;
+        };
+        let editing = composer.editing;
+        let Some(text) = composer.finish() else {
+            // An empty note is a cancel — there is nothing to send an agent.
+            self.pending_note = None;
+            self.select_anchor = None;
+            self.rebuild();
+            return;
+        };
+        match editing {
+            Some(id) => {
+                self.pending_note = None;
+                self.edit_note(id, text);
+            }
+            None => self.finish_annotate(text),
+        }
+    }
+
+    fn cancel_composer(&mut self) {
+        self.composer = None;
+        self.pending_note = None;
+        self.select_anchor = None;
+        self.rebuild();
+    }
+
+    /// Open the composer on an existing note (asked for by the notes view).
+    /// Returns false when the note isn't in the shown file, so the caller can
+    /// fall back rather than silently doing nothing.
+    pub fn begin_edit_note(&mut self, id: u64) -> bool {
+        let Some(note) = self.notes.iter().find(|n| n.id == id).cloned() else {
+            return false;
+        };
+        self.select_anchor = None;
+        self.composer = Some(Composer::new(note.text.clone(), Some(id)));
+        self.pending_note = Some(note);
+        self.rebuild();
+        self.scroll_to_composer();
+        true
+    }
+
+    /// Open the composer for a whole-file note (asked for by the file list).
+    pub fn begin_file_note(&mut self) {
+        let Some(req) = self.current.clone() else {
+            return;
+        };
+        self.select_anchor = None;
+        self.pending_note = Some(Note {
+            id: 0,
+            file: req.file,
+            start: 0,
+            end: 0,
+            text: String::new(),
+            snippet: String::new(),
+            cached: req.cached,
+        });
+        self.composer = Some(Composer::new(String::new(), None));
+        self.rebuild();
+        self.scroll_to_composer();
+    }
+
+    /// The Show that puts a note's own file on screen, so the composer can
+    /// open on it without the list having to say which file that is.
+    pub fn show_for_note(&self, id: u64) -> Option<ShowReq> {
+        let note = self.notes.iter().find(|n| n.id == id)?;
+        if self.current.as_ref().map(|r| &r.file) == Some(&note.file) {
+            return None; // already showing it
+        }
+        Some(ShowReq::worktree(
+            note.file.clone(),
+            None,
+            note.cached,
+            ChangeKind::Modified,
+        ))
+    }
+
+    /// Scroll so the whole composer box is on screen, preferring to keep its
+    /// top visible when it is taller than the viewport.
+    fn scroll_to_composer(&mut self) {
+        let Some((start, len)) = self.composer_span else {
+            return;
+        };
+        let vh = self.viewport_h.max(1) as usize;
+        let last_line = (start + len)
+            .saturating_sub(1)
+            .min(self.content_lines().saturating_sub(1));
+        let start_row = self.row_of_line(start);
+        let end_row = self.row_of_line(last_line) + 1; // one past the box's last row
+        if end_row > self.scroll as usize + vh {
+            self.scroll = (end_row - vh) as u16;
+        }
+        if (self.scroll as usize) > start_row {
+            self.scroll = start_row as u16;
+        }
+        self.clamp_scroll();
+    }
+
+    /// The annotate popup returned text: commit the pending note.
+    pub fn finish_annotate(&mut self, text: String) {
+        if let Some(mut note) = self.pending_note.take() {
+            note.text = text;
+            note.id = self.next_note_id;
+            self.next_note_id += 1;
+            self.notes.push(note);
+            self.notes_rev += 1;
+            self.select_anchor = None;
+            self.rebuild();
+        }
+    }
+
+    pub fn clear_notes(&mut self) {
+        self.notes.clear();
+        self.notes_rev += 1;
+        self.rebuild();
+    }
+
+    pub fn edit_note(&mut self, id: u64, text: String) {
+        if let Some(note) = self.notes.iter_mut().find(|n| n.id == id) {
+            note.text = text;
+            self.notes_rev += 1;
+            self.rebuild();
+        }
+    }
+
+    pub fn delete_note(&mut self, id: u64) {
+        let before = self.notes.len();
+        self.notes.retain(|n| n.id != id);
+        if self.notes.len() != before {
+            self.notes_rev += 1;
+            self.rebuild();
+        }
+    }
+
+    /// The notes view hovered note `idx`: scroll its card into view when its
+    /// file is already shown, else remember it until that diff arrives.
+    pub fn focus_note(&mut self, id: u64) {
+        let note = self.notes.iter().find(|n| n.id == id);
+        let same_file = match (note, &self.current) {
+            (Some(note), Some(req)) => note.file == req.file,
+            _ => false,
+        };
+        if same_file && matches!(self.state, State::Diff) {
+            self.scroll_to_note(id);
+        } else {
+            self.pending_focus = Some(id);
+        }
+    }
+
+    fn scroll_to_note(&mut self, id: u64) {
+        let Some((_, line)) = self.card_starts.iter().find(|(n, _)| *n == id) else {
+            return; // not in the shown file, or its card is the open composer
+        };
+        let row = self.row_of_line(*line);
+        self.scroll = row.saturating_sub(3) as u16;
+        self.clamp_scroll();
+        self.keep_cursor_visible();
+    }
+
+    pub fn flash(&mut self, msg: impl Into<String>) {
+        self.flash = Some((msg.into(), std::time::Instant::now()));
+    }
+
+    /// The flash message if still fresh (3 s TTL).
+    pub fn active_flash(&self) -> Option<&str> {
+        match &self.flash {
+            Some((msg, at)) if at.elapsed() < std::time::Duration::from_secs(3) => {
+                Some(msg.as_str())
+            }
+            _ => None,
+        }
+    }
+}

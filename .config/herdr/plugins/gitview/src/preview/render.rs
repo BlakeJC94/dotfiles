@@ -1,0 +1,1199 @@
+//! The structured diff model: old-vs-new content as rows with syntax
+//! highlighting, red/green line backgrounds, word-level emphasis, and folded
+//! context — ported (simplified) from persiyanov/herdr-reviewr `diff.rs` (MIT).
+
+use std::borrow::Cow;
+use std::path::Path;
+use std::sync::Arc;
+
+use ratatui::style::{Color, Style};
+use ratatui::text::{Line, Span, Text};
+use similar::{ChangeTag, TextDiff};
+use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
+
+use syntect::util::LinesWithEndings;
+
+use super::highlight::{Highlighter, Rgb, Run};
+
+/// A `[start, end)` run of char indices within a line, for word emphasis.
+type CharRange = (u32, u32);
+
+mod coloring;
+pub use coloring::{HighlightJob, Highlights};
+
+/// One line of code: its text, and its syntax colors once known.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct Code {
+    text: String,
+    /// `None` until highlighted; painted in the default color meanwhile.
+    runs: Option<Vec<Run>>,
+}
+
+/// Which file a row's code line comes from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum Side {
+    Old,
+    New,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Row {
+    Context {
+        old_no: u32,
+        new_no: u32,
+        code: Code,
+    },
+    Deletion {
+        old_no: u32,
+        code: Code,
+        emphasis: Vec<CharRange>,
+    },
+    Insertion {
+        new_no: u32,
+        code: Code,
+        emphasis: Vec<CharRange>,
+    },
+    /// A collapsed run of unchanged lines (kept, so a click can expand them).
+    Fold { lines: Vec<Row> },
+}
+
+impl Row {
+    /// The side and 0-based line this row shows, and its code (context
+    /// shows the new side). `None` for folds.
+    fn code(&self) -> Option<(Side, usize, &Code)> {
+        match self {
+            Row::Deletion { old_no, code, .. } => Some((Side::Old, *old_no as usize - 1, code)),
+            Row::Insertion { new_no, code, .. } | Row::Context { new_no, code, .. } => {
+                Some((Side::New, *new_no as usize - 1, code))
+            }
+            Row::Fold { .. } => None,
+        }
+    }
+
+    fn code_mut(&mut self) -> Option<(Side, usize, &mut Code)> {
+        match self {
+            Row::Deletion { old_no, code, .. } => Some((Side::Old, *old_no as usize - 1, code)),
+            Row::Insertion { new_no, code, .. } | Row::Context { new_no, code, .. } => {
+                Some((Side::New, *new_no as usize - 1, code))
+            }
+            Row::Fold { .. } => None,
+        }
+    }
+
+    /// The line's text; empty for folds.
+    fn text(&self) -> &str {
+        self.code().map_or("", |(_, _, code)| &code.text)
+    }
+}
+
+/// The built document, ready to render. Folds can be expanded in place
+/// (`unfold_at`), which rebuilds `text`.
+///
+/// Rows start out uncolored (`build_plain`) and gain syntax colors line by
+/// line (`apply_highlights`, in `coloring`), so a doc can go on screen before its
+/// highlighting is done and an unfolded run can be colored after the fact.
+#[derive(Clone)]
+pub struct DiffDoc {
+    rows: Vec<Row>,
+    /// Both sides' full content, kept so lines revealed later (unfolding)
+    /// can still be highlighted.
+    old: Arc<str>,
+    new: Arc<str>,
+    ext: Option<String>,
+    /// The language is known, so lines can gain colors at all.
+    colorable: bool,
+    theme: crate::config::Theme,
+    diff_highlight: crate::config::DiffHighlight,
+    default_fg: Rgb,
+    /// Rendered line index → index into `rows`.
+    line_rows: Vec<usize>,
+    pub text: Text<'static>,
+    /// First inserted line's new-file number (for the editor jump).
+    pub first_change: Option<u32>,
+    pub is_empty: bool,
+    pub binary: bool,
+}
+
+impl DiffDoc {
+    /// `(old_no, new_no)` of a rendered line (None for folds/out of range).
+    pub fn numbers_of_line(&self, line: usize) -> Option<(Option<u32>, Option<u32>)> {
+        let row = self.rows.get(*self.line_rows.get(line)?)?;
+        match row {
+            Row::Context { old_no, new_no, .. } => Some((Some(*old_no), Some(*new_no))),
+            Row::Deletion { old_no, .. } => Some((Some(*old_no), None)),
+            Row::Insertion { new_no, .. } => Some((None, Some(*new_no))),
+            Row::Fold { .. } => None,
+        }
+    }
+
+    /// The rendered line showing new-file line `no`; a folded line resolves
+    /// to its fold row, so anchors never silently jump to the top.
+    pub fn line_for_new(&self, no: u32) -> Option<usize> {
+        if let Some(line) = (0..self.line_rows.len())
+            .find(|&i| self.numbers_of_line(i).and_then(|(_, n)| n) == Some(no))
+        {
+            return Some(line);
+        }
+        // Hidden inside a fold?
+        (0..self.line_rows.len()).find(|&i| {
+            match self.rows.get(self.line_rows[i]) {
+                Some(Row::Fold { lines }) => lines
+                    .iter()
+                    .any(|r| matches!(r, Row::Context { new_no, .. } | Row::Insertion { new_no, .. } if *new_no == no)),
+                _ => false,
+            }
+        })
+    }
+
+    /// A rendered line's diff text: marker + content, no gutter. Empty for
+    /// folds.
+    pub fn marker_text_of_line(&self, line: usize) -> Option<String> {
+        let row = self.rows.get(*self.line_rows.get(line)?)?;
+        let marker = match row {
+            Row::Deletion { .. } => "-",
+            Row::Insertion { .. } => "+",
+            Row::Context { .. } => " ",
+            Row::Fold { .. } => return Some(String::new()),
+        };
+        Some(format!("{marker}{}", row.text()))
+    }
+
+    /// Expand the fold at rendered line `line` (if that line is a fold).
+    /// Returns true when something unfolded (the text was rebuilt).
+    pub fn unfold_at(&mut self, line: usize) -> bool {
+        let Some(&row_idx) = self.line_rows.get(line) else {
+            return false;
+        };
+        if !matches!(self.rows.get(row_idx), Some(Row::Fold { .. })) {
+            return false;
+        }
+        let Row::Fold { lines } = self.rows.remove(row_idx) else {
+            unreachable!();
+        };
+        self.rows.splice(row_idx..row_idx, lines);
+        self.rebuild();
+        true
+    }
+
+    fn rebuild(&mut self) {
+        let (text, line_rows) = to_text(
+            &self.rows,
+            &Palette::with_highlight(self.theme, self.diff_highlight),
+            self.default_fg,
+        );
+        self.text = text;
+        self.line_rows = line_rows;
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Tint {
+    Ins,
+    Del,
+    InsEmph,
+    DelEmph,
+    Gutter,
+    Fold,
+    FoldFg,
+}
+
+/// Colors for the diff chrome, themed light or dark to match the syntax theme.
+struct Palette {
+    ins_bg: Color,
+    del_bg: Color,
+    ins_emph_bg: Color,
+    del_emph_bg: Color,
+    gutter: Color,
+    fold_fg: Color,
+    fold_bg: Color,
+    diff_highlight: crate::config::DiffHighlight,
+}
+
+impl Palette {
+    fn with_highlight(
+        theme: crate::config::Theme,
+        diff_highlight: crate::config::DiffHighlight,
+    ) -> Palette {
+        let rgb = |t: Tint| -> Color {
+            let (r, g, b) = if theme.is_light() {
+                // GitHub-web-like tints.
+                match t {
+                    Tint::Ins => (0xe6, 0xff, 0xec),
+                    Tint::Del => (0xff, 0xeb, 0xe9),
+                    Tint::InsEmph => (0xab, 0xf2, 0xbc),
+                    Tint::DelEmph => (0xff, 0xc0, 0xc0),
+                    Tint::Gutter => (0x9a, 0xa0, 0xa6),
+                    Tint::FoldFg => (0x7a, 0x80, 0x89),
+                    Tint::Fold => (0xdf, 0xe3, 0xea),
+                }
+            } else {
+                // Catppuccin-ish tints for dark terminals.
+                match t {
+                    Tint::Ins => (0x1f, 0x3a, 0x2a),
+                    Tint::Del => (0x45, 0x23, 0x2f),
+                    Tint::InsEmph => (0x30, 0x55, 0x3f),
+                    Tint::DelEmph => (0x6e, 0x34, 0x46),
+                    Tint::Gutter => (0x6c, 0x70, 0x86),
+                    Tint::FoldFg => (0x8a, 0x8e, 0xa3),
+                    Tint::Fold => (0x2a, 0x2b, 0x3c),
+                }
+            };
+            Color::Rgb(r, g, b)
+        };
+        Palette::of(rgb, diff_highlight)
+    }
+
+    fn of(color: impl Fn(Tint) -> Color, diff_highlight: crate::config::DiffHighlight) -> Palette {
+        Palette {
+            ins_bg: color(Tint::Ins),
+            del_bg: color(Tint::Del),
+            ins_emph_bg: color(Tint::InsEmph),
+            del_emph_bg: color(Tint::DelEmph),
+            gutter: color(Tint::Gutter),
+            fold_fg: color(Tint::FoldFg),
+            fold_bg: color(Tint::Fold),
+            diff_highlight,
+        }
+    }
+
+    fn change_bg(&self, color: Color) -> Option<Color> {
+        (self.diff_highlight == crate::config::DiffHighlight::Full).then_some(color)
+    }
+}
+
+/// Expand `\t` to spaces using tab stops of `width` columns. ratatui draws to
+/// a cell grid and never interprets tabs, so we expand them before highlight
+/// and diff. Returns the input borrowed unchanged when it contains no tab, so
+/// the common (tab-free) case allocates nothing.
+fn expand_tabs(s: &str, width: usize) -> Cow<'_, str> {
+    if !s.contains('\t') {
+        return Cow::Borrowed(s);
+    }
+    let width = width.max(1);
+    let mut out = String::with_capacity(s.len() + width);
+    // Column resets at every line break; a tab pads to the next multiple of
+    // `width` within the current line.
+    let mut col = 0usize;
+    for ch in s.chars() {
+        match ch {
+            '\t' => {
+                let pad = width - (col % width);
+                out.extend(std::iter::repeat_n(' ', pad));
+                col += pad;
+            }
+            '\n' => {
+                out.push('\n');
+                col = 0;
+            }
+            other => {
+                out.push(other);
+                col += 1;
+            }
+        }
+    }
+    Cow::Owned(out)
+}
+
+/// Build the full document from old and new file content, highlighted.
+pub fn build(
+    path: &Path,
+    old: &str,
+    new: &str,
+    hl: &Highlighter,
+    theme: crate::config::Theme,
+    context_lines: usize,
+    tab_width: usize,
+) -> DiffDoc {
+    build_within(
+        path,
+        old,
+        new,
+        hl,
+        theme,
+        context_lines,
+        tab_width,
+        usize::MAX,
+    )
+}
+
+/// [`build`], with syntax colors for the first `rows` rows only (the rest
+/// stay plain): for a caller that shows no more than those.
+#[allow(clippy::too_many_arguments)]
+pub fn build_within(
+    path: &Path,
+    old: &str,
+    new: &str,
+    hl: &Highlighter,
+    theme: crate::config::Theme,
+    context_lines: usize,
+    tab_width: usize,
+    rows: usize,
+) -> DiffDoc {
+    let mut doc = build_plain_with_highlight(
+        path,
+        old,
+        new,
+        hl,
+        theme,
+        context_lines,
+        tab_width,
+        crate::config::DiffHighlight::Full,
+    );
+    if let Some(h) = doc
+        .highlight_job_within(rows)
+        .and_then(|job| job.run(hl, &mut || true))
+    {
+        doc.apply_highlights(&h);
+    }
+    doc
+}
+
+/// Build the document with every line in the default color: diffing,
+/// emphasis and folding only, no grammar — cheap enough to show at once.
+pub fn build_plain(
+    path: &Path,
+    old: &str,
+    new: &str,
+    hl: &Highlighter,
+    theme: crate::config::Theme,
+    context_lines: usize,
+    tab_width: usize,
+) -> DiffDoc {
+    build_plain_with_highlight(
+        path,
+        old,
+        new,
+        hl,
+        theme,
+        context_lines,
+        tab_width,
+        crate::config::DiffHighlight::Full,
+    )
+}
+
+/// [`build_plain`] with a configurable change-line highlight style.
+#[allow(clippy::too_many_arguments)]
+pub fn build_plain_with_highlight(
+    path: &Path,
+    old: &str,
+    new: &str,
+    hl: &Highlighter,
+    theme: crate::config::Theme,
+    context_lines: usize,
+    tab_width: usize,
+    diff_highlight: crate::config::DiffHighlight,
+) -> DiffDoc {
+    // Tabs become spaces before anything else: the diff, the highlighting
+    // (later, from the kept content) and the cells all see the same text.
+    let old = expand_tabs(old, tab_width);
+    let new = expand_tabs(new, tab_width);
+    let (old, new) = (old.as_ref(), new.as_ref());
+    let ext = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(str::to_string);
+    let mut doc = DiffDoc {
+        rows: Vec::new(),
+        old: Arc::from(old),
+        new: Arc::from(new),
+        colorable: Highlighter::knows(ext.as_deref()),
+        ext,
+        theme,
+        diff_highlight,
+        default_fg: hl.default_fg,
+        line_rows: Vec::new(),
+        text: Text::default(),
+        first_change: None,
+        is_empty: false,
+        binary: false,
+    };
+    if old.contains('\0') || new.contains('\0') {
+        doc.binary = true;
+        return doc;
+    }
+    let old_lines: Vec<&str> = LinesWithEndings::from(old).collect();
+    let new_lines: Vec<&str> = LinesWithEndings::from(new).collect();
+    let line = |lines: &[&str], i: usize| Code {
+        text: lines
+            .get(i)
+            .map_or("", |l| l.trim_end_matches('\n'))
+            .to_string(),
+        runs: None,
+    };
+
+    let mut rows = Vec::new();
+    for change in TextDiff::from_lines(old, new).iter_all_changes() {
+        match change.tag() {
+            ChangeTag::Equal => {
+                let (oi, ni) = (change.old_index().unwrap(), change.new_index().unwrap());
+                rows.push(Row::Context {
+                    old_no: oi as u32 + 1,
+                    new_no: ni as u32 + 1,
+                    code: line(&new_lines, ni),
+                });
+            }
+            ChangeTag::Delete => {
+                let oi = change.old_index().unwrap();
+                rows.push(Row::Deletion {
+                    old_no: oi as u32 + 1,
+                    code: line(&old_lines, oi),
+                    emphasis: Vec::new(),
+                });
+            }
+            ChangeTag::Insert => {
+                let ni = change.new_index().unwrap();
+                rows.push(Row::Insertion {
+                    new_no: ni as u32 + 1,
+                    code: line(&new_lines, ni),
+                    emphasis: Vec::new(),
+                });
+            }
+        }
+    }
+
+    let is_empty = !rows
+        .iter()
+        .any(|r| matches!(r, Row::Deletion { .. } | Row::Insertion { .. }));
+    let first_change = rows.iter().find_map(|r| match r {
+        Row::Insertion { new_no, .. } => Some(*new_no),
+        _ => None,
+    });
+
+    compute_emphasis(&mut rows);
+    doc.rows = collapse_context(rows, context_lines);
+    doc.first_change = first_change;
+    doc.is_empty = is_empty;
+    doc.rebuild();
+    doc
+}
+
+// ---- word-level emphasis ---------------------------------------------------
+
+/// Two lines below this similarity are different lines, not one line edited.
+const MIN_SIMILARITY: f32 = 0.7;
+
+/// For each change block (a run of deletions followed by a run of insertions),
+/// pair each deletion with its first similar-enough insertion and mark the
+/// changed char ranges on both (git-delta's homolog inference, simplified).
+fn compute_emphasis(rows: &mut [Row]) {
+    let mut i = 0;
+    while i < rows.len() {
+        let del_start = i;
+        while i < rows.len() && matches!(rows[i], Row::Deletion { .. }) {
+            i += 1;
+        }
+        let ins_start = i;
+        while i < rows.len() && matches!(rows[i], Row::Insertion { .. }) {
+            i += 1;
+        }
+        pair_homologs(rows, del_start..ins_start, ins_start..i);
+        if del_start == i {
+            i += 1; // no change block here; step over the context row
+        }
+    }
+}
+
+fn pair_homologs(rows: &mut [Row], dels: std::ops::Range<usize>, inss: std::ops::Range<usize>) {
+    let mut next_ins = inss.start;
+    for d in dels {
+        let old = rows[d].text().to_string();
+        let mut p = next_ins;
+        while p < inss.end {
+            let (ratio, old_e, new_e) = word_emphasis(&old, rows[p].text());
+            if ratio >= MIN_SIMILARITY {
+                if let Row::Deletion { emphasis, .. } = &mut rows[d] {
+                    *emphasis = old_e;
+                }
+                if let Row::Insertion { emphasis, .. } = &mut rows[p] {
+                    *emphasis = new_e;
+                }
+                next_ins = p + 1;
+                break;
+            }
+            p += 1;
+        }
+    }
+}
+
+/// Word-level similarity of `(old, new)` plus the changed char ranges on each
+/// side, whitespace-trimmed and coalesced across pure-whitespace gaps.
+fn word_emphasis(old: &str, new: &str) -> (f32, Vec<CharRange>, Vec<CharRange>) {
+    let diff = TextDiff::from_words(old, new);
+    let (mut old_ranges, mut new_ranges) = (Vec::new(), Vec::new());
+    let (mut old_pos, mut new_pos) = (0u32, 0u32);
+    for change in diff.iter_all_changes() {
+        let len = change.value().chars().count() as u32;
+        match change.tag() {
+            ChangeTag::Equal => {
+                old_pos += len;
+                new_pos += len;
+            }
+            ChangeTag::Delete => {
+                push_range(&mut old_ranges, old_pos, len);
+                old_pos += len;
+            }
+            ChangeTag::Insert => {
+                push_range(&mut new_ranges, new_pos, len);
+                new_pos += len;
+            }
+        }
+    }
+    let old_e = trim_edges(coalesce(old_ranges, old), old);
+    let new_e = trim_edges(coalesce(new_ranges, new), new);
+    (diff.ratio(), old_e, new_e)
+}
+
+fn push_range(ranges: &mut Vec<CharRange>, pos: u32, len: u32) {
+    if len == 0 {
+        return;
+    }
+    match ranges.last_mut() {
+        Some(last) if last.1 == pos => last.1 = pos + len,
+        _ => ranges.push((pos, pos + len)),
+    }
+}
+
+/// Merge ranges whose gap is all whitespace, so a changed phrase is one block.
+fn coalesce(ranges: Vec<CharRange>, text: &str) -> Vec<CharRange> {
+    let chars: Vec<char> = text.chars().collect();
+    let mut out: Vec<CharRange> = Vec::new();
+    for (start, end) in ranges {
+        match out.last_mut() {
+            Some(last)
+                if chars[last.1 as usize..start as usize]
+                    .iter()
+                    .all(|c| c.is_whitespace()) =>
+            {
+                last.1 = end;
+            }
+            _ => out.push((start, end)),
+        }
+    }
+    out
+}
+
+/// Shrink each range off leading/trailing whitespace; drop all-whitespace ones.
+fn trim_edges(ranges: Vec<CharRange>, text: &str) -> Vec<CharRange> {
+    let chars: Vec<char> = text.chars().collect();
+    ranges
+        .into_iter()
+        .filter_map(|(mut a, mut b)| {
+            while a < b && chars[a as usize].is_whitespace() {
+                a += 1;
+            }
+            while b > a && chars[b as usize - 1].is_whitespace() {
+                b -= 1;
+            }
+            (a < b).then_some((a, b))
+        })
+        .collect()
+}
+
+// ---- folding ---------------------------------------------------------------
+
+/// Collapse runs of unchanged context beyond `margin` lines around each change.
+fn collapse_context(rows: Vec<Row>, margin: usize) -> Vec<Row> {
+    let n = rows.len();
+    let mut keep = vec![false; n];
+    for (i, row) in rows.iter().enumerate() {
+        if matches!(row, Row::Context { .. }) {
+            continue;
+        }
+        let lo = i.saturating_sub(margin);
+        let hi = (i + margin).min(n.saturating_sub(1));
+        keep[lo..=hi].iter_mut().for_each(|k| *k = true);
+    }
+
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < n {
+        if keep[i] {
+            out.push(rows[i].clone());
+            i += 1;
+            continue;
+        }
+        let start = i;
+        while i < n && !keep[i] {
+            i += 1;
+        }
+        if i - start > 1 {
+            out.push(Row::Fold {
+                lines: rows[start..i].to_vec(),
+            });
+        } else {
+            out.extend(rows[start..i].iter().cloned());
+        }
+    }
+    out
+}
+
+// ---- wrapping ---------------------------------------------------------------
+
+/// A doc word-wrapped to a pane's `width`, plus the row maps that translate
+/// between a *logical* doc line (what the cursor, click handling, and note
+/// anchors all address) and a *rendered row* (what `Paragraph::scroll` and
+/// on-screen `y` coordinates actually count) once a line can wrap into more
+/// than one row. Without this map, scrolling/clicking desyncs from what's
+/// painted the moment any line wraps.
+#[derive(Debug, Default, Clone)]
+pub struct WrappedDoc {
+    pub text: Text<'static>,
+    /// Rendered row index -> the logical line it came from.
+    pub row_to_line: Vec<usize>,
+    /// Logical line index -> the rendered row it starts on.
+    pub line_to_row: Vec<usize>,
+}
+
+impl WrappedDoc {
+    /// Swap in a new rendering of logical line `idx` (same content, other
+    /// styling). False when its row count changed, or the maps don't know
+    /// the line: the caller must re-wrap everything.
+    pub fn rewrap_line(&mut self, idx: usize, line: &Line<'static>, width: usize) -> bool {
+        let Some(&start) = self.line_to_row.get(idx) else {
+            return false;
+        };
+        let end = self
+            .line_to_row
+            .get(idx + 1)
+            .copied()
+            .unwrap_or(self.text.lines.len());
+        let rows = if width == 0 {
+            vec![line.clone()]
+        } else {
+            wrap_line_spans(line, width, GUTTER_CHARS as usize)
+        };
+        if rows.len() != end - start {
+            return false;
+        }
+        self.text.lines.splice(start..end, rows);
+        true
+    }
+}
+
+/// The built preview doc (diff lines + any spliced note cards), word-wrapped
+/// to the pane's `width`. Continuation rows are indented by the gutter width
+/// (blank, no line number) so wrapped content lines up under the first row's
+/// text instead of hugging the left edge — matching how editors like VS Code
+/// wrap gutter content. Note-card lines are already sized to fit `width`, so
+/// they pass through unchanged; only overflowing diff rows actually wrap.
+pub fn wrap_diff_text(text: &Text<'static>, width: usize) -> WrappedDoc {
+    let indent = GUTTER_CHARS as usize;
+    let mut out = Vec::with_capacity(text.lines.len());
+    let mut row_to_line = Vec::with_capacity(text.lines.len());
+    let mut line_to_row = Vec::with_capacity(text.lines.len());
+    for (i, line) in text.lines.iter().enumerate() {
+        line_to_row.push(out.len());
+        let rows = if width == 0 {
+            vec![line.clone()]
+        } else {
+            wrap_line_spans(line, width, indent)
+        };
+        row_to_line.extend(std::iter::repeat_n(i, rows.len()));
+        out.extend(rows);
+    }
+    WrappedDoc {
+        text: Text::from(out),
+        row_to_line,
+        line_to_row,
+    }
+}
+
+/// Wrap one `Line`'s spans into one or more rows of at most `width` cells.
+/// The first row keeps the line's own content and style; continuation rows
+/// get a leading blank span of `indent` cells (default style, so the line's
+/// background tint shows through) plus whatever content still fits.
+#[allow(unused_assignments)] // the final `word_w = 0` reset is dead after the loop ends; harmless
+fn wrap_line_spans(line: &Line<'static>, width: usize, indent: usize) -> Vec<Line<'static>> {
+    let total_w: usize = line.spans.iter().map(|s| s.content.width()).sum();
+    if total_w <= width {
+        return vec![line.clone()];
+    }
+    let cont_width = width.saturating_sub(indent).max(1);
+
+    let mut rows: Vec<Vec<Span<'static>>> = vec![Vec::new()];
+    let mut row_w = 0usize; // cells used on the current row
+    let mut budget = width; // current row's cell budget (first row: full width)
+    let mut pending_space: Option<Span<'static>> = None; // trailing space, dropped if it'd start a new row
+
+    for span in &line.spans {
+        let style = span.style;
+        let mut word = String::new();
+        let mut word_w = 0usize;
+
+        macro_rules! flush_word {
+            () => {
+                if !word.is_empty() {
+                    if row_w + word_w > budget && row_w > 0 {
+                        rows.push(Vec::new());
+                        row_w = 0;
+                        budget = cont_width;
+                        pending_space = None;
+                    }
+                    if word_w > budget {
+                        // A single word longer than a whole row: hard-break it.
+                        for ch in word.chars() {
+                            let cw = ch.width().unwrap_or(0);
+                            if row_w + cw > budget && row_w > 0 {
+                                rows.push(Vec::new());
+                                row_w = 0;
+                                budget = cont_width;
+                            }
+                            rows.last_mut()
+                                .unwrap()
+                                .push(Span::styled(ch.to_string(), style));
+                            row_w += cw;
+                        }
+                    } else {
+                        rows.last_mut()
+                            .unwrap()
+                            .push(Span::styled(word.clone(), style));
+                        row_w += word_w;
+                    }
+                    word.clear();
+                    word_w = 0;
+                }
+            };
+        }
+
+        for ch in span.content.chars() {
+            if ch.is_whitespace() {
+                flush_word!();
+                let cw = ch.width().unwrap_or(0);
+                if row_w + cw > budget {
+                    // Whitespace that doesn't fit is dropped, not carried over.
+                    pending_space = None;
+                    rows.push(Vec::new());
+                    row_w = 0;
+                    budget = cont_width;
+                } else {
+                    if let Some(sp) = pending_space.take() {
+                        rows.last_mut().unwrap().push(sp);
+                    }
+                    pending_space = Some(Span::styled(ch.to_string(), style));
+                    row_w += cw;
+                }
+            } else {
+                if let Some(sp) = pending_space.take() {
+                    rows.last_mut().unwrap().push(sp);
+                }
+                word.push(ch);
+                word_w += ch.width().unwrap_or(0);
+            }
+        }
+        flush_word!();
+    }
+    if let Some(sp) = pending_space {
+        rows.last_mut().unwrap().push(sp);
+    }
+
+    rows.into_iter()
+        .enumerate()
+        .map(|(i, mut spans)| {
+            if i > 0 {
+                let mut with_indent = vec![Span::raw(" ".repeat(indent))];
+                with_indent.append(&mut spans);
+                spans = with_indent;
+            }
+            Line::from(spans).style(line.style)
+        })
+        .collect()
+}
+
+// ---- painting --------------------------------------------------------------
+
+/// Chars before the content on a rendered row: a 1-char change-bar cell,
+/// a right-aligned 4-char line number, and one space separator (1 + 4 + 1).
+const GUTTER_CHARS: u32 = 6;
+
+/// Rows → ratatui text plus a rendered-line → row-index map (for clicks):
+/// `old new marker` gutter, tinted backgrounds on change lines, stronger tint
+/// on emphasized ranges.
+fn to_text(rows: &[Row], p: &Palette, default_fg: Rgb) -> (Text<'static>, Vec<usize>) {
+    let gutter_style = Style::new().fg(p.gutter);
+    let fold_style = Style::new().fg(p.fold_fg);
+    let mut lines = Vec::with_capacity(rows.len());
+    let mut line_rows = Vec::with_capacity(rows.len());
+    for (row_idx, row) in rows.iter().enumerate() {
+        let line = match row {
+            Row::Fold { lines: hidden } => Line::from(Span::styled(
+                format!("  ▸ ⋯ {} unchanged lines — click to expand", hidden.len()),
+                fold_style,
+            ))
+            .style(Style::new().bg(p.fold_bg)),
+            Row::Context {
+                old_no: _,
+                new_no,
+                code,
+            } => {
+                let mut spans = vec![Span::styled(format!(" {new_no:>4} "), gutter_style)];
+                spans.extend(paint(code, None, default_fg));
+                Line::from(spans)
+            }
+            Row::Deletion { old_no, code, .. } => {
+                let bg = p.change_bg(p.del_bg);
+                let mut spans = vec![
+                    Span::styled("▌".to_string(), Style::new().fg(Color::Red)),
+                    Span::styled(format!("{old_no:>4} "), gutter_style),
+                ];
+                spans.extend(paint(code, bg, default_fg));
+                change_line(spans, bg)
+            }
+            Row::Insertion { new_no, code, .. } => {
+                let bg = p.change_bg(p.ins_bg);
+                let mut spans = vec![
+                    Span::styled("▌".to_string(), Style::new().fg(Color::Green)),
+                    Span::styled(format!("{new_no:>4} "), gutter_style),
+                ];
+                spans.extend(paint(code, bg, default_fg));
+                change_line(spans, bg)
+            }
+        };
+        let line = match row {
+            Row::Deletion { emphasis, .. }
+                if p.diff_highlight == crate::config::DiffHighlight::Full
+                    && !emphasis.is_empty() =>
+            {
+                repaint_emphasis(line, GUTTER_CHARS, emphasis, p.del_emph_bg)
+            }
+            Row::Insertion { emphasis, .. }
+                if p.diff_highlight == crate::config::DiffHighlight::Full
+                    && !emphasis.is_empty() =>
+            {
+                repaint_emphasis(line, GUTTER_CHARS, emphasis, p.ins_emph_bg)
+            }
+            _ => line,
+        };
+        lines.push(line);
+        line_rows.push(row_idx);
+    }
+    (Text::from(lines), line_rows)
+}
+
+/// A line's syntax runs → spans (one default-color span while it has
+/// none), with an optional background tint.
+fn paint(code: &Code, bg: Option<Color>, default_fg: Rgb) -> Vec<Span<'static>> {
+    let span = |text: &str, color: Rgb| {
+        let mut style = Style::new().fg(rgb(color));
+        if let Some(bg) = bg {
+            style = style.bg(bg);
+        }
+        Span::styled(text.to_string(), style)
+    };
+    match &code.runs {
+        Some(runs) => runs.iter().map(|r| span(&r.text, r.color)).collect(),
+        None => vec![span(&code.text, default_fg)],
+    }
+}
+
+fn change_line(spans: Vec<Span<'static>>, bg: Option<Color>) -> Line<'static> {
+    match bg {
+        Some(bg) => line_with_bg(spans, bg),
+        None => Line::from(spans),
+    }
+}
+
+/// Extend a change line's background across the full width by styling the line.
+fn line_with_bg(spans: Vec<Span<'static>>, bg: Color) -> Line<'static> {
+    Line::from(spans).style(Style::new().bg(bg))
+}
+
+/// Re-style the emphasized char ranges of a change line with a stronger
+/// background. `prefix` is the gutter+marker char count before content.
+fn repaint_emphasis(
+    line: Line<'static>,
+    prefix: u32,
+    ranges: &[CharRange],
+    bg: Color,
+) -> Line<'static> {
+    let style = line.style;
+    let mut out: Vec<Span<'static>> = Vec::new();
+    let mut pos: u32 = 0; // char position across the whole line
+    for span in line.spans {
+        let chars: Vec<char> = span.content.chars().collect();
+        let len = chars.len() as u32;
+        let start = pos;
+        // Split this span wherever emphasis ranges (shifted by prefix) cut it.
+        let mut cursor = 0u32;
+        while cursor < len {
+            let abs = start + cursor;
+            let content_pos = abs.saturating_sub(prefix);
+            let in_emph = abs >= prefix
+                && ranges
+                    .iter()
+                    .any(|&(a, b)| content_pos >= a && content_pos < b);
+            // Find the run length with the same emphasis status.
+            let mut end = cursor + 1;
+            while end < len {
+                let abs2 = start + end;
+                let cp2 = abs2.saturating_sub(prefix);
+                let in2 = abs2 >= prefix && ranges.iter().any(|&(a, b)| cp2 >= a && cp2 < b);
+                if in2 != in_emph {
+                    break;
+                }
+                end += 1;
+            }
+            let text: String = chars[cursor as usize..end as usize].iter().collect();
+            let mut st = span.style;
+            if in_emph {
+                st = st.bg(bg);
+            }
+            out.push(Span::styled(text, st));
+            cursor = end;
+        }
+        pos += len;
+    }
+    Line::from(out).style(style)
+}
+
+fn rgb((r, g, b): Rgb) -> Color {
+    Color::Rgb(r, g, b)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn doc(old: &str, new: &str) -> DiffDoc {
+        let hl = Highlighter::new(crate::config::Theme::Dark);
+        build(
+            &PathBuf::from("a.rs"),
+            old,
+            new,
+            &hl,
+            crate::config::Theme::Dark,
+            3,
+            4,
+        )
+    }
+
+    #[test]
+    fn expand_tabs_is_noop_without_tabs() {
+        assert!(matches!(expand_tabs("no tabs here\n", 4), Cow::Borrowed(_)));
+    }
+
+    #[test]
+    fn expand_tabs_uses_tab_stops_and_resets_per_line() {
+        // Leading tab -> full width; tab after 2 cols -> pad to next stop.
+        assert_eq!(expand_tabs("\tx", 4), "    x");
+        assert_eq!(expand_tabs("ab\tx", 4), "ab  x");
+        // Column resets after newline.
+        assert_eq!(expand_tabs("a\n\tb", 4), "a\n    b");
+    }
+
+    #[test]
+    fn empty_when_content_equal() {
+        let d = doc("same\n", "same\n");
+        assert!(d.is_empty);
+        assert!(!d.binary);
+    }
+
+    #[test]
+    fn binary_detected_by_nul() {
+        let d = doc("ok\n", "bin\0ary\n");
+        assert!(d.binary);
+    }
+
+    #[test]
+    fn first_change_is_first_inserted_line() {
+        let d = doc("a\nb\nc\n", "a\nb\nX\nc\n");
+        assert_eq!(d.first_change, Some(3));
+    }
+
+    #[test]
+    fn change_lines_carry_backgrounds_and_gutter_numbers() {
+        let d = doc("alpha\nbeta\ngamma\n", "alpha\nBETA\ngamma\n");
+        let flat: Vec<String> = d
+            .text
+            .lines
+            .iter()
+            .map(|l| l.spans.iter().map(|s| s.content.as_ref()).collect())
+            .collect();
+        let del = flat.iter().find(|l| l.contains("beta")).unwrap();
+        let ins = flat.iter().find(|l| l.contains("BETA")).unwrap();
+        assert!(del.starts_with('▌'), "deletion bar: {del:?}");
+        assert!(ins.starts_with('▌'), "insertion bar: {ins:?}");
+        assert!(
+            del.trim_start_matches('▌').trim_start().starts_with('2'),
+            "old line no: {del:?}"
+        );
+        // Deletion line has the red tint as line style.
+        let del_line = d
+            .text
+            .lines
+            .iter()
+            .find(|l| l.spans.iter().any(|s| s.content.contains("beta")));
+        assert!(del_line.unwrap().style.bg.is_some());
+    }
+
+    #[test]
+    fn long_context_folds() {
+        let old: String = (0..40).map(|i| format!("line {i}\n")).collect();
+        let new = old.replace("line 20", "LINE 20");
+        let d = doc(&old, &new);
+        let flat: String = d
+            .text
+            .lines
+            .iter()
+            .flat_map(|l| l.spans.iter().map(|s| s.content.as_ref()))
+            .collect();
+        assert!(flat.contains("unchanged lines"), "should fold: {flat}");
+    }
+
+    #[test]
+    fn clicking_a_fold_expands_it() {
+        let old: String = (0..40).map(|i| format!("line {i}\n")).collect();
+        let new = old.replace("line 20", "LINE 20");
+        let mut d = doc(&old, &new);
+        let folded_len = d.text.lines.len();
+        // First rendered line is the leading fold.
+        assert!(d.unfold_at(0), "line 0 should be a fold");
+        assert!(d.text.lines.len() > folded_len, "unfolding adds lines");
+        // A content line is not a fold.
+        assert!(!d.unfold_at(1));
+    }
+
+    #[test]
+    fn word_emphasis_marks_changed_words() {
+        let (ratio, old_e, new_e) = word_emphasis("let x = foo(a);", "let x = bar(a);");
+        assert!(ratio >= MIN_SIMILARITY);
+        assert_eq!(old_e.len(), 1);
+        assert_eq!(new_e.len(), 1);
+        let seg = |text: &str, (a, b): CharRange| -> String {
+            text.chars()
+                .skip(a as usize)
+                .take((b - a) as usize)
+                .collect()
+        };
+        // similar tokenizes on whitespace, so the changed "word" is foo(a);
+        assert!(seg("let x = foo(a);", old_e[0]).contains("foo"));
+        assert!(seg("let x = bar(a);", new_e[0]).contains("bar"));
+        // the shared prefix is never emphasized
+        assert!(old_e[0].0 > 0);
+    }
+
+    #[test]
+    fn dissimilar_lines_get_no_emphasis() {
+        let (ratio, _, _) = word_emphasis(
+            "let start = scroll.min(len);",
+            "return (row - inner.y) as usize;",
+        );
+        assert!(ratio < MIN_SIMILARITY);
+    }
+
+    // ---- wrapping ----
+
+    /// Concatenate a line's span contents, for content assertions that don't
+    /// care about styling.
+    fn flat(line: &Line<'static>) -> String {
+        line.spans.iter().map(|s| s.content.as_ref()).collect()
+    }
+
+    #[test]
+    fn wrap_leaves_a_short_line_untouched() {
+        let text = Text::from(vec![Line::from("short")]);
+        let w = wrap_diff_text(&text, 100);
+        assert_eq!(w.text.lines.len(), 1);
+        assert_eq!(flat(&w.text.lines[0]), "short");
+        assert_eq!(w.row_to_line, vec![0]);
+        assert_eq!(w.line_to_row, vec![0]);
+    }
+
+    #[test]
+    fn wrap_hard_breaks_a_word_longer_than_the_row() {
+        // width 10, indent (GUTTER_CHARS) 6 -> continuation rows get 4 cols.
+        let text = Text::from(vec![Line::from("abcdefghijklmno")]); // 15 chars
+        let w = wrap_diff_text(&text, 10);
+        assert_eq!(w.text.lines.len(), 3);
+        assert_eq!(flat(&w.text.lines[0]), "abcdefghij"); // first row: full width
+        assert_eq!(flat(&w.text.lines[1]), " ".repeat(6) + "klmn"); // then 4-col rows
+        assert_eq!(flat(&w.text.lines[2]), " ".repeat(6) + "o");
+        // No content lost or duplicated across the hard break.
+        let rebuilt: String = w
+            .text
+            .lines
+            .iter()
+            .map(flat)
+            .collect::<String>()
+            .replace(' ', "");
+        assert_eq!(rebuilt, "abcdefghijklmno");
+    }
+
+    #[test]
+    fn wrap_drops_a_space_that_does_not_fit_the_row() {
+        // "a"*12 fills width 12 exactly; the following space has no room
+        // left and is dropped rather than starting the next row.
+        let text = Text::from(vec![Line::from("aaaaaaaaaaaa b")]);
+        let w = wrap_diff_text(&text, 12);
+        assert_eq!(w.text.lines.len(), 2);
+        assert_eq!(flat(&w.text.lines[0]), "a".repeat(12));
+        assert_eq!(flat(&w.text.lines[1]), " ".repeat(6) + "b");
+        let rebuilt: String = w.text.lines.iter().map(flat).collect();
+        assert!(!rebuilt.contains("12 b"), "sanity");
+        assert!(
+            !rebuilt.contains("a b"),
+            "the space must not survive: {rebuilt:?}"
+        );
+    }
+
+    #[test]
+    fn wrap_preserves_per_span_styles_across_a_wrap_point() {
+        let style_a = Style::new().fg(Color::Red);
+        let style_b = Style::new().fg(Color::Blue);
+        let line = Line::from(vec![
+            Span::styled("hello ", style_a),
+            Span::styled("world", style_b),
+        ]);
+        let w = wrap_diff_text(&Text::from(vec![line]), 8); // cont_width = 8-6 = 2
+        assert_eq!(w.text.lines.len(), 4, "{:#?}", w.text.lines);
+        // Row 0 keeps "hello " under style A.
+        for span in &w.text.lines[0].spans {
+            assert_eq!(span.style, style_a);
+        }
+        assert_eq!(flat(&w.text.lines[0]), "hello ");
+        // "world" hard-breaks 2 cols at a time under style B, each
+        // continuation row indented by the gutter width.
+        let continuations: String = w.text.lines[1..]
+            .iter()
+            .map(|l| {
+                assert_eq!(l.spans[0].content.as_ref(), " ".repeat(6), "leading indent");
+                assert_eq!(l.spans[0].style, Style::default(), "indent has no fg");
+                l.spans[1..]
+                    .iter()
+                    .map(|s| {
+                        assert_eq!(s.style, style_b);
+                        s.content.as_ref()
+                    })
+                    .collect::<String>()
+            })
+            .collect();
+        assert_eq!(continuations, "world");
+    }
+
+    #[test]
+    fn wrap_keeps_the_line_background_on_every_continuation_row() {
+        let bg = Style::new().bg(Color::Rgb(10, 20, 30));
+        let line = Line::from("abcdefghijklmno").style(bg);
+        let w = wrap_diff_text(&Text::from(vec![line]), 10);
+        assert!(w.text.lines.len() > 1);
+        for l in &w.text.lines {
+            assert_eq!(
+                l.style, bg,
+                "every wrapped row keeps the source line's background"
+            );
+        }
+    }
+
+    #[test]
+    fn wrap_diff_text_maps_rows_back_to_their_source_line() {
+        let text = Text::from(vec![
+            Line::from("short"),           // row 0
+            Line::from("abcdefghijklmno"), // rows 1..=3 (hard-wrapped)
+            Line::from("tail"),            // row 4
+        ]);
+        let w = wrap_diff_text(&text, 10);
+        assert_eq!(w.text.lines.len(), 5);
+        assert_eq!(w.row_to_line, vec![0, 1, 1, 1, 2]);
+        assert_eq!(w.line_to_row, vec![0, 1, 4]);
+    }
+}

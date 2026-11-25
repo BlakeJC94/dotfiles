@@ -1,0 +1,5 @@
+git_dir = "~/.dotfiles"
+work_tree = "~"
+theme = "system"
+diff_highlight = "gutter"
+syntax_theme = "system"

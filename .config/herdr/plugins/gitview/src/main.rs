@@ -1,0 +1,20 @@
+fn main() -> anyhow::Result<()> {
+    herdr_gitview::logx::init_panic_hook();
+    let mode = std::env::args().nth(1);
+    herdr_gitview::logx::init(mode.as_deref().unwrap_or("?"));
+    match mode.as_deref() {
+        Some("list") => herdr_gitview::list::run(),
+        Some("preview") => herdr_gitview::preview::run(),
+        Some("toggle") | None => herdr_gitview::orchestrate::toggle(),
+        Some("toggle-tab") => herdr_gitview::orchestrate::toggle_tab(),
+        Some("open") => herdr_gitview::orchestrate::open(),
+        Some("close") => herdr_gitview::orchestrate::close(),
+        Some("ask") => herdr_gitview::ask::run(),
+        Some("pick-agent") => herdr_gitview::annotate::run_pick_agent(),
+        Some(other) => {
+            anyhow::bail!(
+                "unknown mode: {other} (expected list|preview|toggle|toggle-tab|open|close|ask|pick-agent)"
+            )
+        }
+    }
+}

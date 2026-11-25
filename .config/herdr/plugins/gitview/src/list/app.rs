@@ -1,0 +1,942 @@
+//! List-pane application state and the input→action logic.
+//!
+//! `App` is deliberately thread-agnostic: it owns no channels or terminals.
+//! The event loop in `list::run` feeds it key events and refreshed entry
+//! vectors, then renders it via `list::ui`. Keeping git/threading out of here
+//! makes the state easy to unit- and render-test.
+
+use std::time::{Duration, Instant};
+
+use anyhow::Result;
+use crossterm::event::KeyEvent;
+
+pub use super::rows::{ListRow, Section};
+pub use super::stage::Ops;
+use crate::config::Config;
+use crate::git::{CommitInfo, FileEntry, Repo, Scope, first_line};
+use crate::keymap::{Action, Keymap};
+
+/// How long a transient footer message stays visible on screen.
+const STATUS_TTL: Duration = Duration::from_secs(3);
+
+/// How many commits the history view loads.
+const LOG_LIMIT: usize = 200;
+
+/// What the list is currently showing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Mode {
+    /// Working-tree / branch changes (the normal view).
+    Files,
+    /// `git log` — pick a commit to inspect.
+    Log,
+    /// The files changed by the selected commit.
+    CommitFiles,
+    /// The batched review notes.
+    Notes,
+}
+
+/// What to do once the editor has been closed (delivered via EditDone).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EditorThen {
+    QuitView,
+    Commit,
+}
+
+/// A centered overlay that captures all keys while open.
+pub enum Modal {
+    Help,
+    /// Yes/no question; `y`/enter runs the pending action, `n`/esc cancels.
+    Confirm {
+        text: String,
+        pending: PendingAction,
+    },
+    /// The editor has unsaved changes and something needs it closed:
+    /// `y` saves & closes, `n` discards & closes, esc cancels.
+    EditorClose {
+        then: EditorThen,
+    },
+}
+
+/// A branch base, resolved: the ref, its merge-base with HEAD, how many
+/// commits HEAD has on top of it, and which HEAD that was.
+#[derive(Debug, Clone)]
+pub struct ResolvedBase {
+    pub base: String,
+    pub merge_base: String,
+    pub ahead: Option<u32>,
+    pub head: Option<String>,
+}
+
+/// The one place a base is resolved (both panes get it from here — the
+/// diff pane via `Show`): `cfg_base` when pinned, else auto-detected. Runs
+/// several git calls, so the session does it on a thread.
+pub fn resolve_base(repo: &Repo, cfg_base: &str) -> Result<ResolvedBase, String> {
+    let head = repo.head_sha();
+    let (base, merge_base) = repo
+        .resolve_base(cfg_base)
+        .map_err(|e| first_line(&e.to_string()))?;
+    let ahead = repo.commits_ahead(&merge_base);
+    Ok(ResolvedBase {
+        base,
+        merge_base,
+        ahead,
+        head,
+    })
+}
+
+/// What to finish once a requested base resolution lands.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BaseThen {
+    /// Switch to branch scope.
+    Scope,
+    /// Filter the log to this branch's commits.
+    LogFilter,
+    /// HEAD moved: the merge-base may have too; reload against the new one.
+    Refresh,
+}
+
+/// Where a base resolution stands; one runs at a time. `since` is when its
+/// "resolving base…" message went up (None: it shows none), so landing
+/// clears that message and no other.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BaseJob {
+    Idle,
+    /// Asked for; the session starts it on its next tick.
+    Wanted {
+        then: BaseThen,
+        since: Option<Instant>,
+    },
+    /// Running on the session's thread.
+    Running {
+        then: BaseThen,
+        since: Option<Instant>,
+    },
+}
+
+/// What a confirmed modal should do. Paths are resolved back to entries when
+/// the action actually runs, so a refresh between ask and answer is harmless.
+pub enum PendingAction {
+    Discard { paths: Vec<std::path::PathBuf> },
+}
+
+pub struct App {
+    pub repo: Repo,
+    pub cfg: Config,
+    pub keys: Keymap,
+
+    pub mode: Mode,
+    pub scope: Scope,
+
+    /// Entries backing the current Files/CommitFiles view.
+    pub entries: Vec<FileEntry>,
+    /// Commits backing the Log view.
+    pub commits: Vec<CommitInfo>,
+    /// Log view filter: true = only the commits this branch added on top of
+    /// its base (`<merge-base>..HEAD`), false = all of HEAD's history.
+    pub log_branch_only: bool,
+    /// The commit whose files the CommitFiles view shows.
+    pub commit: Option<CommitInfo>,
+
+    /// Visual rows derived from the vectors above; `cursor` indexes this and
+    /// always sits on a selectable row.
+    pub rows: Vec<ListRow>,
+    pub cursor: usize,
+    pub list_offset: usize,
+
+    /// Branch-scope base ref and its merge-base with HEAD, resolved lazily on
+    /// the first scope toggle.
+    pub base: String,
+    pub merge_base: Option<String>,
+    /// Commits HEAD has on top of `merge_base`, for the header. None until
+    /// the base resolves, or when git cannot count them.
+    pub branch_commits: Option<u32>,
+    /// HEAD when `merge_base` was resolved; HEAD moving re-resolves it.
+    pub base_head: Option<String>,
+    /// A resolution in flight: the session runs it off the UI thread and
+    /// hands the result to `on_base_resolved`.
+    pub base_job: BaseJob,
+
+    /// Current branch name for the header (None = detached HEAD).
+    pub branch: Option<String>,
+
+    /// Transient footer message + when it was set.
+    pub status_msg: Option<(String, Instant)>,
+    /// Why the file list is empty, when it is empty because git could not
+    /// answer. Unlike the footer message this does not expire — otherwise the
+    /// pane settles into claiming "working tree clean", which is a lie.
+    pub load_error: Option<String>,
+    pub should_quit: bool,
+    pub modal: Option<Modal>,
+    /// Header text while the preview PTY is busy (editor or commit): actions
+    /// that need that PTY are refused until EditDone/GitDone.
+    pub busy: Option<String>,
+    /// Set when the shown diff's *content* changed without the selection
+    /// changing (stage toggle, discard, edit) — the run loop re-Shows and
+    /// clears it.
+    pub needs_reshow: bool,
+    /// Action to resume after the editor finishes closing (EditDone).
+    pub after_edit: Option<EditorThen>,
+    /// Set by `on_key` when an action needs the editor closed; the run loop
+    /// picks it up and probes nvim on a background thread (no UI stall).
+    pub editor_close_request: Option<EditorThen>,
+    /// Last left-click (row, time) for double-click detection.
+    last_click: Option<(usize, Instant)>,
+    /// Collapsed tree directories, keyed by (section, full path). Survives
+    /// refreshes/rebuilds; stale keys are harmless.
+    pub(super) collapsed: std::collections::HashSet<(Section, String)>,
+    /// True while the current modal is being shown as a native herdr popup
+    /// pane instead of the in-pane overlay (the answer arrives via file).
+    pub modal_external: bool,
+    /// Review notes (owned by the preview; mirrored for the notes view).
+    pub notes: Vec<crate::ipc::NoteMeta>,
+    /// Where `n` was pressed, so the notes view can return there.
+    notes_return: Option<Mode>,
+    /// Path plus whether it was selected in the staged section.
+    pub annotate_request: Option<(std::path::PathBuf, bool)>,
+    pub send_notes_request: bool,
+    /// Edit/delete requests for the run loop (they need popups / the conn).
+    pub edit_note_request: Option<u64>,
+    pub delete_note_request: Option<u64>,
+    /// The nvim remote socket (injected by the session; None standalone).
+    pub nvim_server: Option<std::path::PathBuf>,
+    /// Whether we run as a herdr pane (set from the host env by the session,
+    /// so nothing here reads the process env).
+    pub in_herdr: bool,
+}
+
+impl App {
+    /// Load the initial status and build the app. Honors `default_scope`:
+    /// a branch default resolves the merge base and loads branch changes up
+    /// front (falling back to worktree if no base exists).
+    pub fn new(repo: Repo, cfg: Config, keys: Keymap) -> Result<App> {
+        // A repository git cannot report on must not take the pane down with
+        // it: start empty and say why, or the other pane just sits there
+        // waiting for a file list that is never coming.
+        let (entries, failure) = match repo.worktree_status(cfg.show_untracked) {
+            Ok(entries) => (entries, None),
+            Err(err) => (Vec::new(), Some(first_line(&err.to_string()))),
+        };
+        let mut app = App::from_entries(repo, cfg, keys, entries);
+        if let Some(msg) = failure {
+            app.set_status(msg.clone());
+            app.load_error = Some(msg);
+        }
+        if app.scope == Scope::Branch {
+            // Startup, before the first frame: resolve in place. No base
+            // means staying in worktree scope.
+            app.scope = Scope::Worktree;
+            app.request_base(BaseThen::Scope);
+            app.resolve_pending_base();
+        }
+        Ok(app)
+    }
+
+    /// Build an app around an already-loaded entry vector (no git status call).
+    /// Used by render tests and by `new`.
+    pub fn from_entries(repo: Repo, cfg: Config, keys: Keymap, entries: Vec<FileEntry>) -> App {
+        let branch = repo.head_branch();
+        let scope = match cfg.default_scope {
+            crate::config::ScopePref::Branch => Scope::Branch,
+            crate::config::ScopePref::Worktree => Scope::Worktree,
+        };
+        let mut app = App {
+            repo,
+            cfg,
+            keys,
+            mode: Mode::Files,
+            scope,
+            entries,
+            commits: Vec::new(),
+            log_branch_only: false,
+            commit: None,
+            rows: Vec::new(),
+            cursor: 0,
+            list_offset: 0,
+            base: String::new(),
+            merge_base: None,
+            branch_commits: None,
+            base_head: None,
+            base_job: BaseJob::Idle,
+            branch,
+            status_msg: None,
+            load_error: None,
+            should_quit: false,
+            modal: None,
+            busy: None,
+            needs_reshow: false,
+            after_edit: None,
+            editor_close_request: None,
+            last_click: None,
+            collapsed: std::collections::HashSet::new(),
+            modal_external: false,
+            notes: Vec::new(),
+            notes_return: None,
+            annotate_request: None,
+            send_notes_request: false,
+            edit_note_request: None,
+            delete_note_request: None,
+            nvim_server: None,
+            in_herdr: false,
+        };
+        app.rebuild_rows();
+        app
+    }
+
+    // ---- row derivation ---------------------------------------------------
+
+    /// The selected entry and which section it sits in.
+    pub fn selected_entry(&self) -> Option<(&FileEntry, Section)> {
+        self.entry_at(self.cursor)
+    }
+
+    /// The file entry on row `row` and its section, if that row is a file.
+    pub fn entry_at(&self, row: usize) -> Option<(&FileEntry, Section)> {
+        match self.rows.get(row)? {
+            ListRow::Entry { idx, section, .. } => Some((self.entries.get(*idx)?, *section)),
+            _ => None,
+        }
+    }
+
+    /// The selected directory row's (path, section) identity, if the cursor
+    /// sits on one.
+    pub fn selected_dir(&self) -> Option<(&str, Section)> {
+        match self.rows.get(self.cursor)? {
+            ListRow::Dir { path, section, .. } => Some((path.as_str(), *section)),
+            _ => None,
+        }
+    }
+
+    /// Collapse/expand the directory under the cursor. Returns true when the
+    /// cursor was on a directory row (the toggle happened).
+    pub fn toggle_selected_dir(&mut self) -> bool {
+        let Some((path, section)) = self.selected_dir().map(|(p, s)| (p.to_string(), s)) else {
+            return false;
+        };
+        let key = (section, path.clone());
+        if !self.collapsed.remove(&key) {
+            self.collapsed.insert(key);
+        }
+        self.rebuild_rows();
+        // Keep the cursor on the toggled directory.
+        if let Some(i) = self.rows.iter().position(|row| {
+            matches!(row, ListRow::Dir { path: p, section: s, .. } if *p == path && *s == section)
+        }) {
+            self.cursor = i;
+        }
+        true
+    }
+
+    pub fn selected_commit(&self) -> Option<&CommitInfo> {
+        match self.rows.get(self.cursor)? {
+            ListRow::Commit(idx) => self.commits.get(*idx),
+            _ => None,
+        }
+    }
+
+    pub fn selected_note(&self) -> Option<&crate::ipc::NoteMeta> {
+        match self.rows.get(self.cursor)? {
+            ListRow::Note(idx) => self.notes.get(*idx),
+            _ => None,
+        }
+    }
+
+    // ---- event handling ---------------------------------------------------
+
+    pub fn on_key(&mut self, ev: KeyEvent) {
+        // Modals capture all keys, recognized or not.
+        if self.modal.is_some() {
+            self.on_modal_key(ev);
+            return;
+        }
+
+        let Some(action) = self.keys.action(&ev) else {
+            return;
+        };
+
+        // While the editor owns the preview PTY, actions that need it gone
+        // close it gracefully (auto when clean, confirm modal when dirty).
+        // Everything else — including history navigation — keeps working.
+        if self.busy.is_some() {
+            match action {
+                Action::Quit if self.mode == Mode::Files => {
+                    self.editor_close_request = Some(EditorThen::QuitView);
+                    return;
+                }
+                Action::Commit => {
+                    self.editor_close_request = Some(EditorThen::Commit);
+                    return;
+                }
+                Action::Edit => return, // remote file switch happens in the run loop
+                _ => {}
+            }
+        }
+
+        match action {
+            Action::Down => self.move_cursor(1),
+            Action::Up => self.move_cursor(-1),
+            Action::Top => self.cursor_to_edge(true),
+            Action::Bottom => self.cursor_to_edge(false),
+            Action::ToggleScope => self.toggle_scope(),
+            Action::ToggleCached => self.set_status("staged/unstaged now follow the list sections"),
+            Action::Refresh => self.force_refresh(),
+            Action::Help => self.modal = Some(Modal::Help),
+            Action::Log => self.toggle_log(),
+            Action::NotesView => self.toggle_notes_view(),
+            Action::Select => {}
+            Action::Delete => {
+                if self.mode == Mode::Notes {
+                    self.delete_note_request = self.selected_note().map(|n| n.id);
+                }
+            }
+            Action::Annotate => {
+                if self.mode != Mode::Files || self.scope != Scope::Worktree {
+                    self.set_status("notes work on staged/unstaged changes only");
+                } else {
+                    match self.selected_entry() {
+                        Some((entry, section)) => {
+                            self.annotate_request = Some((entry.path.clone(), section.cached()))
+                        }
+                        None => self.set_status("select a file to annotate"),
+                    }
+                }
+            }
+            Action::SendNotes => {
+                if self.notes.is_empty() {
+                    self.set_status("no notes yet — a annotates a file, v+a lines in the diff");
+                } else {
+                    self.send_notes_request = true;
+                }
+            }
+            Action::Quit => self.back_or_quit(),
+            Action::Stage => self.stage_toggle(),
+            Action::Unstage => self.unstage_selected(),
+            Action::Discard => self.open_discard_confirm(),
+
+            // Diff scroll keys are intercepted by the run loop and forwarded
+            // to the preview pane over IPC, so they are no-ops here.
+            Action::ScrollDown
+            | Action::ScrollUp
+            | Action::HalfPageDown
+            | Action::HalfPageUp
+            | Action::DiffTop
+            | Action::DiffBottom => {}
+
+            // Edit/Commit are intercepted by the run loop (they need the IPC
+            // link); reaching here means there is no preview connection.
+            // Enter on a directory row still collapses/expands it — that
+            // needs no link.
+            Action::Edit if self.toggle_selected_dir() => {}
+            Action::Edit | Action::Commit => {
+                if !self.in_herdr {
+                    self.set_status("editing needs the preview pane (run inside herdr)")
+                } else {
+                    self.set_status("preview not connected — press r to reconnect")
+                }
+            }
+        }
+    }
+
+    // ---- mouse ------------------------------------------------------------
+
+    /// Wheel moves the cursor; a click selects the row under the pointer.
+    /// Returns true when a double-click should *activate* the row (like
+    /// Enter) — the run loop owns activation because it needs the IPC link.
+    pub fn on_mouse(&mut self, kind: crossterm::event::MouseEventKind, y: u16) -> bool {
+        use crossterm::event::{MouseButton, MouseEventKind};
+        if self.modal.is_some() {
+            return false; // modals are keyboard-only
+        }
+        match kind {
+            MouseEventKind::ScrollDown => self.move_cursor(1),
+            MouseEventKind::ScrollUp => self.move_cursor(-1),
+            MouseEventKind::Down(MouseButton::Left) if y >= 1 => {
+                let Some(idx) = self.row_at(y - 1) else {
+                    return false;
+                };
+                if self.rows.get(idx).map(ListRow::selectable).unwrap_or(false) {
+                    self.cursor = idx;
+                    // A single click on a directory row toggles its collapse
+                    // (VSCode-style); no double-click needed.
+                    if matches!(self.rows.get(idx), Some(ListRow::Dir { .. })) {
+                        self.toggle_selected_dir();
+                        self.last_click = None;
+                        return false;
+                    }
+                    // Double-click on the same row = activate.
+                    let now = Instant::now();
+                    let double = matches!(
+                        self.last_click,
+                        Some((i, at)) if i == idx && now.duration_since(at) < Duration::from_millis(400)
+                    );
+                    self.last_click = Some((idx, now));
+                    return double;
+                }
+            }
+            _ => {}
+        }
+        false
+    }
+
+    /// The row index drawn at body line `offset_y` (0 = the first visible
+    /// line). Walks the visible rows' heights, since a note draws as two
+    /// lines — a click on either of them selects that note.
+    pub fn row_at(&self, offset_y: u16) -> Option<usize> {
+        let mut y = 0usize;
+        for (idx, row) in self.rows.iter().enumerate().skip(self.list_offset) {
+            y += row.height();
+            if (offset_y as usize) < y {
+                return Some(idx);
+            }
+        }
+        None
+    }
+
+    // ---- history view -----------------------------------------------------
+
+    /// `l`: enter the log view; `l` again (or q/esc) returns to files.
+    /// Entering from branch scope keeps that framing: the log opens filtered
+    /// to the commits this branch added on top of its base.
+    fn toggle_log(&mut self) {
+        match self.mode {
+            Mode::Notes => self.set_status("leave the notes view first (n)"),
+            Mode::Files => {
+                self.log_branch_only = self.scope == Scope::Branch && self.merge_base.is_some();
+                match self.load_commits() {
+                    Ok(commits) if commits.is_empty() && !self.log_branch_only => {
+                        self.set_status("no commits yet")
+                    }
+                    Ok(commits) => {
+                        let empty = commits.is_empty();
+                        self.commits = commits;
+                        self.mode = Mode::Log;
+                        self.cursor = 0;
+                        self.rebuild_rows();
+                        if empty {
+                            self.set_status(format!(
+                                "no commits on this branch vs {} — w shows all",
+                                self.base_or_default()
+                            ));
+                        }
+                    }
+                    Err(err) => self.set_status(format!("log failed: {err}")),
+                }
+            }
+            Mode::Log | Mode::CommitFiles => self.leave_history(),
+        }
+    }
+
+    /// Load the commit vector the current log filter asks for.
+    fn load_commits(&self) -> Result<Vec<CommitInfo>> {
+        match (self.log_branch_only, self.merge_base.as_deref()) {
+            (true, Some(mb)) => self.repo.log_branch_commits(mb, LOG_LIMIT),
+            _ => self.repo.log_commits(LOG_LIMIT),
+        }
+    }
+
+    /// `w` in the log view: flip between "this branch's commits" and the
+    /// full history. Resolves the base lazily, exactly like scope toggling.
+    fn toggle_log_filter(&mut self) {
+        if !self.log_branch_only && self.merge_base.is_none() {
+            self.request_base(BaseThen::LogFilter);
+            return;
+        }
+        self.log_branch_only = !self.log_branch_only;
+        match self.load_commits() {
+            Ok(commits) => {
+                self.commits = commits;
+                self.cursor = 0;
+                self.list_offset = 0;
+                self.rebuild_rows();
+                let msg = if self.log_branch_only {
+                    format!(
+                        "{} commits on this branch vs {}",
+                        self.commits.len(),
+                        self.base_or_default()
+                    )
+                } else {
+                    "showing all commits".to_string()
+                };
+                self.set_status(msg);
+            }
+            Err(err) => {
+                self.log_branch_only = !self.log_branch_only; // roll back
+                self.set_status(format!("log failed: {err}"));
+            }
+        }
+    }
+
+    /// Ask for the base, then `then`. A request while one is in flight
+    /// replaces what happens when it lands.
+    pub fn request_base(&mut self, then: BaseThen) {
+        self.base_job = match self.base_job {
+            BaseJob::Running { since, .. } => BaseJob::Running { then, since },
+            BaseJob::Idle | BaseJob::Wanted { .. } => {
+                // A background refresh resolves silently.
+                let since = (then != BaseThen::Refresh).then(|| {
+                    self.set_status("resolving base…");
+                    self.status_msg.as_ref().map_or_else(Instant::now, |s| s.1)
+                });
+                BaseJob::Wanted { then, since }
+            }
+        };
+    }
+
+    /// Resolve a requested base right here, blocking. For startup (no UI
+    /// yet) and callers without a session; the session itself goes through
+    /// a thread.
+    pub fn resolve_pending_base(&mut self) {
+        if matches!(self.base_job, BaseJob::Wanted { .. }) {
+            let result = resolve_base(&self.repo, &self.cfg.base);
+            self.on_base_resolved(result);
+        }
+    }
+
+    /// The requested resolution landed: record it, then redo the action
+    /// that asked for it — if the view is still where it was asked.
+    pub fn on_base_resolved(&mut self, result: Result<ResolvedBase, String>) {
+        let (then, since) = match std::mem::replace(&mut self.base_job, BaseJob::Idle) {
+            BaseJob::Wanted { then, since } | BaseJob::Running { then, since } => (then, since),
+            BaseJob::Idle => return, // nobody asked
+        };
+        if since.is_some() && self.status_msg.as_ref().map(|s| s.1) == since {
+            self.status_msg = None;
+        }
+        let resolved = match result {
+            Ok(resolved) => resolved,
+            Err(err) => {
+                self.set_status(format!("no base found: {err}"));
+                if then == BaseThen::Refresh {
+                    // Stop following HEAD rather than retry every poll; the
+                    // last merge-base stays in use.
+                    self.base_head = None;
+                }
+                return; // stay where we are
+            }
+        };
+        self.branch_commits = resolved.ahead;
+        self.base = resolved.base;
+        self.merge_base = Some(resolved.merge_base);
+        self.base_head = resolved.head;
+        match then {
+            BaseThen::Scope if self.mode == Mode::Files && self.scope == Scope::Worktree => {
+                self.toggle_scope();
+            }
+            BaseThen::LogFilter if self.mode == Mode::Log && !self.log_branch_only => {
+                self.toggle_log_filter();
+            }
+            BaseThen::Refresh if self.scope == Scope::Branch => self.force_refresh(),
+            _ => {}
+        }
+    }
+
+    /// The resolved base, as a Show carries it.
+    pub fn branch_base(&self) -> Option<crate::ipc::BranchBase> {
+        Some(crate::ipc::BranchBase {
+            label: self.base.clone(),
+            merge_base: self.merge_base.clone()?,
+        })
+    }
+
+    /// The base ref label, with a placeholder when it hasn't resolved.
+    pub fn base_or_default(&self) -> String {
+        if self.base.is_empty() {
+            "base".to_string()
+        } else {
+            self.base.clone()
+        }
+    }
+
+    /// Enter on a commit: show its files.
+    pub fn open_commit(&mut self) {
+        let Some(info) = self.selected_commit().cloned() else {
+            return;
+        };
+        match self.repo.commit_files(&info.sha) {
+            Ok(entries) => {
+                self.entries = entries;
+                self.commit = Some(info);
+                self.mode = Mode::CommitFiles;
+                self.cursor = 0;
+                self.rebuild_rows();
+            }
+            Err(err) => self.set_status(format!("commit files failed: {err}")),
+        }
+    }
+
+    /// `n`: open the notes view from anywhere; `n`/q returns to where you
+    /// came from (files, log, or a commit's files).
+    pub fn toggle_notes_view(&mut self) {
+        match self.mode {
+            Mode::Notes => {
+                self.mode = self.notes_return.take().unwrap_or(Mode::Files);
+                self.cursor = 0;
+                if self.mode == Mode::Files {
+                    self.force_refresh();
+                }
+                self.rebuild_rows();
+            }
+            mode => {
+                if self.notes.is_empty() {
+                    self.set_status("no notes yet");
+                    return;
+                }
+                self.notes_return = Some(mode);
+                self.mode = Mode::Notes;
+                self.cursor = 0;
+                self.rebuild_rows();
+            }
+        }
+    }
+
+    /// q/esc: CommitFiles → Log → Files → actually quit.
+    fn back_or_quit(&mut self) {
+        match self.mode {
+            Mode::CommitFiles => {
+                self.commit = None;
+                self.mode = Mode::Log;
+                self.entries = Vec::new();
+                self.cursor = 0;
+                self.rebuild_rows();
+                // Restore the cursor onto the commit we came from? The log
+                // vector is unchanged, so position 0 is fine and predictable.
+            }
+            Mode::Log => self.leave_history(),
+            Mode::Notes => self.toggle_notes_view(),
+            Mode::Files => self.should_quit = true,
+        }
+    }
+
+    fn leave_history(&mut self) {
+        self.mode = Mode::Files;
+        self.commit = None;
+        self.cursor = 0;
+        self.force_refresh();
+        self.rebuild_rows();
+    }
+
+    // ---- modals -----------------------------------------------------------
+
+    /// Keys while a modal is open. Help: any key closes. Confirm: y/enter
+    /// runs the pending action, n/esc cancels, anything else is ignored.
+    fn on_modal_key(&mut self, ev: KeyEvent) {
+        use crossterm::event::KeyCode;
+        match self.modal.take() {
+            Some(Modal::Help) | None => {}
+            Some(Modal::Confirm { text, pending }) => match ev.code {
+                KeyCode::Char('y') | KeyCode::Enter => self.run_pending(pending),
+                KeyCode::Char('n') | KeyCode::Esc => {}
+                _ => self.modal = Some(Modal::Confirm { text, pending }), // keep open
+            },
+            Some(Modal::EditorClose { then }) => match ev.code {
+                KeyCode::Char('y') | KeyCode::Enter => self.close_editor(true, then),
+                KeyCode::Char('n') => self.close_editor(false, then),
+                KeyCode::Esc => {}
+                _ => self.modal = Some(Modal::EditorClose { then }), // keep open
+            },
+        }
+    }
+
+    // ---- graceful editor close --------------------------------------------
+
+    /// Quit the remote nvim (`:wqa` / `:qa!`); the resumed action runs when
+    /// its exit comes back as EditDone. One remote-send is fast enough to do
+    /// inline (the *probing* is what happens on a background thread).
+    pub fn close_editor(&mut self, save: bool, then: EditorThen) {
+        let editor = self.cfg.editor.first().cloned().unwrap_or_default();
+        if crate::nvim::request_close(&editor, self.nvim_server.as_deref(), save) {
+            self.after_edit = Some(then);
+        } else {
+            self.set_status("could not close the editor");
+        }
+    }
+
+    fn run_pending(&mut self, pending: PendingAction) {
+        match pending {
+            PendingAction::Discard { paths } => self.discard_paths(&paths),
+        }
+    }
+
+    // ---- stage / discard (worktree scope) ---------------------------------
+
+    // ---- refresh ----------------------------------------------------------
+
+    /// Replace the entry vector (from an auto-refresh or a forced reload),
+    /// keeping the cursor on the same path+section when possible.
+    pub fn apply_refresh(&mut self, entries: Vec<FileEntry>) {
+        if self.mode != Mode::Files {
+            return; // history views are snapshots; ignore live refreshes
+        }
+        let keep = self.cursor_identity();
+        self.entries = entries;
+        self.rebuild_rows();
+        self.restore_cursor(keep);
+    }
+
+    /// Editor/commit finished: unlock, reload the status (files changed on
+    /// disk); cursor preservation handles moved entries.
+    pub fn on_edit_done(&mut self) {
+        self.busy = None;
+        self.force_refresh();
+        self.needs_reshow = true;
+    }
+
+    pub fn force_refresh(&mut self) {
+        if self.mode != Mode::Files {
+            return;
+        }
+        match self.load_entries() {
+            Ok(entries) => {
+                let keep = self.cursor_identity();
+                self.entries = entries;
+                self.rebuild_rows();
+                self.restore_cursor(keep);
+                self.load_error = None; // git is answering again
+            }
+            Err(err) => {
+                let msg = first_line(&err.to_string());
+                self.set_status(msg.clone());
+                self.load_error = Some(msg);
+            }
+        }
+    }
+
+    /// The footer message if one is set and still fresh.
+    pub fn active_status(&self) -> Option<&str> {
+        match &self.status_msg {
+            Some((msg, at)) if at.elapsed() < STATUS_TTL => Some(msg.as_str()),
+            _ => None,
+        }
+    }
+
+    // ---- internals --------------------------------------------------------
+
+    /// What the cursor points at, in a refresh-stable form.
+    fn cursor_identity(&self) -> Option<CursorId> {
+        match self.rows.get(self.cursor)? {
+            ListRow::Entry { .. } => self
+                .selected_entry()
+                .map(|(e, section)| CursorId::Entry(e.path.clone(), section)),
+            ListRow::Dir { path, section, .. } => Some(CursorId::Dir(path.clone(), *section)),
+            _ => None,
+        }
+    }
+
+    fn restore_cursor(&mut self, keep: Option<CursorId>) {
+        match keep {
+            Some(CursorId::Entry(path, section)) => {
+                // Same path + same section first; then same path anywhere.
+                let find = |want: Option<Section>| {
+                    self.rows.iter().position(|row| match row {
+                        ListRow::Entry { idx, section: s, .. } => {
+                            self.entries
+                                .get(*idx)
+                                .map(|e| e.path == path)
+                                .unwrap_or(false)
+                                && want.map(|w| *s == w).unwrap_or(true)
+                        }
+                        _ => false,
+                    })
+                };
+                if let Some(i) = find(Some(section)).or_else(|| find(None)) {
+                    self.cursor = i;
+                    return;
+                }
+            }
+            Some(CursorId::Dir(path, section)) => {
+                if let Some(i) = self.rows.iter().position(|row| {
+                    matches!(row, ListRow::Dir { path: p, section: s, .. } if *p == path && *s == section)
+                }) {
+                    self.cursor = i;
+                    return;
+                }
+            }
+            None => {}
+        }
+        self.snap_cursor();
+    }
+
+    fn move_cursor(&mut self, delta: i32) {
+        if self.rows.is_empty() {
+            return;
+        }
+        let mut i = self.cursor as i32;
+        loop {
+            i += delta;
+            if i < 0 || i >= self.rows.len() as i32 {
+                return; // hit an edge — stay where we were
+            }
+            if self.rows[i as usize].selectable() {
+                self.cursor = i as usize;
+                return;
+            }
+        }
+    }
+
+    fn cursor_to_edge(&mut self, top: bool) {
+        let found = if top {
+            self.rows.iter().position(ListRow::selectable)
+        } else {
+            self.rows.iter().rposition(ListRow::selectable)
+        };
+        if let Some(i) = found {
+            self.cursor = i;
+        }
+    }
+
+    /// Clamp the cursor into range and off header rows.
+    pub(super) fn snap_cursor(&mut self) {
+        if self.rows.is_empty() {
+            self.cursor = 0;
+            return;
+        }
+        let start = self.cursor.min(self.rows.len() - 1);
+        // Nearest selectable at or after `start`, else before it.
+        let after = (start..self.rows.len()).find(|i| self.rows[*i].selectable());
+        let before = (0..start).rev().find(|i| self.rows[*i].selectable());
+        self.cursor = after.or(before).unwrap_or(0);
+    }
+
+    fn toggle_scope(&mut self) {
+        // In the log view `w` filters commits instead of switching scope.
+        if self.mode == Mode::Log {
+            self.toggle_log_filter();
+            return;
+        }
+        if self.mode != Mode::Files {
+            self.set_status("read-only in history view");
+            return;
+        }
+        match self.scope {
+            Scope::Worktree => {
+                if self.merge_base.is_none() {
+                    // Base detection is many git calls: off the UI thread.
+                    self.request_base(BaseThen::Scope);
+                    return;
+                }
+                self.scope = Scope::Branch;
+            }
+            Scope::Branch => self.scope = Scope::Worktree,
+        }
+        self.force_refresh();
+    }
+
+    fn load_entries(&self) -> Result<Vec<FileEntry>> {
+        match self.scope {
+            Scope::Worktree => self.repo.worktree_status(self.cfg.show_untracked),
+            Scope::Branch => {
+                let mb = self.merge_base.as_deref().unwrap_or("HEAD");
+                self.repo.branch_changes(mb, self.cfg.show_untracked)
+            }
+        }
+    }
+
+    pub fn set_status(&mut self, msg: impl Into<String>) {
+        self.status_msg = Some((msg.into(), Instant::now()));
+    }
+}
+
+/// What the cursor pointed at before a refresh, in a rebuild-stable form.
+enum CursorId {
+    Entry(std::path::PathBuf, Section),
+    Dir(String, Section),
+}
