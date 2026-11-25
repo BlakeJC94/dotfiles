@@ -3,18 +3,11 @@ set -u
 
 herdr=${HERDR_BIN_PATH:-herdr}
 export PATH="$(dirname "$herdr"):/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$HOME/.local/bin${PATH:+:$PATH}"
-workspace=${HERDR_RELOAD_WORKSPACE_ID:-}
-
 pause() {
   printf '\nPress Enter to close.'
   read -r _
 }
 
-if [ -z "$workspace" ]; then
-  printf 'Cannot determine the Herdr workspace for this action.\n'
-  pause
-  exit 1
-fi
 if ! command -v jq >/dev/null 2>&1; then
   printf 'Missing required command: jq\n'
   pause
@@ -27,22 +20,22 @@ if ! agents=$("$herdr" agent list); then
   exit 1
 fi
 
-eligible=$(printf '%s' "$agents" | jq -r --arg workspace "$workspace" '
+eligible=$(printf '%s' "$agents" | jq -r '
   .result.agents[]?
-  | select(.agent == "pi" and .workspace_id == $workspace and (.agent_status == "idle" or .agent_status == "done"))
-  | select((.pane_id | type) == "string")
-  | [.pane_id, (.name // .terminal_title // .pane_id | tostring | gsub("[\\t\\r\\n]"; " ")), .agent_status]
+  | select(.agent == "pi" and (.agent_status == "idle" or .agent_status == "done"))
+  | select((.workspace_id | type) == "string" and (.pane_id | type) == "string")
+  | [.workspace_id, .pane_id, (.name // .terminal_title // .pane_id | tostring | gsub("[\\t\\r\\n]"; " ")), .agent_status]
   | @tsv
 ') || {
   printf 'Herdr returned an invalid agent list.\n'
   pause
   exit 1
 }
-skipped=$(printf '%s' "$agents" | jq -r --arg workspace "$workspace" '
+skipped=$(printf '%s' "$agents" | jq -r '
   .result.agents[]?
-  | select(.agent == "pi" and .workspace_id == $workspace and (.agent_status != "idle" and .agent_status != "done"))
-  | select((.pane_id | type) == "string")
-  | [.pane_id, (.name // .terminal_title // .pane_id | tostring | gsub("[\\t\\r\\n]"; " ")), (.agent_status // "unknown")]
+  | select(.agent == "pi" and (.agent_status != "idle" and .agent_status != "done"))
+  | select((.workspace_id | type) == "string" and (.pane_id | type) == "string")
+  | [.workspace_id, .pane_id, (.name // .terminal_title // .pane_id | tostring | gsub("[\\t\\r\\n]"; " ")), (.agent_status // "unknown")]
   | @tsv
 ') || {
   printf 'Herdr returned an invalid agent list.\n'
@@ -50,25 +43,24 @@ skipped=$(printf '%s' "$agents" | jq -r --arg workspace "$workspace" '
   exit 1
 }
 
-eligible_count=$(printf '%s' "$agents" | jq --arg workspace "$workspace" '[.result.agents[]? | select(.agent == "pi" and .workspace_id == $workspace and (.agent_status == "idle" or .agent_status == "done") and (.pane_id | type) == "string")] | length') || {
+eligible_count=$(printf '%s' "$agents" | jq '[.result.agents[]? | select(.agent == "pi" and (.agent_status == "idle" or .agent_status == "done") and (.workspace_id | type) == "string" and (.pane_id | type) == "string")] | length') || {
   printf 'Could not count reloadable Pi sessions.\n'
   pause
   exit 1
 }
 
-printf 'Herdr workspace %s\n\n' "$workspace"
-printf 'Pi sessions to reload (idle/done):\n'
+printf 'Idle/done Pi sessions across all local Herdr workspaces:\n'
 if [ -n "$eligible" ]; then
-  while IFS=$'\t' read -r pane label status; do
-    [ -n "$pane" ] && printf '  - %s (%s, %s)\n' "$label" "$status" "$pane"
+  while IFS=$'\t' read -r workspace pane label status; do
+    [ -n "$pane" ] && printf '  - %s / %s (%s, %s)\n' "$workspace" "$label" "$status" "$pane"
   done <<< "$eligible"
 else
   printf '  (none)\n'
 fi
 if [ -n "$skipped" ]; then
   printf '\nSkipped (not idle/done):\n'
-  while IFS=$'\t' read -r pane label status; do
-    [ -n "$pane" ] && printf '  - %s (%s, %s)\n' "$label" "$status" "$pane"
+  while IFS=$'\t' read -r workspace pane label status; do
+    [ -n "$pane" ] && printf '  - %s / %s (%s, %s)\n' "$workspace" "$label" "$status" "$pane"
   done <<< "$skipped"
 fi
 
@@ -89,7 +81,7 @@ esac
 sent=0
 changed=0
 failed=0
-while IFS=$'\t' read -r pane label _status; do
+while IFS=$'\t' read -r workspace pane label _status; do
   [ -n "$pane" ] || continue
   if ! latest=$("$herdr" agent list); then
     printf 'Could not refresh session state for %s; not sending.\n' "$pane"
@@ -99,7 +91,7 @@ while IFS=$'\t' read -r pane label _status; do
   if ! printf '%s' "$latest" | jq -e --arg workspace "$workspace" --arg pane "$pane" '
     [.result.agents[]? | select(.agent == "pi" and .workspace_id == $workspace and .pane_id == $pane and (.agent_status == "idle" or .agent_status == "done"))] | length > 0
   ' >/dev/null; then
-    printf 'Skipped %s; it is no longer an idle/done Pi session in this workspace.\n' "$pane"
+    printf 'Skipped %s; it is no longer an idle/done Pi session in workspace %s.\n' "$pane" "$workspace"
     changed=$((changed + 1))
     continue
   fi

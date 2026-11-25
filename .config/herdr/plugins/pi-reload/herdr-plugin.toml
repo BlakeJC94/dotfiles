@@ -2,14 +2,14 @@ id = "blake.pi-reload"
 name = "pi-reload"
 version = "0.1.0"
 min_herdr_version = "0.9.5"
-description = "Confirm and reload idle Pi sessions in the current Herdr workspace"
+description = "Confirm and reload idle Pi sessions across all local Herdr workspaces"
 platforms = ["macos", "linux"]
 
 [[actions]]
 id = "reload"
 title = "Reload Pi sessions"
 contexts = ["pane", "workspace"]
-command = ["bash", "-c", "exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin blake.pi-reload --entrypoint confirm --env \"HERDR_RELOAD_WORKSPACE_ID=${HERDR_WORKSPACE_ID:?missing Herdr workspace context}\""]
+command = ["bash", "-c", "exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin blake.pi-reload --entrypoint confirm"]
 
 [[panes]]
 id = "confirm"
