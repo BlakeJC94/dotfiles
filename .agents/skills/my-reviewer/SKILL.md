@@ -12,9 +12,11 @@ The base norms for every review I run; `my-reviewer-pr` builds on them for GitHu
 Prefix every GitHub communication this reviewer creates with `[AGENT:Reviewer] `:
 comments and replies, PR titles and descriptions, and commit subjects. This
 also applies to pending draft comments in `my-reviewer-pr`. End every GitHub
-comment or reply and PR description this reviewer writes with a blank line and
+comment or reply this reviewer writes with a blank line and
 `<sub>Agent-assisted</sub>` on its own final line; keep the existing prefixes.
-Local review findings and reports need neither marker.
+For PR descriptions, append the exact block from
+`../pr-description-style/SKILL.md` once at the end; do not add a separate
+footer. Local review findings and reports need neither marker.
 
 Output the findings directly in the response; this skill writes no artifact. `my-reviewer-pr` runs the same review but captures the findings in a markdown report (adding what the change is and how to test it) and starts a pending GitHub review with the findings as draft comments.
 

@@ -239,14 +239,19 @@ Patterns from the author's own merged PRs:
     the body: use h2 for top-level sections and h3 only for `### Before / After`
     under `## Summary` when applicable, or the specified subsections beneath
     `## Test Plan`; the PR title is the only h1.
+* Append the exact collapsed agent-assistance block from
+  `../pr-description-style/SKILL.md` once at the end of every PR description.
+  Do not add another AI-use footer.
+
+Keep the `## Summary [AGENT:Coder]` heading visible.
 
 Follow the pr-create skill for mechanics (taz submit, base branch, template)
 where it exists. `taz submit` generates required `# Summary` and `# Test Plan`
 wrappers. After it creates or updates a PR, fetch the current body and replace
 those wrappers with `## Summary [AGENT:Coder]` and `## Test Plan`; do not add a
 duplicate heading inside `--summary` or discard other body edits. Verify the
-published body's first line is exactly `## Summary [AGENT:Coder]` and its last
-line is `<sub>Agent-assisted: all feedback welcome via Slack (@bcook)</sub>`.
+published body's first line is exactly `## Summary [AGENT:Coder]` and it ends
+with the single agent-assistance block from `../pr-description-style/SKILL.md`.
 Reapply after any later `taz submit` update.
 
 Spec privacy:
@@ -266,11 +271,13 @@ Agent labelling:
 * Prefix commit subjects, standalone PR comments, review comments, and thread
     replies with `[AGENT:Coder]`. PR titles are exempt. For PR descriptions,
     the exact first heading `## Summary [AGENT:Coder]` carries the label instead
-    of a leading prefix. End every PR description and every GitHub comment this
-    skill writes, including standalone comments and replies, with a blank line,
-    then `<sub>Agent-assisted: all feedback welcome via Slack (@bcook)</sub>` on
-    its own final line. GitHub is outward-facing to colleagues; they must be
-    able to tell agent text from the author's.
+    of a leading prefix. End every PR description with the single collapsed
+    agent-assistance block from `../pr-description-style/SKILL.md`. End every
+    GitHub comment this skill writes, including standalone comments and replies,
+    with a blank line, then
+    `<sub>Agent-assisted: all feedback welcome via Slack (@bcook)</sub>` on its
+    own final line. GitHub is outward-facing to colleagues; they must be able
+    to tell agent text from the author's.
 * Use git-commit shape for GitHub comments: the first sentence is the subject.
     If more is needed, add a blank line, then short dotpoints for why and what
     to do. A one-sentence reply needs no body.

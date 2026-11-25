@@ -15,6 +15,21 @@ Use this workflow for Python project setup, dependency management, execution, fo
 2. **Initialize projects** - Every Python project uses `pyproject.toml`; create new projects with `uv init`. Default new projects to `requires-python = ">=3.12"` unless specified otherwise. Keep uv's default hatchling build system unless asked to change it.
 3. **Manage dependencies** - Use `uv add <package>` for runtime dependencies and `uv add --dev <package>` for development dependencies. Use corresponding `uv remove` commands to remove them. Never hand-edit dependency declarations or `uv.lock`.
 4. **Install and run** - Use `uv sync` (or `uv sync --dev`) to install dependencies. Run project commands as `uv run <command>`; do not manually activate a virtual environment.
+
+For an executable standalone script, use uv's PEP 723 metadata and shebang to declare its Python version and dependencies:
+
+~~~python
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "ffmpeg-normalize",
+# ]
+# ///
+~~~
+
+Then run it directly or use `uv run --script path/to/script.py`.
+
 5. **Configure project tools** - Keep Ruff and ty configuration in `pyproject.toml`, not `ruff.toml` or `.ruff.toml`. Installable CLI/GUI projects declare entry points under `[project.scripts]` and/or `[project.gui-scripts]`.
 6. **Verify Python changes** - Run the required checks through uv:
    - `uv run ruff format --check`

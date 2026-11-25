@@ -35,7 +35,28 @@ not review comments. Follow the repo's PR creation workflow for required section
 
 ## Footer and review-only conventions
 
-End each agent-written PR description with a blank line and
-`<sub>Agent-assisted</sub>` on its own final line. Conventional Comments labels,
+Append this exact block once at the end of every agent-written PR description:
+
+<details>
+<summary>Agent-assisted: See attached manifesto, all feedback welcome via Slack (@bcook)</summary>
+
+```
+- PRs only move out of "draft" mode after manual review (full diff and description) --- no exceptions
+- All agent-assisted GitHub communication will be marked
+    - Reviewed verbatim agent output prefixed with `[AGENT]` (for example, `[AGENT:Coder]`)
+    - All agent-assisted text marked with `Agent-assisted`
+- Agent coding guidelines:
+    - Follow existing conventions and reuse abstractions
+    - Prefer the simplest clear solution and smallest reviewable diff
+    - clarity **always** beats brevity
+- Agent messaging guidelines:
+    - Use short, direct sentences; every word must earn its place
+    - Prefer spaced bullets to dense paragraphs
+- Check behavior, claims, and links. Cite sources and state what's unchecked.
+```
+
+</details>
+
+Do not add another PR-description footer. Conventional Comments labels,
 question-first feedback, and review states belong to review comments; do not put
 them in a PR description. Keep the PR's required headings and test-plan format.
