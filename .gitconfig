@@ -104,6 +104,10 @@
     # usage: git fieldnote
     fieldnote = "!nvim --headless -c 'Note' -c 'silent write' -c 'echo expand(\"%:p\")' -c 'q' 2>&1"
 
+    # Open this worktree's field-notes note for editing, creating it if missing.
+    # usage: git fieldnote-edit
+    fieldnote-edit = "!nvim -c 'Note'"
+
     # ⚠ Discard all uncommitted changes, or restore just the given paths from HEAD.
     # usage: git forget [path]...
     forget = "!f() { [ \"$#\" -eq 0 ] && git reset --hard HEAD || git restore --source=HEAD --staged --worktree -- \"$@\"; }; f"
@@ -392,7 +396,7 @@
     cmd = nvim -d \"$LOCAL\" \"$MERGED\" \"$REMOTE\"
     trustExitCode = true
 [credential]
-	helper = 
-	helper = /usr/local/share/gcm-core/git-credential-manager
+    helper =
+    helper = /usr/local/share/gcm-core/git-credential-manager
 [credential "https://dev.azure.com"]
-	useHttpPath = true
+    useHttpPath = true
