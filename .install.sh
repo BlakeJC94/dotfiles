@@ -14,6 +14,8 @@ DOTFILES_REMOTE="git@gitlab.com:blakejc/dotfiles.git"
 DOTFILES_BARE="$HOME/.dotfiles"
 
 BREW_PACKAGES=$(cat <<'EOF'
+poppler
+rust-analyzer
 tz
 jid
 git-credential-oauth
