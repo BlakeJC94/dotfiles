@@ -1,28 +1,29 @@
 {
-  "defaultProvider": "nextbit",
-  "defaultModel": "deepseek:v4.1-flash",
-  "lastChangelogVersion": "1.5.2",
-  "theme": "system",
-  "defaultThinkingLevel": "medium",
-  "hideThinkingBlock": false,
-  "defaultTools": [
-    "+codemode"
-  ],
-  "shellCommandPrefix": "shopt -s expand_aliases\nsource ~/.vars\nsource ~/.aliases",
-  "packages": [
-    "npm:pi-lsp-extension",
-    "npm:pi-hermes-memory",
-    "npm:pi-declutter",
-    "npm:agents-cron",
-    "npm:@mjakl/pi-kagi-api"
-  ],
-  "compaction": {
-    "enabled": true
-  },
-  "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-lsp-extension\",\"scope\":\"user\"}": "1.4.0",
-    "{\"source\":\"npm:pi-declutter\",\"scope\":\"user\"}": "0.2.2",
-    "{\"source\":\"npm:agents-cron\",\"scope\":\"user\"}": "0.18.2",
-    "{\"source\":\"npm:@mjakl/pi-kagi-api\",\"scope\":\"user\"}": "0.1.0"
-  }
+    "defaultProvider": "nextbit",
+    "defaultModel": "deepseek:v4.1-flash",
+    "lastChangelogVersion": "1.5.2",
+    "theme": "gruvbox-light/gruvbox-dark",
+    "defaultThinkingLevel": "medium",
+    "hideThinkingBlock": false,
+    "defaultTools": [
+        "+codemode"
+    ],
+    "shellCommandPrefix": "shopt -s expand_aliases\nsource ~/.vars\nsource ~/.aliases",
+    "packages": [
+        "npm:pi-lsp-extension",
+        "npm:pi-hermes-memory",
+        "npm:pi-declutter",
+        "npm:agents-cron",
+        "npm:@mjakl/pi-kagi-api",
+        "git:github.com/leblancfg/pi-ansi-themes"
+    ],
+    "compaction": {
+        "enabled": true
+    },
+    "extensionChangelogVersions": {
+        "{\"source\":\"npm:pi-lsp-extension\",\"scope\":\"user\"}": "1.4.0",
+        "{\"source\":\"npm:pi-declutter\",\"scope\":\"user\"}": "0.2.2",
+        "{\"source\":\"npm:agents-cron\",\"scope\":\"user\"}": "0.18.2",
+        "{\"source\":\"npm:@mjakl/pi-kagi-api\",\"scope\":\"user\"}": "0.1.0"
+    }
 }
